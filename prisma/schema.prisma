@@ -1,11 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -13,165 +7,96 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-//the above is predefined
-//======================================
-//here is the file that we will model our DB, TABLES AND RELATIONS BETWEEN
-/*
-#relations :
-1- one to one;- 
-  like from user to profile 1 to 1 
-    -The user is the parent so it has a profile? Profile field > It's like a point to the child schema | one of the child schema
-    -we can say include on the query to include related child schema to the parent schema
-    ---------------
-    -in the child schema Profile model we set the relation and add an extra field to refer to the ID of the user
-    -fields: [parent id field on the child Model] + references: [parent id field on the original field Model]
-    -userId: string/init | user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    ---------------------------------------------------------------
-2- one to many:-
-  like from user to his posts | 1 to m
-    -user is the parent so it has posts Post[] field >  it's like a point to array of child schema | many of the child schema
-    -we can say include on the query to include related child schema to the parent schema
-    ---------------
-    -in the child schema Post model we set the relation and add an extra field to refer to the ID of the user
-    -fields: [parent id field on the child Model] + references: [parent id field on the original field Model]
-    -authorId String  | author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  "HERE THE RELATION CAN BE WITH 2 DIFFERENT NAMES BUT AS LONG AS WE HAVE ONLY ONE BETWEEN BOTH NO ISSUE"
-3- 2nd type of one-to-many:-
-  "we cloud have 2 statuses of the same relation | in this case we need to name them different names"
-  like from user to follows |  the user state in this relation can be sender/receiver | 1 to many
-    - user has the child in 2 fields > 2 different props from the user(parent) | but both related to same child schema  | so we name them like the below
-      followers  Follows[] @relation("following") | who follows me = my id will be under following in Follows model 
-      following  Follows[] @relation("follower") | | following = who i follow = my id will be under follower in Follows model 
-      both still pointing to the child schema | many of the child schema | with 2 different status
-    -we can say include on the query to include related child schema to the parent schema
-    -----------------------------------------------
-    -in the child schema Follows model we (set the relation) and (add an extra field to refer to the ID of the user) and in this case we (mention the name identifier)
-    -fields: [parent id field on the child Model] + references: [parent id field on the original field Model]
-      followerId String
-      followingId String
-      follower User @relation("follower" , fields: [followerId] , references: [id] , onDelete: Cascade)
-      following User @relation("following" , fields: [followingId] , references: [id] , onDelete: Cascade)
-4- many to many:-
-  like from post to tags or tags to posts > posts[] to tags[]  && tags[] to posts[] |  | m -m  | both parents
-    -The posts is one parent so it has: tags Tags[] field > It's like a point to the other parent schema | many of the other parent schema
-    -The tags is other parent so it has: posts Posts[] field > It's like a point to the other parent schema | many of the other parent schema
-    -we can say include on the query to include related other schema to the requested schema
-    --------------- and it will be handled automatically by Prisma or we use the 2nd approach when we handle it manually
-    -The posts is one parent so it has: tags postTag[] field > It's like a point to the other parent schema | many of the other parent schema
-    -tags is other parent so it has: posts postTag[] field > It's like a point to the other parent schema | many of the other parent schema
-    -and then we create another table/model containing both "cross both" and it's a child of both
-    -it has postId & tagId | post relation and tag relation
-      post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-      tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade) |  then we add @@id it's compound ID
-*/
 
 model User {
-  id String @id @default(cuid()) //uuid() or cuid() both kinds of objId "unique identifier"| @id =will be auto generated + unique
-  email String @unique
-  username String @unique
-  clerkId String @unique //because users will be authenticated by clerk, so this is to know which user in clerk matches with our database 
-  name String?//some optional fields
-  bio String?
-  image  String?
-  location String?
-  website  String?
-  createdAt DateTime @default(now()) // USER IS MEMBER SINCE 2023 FOR EX
-  updatedAt DateTime @updatedAt //automatically stores the time of last updates
-  //relations
-  //for ex : posts Post[] , will show an error if no (model Post ) yet
-  //if the user creates a post the user will be an author for this post
-  posts Post[] // ONE TO MANY | USER TO POSTS[] || user can have many posts |"Post[]" === array of post model 
-  comments Comment[] //ONE TO MANY // user created comment > no comments RECEIVED by user directly but it should be sent to his posts
-  likes Like[] //ONE TO MANY // user created like > no likes RECEIVED by user directly but his posts
-  // all the above relation is one to many so no need to identify which field in the other model is the related to ,and we used the model one time
-  //also the relation comes from the other schema || and it's to create only not to receive
-  //------------------------------------------
-  //different kind of relations | send and receive | relation allways comes from the children to parent
-  //in the below we are using the model twice ,so we must specify the field of the relation in the other model
-  //users who follow current user | related to field "following" in Follows model we must mention that because we have used the same model in 2 relations
-  followers  Follows[] @relation("following")
-  //users are followed by the current user | related to field "follower" in Follows model we must mention that because we have used the same model in 2 relations
-  following  Follows[] @relation("follower")
-  //notification RECEIVED DUE TO OTHER USERS' ACTIONS
-  notifications Notifications[] @relation("userNotifications") 
-  //notification comes from the current user's action
+  id                   String          @id @default(cuid())
+  email                String          @unique
+  username             String          @unique
+  clerkId              String          @unique
+  name                 String?
+  bio                  String?
+  image                String?
+  location             String?
+  website              String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  posts                Post[]
+  comments             Comment[]
+  likes                Like[]
+  followers            Follows[]       @relation("following")
+  following            Follows[]       @relation("follower")
+  notifications        Notifications[] @relation("userNotifications")
   notificationsCreated Notifications[] @relation("NotificationCreator")
 }
 
 model Post {
-  id String @id @default(cuid())
-  authorId String  
-  content String? 
-  image String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt 
-  //relations.
-  //here is the child ,so we must mention : which from this model's fields refer to which of the parent's fields and what if the parent deleted
-  author User @relation(fields: [authorId] , references: [id] , onDelete: Cascade) // onDelete: Cascade >DELETE ALL POSTS IF THE USER DELETED
-  comments Comment[] // post will receive comments | comments are child of the post | and also child of User
-  likes Like[] // post will receive likes | likes are child of the post
-  notifications Notifications[] // post will trigger a Notification, so Notification here is child of the post
+  id            String          @id @default(cuid())
+  authorId      String
+  content       String?
+  image         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  author        User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments      Comment[]
+  likes         Like[]
+  notifications Notifications[]
 }
 
 model Comment {
-  id String @id @default(cuid())
-  content String
-  authorId String 
-  postId String
-  createdAt DateTime @default(now())
-  //relations. | sender and receiver parents
-  author User @relation(fields: [authorId] , references: [id] , onDelete: Cascade)
-  post Post @relation(fields: [postId] , references: [id] , onDelete: Cascade)
-  notifications Notifications[] // added : Notifications triggered by adding comment
-  //the below will speed up the query and make it possible to filter based on both values mainly > the 2 parents ,one to send and one to receive
-  @@index([authorId , postId]) //composite index for faster queries 
+  id            String          @id @default(cuid())
+  content       String
+  authorId      String
+  postId        String
+  createdAt     DateTime        @default(now())
+  author        User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post          Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  notifications Notifications[]
+
+  @@index([authorId, postId])
 }
 
 model Like {
-  id String @id @default(cuid())
-  postId String
-  userId String 
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
   createdAt DateTime @default(now())
-  //relations.| sender and receiver parents
-  user User @relation(fields: [userId] , references: [id] , onDelete: Cascade)
-  post Post @relation(fields: [postId] , references: [id] , onDelete: Cascade)
-  @@index([userId , postId])  //composite index for faster queries 
-  @@unique([userId , postId]) // @@unique > only once|same sender can send to the same receiver  | user can like the same post only once
-  // @@unique this prevents the user to like the same post twice
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([userId, postId])
+  @@unique([userId, postId])
 }
 
 model Follows {
-  // id String @id @default(cuid())
-  followerId String
+  followerId  String
   followingId String
-  createdAt DateTime @default(now())
-  //relations
-  follower User @relation("follower" ,fields: [followerId] , references: [id] , onDelete: Cascade)
-  following User @relation("following" ,fields: [followingId] , references: [id] , onDelete: Cascade)
-  @@index([followerId , followingId])  //composite index for faster queries 
-  @@id([followerId , followingId])  // composite the primary keys from both IDs to be this object ID,
-  //we cannot use both @id @default(cuid())& @@id at the same time > and this prevents the user to follow the same user towice like  @@unique
+  createdAt   DateTime @default(now())
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followerId, followingId])
 }
 
-model Notifications  {
-  id String @id @default(cuid())
-  userId String
-  creatorId String
-  type NotificationType
-  read Boolean @default(false)
-  postId String?
+model Notifications {
+  id         String           @id @default(cuid())
+  userId     String
+  creatorId  String
+  type       NotificationType
+  read       Boolean          @default(false)
+  postId     String?
   commenttId String?
-  createdAt DateTime @default(now())
-  //relations
-  user  User @relation("userNotifications" ,fields: [userId] , references: [id] , onDelete: Cascade)
-  creator  User @relation("NotificationCreator" ,fields: [creatorId] , references: [id] , onDelete: Cascade)
-  post Post? @relation(fields: [postId] , references: [id] , onDelete: Cascade)
-  comment Comment? @relation(fields: [commenttId] , references: [id] , onDelete: Cascade)
-  @@index([userId , postId]) 
+  createdAt  DateTime         @default(now())
+  user       User             @relation("userNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  creator    User             @relation("NotificationCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  post       Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment    Comment?         @relation(fields: [commenttId], references: [id], onDelete: Cascade)
+
+  @@index([userId, postId])
 }
+
 enum NotificationType {
   LIKE
   COMMENT
   FOLLOW
 }
-
