@@ -14,7 +14,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
   ];
 
   return (
-    <aside className="hidden lg:flex w-[280px] flex-col border-r border-border bg-card/40 backdrop-blur-xl fixed inset-y-0 left-0 z-30 overflow-y-auto p-6">
+    <aside className="hidden lg:flex w-[280px] shrink-0 flex-col border-r border-border bg-card/40 backdrop-blur-xl sticky top-0 h-screen overflow-y-auto z-20 p-6">
       <VibeLogo />
       
       <div className="mt-12 flex flex-col gap-2">

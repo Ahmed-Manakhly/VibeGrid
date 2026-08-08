@@ -39,9 +39,9 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <div className="flex min-h-screen bg-background text-foreground">
               <Sidebar />
-              <div className="flex-1 lg:pl-[280px]">
+              <div className="min-w-0 flex-1">
                 <Navbar />
-                <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px]">
+                <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto">
                   {children}
                 </main>
               </div>
