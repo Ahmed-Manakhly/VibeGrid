@@ -18,12 +18,15 @@ export default function Icon() {
           gap: '2px',
           padding: '2px',
           background: 'transparent',
+          transform: 'rotate(-12deg)',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <div style={{ width: '13px', height: '13px', background: '#00BFFF', borderTopLeftRadius: '100%' }} />
-        <div style={{ width: '13px', height: '13px', background: '#00BFFF', borderTopRightRadius: '3px' }} />
-        <div style={{ width: '13px', height: '13px', background: '#00BFFF', borderBottomLeftRadius: '3px' }} />
-        <div style={{ width: '13px', height: '13px', background: '#D946EF', borderBottomRightRadius: '100%' }} />
+        <div style={{ width: '13px', height: '13px', background: '#00BFFF', borderRadius: '2px' }} />
+        <div style={{ width: '13px', height: '13px', background: '#D946EF', borderRadius: '2px' }} />
+        <div style={{ width: '13px', height: '13px', background: '#D946EF', borderRadius: '2px' }} />
+        <div style={{ width: '13px', height: '13px', background: '#00BFFF', borderRadius: '2px' }} />
       </div>
     ),
     {

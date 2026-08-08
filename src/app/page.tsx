@@ -18,7 +18,7 @@ export default async function Home() {
   return (
       <div className="flex flex-col gap-10 xl:flex-row xl:items-start">
         {/* Main Feed */}
-        <div className="flex-1 w-full mx-auto xl:mx-0">
+        <div className="flex-1 min-w-0 mx-auto xl:mx-0">
           <div className="mb-10">
             <div className="max-w-xl">
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-primary uppercase">
