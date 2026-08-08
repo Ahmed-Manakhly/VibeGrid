@@ -30,7 +30,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
       <html lang="en" suppressHydrationWarning >
         <head />
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning={true}>
-          <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange >
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange >
               <div className='min-h-screen'>
                 <Navbar/>
                 <main className="py-8">
