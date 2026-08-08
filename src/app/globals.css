@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -75,4 +71,80 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer components {
+  body { 
+    @apply bg-background text-foreground antialiased; 
+    background-image: radial-gradient(circle at 78% 8%, color-mix(in srgb, hsl(var(--primary)) 14%, transparent), transparent 28rem), 
+                      radial-gradient(circle at 14% 88%, color-mix(in srgb, hsl(var(--accent)) 12%, transparent), transparent 30rem); 
+    transition: background-color .35s ease, color .35s ease; 
+  }
+  .dark body { 
+    background-image: radial-gradient(circle at 78% 8%, color-mix(in srgb, hsl(var(--primary)) 16%, transparent), transparent 28rem), 
+                      radial-gradient(circle at 14% 88%, color-mix(in srgb, hsl(var(--accent)) 14%, transparent), transparent 30rem); 
+  }
+
+  .grid-mark { display: grid; grid-template-columns: repeat(2, 7px); grid-template-rows: repeat(2, 7px); gap: 3px; transform: rotate(-12deg); }
+  .grid-mark span { display: block; border-radius: 2px; background: hsl(var(--primary)); box-shadow: 0 0 10px hsla(var(--primary), 0.7); }
+  .grid-mark span:nth-child(2), .grid-mark span:nth-child(3) { background: hsl(var(--accent)); box-shadow: 0 0 10px hsla(var(--accent), 0.7); }
+  
+  .nav-item { @apply flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground; }
+  .nav-item svg { @apply size-4; }
+  .nav-item-active { @apply bg-primary/10 text-primary; box-shadow: inset 2px 0 0 hsl(var(--primary)); }
+  
+  .icon-button { @apply flex size-10 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground; }
+  .icon-button svg { @apply size-4; }
+  
+  .button-glow { @apply bg-primary text-primary-foreground transition hover:brightness-110; box-shadow: 0 0 22px hsla(var(--primary), 0.4); }
+  .button-outline { @apply rounded-xl border border-border px-4 py-2 text-sm font-medium transition hover:border-primary/60 hover:text-primary; }
+  
+  .surface-panel, .feed-card { 
+    @apply rounded-2xl border border-border/70 bg-card/70 backdrop-blur-xl; 
+    background-image: linear-gradient(135deg, color-mix(in srgb, hsl(var(--primary)) 5%, transparent), transparent 48%, color-mix(in srgb, hsl(var(--accent)) 4%, transparent)); 
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; 
+  }
+  .feed-card { box-shadow: 0 16px 60px rgba(0, 0, 0, 0.12); }
+  .feed-card:hover, .surface-panel:hover { @apply border-primary/30; transform: translateY(-2px); box-shadow: 0 20px 70px rgba(0, 0, 0, 0.16); }
+  
+  .feed-grid { @apply grid gap-6 md:grid-cols-2; }
+  .feed-grid > article:first-child { @apply md:col-span-2; }
+  
+  .view-switcher { @apply flex items-center rounded-xl border border-border/70 bg-card/60 p-1 backdrop-blur-xl; }
+  .view-switcher button { @apply inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition; }
+  .view-switcher button svg { @apply size-4; }
+  .view-switcher button:hover { @apply text-foreground; }
+  .view-switcher .view-switch-active { @apply bg-primary text-primary-foreground shadow-sm; }
+  
+  .theme-toggle { @apply border border-border/60 bg-card/50; }
+  .avatar { @apply flex size-9 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold; }
+  .avatar-teal { @apply bg-primary/15 text-primary ring-1 ring-primary/30; } 
+  .avatar-magenta { @apply bg-accent/15 text-accent ring-1 ring-accent/30; }
+  
+  .eyebrow { @apply font-mono text-[10px] font-bold uppercase tracking-[.22em] text-primary; }
+  
+  .topic-pill { @apply whitespace-nowrap rounded-full border border-border/70 px-4 py-2 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-foreground; }
+  .topic-pill-active { @apply border-primary/50 bg-primary/10 text-primary; }
+  
+  .action-button { @apply inline-flex items-center gap-2 text-xs text-muted-foreground transition hover:text-primary; } 
+  .action-button svg { @apply size-4; }
+  
+  .auth-page { @apply relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-5 py-20; }
+  .auth-card { 
+    @apply relative z-[1] w-full max-w-md rounded-3xl border border-border bg-card/75 p-7 shadow-2xl backdrop-blur-2xl sm:p-10; 
+    box-shadow: 0 20px 100px rgba(0, 0, 0, 0.3), 0 0 70px hsla(var(--primary), 0.15); 
+  }
+  .auth-label { @apply flex flex-col gap-2 text-xs font-medium text-muted-foreground; }
+  .auth-input-wrap { @apply flex h-12 items-center gap-3 rounded-xl border border-border bg-background/50 px-3 transition focus-within:border-primary/70 focus-within:ring-2 focus-within:ring-primary/10; } 
+  .auth-input-wrap > svg { @apply size-4 text-muted-foreground; } 
+  .auth-input-wrap input { @apply min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60; } 
+  .auth-input-wrap button { @apply text-muted-foreground hover:text-foreground; } 
+  .auth-input-wrap button svg { @apply size-4; }
+  .back-link { @apply flex items-center gap-2 text-xs text-muted-foreground transition hover:text-primary; } 
+  .back-link svg { @apply size-4; }
+  
+  .auth-orbit { @apply pointer-events-none absolute rounded-full border border-primary/10; } 
+  .auth-orbit-one { width: 38rem; height: 38rem; left: -15rem; top: 18%; box-shadow: 0 0 120px hsla(var(--primary), 0.1); } 
+  .auth-orbit-two { width: 28rem; height: 28rem; right: -10rem; top: 5%; border-color: hsla(var(--accent), 0.2); box-shadow: 0 0 100px hsla(var(--accent), 0.1); }
+  @media (max-width: 640px) { .auth-card { @apply p-6; } }
 }
