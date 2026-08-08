@@ -166,8 +166,8 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                             </SignInButton>
                         )}
                         <Button variant="ghost" size="sm" onClick={() => setShowComments((prev) => !prev)}
-                        className="text-muted-foreground gap-2 hover:bg-transparent hover:text-blue-500">
-                            <MessageCircleIcon className={`size-5 ${showComments ? "fill-blue-500 text-blue-500" : ""}`} />
+                        className="text-muted-foreground gap-2 hover:bg-transparent hover:text-accent">
+                            <MessageCircleIcon className={`size-5 ${showComments ? "fill-accent text-accent" : ""}`} />
                             <span>{post.comments.length}</span>
                         </Button>
                     </div>
