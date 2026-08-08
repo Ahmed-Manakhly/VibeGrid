@@ -1,7 +1,7 @@
 import { getPosts } from "@/actions/post.action";
 import { getDbUserId } from "@/actions/user.action";
 import CreatPost from "@/components/CreatPost";
-import PostCard from "@/components/PostCard";
+import FeedSwitcher from "@/components/FeedSwitcher";
 import WhoToFollow from "@/components/WhoToFollow";
 import { currentUser } from "@clerk/nextjs/server";
 
@@ -19,13 +19,8 @@ export default async function Home() {
       <div className="lg:col-span-6">
         {user ? <CreatPost/> : null}
         {/* get posts 1st */}
-        <div className="space-y-6"> 
-          {/*map on posts array and return PostCard component*/}
-          {posts.map(post => (
-            // will provide the post to the component + user id + that maybe null if no login 
-            <PostCard key={post.id} post={post} dbUserId={dbUserId}/>
-          ))}
-        </div>
+        {/* Feed Switcher (Linear vs Masonry) */}
+        <FeedSwitcher posts={posts} dbUserId={dbUserId} />
       </div>
       <div className="hidden lg:block lg:col-span-4 sticky top-20">
         <WhoToFollow/>

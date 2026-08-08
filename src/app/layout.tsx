@@ -20,8 +20,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "SocialSphere",
-  description: "Connect, share, and discover with SocialSphere. Your personalized hub for engaging content and vibrant communities. Join the social revolution today!",
+  title: "VibeGrid",
+  description: "Real-time Tech Newsfeed / Developer Pulse. Drop a Vibe and Tune In.",
 };
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode;}>) {
@@ -30,7 +30,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
       <html lang="en" suppressHydrationWarning >
         <head />
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning={true}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange >
+          <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange >
               <div className='min-h-screen'>
                 <Navbar/>
                 <main className="py-8">

@@ -17,12 +17,12 @@ import {
 } from "@/shared/infrastructure/di-container";
 
 //1//to create the post
-export async function creatPost( content :string, imageUrl : string){
+export async function creatPost(content: string, imageUrl: string, tags?: string[], mood?: string) {
     try {
         const userId = await getDbUserId() ;
         if(!userId) return ; 
         
-        const result = await createVibeUseCase.execute(content, imageUrl, userId);
+        const result = await createVibeUseCase.execute(content, imageUrl, userId, tags, mood);
         
         if (!result.success) {
             return {success: false, error: 'failed to create a post!'}

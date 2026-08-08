@@ -77,10 +77,10 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
             setIsDeleting(true);
             const result = await deletePost(post.id);
             if(result?.success) {
-                toast.success('post deleted successfully');
+                toast.success('vibe deleted successfully');
             }
         } catch (error) {
-            toast.error('failed to delete post!');
+            toast.error('failed to delete vibe!');
         } finally {
             setIsDeleting(false);
         }
@@ -119,6 +119,23 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                 )}
                             </div>
                             <p className="mt-2 text-sm text-foreground break-words">{post.content}</p>
+                            
+                            {/* MOOD & TAGS */}
+                            <div className="flex flex-wrap gap-2 mt-3">
+                                {post.mood && post.mood !== "neutral" && (
+                                    <span className="px-2 py-1 text-xs rounded-full bg-primary/20 text-primary border border-primary/30">
+                                        {post.mood === 'excited' ? '🚀 Excited' :
+                                         post.mood === 'learning' ? '📚 Learning' :
+                                         post.mood === 'building' ? '💻 Building' :
+                                         post.mood === 'debugging' ? '🐛 Debugging' : post.mood}
+                                    </span>
+                                )}
+                                {post.tags && post.tags.map((tag: string, idx: number) => (
+                                    <span key={idx} className="px-2 py-1 text-xs rounded-full bg-secondary text-secondary-foreground">
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
                     </div>
                     {/* POST IMAGE if we have an image*/}
@@ -183,17 +200,17 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                         <AvatarImage src={user?.imageUrl || "/avatar.png"} />
                                     </Avatar>
                                     <div className="flex-1">
-                                        <Textarea placeholder="Write a comment..." value={newComment} onChange={(e) => setNewComment(e.target.value)}
+                                        <Textarea placeholder="Drop a vibe..." value={newComment} onChange={(e) => setNewComment(e.target.value)}
                                             className="min-h-[80px] resize-none" />
                                         <div className="flex justify-end mt-2">
                                             <Button onClick={handleAddComment}
                                                 size="sm"  className="flex items-center gap-2" disabled={!newComment.trim() || isCommenting} >
                                                 {isCommenting ? (
-                                                "Posting..."
+                                                "Dropping..."
                                                 ) : (
                                                 <>
                                                     <SendIcon className="size-4" />
-                                                    Comment
+                                                    Vibe
                                                 </>
                                                 )}
                                             </Button>

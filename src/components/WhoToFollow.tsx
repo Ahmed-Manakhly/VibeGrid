@@ -15,7 +15,7 @@ async function WhoToFollow() {
   return (
       <Card>
         <CardHeader>
-          <CardTitle>Who to Follow</CardTitle>
+          <CardTitle>Who to Tune In To</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

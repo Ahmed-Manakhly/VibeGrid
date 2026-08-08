@@ -22,6 +22,8 @@ export interface CreateVibeDTO {
   content: string;
   image: string;
   authorId: string;
+  tags?: string[];
+  mood?: string;
 }
 
 export interface IVibeRepository {

@@ -20,6 +20,8 @@ export default function CreatPost() {
     const {user } = useUser()
     const [content , setContent] = useState("")
     const [imageUrl , setImageUrl] = useState("")
+    const [mood, setMood] = useState("neutral")
+    const [tags, setTags] = useState("")
     const [isPosting , setIsPosting]=useState(false)
     const [showImageUpload , setShowImageUpload] = useState(false) // for showing the dropZone component
     //-------------------------------------- fun
@@ -27,21 +29,21 @@ export default function CreatPost() {
         if(!content.trim() && !imageUrl) return
         setIsPosting(true)
         try{
-            const result = await creatPost(content , imageUrl); // will be create in [post.action.ts] | set (content , imageUrl) as params
-            // adding result?.success as result possible to be undefined 
+            // Split tags string by comma and trim
+            const parsedTags = tags.split(",").map(t => t.trim()).filter(Boolean);
+            
+            const result = await creatPost(content , imageUrl, parsedTags, mood); 
             if(result?.success){
-                //reset the form 
                 setContent('');
                 setImageUrl('');
+                setTags('');
+                setMood('neutral');
                 setShowImageUpload(false)
-                //show toast | we will use "https://react-hot-toast.com/"
-                    //1- we set the component <Toaster/> ON THE LAYOUT
-                    //2- we import it
-                toast.success('Post has been created successfully!')
+                toast.success('Vibe has been dropped successfully!')
             }
         }catch(er){
-            console.error('failed to create a post!' , er)
-            toast.error('Failed to create a post!')
+            console.error('failed to drop a vibe!' , er)
+            toast.error('Failed to drop a vibe!')
         }finally{
             setIsPosting(false)
         }
@@ -57,9 +59,30 @@ export default function CreatPost() {
                         <Avatar className="w-10 h-10">
                             <AvatarImage src={user?.imageUrl || "/avatar.png"} />
                         </Avatar>
-                        <Textarea placeholder="What's on your mind?" value={content} onChange={(e) => setContent(e.target.value)}
+                        <Textarea placeholder="Drop a vibe..." value={content} onChange={(e) => setContent(e.target.value)}
                             disabled={isPosting}
                             className="min-h-[100px] resize-none border-none focus-visible:ring-0 p-0 text-base" 
+                        />
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 pt-2 pb-2">
+                        <select 
+                            value={mood} 
+                            onChange={(e) => setMood(e.target.value)}
+                            className="text-sm bg-muted text-muted-foreground border-none rounded-md px-2 py-1"
+                        >
+                            <option value="neutral">😐 Neutral</option>
+                            <option value="excited">🚀 Excited</option>
+                            <option value="learning">📚 Learning</option>
+                            <option value="building">💻 Building</option>
+                            <option value="debugging">🐛 Debugging</option>
+                        </select>
+                        <input 
+                            type="text" 
+                            placeholder="Tags (comma separated, e.g. React, UI)" 
+                            value={tags}
+                            onChange={(e) => setTags(e.target.value)}
+                            className="text-sm bg-muted text-muted-foreground border-none rounded-md px-2 py-1 flex-1 min-w-[200px]"
                         />
                     </div>
                     {/* TODO: handle image upload */}
@@ -81,12 +104,12 @@ export default function CreatPost() {
                             {isPosting ? (
                                 <>
                                     <Loader2Icon className="size-4 mr-2 animate-spin" />
-                                    Posting...
+                                    Dropping...
                                 </>
                             ) : (
                                 <>
                                     <SendIcon className="size-4 mr-2" />
-                                    Post
+                                    Drop Vibe
                                 </>
                             )}
                         </Button>

@@ -28,7 +28,7 @@ function FollowButton({ userId }: { userId: string }) { // userId is the target 
             disabled={isLoading}
             className="w-20"
         >
-            {isLoading ? <Loader2Icon className="size-4 animate-spin" /> : "Follow"}
+            {isLoading ? <Loader2Icon className="size-4 animate-spin" /> : "Tune In"}
         </Button>
     );
 }

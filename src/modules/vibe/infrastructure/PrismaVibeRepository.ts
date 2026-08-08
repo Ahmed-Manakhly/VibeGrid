@@ -12,6 +12,8 @@ export class PrismaVibeRepository implements IVibeRepository {
           content: data.content,
           image: data.image,
           authorId: data.authorId,
+          tags: data.tags || [],
+          mood: data.mood,
         },
       });
       return success(post);
