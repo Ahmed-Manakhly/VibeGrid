@@ -30,7 +30,7 @@ export function DeleteAlertDialog({
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-red-500 -mr-2">
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:bg-transparent hover:text-red-500 -mr-2">
                     {isDeleting ? (
                         <Loader2Icon className="size-4 animate-spin" />
                     ) : (

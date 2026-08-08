@@ -21,7 +21,7 @@ import { Textarea } from './ui/textarea';
 //we will use the type of the server action | but it's a fun , so wrap it with generic | and say we need the return type | but it's a promis | so the awaited of
 //1- type posts = typeof getPosts | 2- type posts = <typeof getPosts> |3- ReturnType<typeof getPosts> | 4- Awaited<ReturnType<typeof getPosts>>
 type posts = Awaited<ReturnType<typeof getPosts>>; // still we need to get one post of the posts[]
-type post = posts[number];// it shold extract a single post from the array | we can make index0 posts[0]
+type post = posts[number] & { mood?: string | null, tags?: string[] };// it shold extract a single post from the array | we can make index0 posts[0]
 //-----------------------------------------------
 function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { // updated | now post that we created not prisma schema Post
     const {user} = useUser();
@@ -148,7 +148,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                     <div className="flex items-center pt-2 space-x-4">
                         {user ? (
                             <Button
-                            className={`text-muted-foreground gap-2 ${hasLiked ? "text-red-500 hover:text-red-600" : "hover:text-red-500" }`}
+                            className={`text-muted-foreground gap-2 hover:bg-transparent ${hasLiked ? "text-red-500 hover:text-red-600" : "hover:text-red-500" }`}
                             variant="ghost" size="sm" onClick={handleLike}
                             >
                                 {hasLiked ? (
@@ -160,14 +160,14 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                             </Button>
                         ) : (
                             <SignInButton mode="modal">
-                                <Button variant="ghost" size="sm" className="text-muted-foreground gap-2">
+                                <Button variant="ghost" size="sm" className="text-muted-foreground gap-2 hover:bg-transparent hover:text-red-500">
                                     <HeartIcon className="size-5" />
                                     <span>{optimisticLikes}</span>
                                 </Button>
                             </SignInButton>
                         )}
                         <Button variant="ghost" size="sm" onClick={() => setShowComments((prev) => !prev)}
-                        className="text-muted-foreground gap-2 hover:text-blue-500">
+                        className="text-muted-foreground gap-2 hover:bg-transparent hover:text-blue-500">
                             <MessageCircleIcon className={`size-5 ${showComments ? "fill-blue-500 text-blue-500" : ""}`} />
                             <span>{post.comments.length}</span>
                         </Button>
