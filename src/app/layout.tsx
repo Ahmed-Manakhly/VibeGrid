@@ -36,17 +36,17 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
       <html lang="en" suppressHydrationWarning >
         <head />
         <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased`} suppressHydrationWarning={true}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange >
-              <div className="flex min-h-screen">
-                <Sidebar />
-                <div className="min-w-0 flex-1">
-                  <Navbar />
-                  <main className="mx-auto max-w-7xl px-5 py-8 lg:px-9">
-                    {children}
-                  </main>
-                </div>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            <div className="flex min-h-screen bg-background text-foreground">
+              <Sidebar />
+              <div className="flex-1 lg:pl-[280px]">
+                <Navbar />
+                <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px]">
+                  {children}
+                </main>
               </div>
-              <Toaster/>
+            </div>
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>
