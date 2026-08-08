@@ -7,6 +7,12 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 //---------------
 import {Toaster} from 'react-hot-toast'
+import { JetBrains_Mono } from 'next/font/google'
+
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+})
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,7 +35,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning >
         <head />
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning={true}>
+        <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased`} suppressHydrationWarning={true}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange >
               <div className='min-h-screen'>
                 <Navbar/>
