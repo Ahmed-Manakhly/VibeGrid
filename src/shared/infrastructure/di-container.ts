@@ -11,9 +11,16 @@ import { PrismaEngagementRepository } from "@/modules/engagement/infrastructure/
 import { ToggleLikeUseCase } from "@/modules/engagement/application/ToggleLike.usecase";
 import { AddCommentUseCase } from "@/modules/engagement/application/AddComment.usecase";
 
+// Notification Module
+import { PrismaNotificationRepository } from "@/modules/notification/infrastructure/PrismaNotificationRepository";
+import { GetNotificationsUseCase } from "@/modules/notification/application/GetNotifications.usecase";
+import { MarkAsReadUseCase } from "@/modules/notification/application/MarkAsRead.usecase";
+import { NotificationEventHandler } from "@/modules/notification/application/NotificationEventHandler";
+
 // 1. Instantiate Repositories (Inject DB)
 const vibeRepository = new PrismaVibeRepository(prisma);
 const engagementRepository = new PrismaEngagementRepository(prisma);
+const notificationRepository = new PrismaNotificationRepository(prisma);
 
 // 2. Instantiate Use Cases (Inject Repositories)
 // Vibe
@@ -24,3 +31,10 @@ export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository);
 // Engagement
 export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository);
 export const addCommentUseCase = new AddCommentUseCase(engagementRepository);
+
+// Notification
+export const getNotificationsUseCase = new GetNotificationsUseCase(notificationRepository);
+export const markAsReadUseCase = new MarkAsReadUseCase(notificationRepository);
+
+// Initialize Event Handlers
+export const notificationEventHandler = new NotificationEventHandler(notificationRepository);

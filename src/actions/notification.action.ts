@@ -1,45 +1,13 @@
 "use server";
 
-import {prisma} from "@/shared/infrastructure/prisma";
 import { getDbUserId } from "./user.action";
+import { getNotificationsUseCase, markAsReadUseCase } from "@/shared/infrastructure/di-container";
 
 export async function getNotifications() {
     try {
         const userId = await getDbUserId();
         if (!userId) return [];
-        const notifications = await prisma.notifications.findMany({
-            where: {
-                userId,
-            },
-            include: {
-                creator: {
-                    select: {
-                        id: true,
-                        name: true,
-                        username: true,
-                        image: true,
-                    },
-                },
-                post: {
-                    select: {
-                        id: true,
-                        content: true,
-                        image: true,
-                    },
-                },
-                comment: {
-                    select: {
-                        id: true,
-                        content: true,
-                        createdAt: true,
-                    },
-                },
-            },
-            orderBy: {
-                createdAt: "desc",
-            },
-        });
-        return notifications;
+        return await getNotificationsUseCase.execute(userId);
     } catch (error) {
         console.error("Error fetching notifications:", error);
         throw new Error("Failed to fetch notifications");
@@ -48,17 +16,8 @@ export async function getNotifications() {
 
 export async function markNotificationsAsRead(notificationIds: string[]) {
     try {
-        await prisma.notifications.updateMany({
-            where: {
-                id: {
-                    in: notificationIds,
-                },
-            },
-            data: {
-                read: true,
-            },
-        });
-        return { success: true };
+        const result = await markAsReadUseCase.execute(notificationIds);
+        return { success: result.success };
     } catch (error) {
         console.error("Error marking notifications as read:", error);
         return { success: false };
