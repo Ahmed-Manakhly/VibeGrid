@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/themeProvider";
 import Navbar from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
 //---------------
-import {Toaster} from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import { JetBrains_Mono } from 'next/font/google'
 
 const jetBrainsMono = JetBrains_Mono({
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   description: "Real-time Tech Newsfeed / Developer Pulse. Drop a Vibe and Tune In.",
 };
 
-export default function RootLayout({children}: Readonly<{ children: React.ReactNode;}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning >
