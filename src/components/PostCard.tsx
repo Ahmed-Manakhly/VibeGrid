@@ -121,7 +121,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                             <p className="mt-2 text-sm text-foreground break-words">{post.content}</p>
                             
                             {/* MOOD & TAGS */}
-                            <div className="flex flex-wrap gap-2 mt-3">
+                            <div className="flex flex-wrap gap-2 mt-3"> 
                                 {post.mood && post.mood !== "neutral" && (
                                     <span className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary border border-primary/20 font-mono tracking-wide drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">
                                         {post.mood === 'excited' ? '🚀 Excited' :
