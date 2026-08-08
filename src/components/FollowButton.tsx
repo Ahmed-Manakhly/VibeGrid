@@ -26,7 +26,7 @@ function FollowButton({ userId }: { userId: string }) { // userId is the target 
             variant={"secondary"}
             onClick={handleFollow}
             disabled={isLoading}
-            className="w-20"
+            className="w-20 rounded-full font-mono text-xs bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20 hover:border-secondary/50 hover:shadow-[0_0_10px_rgba(255,36,228,0.3)] transition-all duration-300"
         >
             {isLoading ? <Loader2Icon className="size-4 animate-spin" /> : "Tune In"}
         </Button>

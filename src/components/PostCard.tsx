@@ -90,13 +90,13 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
     //then we will use alert-dialog we got it in [ui] to create DeleteAlertDialog component | go to [components] [DeleteAlertDialog] 
     //DeleteAlertDialog the component needs isDeleting onDelete | 
     return (
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden bg-card/40 backdrop-blur-xl border-white/10 hover:border-white/20 transition-all duration-300">
             <CardContent className="p-4 sm:p-6">
                 <div className="space-y-4">
                     <div className="flex space-x-3 sm:space-x-4">
                         {/* AVATAR */}
                         <Link href={`/profile/${post.author.username}`}>
-                            <Avatar className="size-8 sm:w-10 sm:h-10">
+                            <Avatar className="size-8 sm:w-10 sm:h-10 border border-white/10 hover:border-primary/50 transition-all">
                                 <AvatarImage src={post.author.image ?? "/avatar.png"} />
                             </Avatar>
                         </Link>
@@ -123,7 +123,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                             {/* MOOD & TAGS */}
                             <div className="flex flex-wrap gap-2 mt-3">
                                 {post.mood && post.mood !== "neutral" && (
-                                    <span className="px-2 py-1 text-xs rounded-full bg-primary/20 text-primary border border-primary/30">
+                                    <span className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary border border-primary/20 font-mono tracking-wide drop-shadow-[0_0_5px_rgba(0,240,255,0.3)]">
                                         {post.mood === 'excited' ? '🚀 Excited' :
                                          post.mood === 'learning' ? '📚 Learning' :
                                          post.mood === 'building' ? '💻 Building' :
@@ -131,7 +131,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                     </span>
                                 )}
                                 {post.tags && post.tags.map((tag: string, idx: number) => (
-                                    <span key={idx} className="px-2 py-1 text-xs rounded-full bg-secondary text-secondary-foreground">
+                                    <span key={idx} className="px-2 py-1 text-xs rounded-full bg-secondary/10 text-secondary border border-secondary/20 font-mono tracking-wide drop-shadow-[0_0_5px_rgba(255,36,228,0.3)]">
                                         #{tag}
                                     </span>
                                 ))}
@@ -174,7 +174,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                     </div>
                      {/* COMMENTS SECTION */}
                     {showComments && (
-                        <div className="space-y-4 pt-4 border-t">
+                        <div className="space-y-4 pt-4 border-t border-white/10">
                             <div className="space-y-4">
                                 {/* DISPLAY COMMENTS */}
                                 {post.comments.map((comment) => (
@@ -201,10 +201,10 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                     </Avatar>
                                     <div className="flex-1">
                                         <Textarea placeholder="Drop a vibe..." value={newComment} onChange={(e) => setNewComment(e.target.value)}
-                                            className="min-h-[80px] resize-none" />
+                                            className="min-h-[80px] resize-none bg-black/20 border-white/10 focus-visible:ring-1 focus-visible:ring-primary/50" />
                                         <div className="flex justify-end mt-2">
                                             <Button onClick={handleAddComment}
-                                                size="sm"  className="flex items-center gap-2" disabled={!newComment.trim() || isCommenting} >
+                                                size="sm"  className="flex items-center gap-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_10px_rgba(0,240,255,0.3)] transition-all" disabled={!newComment.trim() || isCommenting} >
                                                 {isCommenting ? (
                                                 "Dropping..."
                                                 ) : (

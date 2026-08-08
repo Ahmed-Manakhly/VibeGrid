@@ -13,9 +13,9 @@ async function WhoToFollow() {
   if(users.length === 0) return null ;
 
   return (
-      <Card>
+      <Card className="bg-card/40 backdrop-blur-xl border-white/10 hover:border-white/20 transition-all duration-300">
         <CardHeader>
-          <CardTitle>Who to Tune In To</CardTitle>
+          <CardTitle className="font-mono tracking-widest text-primary uppercase text-sm">Who to Tune In To</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -23,7 +23,7 @@ async function WhoToFollow() {
               <div key={user.id} className="flex gap-2 items-center justify-between ">
                 <div className="flex items-center gap-1">
                   <Link href={`/profile/${user.username}`}>
-                    <Avatar>
+                    <Avatar className="border border-white/10 hover:border-primary/50 transition-all">
                       <AvatarImage src={user.image ?? "/avatar.png"} />
                     </Avatar>
                   </Link>

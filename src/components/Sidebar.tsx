@@ -14,7 +14,7 @@ import { LinkIcon, MapPinIcon } from 'lucide-react'
 const UnauthenticatedSidebar = async ()=>{
     return(
     <div className="sticky top-20">
-        <Card>
+        <Card className="bg-card/40 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300">
             <CardHeader>
                 <CardTitle className="text-center text-xl font-semibold">Welcome Back!</CardTitle>
             </CardHeader>
@@ -49,11 +49,11 @@ async function Sidebar() {
     //we will use | npx shadcn@latest add separator |  and we got it in the [ui]
     return (
         <div className="sticky top-20">
-            <Card>
+            <Card className="bg-card/40 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300">
                 <CardContent className="pt-6">
                     <div className="flex flex-col items-center text-center">
                         <Link href={`/profile/${user.username}`} className="flex flex-col items-center justify-center" >
-                            <Avatar className="w-20 h-20 border-2 ">
+                            <Avatar className="w-20 h-20 border-2 border-primary/20 hover:border-primary transition-all duration-300 drop-shadow-[0_0_8px_rgba(0,240,255,0.2)]">
                                 <AvatarImage src={user.image || "/avatar.png"} /> {/**if no image we will use the placeholder */}
                                 {/* need to create a public folder */}
                             </Avatar>
@@ -67,13 +67,13 @@ async function Sidebar() {
                             <Separator className="my-4" />
                             <div className="flex justify-between">
                                 <div>
-                                    <p className="font-medium">{user._count.following}</p>
-                                    <p className="text-xs text-muted-foreground">Following</p>
+                                    <p className="font-medium text-primary font-mono">{user._count.following}</p>
+                                    <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono">Tuning In</p>
                                 </div>
-                                <Separator orientation="vertical" />
+                                <Separator orientation="vertical" className="bg-white/10" />
                                 <div>
-                                    <p className="font-medium">{user._count.followers}</p>
-                                    <p className="text-xs text-muted-foreground">Followers</p>
+                                    <p className="font-medium text-primary font-mono">{user._count.followers}</p>
+                                    <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono">Tuned In</p>
                                 </div>
                             </div>
                             <Separator className="my-4" />

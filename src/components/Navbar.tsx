@@ -11,12 +11,12 @@ async  function Navbar() {
     if (user) await syncUser(); // POST || we got the user data
 
     return (
-        <nav className='sticky top-0 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50'>
+        <nav className='sticky top-0 w-full border-b border-white/5 bg-background/40 backdrop-blur-xl supports-[backdrop-filter]:bg-background/40 z-50'>
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center">
-                        <Link href="/" className="text-xl font-bold text-primary font-mono tracking-wider">
-                        SocialSphere
+                        <Link href="/" className="text-xl font-bold text-primary font-mono tracking-wider drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]">
+                        VibeGrid
                         </Link>
                     </div>
                     <DesktopNavbar />

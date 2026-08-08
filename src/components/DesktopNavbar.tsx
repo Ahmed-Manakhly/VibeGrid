@@ -12,7 +12,7 @@ async function DesktopNavbar() {
     <div className="hidden md:flex items-center space-x-4">
       <ModeToggle />
       {/* -------------------------------------------------------- */}
-      <Button variant="ghost" className="flex items-center gap-2" asChild>
+      <Button variant="ghost" className="flex items-center gap-2 hover:bg-white/5 hover:text-primary transition-all duration-300 rounded-full" asChild>
         <Link href="/">
           <HomeIcon className="w-4 h-4" />
           <span className="hidden lg:inline">Home</span>
@@ -21,14 +21,14 @@ async function DesktopNavbar() {
       {/* -------------------------------------------------------- */}
       {user ? (
         <>
-          <Button variant="ghost" className="flex items-center gap-2" asChild>
+          <Button variant="ghost" className="flex items-center gap-2 hover:bg-white/5 hover:text-primary transition-all duration-300 rounded-full" asChild>
             <Link href="/notifications">
               <BellIcon className="w-4 h-4" />
               <span className="hidden lg:inline">Notifications</span>
             </Link>
           </Button>
           {/* ---------- */}
-          <Button variant="ghost" className="flex items-center gap-2" asChild>
+          <Button variant="ghost" className="flex items-center gap-2 hover:bg-white/5 hover:text-primary transition-all duration-300 rounded-full" asChild>
             <Link
               href={`/profile/${
                 user.username ?? user.emailAddresses[0].emailAddress.split("@")[0]

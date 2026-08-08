@@ -52,27 +52,27 @@ export default function CreatPost() {
     };
     //---------------------------------------
     return (
-        <Card className="mb-6">
+        <Card className="mb-6 bg-card/40 backdrop-blur-xl border-white/10 hover:border-white/20 transition-all duration-300">
             <CardContent className="pt-6 ">
                 <div className="space-y-4">
                     {/* we will use | npx shadcn@latest add textarea| for text area */}
                     {/* adding text area  + avatar inside flex div */}
                     <div className="flex space-x-4">
-                        <Avatar className="w-10 h-10">
+                        <Avatar className="w-10 h-10 border border-primary/20">
                             <AvatarImage src={user?.imageUrl || "/avatar.png"} />
                         </Avatar>
                         <Textarea placeholder="Drop a vibe..." value={content} onChange={(e) => setContent(e.target.value)}
                             disabled={isPosting}
-                            className="min-h-[100px] resize-none border-none focus-visible:ring-0 p-0 text-base" 
+                            className="min-h-[100px] resize-none border-none focus-visible:ring-1 focus-visible:ring-primary/50 bg-transparent p-0 text-base" 
                         />
                     </div>
                     
                     <div className="flex flex-wrap gap-2 pt-2 pb-2">
                         <Select value={mood} onValueChange={(value) => setMood(value)}>
-                            <SelectTrigger className="w-[140px] h-8 text-sm bg-muted text-muted-foreground border-none">
+                            <SelectTrigger className="w-[140px] h-8 text-sm bg-black/40 text-muted-foreground border-white/10 hover:border-primary/50 transition-all font-mono rounded-full">
                                 <SelectValue placeholder="Mood" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="bg-background/80 backdrop-blur-xl border-white/10 font-mono">
                                 <SelectItem value="neutral">😐 Neutral</SelectItem>
                                 <SelectItem value="excited">🚀 Excited</SelectItem>
                                 <SelectItem value="learning">📚 Learning</SelectItem>
@@ -85,7 +85,7 @@ export default function CreatPost() {
                             placeholder="Tags (comma separated, e.g. React, UI)" 
                             value={tags}
                             onChange={(e) => setTags(e.target.value)}
-                            className="h-8 text-sm bg-muted text-muted-foreground border-none flex-1 min-w-[200px]"
+                            className="h-8 text-sm bg-black/40 text-muted-foreground border-white/10 focus-visible:border-primary/50 focus-visible:ring-1 focus-visible:ring-primary/50 flex-1 min-w-[200px] font-mono rounded-full transition-all"
                         />
                     </div>
                     {/* TODO: handle image upload */}
@@ -94,16 +94,16 @@ export default function CreatPost() {
                             <ImageUpload endpoint="postImage" value={imageUrl} onChange={(url) => { setImageUrl(url); if (!url) setShowImageUpload(false); }} />
                         </div>
                     )}
-                    <div className="flex items-center justify-between border-t pt-4">
+                    <div className="flex items-center justify-between border-t border-white/10 pt-4">
                         <div className="flex space-x-2">
-                            <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary"
+                            <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-white/5 transition-all rounded-full"
                                 onClick={() => setShowImageUpload(!showImageUpload)} disabled={isPosting}
                             >
                                 <ImageIcon className="size-4 mr-2" />
                                 Photo
                             </Button>
                         </div>
-                        <Button className="flex items-center" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
+                        <Button className="flex items-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(0,240,255,0.3)] hover:shadow-[0_0_25px_rgba(0,240,255,0.5)] transition-all duration-300" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
                             {isPosting ? (
                                 <>
                                     <Loader2Icon className="size-4 mr-2 animate-spin" />
