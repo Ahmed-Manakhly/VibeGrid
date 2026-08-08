@@ -5,7 +5,7 @@ import { SignInButton, useUser } from '@clerk/nextjs';
 // import { Post } from '@prisma/client' ;
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Card, CardContent } from './ui/card';
+
 import Link from 'next/link';
 import { Avatar, AvatarImage } from './ui/avatar';
 //-------------------
@@ -90,8 +90,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
     //then we will use alert-dialog we got it in [ui] to create DeleteAlertDialog component | go to [components] [DeleteAlertDialog] 
     //DeleteAlertDialog the component needs isDeleting onDelete | 
     return (
-        <Card className="overflow-hidden bg-card/40 backdrop-blur-xl border-white/10 hover:border-white/20 transition-all duration-300">
-            <CardContent className="p-4 sm:p-6">
+        <article className="feed-card p-4 sm:p-6 mb-6">
                 <div className="space-y-4">
                     <div className="flex space-x-3 sm:space-x-4">
                         {/* AVATAR */}
@@ -230,8 +229,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                         </div>
                     )}
                 </div>
-            </CardContent>
-        </Card>
+        </article>
     )
 }
 
