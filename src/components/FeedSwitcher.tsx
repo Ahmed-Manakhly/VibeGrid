@@ -2,30 +2,29 @@
 
 import { useState } from "react";
 import PostCard from "./PostCard";
-import { LayoutGrid, List } from "lucide-react";
-
+import { Grid3X3, AlignJustify } from "lucide-react";
 export default function FeedSwitcher({ posts, dbUserId }: { posts: any[], dbUserId: string | null }) {
     const [mode, setMode] = useState<"linear" | "masonry">("linear");
 
     return (
         <div>
-            <div className="flex justify-end mb-4 border-b border-border pb-2">
-                <div className="flex space-x-2 bg-muted p-1 rounded-md">
+            <div className="flex justify-end mb-6">
+                <div className="view-switcher">
                     <button 
                         onClick={() => setMode("linear")}
-                        className={`p-2 rounded-md flex items-center transition-colors ${mode === "linear" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                        className={mode === "linear" ? "view-switch-active" : ""}
                         title="Linear Thread View"
                     >
-                        <List className="w-4 h-4 mr-2" />
-                        <span className="text-sm font-medium">Thread</span>
+                        <AlignJustify />
+                        Thread
                     </button>
                     <button 
                         onClick={() => setMode("masonry")}
-                        className={`p-2 rounded-md flex items-center transition-colors ${mode === "masonry" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                        className={mode === "masonry" ? "view-switch-active" : ""}
                         title="Masonry Grid View"
                     >
-                        <LayoutGrid className="w-4 h-4 mr-2" />
-                        <span className="text-sm font-medium">Grid</span>
+                        <Grid3X3 />
+                        Grid
                     </button>
                 </div>
             </div>

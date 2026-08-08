@@ -18,19 +18,24 @@ export default async function Home() {
   return (
       <div className="flex flex-col gap-10 xl:flex-row xl:items-start">
         {/* Main Feed */}
-        <div className="flex-1 max-w-2xl w-full mx-auto xl:mx-0">
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="font-display text-2xl font-bold tracking-tight">The Grid</h1>
-            <div className="view-switcher hidden sm:flex">
-              <button className="view-switch-active"><Grid3X3 /> Grid</button>
-              <button><AlignJustify /> List</button>
+        <div className="flex-1 w-full mx-auto xl:mx-0">
+          <div className="mb-10 flex flex-col justify-between gap-6 xl:flex-row xl:items-end">
+            <div className="max-w-xl">
+              <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-primary uppercase">
+                <span className="text-primary/70">⫽</span> TUNED IN
+              </div>
+              <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mb-3">Your daily pulse.</h1>
+              <p className="text-muted-foreground text-sm sm:text-base">
+                A signal-rich space for ideas, visual culture, and the people making what is next.
+              </p>
             </div>
-          </div>
-          
-          <div className="flex gap-2 overflow-x-auto pb-4 hide-scrollbar">
-            {topics.map(topic => (
-              <button key={topic} className={`topic-pill ${topic === 'All Vibes' ? 'topic-pill-active' : ''}`}>{topic}</button>
-            ))}
+            
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
+              <button className="rounded-full bg-primary/10 border border-primary/20 px-4 py-1.5 text-sm font-medium text-primary whitespace-nowrap">Everything</button>
+              <button className="rounded-full border border-border bg-transparent px-4 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted whitespace-nowrap transition-colors">Design</button>
+              <button className="rounded-full border border-border bg-transparent px-4 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted whitespace-nowrap transition-colors">Tech</button>
+              <button className="rounded-full border border-border bg-transparent px-4 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted whitespace-nowrap transition-colors">Culture</button>
+            </div>
           </div>
           
           <div className="mt-4 flex flex-col gap-6">
@@ -40,7 +45,7 @@ export default async function Home() {
         </div>
 
         {/* Right Sidebar */}
-        <div className="w-full xl:w-80 shrink-0 flex flex-col gap-6">
+        <div className="w-full xl:w-[380px] shrink-0 flex flex-col gap-6 xl:sticky xl:top-24 h-fit z-10">
             <ProfileWidget />
             <TrendingSidebar />
             <WhoToFollow/>

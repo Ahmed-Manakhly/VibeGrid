@@ -63,7 +63,7 @@ export default function CreatPost() {
                         </Avatar>
                         <Textarea placeholder="Drop a vibe..." value={content} onChange={(e) => setContent(e.target.value)}
                             disabled={isPosting}
-                            className="min-h-[100px] resize-none border-none focus-visible:ring-1 focus-visible:ring-primary/50 bg-transparent p-0 text-base" 
+                            className="min-h-[100px] resize-none border-none focus-visible:ring-1 focus-visible:ring-primary/50 bg-transparent p-3 text-base" 
                         />
                     </div>
                     
