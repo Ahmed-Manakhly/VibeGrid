@@ -28,7 +28,7 @@ const getNotificationIcon = (type: string) => { //to change the icon based on th
         case "LIKE":
             return <HeartIcon className="size-4 text-red-500" />;
         case "COMMENT":
-            return <MessageCircleIcon className="size-4 text-blue-500" />;
+            return <MessageCircleIcon className="size-4 text-accent" />;
         case "FOLLOW":
             return <UserPlusIcon className="size-4 text-green-500" />;
         default:
