@@ -48,7 +48,7 @@ export class PrismaNotificationRepository implements INotificationRepository {
         creatorId: data.creatorId,
         type: data.type,
         postId: data.postId,
-        commentId: data.commentId,
+        commenttId: data.commentId,
       },
     });
   }
