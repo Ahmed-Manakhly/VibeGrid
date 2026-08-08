@@ -15,6 +15,8 @@ import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
 import { creatPost } from "@/actions/post.action";
 import toast from "react-hot-toast";
 import ImageUpload from "./ImageUpload";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Input } from "./ui/input";
 
 export default function CreatPost() {
     const {user } = useUser()
@@ -66,23 +68,24 @@ export default function CreatPost() {
                     </div>
                     
                     <div className="flex flex-wrap gap-2 pt-2 pb-2">
-                        <select 
-                            value={mood} 
-                            onChange={(e) => setMood(e.target.value)}
-                            className="text-sm bg-muted text-muted-foreground border-none rounded-md px-2 py-1"
-                        >
-                            <option value="neutral">😐 Neutral</option>
-                            <option value="excited">🚀 Excited</option>
-                            <option value="learning">📚 Learning</option>
-                            <option value="building">💻 Building</option>
-                            <option value="debugging">🐛 Debugging</option>
-                        </select>
-                        <input 
+                        <Select value={mood} onValueChange={(value) => setMood(value)}>
+                            <SelectTrigger className="w-[140px] h-8 text-sm bg-muted text-muted-foreground border-none">
+                                <SelectValue placeholder="Mood" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="neutral">😐 Neutral</SelectItem>
+                                <SelectItem value="excited">🚀 Excited</SelectItem>
+                                <SelectItem value="learning">📚 Learning</SelectItem>
+                                <SelectItem value="building">💻 Building</SelectItem>
+                                <SelectItem value="debugging">🐛 Debugging</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Input 
                             type="text" 
                             placeholder="Tags (comma separated, e.g. React, UI)" 
                             value={tags}
                             onChange={(e) => setTags(e.target.value)}
-                            className="text-sm bg-muted text-muted-foreground border-none rounded-md px-2 py-1 flex-1 min-w-[200px]"
+                            className="h-8 text-sm bg-muted text-muted-foreground border-none flex-1 min-w-[200px]"
                         />
                     </div>
                     {/* TODO: handle image upload */}
