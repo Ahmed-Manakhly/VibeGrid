@@ -17,10 +17,22 @@ import { GetNotificationsUseCase } from "@/modules/notification/application/GetN
 import { MarkAsReadUseCase } from "@/modules/notification/application/MarkAsRead.usecase";
 import { NotificationEventHandler } from "@/modules/notification/application/NotificationEventHandler";
 
+// Auth Module
+import { PrismaAuthRepository } from "@/modules/auth/infrastructure/PrismaAuthRepository";
+import { SyncUserUseCase } from "@/modules/auth/application/SyncUser.usecase";
+import { GetUserUseCase } from "@/modules/auth/application/GetUser.usecase";
+
+// Social Module
+import { PrismaSocialRepository } from "@/modules/social/infrastructure/PrismaSocialRepository";
+import { ToggleFollowUseCase } from "@/modules/social/application/ToggleFollow.usecase";
+import { GetSuggestedUsersUseCase } from "@/modules/social/application/GetSuggestedUsers.usecase";
+
 // 1. Instantiate Repositories (Inject DB)
 const vibeRepository = new PrismaVibeRepository(prisma);
 const engagementRepository = new PrismaEngagementRepository(prisma);
 const notificationRepository = new PrismaNotificationRepository(prisma);
+const authRepository = new PrismaAuthRepository(prisma);
+const socialRepository = new PrismaSocialRepository(prisma);
 
 // 2. Instantiate Use Cases (Inject Repositories)
 // Vibe
@@ -35,6 +47,14 @@ export const addCommentUseCase = new AddCommentUseCase(engagementRepository);
 // Notification
 export const getNotificationsUseCase = new GetNotificationsUseCase(notificationRepository);
 export const markAsReadUseCase = new MarkAsReadUseCase(notificationRepository);
+
+// Auth
+export const syncUserUseCase = new SyncUserUseCase(authRepository);
+export const getUserUseCase = new GetUserUseCase(authRepository);
+
+// Social
+export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository);
+export const getSuggestedUsersUseCase = new GetSuggestedUsersUseCase(socialRepository);
 
 // Initialize Event Handlers
 export const notificationEventHandler = new NotificationEventHandler(notificationRepository);

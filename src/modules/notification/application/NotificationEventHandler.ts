@@ -38,5 +38,19 @@ export class NotificationEventHandler {
         console.error("[NotificationEventHandler] Error creating COMMENT notification", error);
       }
     });
+
+    DomainEventBus.subscribe("UserFollowedEvent", async (payload: any) => {
+      // Create a FOLLOW notification for the user being followed
+      try {
+        await this.repo.create({
+          userId: payload.followingId,
+          creatorId: payload.followerId,
+          type: NotificationType.FOLLOW,
+        });
+        console.log(`[NotificationEventHandler] FOLLOW notification created for user ${payload.followingId}`);
+      } catch (error) {
+        console.error("[NotificationEventHandler] Error creating FOLLOW notification", error);
+      }
+    });
   }
 }
