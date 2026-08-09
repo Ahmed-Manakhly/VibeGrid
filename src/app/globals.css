@@ -35,6 +35,13 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --shadow-color: 0, 0, 0;
+    --shadow-opacity: 0.08;
+    --inner-highlight: rgba(255, 255, 255, 0.8);
+    --border-glass: rgba(0, 0, 0, 0.04);
+    --gradient-opacity: 0.25;
+    --card-opacity: 0.9;
+    --gradient-core: 0 0% 93%;
   }
   .dark {
     --background: 222 50% 4%; /* Deepest navy/black */
@@ -62,6 +69,13 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --shadow-color: 255, 255, 255;
+    --shadow-opacity: 0.03;
+    --inner-highlight: rgba(255, 255, 255, 0.05);
+    --border-glass: rgba(255, 255, 255, 0.05);
+    --gradient-opacity: 0.15;
+    --card-opacity: 0.6;
+    --gradient-core: 222 50% 4%;
   }
 }
 
@@ -120,15 +134,16 @@
   }
 
   .nav-glass, .surface-panel,  .feed-card {
-    @apply border border-white/5 backdrop-blur-xl;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.1) 0%, hsl(var(--background) / 0.4) 20%, hsl(var(--background) / 0.4) 80%, hsl(var(--accent) / 0.1) 100%);
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-glass);
+    backdrop-filter: blur(24px);
+    background: linear-gradient(135deg, hsl(var(--primary) / var(--gradient-opacity)) 0%, hsl(var(--gradient-core) / var(--card-opacity)) 20%, hsl(var(--gradient-core) / var(--card-opacity)) 80%, hsl(var(--accent) / var(--gradient-opacity)) 100%);
+    box-shadow: inset 0 1px 1px var(--inner-highlight), 0 8px 30px rgba(var(--shadow-color), var(--shadow-opacity));
     position: relative;
     transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
   }
   
   .surface-panel:hover, .feed-card:hover {
-    background: linear-gradient(135deg, hsl(var(--accent) / 0.1) 0%, hsl(var(--background) / 0.4) 20%, hsl(var(--background) / 0.4) 80%, hsl(var(--primary) / 0.1) 100%);
+    background: linear-gradient(135deg, hsl(var(--accent) / var(--gradient-opacity)) 0%, hsl(var(--gradient-core) / var(--card-opacity)) 20%, hsl(var(--gradient-core) / var(--card-opacity)) 80%, hsl(var(--primary) / var(--gradient-opacity)) 100%);
   }
   
   .feed-card::before, .surface-panel::before, .nav-glass::before {
@@ -171,10 +186,11 @@
   
   /* Unified Button Styling matching Cards */
   .btn-gradient, .button-glow, .view-switcher .view-switch-active {
-    @apply rounded-xl border border-white/5 relative;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, hsl(var(--card)) 20%, hsl(var(--card)) 80%, hsl(var(--accent) / 0.15) 100%);
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.3);
-    color: white;
+    @apply rounded-xl relative;
+    border: 1px solid var(--border-glass);
+    background: linear-gradient(135deg, hsl(var(--primary) / var(--gradient-opacity)) 0%, hsl(var(--gradient-core)) 20%, hsl(var(--gradient-core)) 80%, hsl(var(--accent) / var(--gradient-opacity)) 100%);
+    box-shadow: inset 0 1px 1px var(--inner-highlight), 0 4px 20px rgba(var(--shadow-color), var(--shadow-opacity));
+    color: var(--foreground);
     transition: all 0.3s ease;
     z-index: 1;
   }
@@ -206,9 +222,9 @@
   }
   
   .btn-gradient-reverted {
-    background: linear-gradient(90deg, hsl(var(--accent) / 0.6) 0%, hsl(var(--background)) 50%, hsl(var(--primary) / 0.6) 100%);
-    color: white;
-    border: 1px solid transparent;
+    background: linear-gradient(90deg, hsl(var(--accent) / var(--gradient-opacity)) 0%, hsl(var(--gradient-core)) 50%, hsl(var(--primary) / var(--gradient-opacity)) 100%);
+    color: var(--foreground);
+    border: 1px solid var(--border-glass);
     transition: all 0.3s ease;
   }
   .btn-gradient-reverted:hover {
