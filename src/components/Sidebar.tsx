@@ -13,6 +13,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
     { label: 'Home', icon: Home, href: '/' },
     { label: 'Explore', icon: Search, href: '/explore' },
     { label: 'Notifications', icon: Bell, href: '/notifications' },
+    { label: 'Profile', icon: User, href: authUser ? `/profile/${dbUser?.username || authUser.username || authUser.firstName}` : '/login' },
     { label: 'Messages', icon: Mail, href: '/messages' },
     { label: 'Bookmarks', icon: Bookmark, href: '/bookmarks' },
     { label: 'Communities', icon: Users, href: '/communities' },
@@ -24,22 +25,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
         <VibeLogo />
       </div>
 
-      {authUser && (
-        <div className="mb-8 flex items-center gap-3 border border-border/60 p-3 rounded-2xl bg-card/40">
-          <div className="avatar avatar-teal">
-              {authUser.firstName?.charAt(0) || 'U'}
-          </div>
-          <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{authUser.firstName} {authUser.lastName}</p>
-              <p className="truncate font-mono text-[10px] text-muted-foreground">@{authUser.username || authUser.firstName}</p>
-          </div>
-          <SignOutButton>
-            <button className="p-2 hover:bg-destructive/10 rounded-full transition-colors text-muted-foreground hover:text-destructive shrink-0">
-              <LogOut className="size-4" />
-            </button>
-          </SignOutButton>
-        </div>
-      )}
+      {/* Top user card removed to avoid duplication */}
       
       <div className="flex flex-col gap-2">
         {items.map(({ label, icon: Icon, href }) => (
@@ -55,33 +41,44 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
         </Link>
         
         {dbUser && (
-          <div className="mt-4 flex flex-col gap-4 border border-border/60 p-4 rounded-2xl bg-card/40">
-            <div className="flex items-center gap-3">
-              <div className="avatar avatar-teal">
-                  {dbUser.image ? (
-                    <img src={dbUser.image} alt={dbUser.name} className="w-full h-full object-cover rounded-full" />
-                  ) : (
-                    authUser?.firstName?.charAt(0) || 'U'
-                  )}
+          <div className="mt-4 relative group">
+            <Link href={`/profile/${dbUser.username}`} className="block hover:opacity-90 transition-opacity">
+              <div className="flex flex-col gap-4 border border-border/60 p-4 rounded-2xl bg-card/40">
+                <div className="flex items-center gap-3">
+                  <div className="avatar avatar-teal">
+                      {dbUser.image ? (
+                        <img src={dbUser.image} alt={dbUser.name} className="w-full h-full object-cover rounded-full" />
+                      ) : (
+                        authUser?.firstName?.charAt(0) || 'U'
+                      )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{dbUser.name}</p>
+                      <p className="truncate font-mono text-[10px] text-muted-foreground">@{dbUser.username}</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-center px-1">
+                  <div>
+                    <p className="text-sm font-bold text-primary">0</p>
+                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Vibe Score</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">{dbUser._count?.followers || 0}</p>
+                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Followers</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">{dbUser._count?.following || 0}</p>
+                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Following</p>
+                  </div>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{dbUser.name}</p>
-                  <p className="truncate font-mono text-[10px] text-muted-foreground">@{dbUser.username}</p>
-              </div>
-            </div>
-            <div className="flex justify-between items-center text-center px-1">
-              <div>
-                <p className="text-sm font-bold text-primary">0</p>
-                <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Vibe Score</p>
-              </div>
-              <div>
-                <p className="text-sm font-bold">{dbUser._count?.followers || 0}</p>
-                <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Followers</p>
-              </div>
-              <div>
-                <p className="text-sm font-bold">{dbUser._count?.following || 0}</p>
-                <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Following</p>
-              </div>
+            </Link>
+            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <SignOutButton>
+                <button className="p-1.5 hover:bg-destructive/10 rounded-full transition-colors text-muted-foreground hover:text-destructive shrink-0">
+                  <LogOut className="size-3.5" />
+                </button>
+              </SignOutButton>
             </div>
           </div>
         )}

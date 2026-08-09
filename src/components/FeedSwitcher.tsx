@@ -8,7 +8,7 @@ export default function FeedSwitcher({ posts, dbUserId }: { posts: any[], dbUser
 
     return (
         <div>
-            <div className="flex justify-end mb-6">
+            <div className="flex justify-start mb-6">
                 <div className="view-switcher">
                     <button 
                         onClick={() => setMode("linear")}

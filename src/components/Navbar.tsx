@@ -12,16 +12,16 @@ async function Navbar() {
   if (user) await syncUser();
 
   return (
-    <header className="nav-glass sticky top-0 z-10 flex h-20 items-center gap-4 px-5 lg:px-9">
+    <header className="nav-glass sticky top-0 z-50 flex h-20 items-center gap-4 px-5 lg:px-9">
       <MobileMenuButton />
       <div className="lg:hidden"><VibeLogo /></div>
       
-      <div className="relative ml-auto w-full max-w-sm hidden sm:block">
+      <div className="relative w-full max-w-sm hidden sm:block">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <input className="h-10 w-full rounded-xl border border-border/70 bg-card/60 pl-10 pr-4 text-sm outline-none transition focus:border-primary/70 focus:ring-2 focus:ring-primary/10" placeholder="Search the grid..." aria-label="Search the grid" />
       </div>
       
-      <div className="ml-auto sm:ml-4 flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-3">
         <ModeToggle />
         {user ? (
             <>
