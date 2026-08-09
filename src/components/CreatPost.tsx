@@ -26,6 +26,7 @@ export default function CreatPost() {
     const [tags, setTags] = useState("")
     const [isPosting , setIsPosting]=useState(false)
     const [showImageUpload , setShowImageUpload] = useState(false) // for showing the dropZone component
+    const [isExpanded, setIsExpanded] = useState(false)
     //-------------------------------------- fun
     const handleSubmit = async ()=>{
         if(!content.trim() && !imageUrl) return
@@ -40,7 +41,8 @@ export default function CreatPost() {
                 setImageUrl('');
                 setTags('');
                 setMood('neutral');
-                setShowImageUpload(false)
+                setShowImageUpload(false);
+                setIsExpanded(false);
                 toast.success('Vibe has been dropped successfully!')
             }
         }catch(er){
@@ -55,17 +57,27 @@ export default function CreatPost() {
         <Card className="mb-6 bg-card/40 backdrop-blur-xl border-white/10 hover:border-white/20 transition-all duration-300">
             <CardContent className="pt-6 ">
                 <div className="space-y-4">
-                    {/* we will use | npx shadcn@latest add textarea| for text area */}
-                    {/* adding text area  + avatar inside flex div */}
-                    <div className="flex space-x-4">
-                        <Avatar className="w-10 h-10 border border-primary/20">
-                            <AvatarImage src={user?.imageUrl || "/avatar.png"} />
-                        </Avatar>
-                        <Textarea placeholder="Drop a vibe..." value={content} onChange={(e) => setContent(e.target.value)}
-                            disabled={isPosting}
-                            className="min-h-[100px] resize-none border-none focus-visible:ring-1 focus-visible:ring-primary/50 bg-transparent p-3 text-base" 
-                        />
-                    </div>
+                    {!isExpanded ? (
+                        <div className="flex items-center space-x-4 cursor-text" onClick={() => setIsExpanded(true)}>
+                            <Avatar className="w-10 h-10 border border-primary/20">
+                                <AvatarImage src={user?.imageUrl || "/avatar.png"} />
+                            </Avatar>
+                            <div className="flex-1 rounded-full border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-muted-foreground hover:bg-black/40 transition-colors">
+                                Drop a vibe...
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex space-x-4">
+                                <Avatar className="w-10 h-10 border border-primary/20">
+                                    <AvatarImage src={user?.imageUrl || "/avatar.png"} />
+                                </Avatar>
+                                <Textarea placeholder="What's on your mind?" value={content} onChange={(e) => setContent(e.target.value)}
+                                    disabled={isPosting}
+                                    className="min-h-[100px] resize-none border-none focus-visible:ring-1 focus-visible:ring-primary/50 bg-transparent p-3 text-base" 
+                                    autoFocus
+                                />
+                            </div>
                     
                     <div className="flex flex-wrap gap-2 pt-2 pb-2">
                         <Select value={mood} onValueChange={(value) => setMood(value)}>
@@ -103,20 +115,25 @@ export default function CreatPost() {
                                 Photo
                             </Button>
                         </div>
-                        <Button className="btn-gradient flex items-center" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
-                            {isPosting ? (
-                                <>
-                                    <Loader2Icon className="size-4 mr-2 animate-spin" />
-                                    Dropping...
-                                </>
-                            ) : (
-                                <>
-                                    <SendIcon className="size-4 mr-2" />
-                                    Drop Vibe
-                                </>
-                            )}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button type="button" variant="ghost" size="sm" className="text-muted-foreground rounded-full hover:bg-white/5" onClick={() => { setIsExpanded(false); setShowImageUpload(false); setContent(''); setImageUrl(''); }} disabled={isPosting}>Cancel</Button>
+                            <Button className="btn-gradient flex items-center rounded-full" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
+                                {isPosting ? (
+                                    <>
+                                        <Loader2Icon className="size-4 mr-2 animate-spin" />
+                                        Dropping...
+                                    </>
+                                ) : (
+                                    <>
+                                        <SendIcon className="size-4 mr-2" />
+                                        Drop Vibe
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                     </div>
+                        </>
+                    )}
                 </div>
             </CardContent>
         </Card>
