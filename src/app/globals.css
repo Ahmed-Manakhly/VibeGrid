@@ -90,9 +90,18 @@
   .grid-mark span { display: block; border-radius: 2px; background: hsl(var(--primary)); box-shadow: 0 0 10px hsla(var(--primary), 0.7); }
   .grid-mark span:nth-child(2), .grid-mark span:nth-child(3) { background: hsl(var(--accent)); box-shadow: 0 0 10px hsla(var(--accent), 0.7); }
   
-  .nav-item { @apply flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground; }
+  .nav-item { @apply flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-muted-foreground transition border border-transparent; }
   .nav-item svg { @apply size-4; }
-  .nav-item-active { @apply bg-primary/10 text-primary; box-shadow: inset 2px 0 0 hsl(var(--primary)); }
+  .nav-item:hover { 
+    @apply text-accent bg-transparent;
+    box-shadow: 0 0 15px hsl(var(--accent) / 0.4), inset 0 0 10px hsl(var(--accent) / 0.2);
+    border-color: hsl(var(--accent) / 0.5);
+  }
+  .nav-item-active { 
+    @apply text-primary bg-transparent; 
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.4), inset 0 0 10px hsl(var(--primary) / 0.2);
+    border-color: hsl(var(--primary) / 0.5);
+  }
   
   .icon-button { @apply flex size-10 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground; }
   .icon-button svg { @apply size-4; }
@@ -106,7 +115,11 @@
     transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
   }
   
-  .feed-card::before {
+  .surface-panel:hover, .feed-card:hover {
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.1) 0%, hsl(var(--card)) 20%, hsl(var(--card)) 80%, hsl(var(--primary) / 0.1) 100%);
+  }
+  
+  .feed-card::before, .surface-panel::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -117,6 +130,11 @@
     -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
+    transition: background 0.3s ease;
+  }
+
+  .surface-panel:hover::before, .feed-card:hover::before {
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.3), transparent 40%, transparent 60%, hsl(var(--primary) / 0.3)) border-box;
   }
 
   .neon-border-primary {
@@ -137,6 +155,32 @@
     text-shadow: 0 0 10px hsl(var(--accent) / 0.7);
   }
 
+  .btn-gradient {
+    background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)));
+    color: white;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+  .btn-gradient:hover {
+    background: transparent !important;
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary));
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.5);
+  }
+  
+  .btn-gradient-reverted {
+    background: linear-gradient(to right, hsl(var(--accent)), hsl(var(--primary)));
+    color: white;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+  .btn-gradient-reverted:hover {
+    background: transparent !important;
+    border-color: hsl(var(--accent));
+    color: hsl(var(--accent));
+    box-shadow: 0 0 15px hsl(var(--accent) / 0.5);
+  }
+
   .feed-card { box-shadow: 0 16px 60px rgba(0, 0, 0, 0.12); }
   .feed-card:hover, .surface-panel:hover { @apply border-primary/30; transform: translateY(-2px); box-shadow: 0 20px 70px rgba(0, 0, 0, 0.16); }
   
@@ -146,8 +190,19 @@
   .view-switcher { @apply flex items-center rounded-xl border border-border/70 bg-card/60 p-1 backdrop-blur-xl; }
   .view-switcher button { @apply inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition; }
   .view-switcher button svg { @apply size-4; }
-  .view-switcher button:hover { @apply text-foreground; }
-  .view-switcher .view-switch-active { @apply bg-primary text-primary-foreground shadow-sm; }
+  .view-switcher button:hover { @apply text-primary; }
+  .view-switcher .view-switch-active { 
+    background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)));
+    color: white;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+  }
+  .view-switcher .view-switch-active:hover {
+    background: transparent;
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary));
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.5);
+  }
   
   .theme-toggle { @apply border border-border/60 bg-card/50; }
   .avatar { @apply flex size-9 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold; }

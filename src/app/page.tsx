@@ -40,10 +40,10 @@ export default async function Home() {
         {/* Right Sidebar */}
         <div className="w-full xl:w-[380px] shrink-0 flex flex-col gap-6 xl:sticky xl:top-24 h-fit z-10">
             <div className="flex flex-wrap gap-2">
-              <button className="rounded-full bg-primary/10 border border-primary/20 px-4 py-1.5 text-sm font-medium text-primary whitespace-nowrap">Everything</button>
-              <button className="rounded-full border border-border bg-transparent px-4 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted whitespace-nowrap transition-colors">Design</button>
-              <button className="rounded-full border border-border bg-transparent px-4 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted whitespace-nowrap transition-colors">Tech</button>
-              <button className="rounded-full border border-border bg-transparent px-4 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted whitespace-nowrap transition-colors">Culture</button>
+              <button className="rounded-full btn-gradient px-4 py-1.5 text-sm font-medium whitespace-nowrap">Everything</button>
+              <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent hover:shadow-[0_0_15px_hsl(var(--accent)/0.4),inset_0_0_10px_hsl(var(--accent)/0.2)] whitespace-nowrap transition-all duration-300">Design</button>
+              <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent hover:shadow-[0_0_15px_hsl(var(--accent)/0.4),inset_0_0_10px_hsl(var(--accent)/0.2)] whitespace-nowrap transition-all duration-300">Tech</button>
+              <button className="rounded-full btn-gradient-reverted px-4 py-1.5 text-sm font-medium whitespace-nowrap">Culture</button>
             </div>
             
             <ProfileWidget />

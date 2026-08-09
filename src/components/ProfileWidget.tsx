@@ -14,7 +14,7 @@ import { LinkIcon, MapPinIcon } from 'lucide-react'
 const UnauthenticatedSidebar = async ()=>{
     return(
     <div className="sticky top-20">
-        <Card className="bg-card/40 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300">
+        <Card className="surface-panel transition-all duration-300">
             <CardHeader>
                 <CardTitle className="text-center text-xl font-semibold">Welcome Back!</CardTitle>
             </CardHeader>
@@ -49,7 +49,7 @@ async function ProfileWidget() {
     //we will use | npx shadcn@latest add separator |  and we got it in the [ui]
     return (
         <div className="sticky top-20">
-            <Card className="bg-card/40 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300">
+            <Card className="surface-panel transition-all duration-300">
                 <CardContent className="pt-6">
                     <div className="flex flex-col items-center text-center">
                         <Link href={`/profile/${user.username}`} className="flex flex-col items-center justify-center" >
