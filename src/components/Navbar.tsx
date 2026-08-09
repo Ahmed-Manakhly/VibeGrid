@@ -10,7 +10,7 @@ async function Navbar() {
   if (user) await syncUser();
 
   return (
-    <header className="sticky top-0 z-10 flex h-20 items-center gap-4 border-b border-border/60 bg-background/70 px-5 backdrop-blur-2xl lg:px-9">
+    <header className="nav-glass sticky top-0 z-10 flex h-20 items-center gap-4 px-5 lg:px-9">
       <button className="icon-button lg:hidden" aria-label="Open menu"><Menu className="size-4" /></button>
       <div className="lg:hidden"><VibeLogo /></div>
       

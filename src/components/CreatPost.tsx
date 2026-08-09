@@ -103,7 +103,7 @@ export default function CreatPost() {
                                 Photo
                             </Button>
                         </div>
-                        <Button className="flex items-center rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(0,240,255,0.3)] hover:shadow-[0_0_25px_rgba(0,240,255,0.5)] transition-all duration-300" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
+                        <Button className="btn-gradient flex items-center" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
                             {isPosting ? (
                                 <>
                                     <Loader2Icon className="size-4 mr-2 animate-spin" />

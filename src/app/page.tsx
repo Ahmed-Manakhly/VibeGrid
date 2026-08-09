@@ -24,8 +24,8 @@ export default async function Home() {
               <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-primary uppercase">
                 <span className="text-primary/70">⫽</span> TUNED IN
               </div>
-              <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mb-3">Your daily pulse.</h1>
-              <p className="text-muted-foreground text-sm sm:text-base">
+              <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,240,255,0.1)]">Your daily pulse.</h1>
+              <p className="text-accent text-sm sm:text-base font-medium">
                 A signal-rich space for ideas, visual culture, and the people making what is next.
               </p>
             </div>
@@ -40,10 +40,10 @@ export default async function Home() {
         {/* Right Sidebar */}
         <div className="w-full xl:w-[380px] shrink-0 flex flex-col gap-6 xl:sticky xl:top-24 h-fit z-10">
             <div className="flex flex-wrap gap-2">
-              <button className="rounded-full btn-gradient px-4 py-1.5 text-sm font-medium whitespace-nowrap">Everything</button>
+              <button className="rounded-full bg-transparent border border-primary px-4 py-1.5 text-sm font-medium text-primary shadow-[0_0_15px_hsl(var(--primary)/0.4),inset_0_0_10px_hsl(var(--primary)/0.2)] whitespace-nowrap transition-all duration-300">Everything</button>
               <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent hover:shadow-[0_0_15px_hsl(var(--accent)/0.4),inset_0_0_10px_hsl(var(--accent)/0.2)] whitespace-nowrap transition-all duration-300">Design</button>
               <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent hover:shadow-[0_0_15px_hsl(var(--accent)/0.4),inset_0_0_10px_hsl(var(--accent)/0.2)] whitespace-nowrap transition-all duration-300">Tech</button>
-              <button className="rounded-full btn-gradient-reverted px-4 py-1.5 text-sm font-medium whitespace-nowrap">Culture</button>
+              <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent hover:shadow-[0_0_15px_hsl(var(--accent)/0.4),inset_0_0_10px_hsl(var(--accent)/0.2)] whitespace-nowrap transition-all duration-300">Culture</button>
             </div>
             
             <ProfileWidget />
