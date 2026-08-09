@@ -19,16 +19,8 @@ export default async function Home() {
       <div className="flex flex-col gap-10 xl:flex-row xl:items-start">
         {/* Main Feed */}
         <div className="flex-1 min-w-0 mx-auto xl:mx-0">
-          <div className="mb-10">
-            <div className="max-w-xl">
-              <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-primary uppercase">
-                <span className="text-primary/70">⫽</span> TUNED IN
-              </div>
-              <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(0,240,255,0.1)]">Your daily pulse.</h1>
-              <p className="text-accent text-sm sm:text-base font-medium">
-                A signal-rich space for ideas, visual culture, and the people making what is next.
-              </p>
-            </div>
+          <div className="mb-8 hidden xl:block">
+            {/* Keeping spacing for alignment without the large text */}
           </div>
           
           <div className="mt-4 flex flex-col gap-6">
@@ -46,7 +38,6 @@ export default async function Home() {
               <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent hover:shadow-[0_0_15px_hsl(var(--accent)/0.4),inset_0_0_10px_hsl(var(--accent)/0.2)] whitespace-nowrap transition-all duration-300">Culture</button>
             </div>
             
-            <ProfileWidget />
             <TrendingSidebar />
             <WhoToFollow/>
         </div>
