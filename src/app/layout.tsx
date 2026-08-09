@@ -5,7 +5,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/themeProvider";
 import Navbar from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
-//---------------
+import { SidebarProvider } from "@/components/SidebarContext";
+import { SidebarWrapper } from "@/components/SidebarWrapper";
 import { Toaster } from 'react-hot-toast'
 import { JetBrains_Mono } from 'next/font/google'
 
@@ -38,13 +39,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased`} suppressHydrationWarning={true}>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <div className="flex min-h-screen bg-background text-foreground">
-              <Sidebar />
-              <div className="min-w-0 flex-1">
-                <Navbar />
-                <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto">
-                  {children}
-                </main>
-              </div>
+              <SidebarProvider>
+                <SidebarWrapper>
+                  <Sidebar />
+                </SidebarWrapper>
+                <div className="min-w-0 flex-1 transition-all duration-300">
+                  <Navbar />
+                  <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto">
+                    {children}
+                  </main>
+                </div>
+              </SidebarProvider>
             </div>
             <Toaster />
           </ThemeProvider>
