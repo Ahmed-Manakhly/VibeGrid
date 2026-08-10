@@ -44,24 +44,24 @@
     --gradient-core: 0 0% 100%;
   }
   .dark {
-    --background: 0 0% 0%; /* Pure black main background */
+    --background: 220 20% 5%;   /* Very dark navy — main bg, the darkest layer */
     --foreground: 0 0% 98%;
-    --card: 0 0% 4%; /* Equivalent to #0a0a0a */
+    --card: 220 18% 9%;         /* Slightly lighter — for cards/panels */
     --card-foreground: 0 0% 98%;
-    --popover: 222 40% 7%;
+    --popover: 220 18% 9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 158 83% 32%; /* Unified #06402B tone across both modes */
+    --primary: 158 83% 32%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 222 40% 12%;
+    --secondary: 220 16% 14%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 222 40% 12%;
+    --muted: 220 16% 14%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 285 55% 45%; /* Lighter Plum */
+    --accent: 285 55% 45%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 222 20% 15%;
-    --input: 222 20% 15%;
+    --border: 220 16% 16%;
+    --input: 220 16% 14%;
     --ring: 198 100% 50%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -72,10 +72,11 @@
     --shadow-color: 255, 255, 255;
     --shadow-opacity: 0.03;
     --inner-highlight: rgba(255, 255, 255, 0.05);
-    --border-glass: rgba(255, 255, 255, 0.05);
+    --border-glass: rgba(255, 255, 255, 0.06);
     --gradient-opacity: 0.15;
     --card-opacity: 0.6;
     --gradient-core: 222 50% 4%;
+    --nav-surface: 220 20% 8%;  /* Nav/sidebar — between bg and card */
   }
 }
 
@@ -152,69 +153,65 @@
 
   .nav-glass {
     @apply backdrop-blur-xl transition-all duration-300;
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid hsl(var(--border));
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+    background: rgba(255, 255, 255, 0.95); /* Light mode: almost-opaque white — clearly above the grey bg */
+    border-bottom: 1px solid hsl(var(--border));
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
     position: relative;
   }
   
   .dark .nav-glass {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    background: hsl(220 20% 8% / 0.95); /* Dark mode: slightly lighter than bg, distinct from cards */
+    border-bottom: 1px solid hsl(220 16% 14%);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   }
 
   .nav-glass:hover {
-    border-color: hsl(var(--border));
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
   }
 
   .dark .nav-glass:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
   }
 
   .sidebar-glass {
-    @apply backdrop-blur-xl transition-all duration-300;
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid hsl(var(--border));
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+    @apply transition-all duration-300;
+    background: rgba(255, 255, 255, 0.95); /* Light mode: solid white — clearly above grey bg */
+    border-right: 1px solid hsl(var(--border));
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04);
     position: relative;
   }
   
   .dark .sidebar-glass {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    background: hsl(220 20% 8%); /* Dark mode: slightly lighter than bg */
+    border-right: 1px solid hsl(220 16% 14%);
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
   }
 
   .sidebar-glass:hover {
-    border-color: hsl(var(--border));
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.05);
   }
 
   .dark .sidebar-glass:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.4);
   }
 
   .surface-panel {
     @apply backdrop-blur-xl transition-all duration-300;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(255, 255, 255, 0.6) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 8px -8px 20px hsla(var(--primary), 0.12) !important;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, rgba(255, 255, 255, 0.85) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
     position: relative;
   }
   
   .dark .surface-panel {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(15, 23, 42, 0.6) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 12px -12px 30px hsla(var(--primary), 0.25) !important;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, hsl(220 18% 9% / 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important;
   }
 
   .surface-panel:hover, .create-post-card:hover {
-    border-color: hsl(158 83% 75% / 0.6) !important;
-    background: linear-gradient(145deg, hsl(var(--primary) / 0.3) 0%, rgba(255, 255, 255, 0.8) 100%) !important;
+    border-color: hsl(158 83% 75% / 0.5) !important;
+    background: linear-gradient(145deg, hsl(var(--primary) / 0.25) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
     box-shadow: 0 20px 60px hsl(var(--primary) / 0.15), inset 0 1px 2px rgba(255, 255, 255, 1) !important;
   }
 
@@ -224,8 +221,8 @@
 
   .dark .surface-panel:hover, .dark .create-post-card:hover {
     border-color: hsl(var(--primary) / 0.4) !important;
-    background: linear-gradient(145deg, hsl(var(--primary) / 0.25) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
-    box-shadow: 0 20px 60px hsl(var(--primary) / 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+    background: linear-gradient(145deg, hsl(var(--primary) / 0.25) 0%, hsl(220 18% 11% / 0.95) 100%) !important;
+    box-shadow: 0 20px 60px hsl(var(--primary) / 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.08) !important;
   }
 
   .feed-card:hover {
@@ -239,18 +236,18 @@
   }
 
   .feed-card {
-    @apply backdrop-blur-xl transition-all duration-300;
-    background-color: hsl(var(--card));
+    @apply transition-all duration-300;
+    background-color: hsl(var(--card)); /* Light: white — clearly visible on grey bg */
     border: 1px solid hsl(var(--border));
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     position: relative;
     border-radius: 1rem;
   }
 
   .dark .feed-card {
-    background-color: hsl(var(--card));
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    background-color: hsl(var(--card)); /* Dark: card surface — different from bg */
+    border-color: hsl(220 16% 15%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
   
   .neon-border-primary {
