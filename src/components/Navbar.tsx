@@ -14,7 +14,7 @@ async function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 flex flex-col w-full">
-      <div className="nav-glass flex h-20 items-center gap-4 px-5 lg:px-9">
+      <div className="nav-glass flex h-16 items-center gap-4 px-5 lg:px-9">
         <MobileMenuButton />
         <div className="lg:hidden"><VibeLogo /></div>
         

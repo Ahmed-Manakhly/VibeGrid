@@ -13,6 +13,7 @@ import { formatDistanceToNow } from "date-fns";
 import { DeleteAlertDialog } from './DeleteAlertDialog';
 import Image from 'next/image'
 import { Button } from './ui/button';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { HeartIcon, LogInIcon, MessageCircleIcon, SendIcon } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 
@@ -137,18 +138,39 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                     {(post.mood && post.mood !== "neutral" || (post.tags && post.tags.length > 0)) && (
                         <div className="flex flex-wrap gap-2 pt-2"> 
                             {post.mood && post.mood !== "neutral" && (
-                                <span className="px-3 py-1 text-[11px] rounded-full bg-transparent border border-border text-muted-foreground font-medium tracking-wide">
+                                <span className="px-3 py-1 text-[11px] rounded-full bg-primary/10 text-primary font-medium tracking-wide border-none">
                                     {post.mood === 'excited' ? '🚀 Excited' :
                                      post.mood === 'learning' ? '📚 Learning' :
                                      post.mood === 'building' ? '💻 Building' :
                                      post.mood === 'debugging' ? '🐛 Debugging' : post.mood}
                                 </span>
                             )}
-                            {post.tags && post.tags.map((tag: string, idx: number) => (
-                                <span key={idx} className="px-3 py-1 text-[11px] rounded-full bg-transparent border border-border text-muted-foreground font-medium tracking-wide">
+                            {post.tags && post.tags.slice(0, 4).map((tag: string, idx: number) => (
+                                <Link href={`/explore?q=${encodeURIComponent(tag)}`} key={idx} className="px-2.5 py-1 text-[10px] rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors font-medium tracking-wide">
                                     #{tag}
-                                </span>
+                                </Link>
                             ))}
+                            {post.tags && post.tags.length > 4 && (
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <button className="px-2.5 py-1 text-[10px] rounded-full bg-transparent border border-border/30 text-muted-foreground/70 hover:text-foreground hover:border-border transition-colors font-medium tracking-wide">
+                                            +{post.tags.length - 4}
+                                        </button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-md bg-background border-border">
+                                        <DialogHeader>
+                                            <DialogTitle>All Tags</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="flex flex-wrap gap-2 pt-4">
+                                            {post.tags.map((tag: string, idx: number) => (
+                                                <Link href={`/explore?q=${encodeURIComponent(tag)}`} key={idx} className="px-3 py-1.5 text-sm rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors font-medium tracking-wide">
+                                                    #{tag}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
                         </div>
                     )}
                     {/* LIKE & COMMENT BUTTONS */}

@@ -43,7 +43,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
         
         {dbUser && (
           <div className="mt-4 relative group">
-            <div className="flex flex-col gap-4 surface-panel border border-border/60 p-4 group-[.is-collapsed]:p-0 group-[.is-collapsed]:bg-transparent group-[.is-collapsed]:border-transparent group-[.is-collapsed]:shadow-none group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full bg-card/40">
+            <div className="flex flex-col gap-4 hover:bg-muted/30 transition-colors p-3 group-[.is-collapsed]:p-0 group-[.is-collapsed]:bg-transparent group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full cursor-pointer border border-transparent hover:border-border/50">
               <div className="flex items-center gap-3">
                 <Link href={`/profile/${dbUser.username}`} className="hover:opacity-80 transition-opacity">
                   <Avatar className="shrink-0 transition-all">
@@ -61,22 +61,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
                   </div>
                 </div>
               </div>
-              <Link href={`/profile/${dbUser.username}`} className="block hover:opacity-80 transition-opacity">
-                <div className="flex justify-between items-center text-center px-1 group-[.is-collapsed]:hidden">
-                  <div>
-                    <p className="text-sm font-bold text-primary">{dbUser._count?.posts || 0}</p>
-                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Posts</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold">{dbUser._count?.followers || 0}</p>
-                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Followers</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold">{dbUser._count?.following || 0}</p>
-                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Following</p>
-                  </div>
-                </div>
-              </Link>
+
             </div>
           </div>
         )}
