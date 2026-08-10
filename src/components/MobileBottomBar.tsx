@@ -3,17 +3,14 @@ import { Bell, Plus } from "lucide-react";
 import { ModeToggle } from "./ModeToggle";
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
+import { MobileDropVibeButton } from "./DropVibeButtons";
 
 export async function MobileBottomBar() {
   const user = await currentUser();
 
   return (
     <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 nav-glass flex h-16 items-center justify-around px-4 pb-safe border-t border-border/50">
-      <Link href="/#create-post" className="flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-colors">
-        <div className="btn-gradient p-2 rounded-xl shadow-lg transition-colors">
-          <Plus className="size-5" />
-        </div>
-      </Link>
+      <MobileDropVibeButton />
 
       {user ? (
         <>
