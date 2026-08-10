@@ -43,27 +43,29 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
         
         {dbUser && (
           <div className="mt-4 relative group">
-            <Link href={`/profile/${dbUser.username}`} className="block hover:opacity-90 transition-opacity">
-              <div className="flex flex-col gap-4 border border-border/60 p-4 group-[.is-collapsed]:p-2 group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full bg-card/40 group-[.is-collapsed]:border-transparent">
-                <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-4 border border-border/60 p-4 group-[.is-collapsed]:p-2 group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full bg-card/40 group-[.is-collapsed]:border-transparent">
+              <div className="flex items-center gap-3">
+                <Link href={`/profile/${dbUser.username}`} className="hover:opacity-80 transition-opacity">
                   <Avatar className="shrink-0 transition-all">
                       <AvatarImage src={dbUser.image || ""} alt={dbUser.name} />
                       <AvatarFallback>{authUser?.firstName?.charAt(0) || 'U'}</AvatarFallback>
                   </Avatar>
-                  <div className="min-w-0 flex-1 group-[.is-collapsed]:hidden">
-                      <p className="truncate text-sm font-medium flex items-center justify-between">
-                        <span>{dbUser.name}</span>
-                        <div className="z-10" onClick={(e) => e.preventDefault()}>
-                          <SignOutButton>
-                            <button className="p-1.5 hover:bg-destructive/10 rounded-full transition-colors text-muted-foreground hover:text-destructive shrink-0">
-                              <LogOut className="size-3.5" />
-                            </button>
-                          </SignOutButton>
-                        </div>
-                      </p>
-                      <p className="truncate font-mono text-[10px] text-muted-foreground">@{dbUser.username}</p>
+                </Link>
+                <div className="min-w-0 flex-1 group-[.is-collapsed]:hidden flex items-center justify-between">
+                  <Link href={`/profile/${dbUser.username}`} className="hover:opacity-80 transition-opacity min-w-0 flex-1 pr-2">
+                    <p className="truncate text-sm font-medium">{dbUser.name}</p>
+                    <p className="truncate font-mono text-[10px] text-muted-foreground">@{dbUser.username}</p>
+                  </Link>
+                  <div className="shrink-0">
+                    <SignOutButton>
+                      <button className="p-1.5 hover:bg-destructive/10 rounded-full transition-colors text-muted-foreground hover:text-destructive shrink-0">
+                        <LogOut className="size-3.5" />
+                      </button>
+                    </SignOutButton>
                   </div>
                 </div>
+              </div>
+              <Link href={`/profile/${dbUser.username}`} className="block hover:opacity-80 transition-opacity">
                 <div className="flex justify-between items-center text-center px-1 group-[.is-collapsed]:hidden">
                   <div>
                     <p className="text-sm font-bold text-primary">{dbUser._count?.posts || 0}</p>
@@ -78,8 +80,8 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
                     <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Following</p>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
           </div>
         )}
       </div>
