@@ -91,13 +91,10 @@
 @layer components {
   body { 
     @apply bg-background text-foreground antialiased; 
-    background-image: radial-gradient(circle at 78% 8%, color-mix(in srgb, hsl(var(--primary)) 18%, transparent), transparent 32rem), 
-                      radial-gradient(circle at 14% 88%, color-mix(in srgb, hsl(var(--accent)) 16%, transparent), transparent 34rem); 
     transition: background-color .35s ease, color .35s ease; 
   }
   .dark body { 
-    background-image: radial-gradient(circle at 78% 8%, color-mix(in srgb, hsl(var(--primary)) 16%, transparent), transparent 28rem), 
-                      radial-gradient(circle at 14% 88%, color-mix(in srgb, hsl(var(--accent)) 14%, transparent), transparent 30rem); 
+    @apply bg-background text-foreground;
   }
 
   .grid-mark { display: grid; grid-template-columns: repeat(2, 7px); grid-template-rows: repeat(2, 7px); gap: 3px; transform: rotate(-12deg); }
@@ -108,15 +105,35 @@
   .nav-item svg { @apply size-4; }
   
   .nav-item:hover, .nav-item-active { 
-    @apply text-foreground border-none rounded-none;
+    @apply text-foreground border-none rounded-none rounded-r-full;
     background-color: transparent;
-    background-image: linear-gradient(90deg, transparent 0%, hsl(var(--accent) / 0.85) 50%, transparent 100%);
-    box-shadow: none !important;
+    background-image: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.25) 100%);
+    box-shadow: 4px 0 15px hsla(var(--primary), 0.15), inset -2px 0 4px hsla(var(--primary), 0.2) !important;
+    border-right: 1px solid hsl(var(--primary) / 0.4) !important;
   }
   
   .dark .nav-item:hover, .dark .nav-item-active {
-    background-color: transparent;
-    background-image: linear-gradient(90deg, transparent 0%, hsl(var(--accent) / 0.7) 50%, transparent 100%);
+    background-image: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.25) 100%);
+    box-shadow: 4px 0 20px hsla(var(--primary), 0.3), inset -2px 0 4px hsla(var(--primary), 0.4) !important;
+    border-right: 1px solid hsl(var(--primary) / 0.6) !important;
+  }
+  
+  /* When sidebar is collapsed, make nav items circular like topbar icons */
+  .group.is-collapsed .nav-item {
+    @apply size-10 mx-auto rounded-xl p-0 justify-center;
+  }
+  .group.is-collapsed .nav-item:hover, .group.is-collapsed .nav-item-active {
+    @apply rounded-full;
+    background-color: hsl(var(--accent)) !important;
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%) !important;
+    border: 1px solid hsl(var(--accent) / 0.6) !important;
+    color: white !important;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+  }
+  
+  .dark .group.is-collapsed .nav-item:hover, .dark .group.is-collapsed .nav-item-active {
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%) !important;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
   }
   
 
@@ -133,48 +150,107 @@
     @apply rounded-xl;
   }
 
-  .nav-glass, .surface-panel {
+  .nav-glass {
     @apply backdrop-blur-xl transition-all duration-300;
-    
-    /* Modern Light Glassmorphism with Primary Wash */
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(255, 255, 255, 0.6) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 10px 40px hsla(var(--primary), 0.08) !important;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
     position: relative;
   }
   
-  .dark .nav-glass, .dark .surface-panel {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(15, 23, 42, 0.6) 100%);
+  .dark .nav-glass {
+    background: rgba(15, 23, 42, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 40px hsla(var(--primary), 0.05) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   }
 
-  .nav-glass:hover, .surface-panel:hover, .feed-card:hover {
+  .nav-glass:hover {
+    border-color: hsl(var(--border));
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+  }
+
+  .dark .nav-glass:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar-glass {
+    @apply backdrop-blur-xl transition-all duration-300;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+    position: relative;
+  }
+  
+  .dark .sidebar-glass {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .sidebar-glass:hover {
+    border-color: hsl(var(--border));
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+  }
+
+  .dark .sidebar-glass:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  .surface-panel {
+    @apply backdrop-blur-xl transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(255, 255, 255, 0.6) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 8px -8px 20px hsla(var(--primary), 0.12) !important;
+    position: relative;
+  }
+  
+  .dark .surface-panel {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(15, 23, 42, 0.6) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 12px -12px 30px hsla(var(--primary), 0.25) !important;
+  }
+
+  .surface-panel:hover, .create-post-card:hover {
     border-color: hsl(158 83% 75% / 0.6) !important;
     background: linear-gradient(145deg, hsl(var(--primary) / 0.3) 0%, rgba(255, 255, 255, 0.8) 100%) !important;
     box-shadow: 0 20px 60px hsl(var(--primary) / 0.15), inset 0 1px 2px rgba(255, 255, 255, 1) !important;
   }
 
-  .dark .nav-glass:hover, .dark .surface-panel:hover, .dark .feed-card:hover {
+  .surface-panel:hover {
+    transform: translateY(-4px);
+  }
+
+  .dark .surface-panel:hover, .dark .create-post-card:hover {
     border-color: hsl(var(--primary) / 0.4) !important;
     background: linear-gradient(145deg, hsl(var(--primary) / 0.25) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
     box-shadow: 0 20px 60px hsl(var(--primary) / 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
   }
 
+  .feed-card:hover {
+    border-color: hsl(var(--primary) / 0.2);
+    box-shadow: 0 20px 50px hsla(var(--primary), 0.08);
+  }
+  
+  .dark .feed-card:hover {
+    border-color: hsl(var(--primary) / 0.2);
+    box-shadow: 0 20px 50px hsla(var(--primary), 0.12);
+  }
+
   .feed-card {
     @apply backdrop-blur-xl transition-all duration-300;
-    
-    /* Solid Base Styles (Applied everywhere without gradient) */
-    background-color: #ffffff !important; /* Pure white for cards in light mode */
-    border: 1px solid rgba(128, 128, 128, 0.15) !important; /* Same border color in both modes */
-    box-shadow: 0 10px 40px hsla(var(--primary), 0.08) !important;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
     position: relative;
     border-radius: 1rem;
   }
 
   .dark .feed-card {
-    background-color: #0a0a0a !important; /* Dark mode card tone (slightly lighter than pure black bg) */
-    box-shadow: 0 10px 40px hsla(var(--primary), 0.05) !important;
+    background-color: hsl(var(--card));
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   }
   
   .neon-border-primary {
@@ -252,7 +328,7 @@
   
   .eyebrow { @apply font-mono text-[10px] font-bold uppercase tracking-[.22em] text-primary; }
   
-  .topic-pill { @apply whitespace-nowrap rounded-full border border-border/70 px-4 py-2 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-foreground; }
+  .topic-pill { @apply whitespace-nowrap rounded-full border border-border/70 px-4 py-2 text-xs text-muted-foreground transition hover:border-foreground/20 hover:text-foreground; }
   .topic-pill-active { @apply border-primary/50 bg-primary/10 text-primary; }
   
   .action-button { @apply inline-flex items-center gap-2 text-xs text-muted-foreground transition hover:text-primary; } 

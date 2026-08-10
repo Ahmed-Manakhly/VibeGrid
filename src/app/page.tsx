@@ -35,16 +35,16 @@ export default async function Home() {
           </>
         }
         discovery={
-          <div className="flex flex-col gap-6 xl:sticky xl:top-[88px] xl:max-h-[calc(100vh-88px)] xl:overflow-y-auto z-10 pb-10 scrollbar-hide">
-              <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-6 xl:sticky xl:top-[88px] xl:max-h-[calc(100vh-88px)] xl:overflow-y-auto z-10 pb-10 px-4 -mx-4 scrollbar-hide">
+              <div className="flex flex-wrap gap-2 pt-2">
                 <button className="rounded-full bg-transparent border border-primary px-4 py-1.5 text-sm font-medium text-primary whitespace-nowrap transition-all duration-300">Everything</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent whitespace-nowrap transition-all duration-300">Design</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent whitespace-nowrap transition-all duration-300">Tech</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent whitespace-nowrap transition-all duration-300">Culture</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent whitespace-nowrap transition-all duration-300">Business</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent whitespace-nowrap transition-all duration-300">Productivity</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent whitespace-nowrap transition-all duration-300">Startups</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-accent hover:text-accent whitespace-nowrap transition-all duration-300">Lifestyle</button>
+                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Design</button>
+                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Tech</button>
+                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Culture</button>
+                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Business</button>
+                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Productivity</button>
+                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Startups</button>
+                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Lifestyle</button>
               </div>
               
               <TrendingSidebar />

@@ -26,7 +26,7 @@ export function TrendingSidebar() {
             </div>
         </section>
 
-        <section className="feed-card overflow-hidden">
+        <section className="surface-panel overflow-hidden">
             <div className="p-5">
                 <p className="eyebrow">Creator spotlight</p>
                 <h2 className="mt-2 font-display text-xl font-semibold">Make the unseen visible.</h2>

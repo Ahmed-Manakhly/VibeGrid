@@ -200,7 +200,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                     </Avatar>
                                     <div className="flex-1">
                                         <Textarea placeholder="Drop a vibe..." value={newComment} onChange={(e) => setNewComment(e.target.value)}
-                                            className="min-h-[80px] resize-none bg-black/20 border-white/10 rounded-xl focus-visible:ring-1 focus-visible:ring-border" />
+                                            className="min-h-[80px] resize-none bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border" />
                                         <div className="flex justify-end mt-2">
                                             <Button onClick={handleAddComment}
                                                 size="sm"  className="btn-gradient flex items-center gap-2" disabled={!newComment.trim() || isCommenting} >

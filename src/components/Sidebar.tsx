@@ -1,8 +1,8 @@
 import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
-import { Home, Bell, User, Settings, LogOut, Search, Mail, Bookmark, Users } from 'lucide-react';
+import { Home, Bell, User, Settings, Search, Mail, Bookmark, Users } from 'lucide-react';
 import { VibeLogo } from './VibeLogo';
-import { SignOutButton } from "@clerk/nextjs";
+import { CustomSignOutButton } from './CustomSignOutButton';
 import { getUserByClerkId } from '@/actions/user.action';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 
@@ -43,7 +43,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
         
         {dbUser && (
           <div className="mt-4 relative group">
-            <div className="flex flex-col gap-4 border border-border/60 p-4 group-[.is-collapsed]:p-2 group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full bg-card/40 group-[.is-collapsed]:border-transparent">
+            <div className="flex flex-col gap-4 surface-panel border border-border/60 p-4 group-[.is-collapsed]:p-0 group-[.is-collapsed]:bg-transparent group-[.is-collapsed]:border-transparent group-[.is-collapsed]:shadow-none group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full bg-card/40">
               <div className="flex items-center gap-3">
                 <Link href={`/profile/${dbUser.username}`} className="hover:opacity-80 transition-opacity">
                   <Avatar className="shrink-0 transition-all">
@@ -57,11 +57,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
                     <p className="truncate font-mono text-[10px] text-muted-foreground">@{dbUser.username}</p>
                   </Link>
                   <div className="shrink-0">
-                    <SignOutButton>
-                      <div role="button" className="p-1.5 hover:bg-destructive/10 rounded-full transition-colors text-muted-foreground hover:text-destructive shrink-0 cursor-pointer">
-                        <LogOut className="size-3.5" />
-                      </div>
-                    </SignOutButton>
+                    <CustomSignOutButton />
                   </div>
                 </div>
               </div>
