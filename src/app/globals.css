@@ -119,9 +119,7 @@
     background-image: linear-gradient(90deg, transparent 0%, hsl(var(--accent) / 0.7) 50%, transparent 100%);
   }
   
-  .button-glow { 
-    /* Consolidated below with btn-gradient */
-  }
+
   
   .icon-button { @apply flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-all duration-300 border border-transparent; }
   .icon-button:hover { 
