@@ -44,9 +44,9 @@
     --gradient-core: 0 0% 100%;
   }
   .dark {
-    --background: 222 50% 4%; /* Deepest navy/black */
+    --background: 0 0% 0%; /* Pure black main background */
     --foreground: 0 0% 98%;
-    --card: 222 40% 7%; /* Slightly lighter for cards */
+    --card: 0 0% 4%; /* Equivalent to #0a0a0a */
     --card-foreground: 0 0% 98%;
     --popover: 222 40% 7%;
     --popover-foreground: 0 0% 98%;
@@ -161,21 +161,25 @@
   .feed-card {
     @apply backdrop-blur-xl transition-all duration-300;
     
-    /* Light Glassmorphism Solid Base */
-    @apply border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.02)] bg-white/65;
+    /* Solid Base Styles (Applied everywhere without gradient) */
+    background-color: #f4f4f5; /* Light mode card tone */
+    border: 1px solid rgba(128, 128, 128, 0.15) !important; /* Same border color in both modes */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important; /* Soft diffused shadow overriding tailwind */
     position: relative;
+    border-radius: 1rem;
   }
 
   .feed-card:hover {
-    @apply border-primary/30 bg-white/80;
+    border-color: rgba(128, 128, 128, 0.3);
   }
 
   .dark .feed-card {
-    @apply border-white/10 shadow-none bg-slate-900/60;
+    background-color: #0a0a0a; /* Dark mode card tone (slightly lighter than pure black bg) */
+    /* Border and shadow are inherited and kept exactly the same */
   }
 
   .dark .feed-card:hover {
-    @apply border-primary/30 bg-slate-900/80;
+    border-color: rgba(128, 128, 128, 0.3);
   }
   
   .neon-border-primary {
