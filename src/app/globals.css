@@ -16,7 +16,7 @@
     --card-foreground: 222 50% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 50% 10%;
-    --primary: 198 100% 45%;
+    --primary: 158 83% 32%; /* Slightly darker #06402B variant for light mode */
     --primary-foreground: 0 0% 98%;
     --secondary: 220 14% 90%;
     --secondary-foreground: 222 50% 10%;
@@ -50,7 +50,7 @@
     --card-foreground: 0 0% 98%;
     --popover: 222 40% 7%;
     --popover-foreground: 0 0% 98%;
-    --primary: 198 100% 50%; /* Cyan */
+    --primary: 158 83% 32%; /* Unified #06402B tone across both modes */
     --primary-foreground: 0 0% 98%;
     --secondary: 222 40% 12%;
     --secondary-foreground: 0 0% 98%;
@@ -141,24 +141,24 @@
     /* Modern Light Glassmorphism with Primary Wash */
     background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(255, 255, 255, 0.6) 100%);
     border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: none !important;
+    box-shadow: 0 10px 40px hsla(var(--primary), 0.08) !important;
     position: relative;
   }
   
   .dark .nav-glass, .dark .surface-panel {
     background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(15, 23, 42, 0.6) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: none !important;
+    box-shadow: 0 10px 40px hsla(var(--primary), 0.05) !important;
   }
 
   .nav-glass:hover, .surface-panel:hover, .feed-card:hover {
-    border-color: hsl(var(--border)) !important;
+    border-color: hsl(var(--accent) / 0.4) !important;
     background: linear-gradient(145deg, hsl(var(--primary) / 0.3) 0%, rgba(255, 255, 255, 0.8) 100%) !important;
     box-shadow: 0 20px 60px hsl(var(--primary) / 0.15), inset 0 1px 2px rgba(255, 255, 255, 1) !important;
   }
 
   .dark .nav-glass:hover, .dark .surface-panel:hover, .dark .feed-card:hover {
-    border-color: hsl(var(--border)) !important;
+    border-color: hsl(var(--primary) / 0.4) !important;
     background: linear-gradient(145deg, hsl(var(--primary) / 0.25) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
     box-shadow: 0 20px 60px hsl(var(--primary) / 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
   }
@@ -169,14 +169,14 @@
     /* Solid Base Styles (Applied everywhere without gradient) */
     background-color: #ffffff !important; /* Pure white for cards in light mode */
     border: 1px solid rgba(128, 128, 128, 0.15) !important; /* Same border color in both modes */
-    box-shadow: none !important;
+    box-shadow: 0 10px 40px hsla(var(--primary), 0.08) !important;
     position: relative;
     border-radius: 1rem;
   }
 
   .dark .feed-card {
     background-color: #0a0a0a !important; /* Dark mode card tone (slightly lighter than pure black bg) */
-    /* Border and shadow are inherited and kept exactly the same */
+    box-shadow: 0 10px 40px hsla(var(--primary), 0.05) !important;
   }
   
   .neon-border-primary {
@@ -260,10 +260,9 @@
   .action-button { @apply inline-flex items-center gap-2 text-xs text-muted-foreground transition hover:text-primary; } 
   .action-button svg { @apply size-4; }
   
-  .auth-page { @apply relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-5 py-20; }
+  .auth-page { @apply relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-5 pb-32 pt-20; }
   .auth-card { 
-    @apply relative z-[1] w-full max-w-md rounded-3xl border border-border bg-card/75 p-7 shadow-2xl backdrop-blur-2xl sm:p-10; 
-    box-shadow: 0 20px 100px rgba(0, 0, 0, 0.3), 0 0 70px hsla(var(--primary), 0.15); 
+    @apply relative z-[1] w-full max-w-md p-7 sm:p-10 surface-panel; 
   }
   .auth-label { @apply flex flex-col gap-2 text-xs font-medium text-muted-foreground; }
   .auth-input-wrap { @apply flex h-12 items-center gap-3 rounded-xl border border-border bg-background/50 px-3 transition focus-within:border-primary/70 focus-within:ring-2 focus-within:ring-primary/10; } 
@@ -274,8 +273,8 @@
   .back-link { @apply flex items-center gap-2 text-xs text-muted-foreground transition hover:text-primary; } 
   .back-link svg { @apply size-4; }
   
-  .auth-orbit { @apply pointer-events-none absolute rounded-full border border-primary/10; } 
-  .auth-orbit-one { width: 38rem; height: 38rem; left: -15rem; top: 18%; box-shadow: 0 0 120px hsla(var(--primary), 0.1); } 
-  .auth-orbit-two { width: 28rem; height: 28rem; right: -10rem; top: 5%; border-color: hsla(var(--accent), 0.2); box-shadow: 0 0 100px hsla(var(--accent), 0.1); }
+  .auth-orbit { @apply pointer-events-none absolute rounded-full; filter: blur(120px); opacity: 0.7; } 
+  .auth-orbit-one { width: 40rem; height: 40rem; left: -15rem; top: 10%; background-color: hsla(var(--primary), 0.35); } 
+  .auth-orbit-two { width: 30rem; height: 30rem; right: -10rem; top: -5%; background-color: hsla(var(--accent), 0.25); }
   @media (max-width: 640px) { .auth-card { @apply p-6; } }
 }

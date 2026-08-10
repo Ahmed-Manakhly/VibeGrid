@@ -37,7 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <html lang="en" suppressHydrationWarning >
         <head />
         <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased font-mono`} suppressHydrationWarning={true}>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
             <div className="flex min-h-screen bg-background text-foreground">
               <SidebarProvider>
                 <SidebarWrapper>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import PostCard from "./PostCard";
 import { Grid3X3, AlignJustify } from "lucide-react";
 export default function FeedSwitcher({ posts, dbUserId }: { posts: any[], dbUserId: string | null }) {
-    const [mode, setMode] = useState<"linear" | "masonry">("linear");
+    const [mode, setMode] = useState<"linear" | "masonry">("masonry");
 
     return (
         <div>

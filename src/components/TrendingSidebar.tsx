@@ -4,7 +4,7 @@ import { Zap, UserRound } from 'lucide-react';
 export function TrendingSidebar() {
   return (
     <div className="hidden flex-col gap-6 xl:flex">
-        <section className="feed-card p-5">
+        <section className="surface-panel p-5">
             <div className="flex items-center justify-between">
                 <p className="eyebrow">Trending now</p>
                 <Zap className="size-4 text-primary" />
