@@ -43,7 +43,7 @@ export function MobileTabsLayout({
       </div>
       
       {/* Discovery Column (Right Sidebar) */}
-      <div className={`w-full xl:w-auto ${activeTab === 'discovery' ? 'block' : 'hidden xl:block'}`}>
+      <div className={`w-full xl:w-[380px] shrink-0 ${activeTab === 'discovery' ? 'block' : 'hidden xl:block'}`}>
         {discovery}
       </div>
     </div>

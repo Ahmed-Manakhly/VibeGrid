@@ -25,7 +25,7 @@ async function Navbar() {
         <ModeToggle />
         {user ? (
             <>
-                <button className="icon-button" aria-label="Notifications"><Bell className="size-4" /></button>
+                <button className="icon-button hidden sm:flex" aria-label="Notifications"><Bell className="size-4" /></button>
                 <Link href="/" className="btn-gradient hidden items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold sm:flex"><Plus className="size-4" /> Drop Vibe</Link>
                 <div className="pl-2 border-l border-border/50 ml-2 hidden sm:block">
                   <UserButton />
