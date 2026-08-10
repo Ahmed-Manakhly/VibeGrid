@@ -40,7 +40,7 @@ export default function CreatPost() {
         // Listen for changes
         window.addEventListener('focusCreatePost', handleFocus);
         return () => window.removeEventListener('focusCreatePost', handleFocus);
-    }, [isExpanded]);
+    }, []);
 
     //-------------------------------------- fun
     const handleSubmit = async () => {
