@@ -12,7 +12,7 @@ export default function FeedSwitcher({ posts, dbUserId }: { posts: any[], dbUser
                 <div className="view-switcher">
                     <button 
                         onClick={() => setMode("linear")}
-                        className={mode === "linear" ? "view-switch-active" : ""}
+                        className={mode === "linear" ? "btn-gradient shadow-none border-none" : "hover:text-primary"}
                         title="Linear Thread View"
                     >
                         <AlignJustify />
@@ -20,7 +20,7 @@ export default function FeedSwitcher({ posts, dbUserId }: { posts: any[], dbUser
                     </button>
                     <button 
                         onClick={() => setMode("masonry")}
-                        className={mode === "masonry" ? "view-switch-active" : ""}
+                        className={mode === "masonry" ? "btn-gradient shadow-none border-none" : "hover:text-primary"}
                         title="Masonry Grid View"
                     >
                         <Grid3X3 />

@@ -23,10 +23,9 @@ function FollowButton({ userId }: { userId: string }) { // userId is the target 
     return (
         <Button
             size={"sm"}
-            variant={"default"}
             onClick={handleFollow}
             disabled={isLoading}
-            className="w-20 rounded-full font-mono text-xs"
+            className="btn-gradient w-20 rounded-xl font-mono text-xs"
         >
             {isLoading ? <Loader2Icon className="size-4 animate-spin" /> : "Tune In"}
         </Button>

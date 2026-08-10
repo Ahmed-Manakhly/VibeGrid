@@ -54,7 +54,7 @@ export default function CreatPost() {
     };
     //---------------------------------------
     return (
-        <Card className="mb-6 bg-card/40 backdrop-blur-xl border-white/10 hover:border-white/20 transition-all duration-300">
+        <Card className="mb-6 feed-card">
             <CardContent className="pt-6 ">
                 <div className="space-y-4">
                     {!isExpanded ? (
@@ -62,7 +62,7 @@ export default function CreatPost() {
                             <Avatar className="w-10 h-10 border border-primary/20">
                                 <AvatarImage src={user?.imageUrl || "/avatar.png"} />
                             </Avatar>
-                            <div className="flex-1 rounded-full border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-muted-foreground hover:bg-black/40 transition-colors">
+                            <div className="flex-1 rounded-xl border border-border/50 bg-background px-4 py-2.5 text-sm text-muted-foreground hover:bg-background/80 transition-colors">
                                 Drop a vibe...
                             </div>
                         </div>
@@ -74,17 +74,17 @@ export default function CreatPost() {
                                 </Avatar>
                                 <Textarea placeholder="What's on your mind?" value={content} onChange={(e) => setContent(e.target.value)}
                                     disabled={isPosting}
-                                    className="min-h-[100px] resize-none border-none focus-visible:ring-1 focus-visible:ring-primary/50 bg-transparent p-3 text-base" 
+                                    className="min-h-[100px] resize-none border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border bg-background p-3 text-base" 
                                     autoFocus
                                 />
                             </div>
                     
                     <div className="flex flex-wrap gap-2 pt-2 pb-2">
                         <Select value={mood} onValueChange={(value) => setMood(value)}>
-                            <SelectTrigger className="w-[140px] h-8 text-sm bg-black/40 text-muted-foreground border-white/10 hover:border-primary/50 transition-all font-mono rounded-full">
+                            <SelectTrigger className="w-[140px] h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
                                 <SelectValue placeholder="Mood" />
                             </SelectTrigger>
-                            <SelectContent className="bg-background/80 backdrop-blur-xl border-white/10 font-mono">
+                            <SelectContent className="bg-background border-border/50 font-mono">
                                 <SelectItem value="neutral">😐 Neutral</SelectItem>
                                 <SelectItem value="excited">🚀 Excited</SelectItem>
                                 <SelectItem value="learning">📚 Learning</SelectItem>
@@ -97,7 +97,7 @@ export default function CreatPost() {
                             placeholder="Tags (comma separated, e.g. React, UI)" 
                             value={tags}
                             onChange={(e) => setTags(e.target.value)}
-                            className="h-8 text-sm bg-black/40 text-muted-foreground border-white/10 focus-visible:border-primary/50 focus-visible:ring-1 focus-visible:ring-primary/50 flex-1 min-w-[200px] font-mono rounded-full transition-all"
+                            className="h-8 text-sm bg-background text-muted-foreground border-border/50 focus-visible:border-border focus-visible:ring-1 focus-visible:ring-border flex-1 min-w-[200px] font-mono rounded-xl transition-all"
                         />
                     </div>
                     {/* TODO: handle image upload */}
@@ -108,7 +108,7 @@ export default function CreatPost() {
                     )}
                     <div className="flex items-center justify-between border-t border-white/10 pt-4">
                         <div className="flex space-x-2">
-                            <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-white/5 transition-all rounded-full"
+                            <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-white/5 transition-all rounded-xl"
                                 onClick={() => setShowImageUpload(!showImageUpload)} disabled={isPosting}
                             >
                                 <ImageIcon className="size-4 mr-2" />
@@ -116,8 +116,8 @@ export default function CreatPost() {
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button type="button" variant="ghost" size="sm" className="text-muted-foreground rounded-full hover:bg-white/5" onClick={() => { setIsExpanded(false); setShowImageUpload(false); setContent(''); setImageUrl(''); }} disabled={isPosting}>Cancel</Button>
-                            <Button className="btn-gradient flex items-center rounded-full" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
+                            <Button type="button" size="sm" className="btn-secondary" onClick={() => { setIsExpanded(false); setShowImageUpload(false); setContent(''); setImageUrl(''); }} disabled={isPosting}>Cancel</Button>
+                            <Button className="btn-gradient flex items-center rounded-xl" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
                                 {isPosting ? (
                                     <>
                                         <Loader2Icon className="size-4 mr-2 animate-spin" />

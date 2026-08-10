@@ -10,7 +10,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 240 5% 96%;
     --foreground: 222 50% 10%;
     --card: 0 0% 100%;
     --card-foreground: 222 50% 10%;
@@ -104,17 +104,19 @@
   .grid-mark span { display: block; border-radius: 2px; background: hsl(var(--primary)); box-shadow: 0 0 10px hsla(var(--primary), 0.7); }
   .grid-mark span:nth-child(2), .grid-mark span:nth-child(3) { background: hsl(var(--accent)); box-shadow: 0 0 10px hsla(var(--accent), 0.7); }
   
-  .nav-item { @apply flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-muted-foreground transition border border-transparent; }
+  .nav-item { @apply flex items-center gap-3 rounded-none px-3 py-3 text-sm font-bold text-muted-foreground transition border-none; }
   .nav-item svg { @apply size-4; }
-  .nav-item:hover { 
-    @apply text-accent bg-transparent;
-    box-shadow: 0 0 15px hsl(var(--accent) / 0.4), inset 0 0 10px hsl(var(--accent) / 0.2);
-    border-color: hsl(var(--accent) / 0.5);
+  
+  .nav-item:hover, .nav-item-active { 
+    @apply text-foreground border-none rounded-none;
+    background-color: transparent;
+    background-image: linear-gradient(90deg, transparent 0%, hsl(var(--accent) / 0.85) 50%, transparent 100%);
+    box-shadow: none !important;
   }
-  .nav-item-active { 
-    @apply text-primary bg-transparent; 
-    box-shadow: 0 0 15px hsl(var(--primary) / 0.4), inset 0 0 10px hsl(var(--primary) / 0.2);
-    border-color: hsl(var(--primary) / 0.5);
+  
+  .dark .nav-item:hover, .dark .nav-item-active {
+    background-color: transparent;
+    background-image: linear-gradient(90deg, transparent 0%, hsl(var(--accent) / 0.7) 50%, transparent 100%);
   }
   
   .button-glow { 
@@ -136,50 +138,45 @@
   .nav-glass, .surface-panel {
     @apply backdrop-blur-xl transition-all duration-300;
     
-    /* Light Glassmorphism Styles with Primary Gradient */
-    @apply border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)];
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(255, 255, 255, 0.7) 100%);
-    
+    /* Modern Light Glassmorphism with Primary Wash */
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(255, 255, 255, 0.6) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: none !important;
     position: relative;
   }
   
-  .nav-glass:hover, .surface-panel:hover {
-    @apply border-primary/30;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.25) 0%, rgba(255, 255, 255, 0.8) 100%);
-  }
-
   .dark .nav-glass, .dark .surface-panel {
-    @apply border-white/10 shadow-none;
     background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, rgba(15, 23, 42, 0.6) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: none !important;
   }
 
-  .dark .nav-glass:hover, .dark .surface-panel:hover {
-    @apply border-primary/30;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.25) 0%, rgba(15, 23, 42, 0.8) 100%);
+  .nav-glass:hover, .surface-panel:hover, .feed-card:hover {
+    border-color: hsl(var(--border)) !important;
+    background: linear-gradient(145deg, hsl(var(--primary) / 0.3) 0%, rgba(255, 255, 255, 0.8) 100%) !important;
+    box-shadow: 0 20px 60px hsl(var(--primary) / 0.15), inset 0 1px 2px rgba(255, 255, 255, 1) !important;
+  }
+
+  .dark .nav-glass:hover, .dark .surface-panel:hover, .dark .feed-card:hover {
+    border-color: hsl(var(--border)) !important;
+    background: linear-gradient(145deg, hsl(var(--primary) / 0.25) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
+    box-shadow: 0 20px 60px hsl(var(--primary) / 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
   }
 
   .feed-card {
     @apply backdrop-blur-xl transition-all duration-300;
     
     /* Solid Base Styles (Applied everywhere without gradient) */
-    background-color: #f4f4f5; /* Light mode card tone */
+    background-color: #ffffff !important; /* Pure white for cards in light mode */
     border: 1px solid rgba(128, 128, 128, 0.15) !important; /* Same border color in both modes */
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06) !important; /* Soft diffused shadow overriding tailwind */
+    box-shadow: none !important;
     position: relative;
     border-radius: 1rem;
   }
 
-  .feed-card:hover {
-    border-color: rgba(128, 128, 128, 0.3);
-  }
-
   .dark .feed-card {
-    background-color: #0a0a0a; /* Dark mode card tone (slightly lighter than pure black bg) */
+    background-color: #0a0a0a !important; /* Dark mode card tone (slightly lighter than pure black bg) */
     /* Border and shadow are inherited and kept exactly the same */
-  }
-
-  .dark .feed-card:hover {
-    border-color: rgba(128, 128, 128, 0.3);
   }
   
   .neon-border-primary {
@@ -202,58 +199,46 @@
 
   .view-switcher button:hover { @apply text-primary; }
   
-  /* Unified Button Styling matching Cards */
-  .btn-gradient, .button-glow, .view-switcher .view-switch-active {
-    @apply rounded-xl relative;
-    border: 1px solid var(--border-glass);
-    background: linear-gradient(135deg, hsl(var(--primary) / var(--gradient-opacity)) 0%, hsl(var(--gradient-core)) 20%, hsl(var(--gradient-core)) 80%, hsl(var(--accent) / var(--gradient-opacity)) 100%);
-    box-shadow: inset 0 1px 1px var(--inner-highlight), 0 4px 20px rgba(var(--shadow-color), var(--shadow-opacity));
-    color: var(--foreground);
-    transition: all 0.3s ease;
+  /* Global Button Style (Accent Gradient) */
+  .btn-gradient {
+    @apply rounded-xl transition-all duration-300 font-medium;
+    background-color: hsl(var(--accent));
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%);
+    border: 1px solid hsl(var(--accent) / 0.6);
+    color: white !important;
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
     z-index: 1;
   }
+
+  .dark .btn-gradient {
+    background-color: hsl(var(--accent));
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%);
+    border: 1px solid hsl(var(--accent) / 0.6);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
   
-  .btn-gradient::before, .button-glow::before, .view-switcher .view-switch-active::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-radius: inherit;
-    border: 1px solid transparent;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.4), transparent 40%, transparent 60%, hsl(var(--accent) / 0.4)) border-box;
-    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    transition: background 0.3s ease;
-    z-index: -1;
+  .btn-gradient:hover {
+    background: transparent !important;
+    border-color: hsl(var(--accent)) !important;
+    color: hsl(var(--accent)) !important;
+    box-shadow: none !important;
   }
 
-  .btn-gradient:hover, .button-glow:hover, .view-switcher .view-switch-active:hover {
+  /* Secondary Outline Button Style */
+  .btn-secondary {
+    @apply rounded-xl transition-all duration-300 font-medium;
     background: transparent !important;
-    border-color: transparent;
-    color: hsl(var(--primary));
-    box-shadow: 0 0 15px hsl(var(--primary) / 0.3), inset 0 0 10px hsl(var(--primary) / 0.1);
+    border: 1px solid hsl(var(--accent));
+    color: hsl(var(--accent)) !important;
+    box-shadow: none !important;
   }
   
-  .btn-gradient:hover::before, .button-glow:hover::before, .view-switcher .view-switch-active:hover::before {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary))) border-box;
+  .btn-secondary:hover {
+    border-color: hsl(var(--accent) / 0.6) !important;
+    color: hsl(var(--accent) / 0.6) !important;
+    background: hsl(var(--accent) / 0.05) !important;
   }
   
-  .btn-gradient-reverted {
-    background: linear-gradient(90deg, hsl(var(--accent) / var(--gradient-opacity)) 0%, hsl(var(--gradient-core)) 50%, hsl(var(--primary) / var(--gradient-opacity)) 100%);
-    color: var(--foreground);
-    border: 1px solid var(--border-glass);
-    transition: all 0.3s ease;
-  }
-  .btn-gradient-reverted:hover {
-    background: transparent !important;
-    border-color: hsl(var(--accent));
-    color: hsl(var(--accent));
-    box-shadow: 0 0 15px hsl(var(--accent) / 0.5), inset 0 0 10px hsl(var(--accent) / 0.2);
-  }
-
-  .feed-card { box-shadow: 0 16px 60px rgba(0, 0, 0, 0.12); }
-  .feed-card:hover, .surface-panel:hover { @apply border-primary/30; transform: translateY(-2px); box-shadow: 0 20px 70px rgba(0, 0, 0, 0.16); }
   
   .feed-grid { @apply grid gap-6 md:grid-cols-2; }
   .feed-grid > article:first-child { @apply md:col-span-2; }

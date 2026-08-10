@@ -4,7 +4,7 @@ export function VibeLogo() {
   return (
     <Link href="/" className="flex items-center gap-3 scale-110 origin-left" aria-label="VibeGrid home">
       <span className="grid-mark shrink-0" aria-hidden="true"><span /><span /><span /><span /></span>
-      <span className="font-display text-xl font-semibold tracking-tight group-[.is-collapsed]:hidden">vibe<span className="text-primary">grid</span></span>
+      <span className="font-display text-xl font-semibold tracking-tight group-[.is-collapsed]:hidden"><span className="text-accent">vibe</span><span className="text-primary">grid</span></span>
     </Link>
   )
 }

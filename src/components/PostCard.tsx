@@ -122,7 +122,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                             {/* MOOD & TAGS */}
                             <div className="flex flex-wrap gap-2 mt-3"> 
                                 {post.mood && post.mood !== "neutral" && (
-                                    <span className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-primary text-primary shadow-[0_0_15px_hsl(var(--primary)/0.4),inset_0_0_10px_hsl(var(--primary)/0.2)] font-medium tracking-wide">
+                                    <span className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-primary text-primary font-medium tracking-wide">
                                         {post.mood === 'excited' ? '🚀 Excited' :
                                          post.mood === 'learning' ? '📚 Learning' :
                                          post.mood === 'building' ? '💻 Building' :
@@ -130,7 +130,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                     </span>
                                 )}
                                 {post.tags && post.tags.map((tag: string, idx: number) => (
-                                    <span key={idx} className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-accent text-accent shadow-[0_0_15px_hsl(var(--accent)/0.4),inset_0_0_10px_hsl(var(--accent)/0.2)] font-medium tracking-wide">
+                                    <span key={idx} className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-accent text-accent font-medium tracking-wide">
                                         #{tag}
                                     </span>
                                 ))}
@@ -200,7 +200,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                     </Avatar>
                                     <div className="flex-1">
                                         <Textarea placeholder="Drop a vibe..." value={newComment} onChange={(e) => setNewComment(e.target.value)}
-                                            className="min-h-[80px] resize-none bg-black/20 border-white/10 focus-visible:ring-1 focus-visible:ring-primary/50" />
+                                            className="min-h-[80px] resize-none bg-black/20 border-white/10 rounded-xl focus-visible:ring-1 focus-visible:ring-border" />
                                         <div className="flex justify-end mt-2">
                                             <Button onClick={handleAddComment}
                                                 size="sm"  className="btn-gradient flex items-center gap-2" disabled={!newComment.trim() || isCommenting} >

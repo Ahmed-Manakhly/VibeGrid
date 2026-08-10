@@ -21,7 +21,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
 
   return (
     <>
-      <div className="mb-8 pl-2 scale-110 origin-left">
+      <div className="mb-8 pl-2 scale-110 origin-left group-[.is-collapsed]:mt-4 group-[.is-collapsed]:ml-1">
         <VibeLogo />
       </div>
 
