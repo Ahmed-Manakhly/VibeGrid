@@ -33,8 +33,8 @@ async function Navbar() {
             </>
         ) : (
             <>
-                <Link href="/login" className="hidden rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium transition hover:border-primary/60 sm:block">Log in</Link>
-                <Link href="/register" className="button-glow hidden items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold sm:flex"><Plus className="size-4" /> Sign up</Link>
+                <Link href="/login" className="btn-secondary hidden items-center justify-center px-4 py-2 text-sm sm:flex">Log in</Link>
+                <Link href="/register" className="btn-gradient hidden items-center gap-2 px-4 py-2 text-sm sm:flex"><Plus className="size-4" /> Sign up</Link>
             </>
         )}
       </div>
