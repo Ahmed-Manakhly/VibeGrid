@@ -13,7 +13,7 @@ async function WhoToFollow() {
   if(users.length === 0) return null ;
 
   return (
-      <Card className="bg-card/40 backdrop-blur-xl border-white/10 hover:border-white/20 transition-all duration-300">
+      <Card className="feed-card">
         <CardHeader>
           <CardTitle className="font-mono tracking-widest text-primary uppercase text-sm">Who to Tune In To</CardTitle>
         </CardHeader>
