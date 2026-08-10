@@ -24,11 +24,11 @@ export function MobileBottomBar() {
         </>
       ) : (
         <>
-          <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Log in
-          </Link>
-          <Link href="/register" className="btn-gradient px-4 py-1.5 text-sm font-semibold rounded-xl">
+          <Link href="/register" className="btn-secondary px-4 py-1.5 text-sm font-semibold rounded-xl">
             Sign up
+          </Link>
+          <Link href="/login" className="btn-gradient px-4 py-1.5 text-sm font-semibold rounded-xl">
+            Log in
           </Link>
         </>
       )}

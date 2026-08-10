@@ -35,8 +35,8 @@ async function Navbar() {
               </>
           ) : (
               <>
-                  <Link href="/login" className="btn-secondary hidden items-center justify-center px-4 py-2 text-sm sm:flex">Log in</Link>
-                  <Link href="/register" className="btn-gradient hidden items-center gap-2 px-4 py-2 text-sm sm:flex"><Plus className="size-4" /> Sign up</Link>
+                  <Link href="/register" className="btn-secondary hidden items-center justify-center px-4 py-2 text-sm sm:flex">Sign up</Link>
+                  <Link href="/login" className="btn-gradient hidden items-center gap-2 px-4 py-2 text-sm sm:flex">Log in</Link>
               </>
           )}
         </div>
