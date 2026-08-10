@@ -23,7 +23,7 @@ async function Navbar() {
         </div>
         
         <div className="ml-auto flex items-center gap-3">
-          <div className="hidden sm:block"><ModeToggle /></div>
+          <ModeToggle />
           {user ? (
               <>
                   <button className="icon-button hidden sm:flex" aria-label="Notifications"><Bell className="size-4" /></button>

@@ -106,7 +106,7 @@ export default function CreatPost() {
                             <ImageUpload endpoint="postImage" value={imageUrl} onChange={(url) => { setImageUrl(url); if (!url) setShowImageUpload(false); }} />
                         </div>
                     )}
-                    <div className="flex items-center justify-between border-t border-white/10 pt-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
                         <div className="flex space-x-2">
                             <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-white/5 transition-all rounded-xl"
                                 onClick={() => setShowImageUpload(!showImageUpload)} disabled={isPosting}
