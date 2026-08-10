@@ -278,9 +278,6 @@
 
   /* Clerk User Button Avatar Styling to match our custom Avatar */
   .cl-userButtonAvatarBox, .cl-avatarBox {
-    border: 3px solid hsl(var(--primary)) !important;
-  }
-  .dark .cl-userButtonAvatarBox, .dark .cl-avatarBox {
-    border-color: hsl(var(--accent)) !important;
+    border: 3px solid hsl(var(--accent)) !important;
   }
 }
