@@ -40,9 +40,9 @@ export default async function Home() {
                 {['Everything', 'Design', 'Tech', 'Culture', 'Business', 'Productivity', 'Startups', 'Lifestyle'].map((tag, i) => (
                   <button 
                     key={tag} 
-                    className={`rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-all duration-300 shadow-sm border ${
+                    className={`rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-all duration-300 border shadow-none ${
                       i === 0 
-                        ? 'surface-panel border-primary/50 text-primary -translate-y-1' 
+                        ? 'bg-primary/10 border-primary/50 text-primary -translate-y-1' 
                         : 'bg-card border-transparent text-muted-foreground hover:border-border hover:text-foreground hover:-translate-y-1'
                     }`}
                   >

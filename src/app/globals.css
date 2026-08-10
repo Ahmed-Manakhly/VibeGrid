@@ -106,17 +106,21 @@
   .nav-item svg { @apply size-4; }
   
   .nav-item:hover, .nav-item-active { 
-    @apply text-foreground border-none rounded-none rounded-r-full;
-    background-color: transparent;
-    background-image: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.15) 100%);
-    box-shadow: none !important;
+    @apply text-foreground border-none rounded-none rounded-r-full backdrop-blur-xl transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, rgba(255, 255, 255, 0.85) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.7) !important;
+    border-left: none !important;
     border-right: 3px solid hsl(var(--primary)) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), inset -2px 0 10px hsla(var(--primary), 0.1) !important;
+    text-shadow: none;
   }
   
   .dark .nav-item:hover, .dark .nav-item-active {
-    background-image: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.1) 100%);
-    box-shadow: none !important;
-    border-right: 2px solid hsl(var(--primary)) !important;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.15) 0%, hsl(220 18% 9% / 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-left: none !important;
+    border-right: 3px solid hsl(var(--primary)) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset -2px 0 10px hsla(var(--primary), 0.2) !important;
   }
   
   /* When sidebar is collapsed, make nav items circular like topbar icons */
@@ -158,6 +162,7 @@
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
     position: relative;
   }
+
   
   .dark .nav-glass {
     background: hsl(220 20% 8% / 0.95); /* Dark mode: slightly lighter than bg, distinct from cards */
