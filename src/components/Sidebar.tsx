@@ -30,34 +30,34 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
       <div className="flex flex-col gap-2">
         {items.map(({ label, icon: Icon, href }) => (
           <Link key={label} href={href} className={`nav-item ${active === label ? 'nav-item-active' : ''}`}>
-            <Icon className="size-4" />{label}
+            <Icon className="size-5 shrink-0" /><span className="group-[.is-collapsed]:hidden">{label}</span>
           </Link>
         ))}
       </div>
 
       <div className="mt-auto flex flex-col gap-2">
         <Link href="#" className="nav-item">
-            <Settings className="size-4" />Settings
+            <Settings className="size-5 shrink-0" /><span className="group-[.is-collapsed]:hidden">Settings</span>
         </Link>
         
         {dbUser && (
           <div className="mt-4 relative group">
             <Link href={`/profile/${dbUser.username}`} className="block hover:opacity-90 transition-opacity">
-              <div className="flex flex-col gap-4 border border-border/60 p-4 rounded-2xl bg-card/40">
+              <div className="flex flex-col gap-4 border border-border/60 p-4 group-[.is-collapsed]:p-2 group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full bg-card/40 group-[.is-collapsed]:border-transparent">
                 <div className="flex items-center gap-3">
-                  <div className="avatar avatar-teal">
+                  <div className="avatar avatar-teal shrink-0">
                       {dbUser.image ? (
                         <img src={dbUser.image} alt={dbUser.name} className="w-full h-full object-cover rounded-full" />
                       ) : (
                         authUser?.firstName?.charAt(0) || 'U'
                       )}
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 group-[.is-collapsed]:hidden">
                       <p className="truncate text-sm font-medium">{dbUser.name}</p>
                       <p className="truncate font-mono text-[10px] text-muted-foreground">@{dbUser.username}</p>
                   </div>
                 </div>
-                <div className="flex justify-between items-center text-center px-1">
+                <div className="flex justify-between items-center text-center px-1 group-[.is-collapsed]:hidden">
                   <div>
                     <p className="text-sm font-bold text-primary">0</p>
                     <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Vibe Score</p>
@@ -73,7 +73,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
                 </div>
               </div>
             </Link>
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10 group-[.is-collapsed]:hidden">
               <SignOutButton>
                 <button className="p-1.5 hover:bg-destructive/10 rounded-full transition-colors text-muted-foreground hover:text-destructive shrink-0">
                   <LogOut className="size-3.5" />
