@@ -122,7 +122,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                             {/* MOOD & TAGS */}
                             <div className="flex flex-wrap gap-2 mt-3"> 
                                 {post.mood && post.mood !== "neutral" && (
-                                    <span className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-primary text-primary font-medium tracking-wide">
+                                    <span className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-border text-muted-foreground font-medium tracking-wide">
                                         {post.mood === 'excited' ? '🚀 Excited' :
                                          post.mood === 'learning' ? '📚 Learning' :
                                          post.mood === 'building' ? '💻 Building' :
@@ -130,7 +130,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                     </span>
                                 )}
                                 {post.tags && post.tags.map((tag: string, idx: number) => (
-                                    <span key={idx} className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-accent text-accent font-medium tracking-wide">
+                                    <span key={idx} className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-border text-muted-foreground font-medium tracking-wide">
                                         #{tag}
                                     </span>
                                 ))}

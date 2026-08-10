@@ -23,7 +23,7 @@ export default async function Home() {
             <div className="mb-8 hidden xl:block">
               <div className="flex items-center gap-2 mb-2">
                 <span className="size-2 rounded-full bg-primary animate-pulse"></span>
-                <p className="eyebrow">LIVE COMMUNITY</p>
+                <p className="eyebrow eyebrow-live">LIVE COMMUNITY</p>
               </div>
               <h1 className="text-3xl font-bold font-sans">Your feed</h1>
             </div>
