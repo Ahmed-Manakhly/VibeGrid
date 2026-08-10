@@ -90,9 +90,10 @@ function ProfilePageClient({
     const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
 
     return (
-        <div className="max-w-3xl mx-auto">
-            <div className="grid grid-cols-1 gap-6">
-                <div className="w-full max-w-lg mx-auto">
+        <div className="w-full">
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
+                {/* Left Side: User Card */}
+                <div className="w-full lg:w-[350px] shrink-0 sticky top-24 lg:mt-[56px]">
                     <Card className="bg-card">
                         <CardContent className="pt-6">
                             <div className="flex flex-col items-center text-center">
@@ -173,7 +174,10 @@ function ProfilePageClient({
                         </CardContent>
                     </Card>
                 </div>
-                <Tabs defaultValue="posts" className="w-full">
+
+                {/* Right Side: Rest of Content (Tabs) */}
+                <div className="w-full min-w-0 flex-1">
+                    <Tabs defaultValue="posts" className="w-full">
                     <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
                         <TabsTrigger
                             value="posts"
@@ -213,6 +217,7 @@ function ProfilePageClient({
                         </div>
                     </TabsContent>
                 </Tabs>
+                </div>
                 {/* ------------------------------- */}
                 <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
                     <DialogContent className="sm:max-w-[500px]">
