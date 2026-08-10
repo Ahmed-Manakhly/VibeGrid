@@ -51,14 +51,23 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
                       <AvatarFallback>{authUser?.firstName?.charAt(0) || 'U'}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1 group-[.is-collapsed]:hidden">
-                      <p className="truncate text-sm font-medium">{dbUser.name}</p>
+                      <p className="truncate text-sm font-medium flex items-center justify-between">
+                        <span>{dbUser.name}</span>
+                        <div className="z-10" onClick={(e) => e.preventDefault()}>
+                          <SignOutButton>
+                            <button className="p-1.5 hover:bg-destructive/10 rounded-full transition-colors text-muted-foreground hover:text-destructive shrink-0">
+                              <LogOut className="size-3.5" />
+                            </button>
+                          </SignOutButton>
+                        </div>
+                      </p>
                       <p className="truncate font-mono text-[10px] text-muted-foreground">@{dbUser.username}</p>
                   </div>
                 </div>
                 <div className="flex justify-between items-center text-center px-1 group-[.is-collapsed]:hidden">
                   <div>
-                    <p className="text-sm font-bold text-primary">0</p>
-                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Vibe Score</p>
+                    <p className="text-sm font-bold text-primary">{dbUser._count?.posts || 0}</p>
+                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1">Posts</p>
                   </div>
                   <div>
                     <p className="text-sm font-bold">{dbUser._count?.followers || 0}</p>
@@ -71,13 +80,6 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
                 </div>
               </div>
             </Link>
-            <div className="absolute top-4 right-4 opacity-100 z-10 group-[.is-collapsed]:hidden">
-              <SignOutButton>
-                <button className="p-1.5 hover:bg-destructive/10 rounded-full transition-colors text-muted-foreground hover:text-destructive shrink-0">
-                  <LogOut className="size-3.5" />
-                </button>
-              </SignOutButton>
-            </div>
           </div>
         )}
       </div>

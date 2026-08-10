@@ -23,7 +23,7 @@ export function SidebarWrapper({ children }: { children: React.ReactNode }) {
       >
 
         <div className={`h-full flex flex-col overflow-hidden transition-all duration-300 ${isOpen ? 'w-[232px]' : 'w-full items-center'}`}>
-          <button className="lg:hidden absolute top-4 right-4 text-muted-foreground p-2 hover:bg-white/10 rounded-full z-[100]" onClick={close}>
+          <button className="lg:hidden absolute top-4 right-4 icon-button z-[100]" aria-label="Close menu" onClick={close}>
             <X className="size-5" />
           </button>
           {children}

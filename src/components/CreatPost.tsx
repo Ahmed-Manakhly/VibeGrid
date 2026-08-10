@@ -54,7 +54,7 @@ export default function CreatPost() {
     };
     //---------------------------------------
     return (
-        <Card className="mb-6 feed-card">
+        <Card id="create-post" className="mb-6 feed-card scroll-mt-24">
             <CardContent className="pt-6 ">
                 <div className="space-y-4">
                     {!isExpanded ? (
