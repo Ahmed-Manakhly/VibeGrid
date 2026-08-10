@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/SidebarContext";
 import { SidebarWrapper } from "@/components/SidebarWrapper";
+import { MobileBottomBar } from "@/components/MobileBottomBar";
 import { Toaster } from 'react-hot-toast'
 import { JetBrains_Mono } from 'next/font/google'
 
@@ -45,10 +46,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </SidebarWrapper>
                 <div className="min-w-0 flex-1 transition-all duration-300">
                   <Navbar />
-                  <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto">
+                  <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-24 sm:pb-8">
                     {children}
                   </main>
                 </div>
+                <MobileBottomBar />
               </SidebarProvider>
             </div>
             <Toaster />

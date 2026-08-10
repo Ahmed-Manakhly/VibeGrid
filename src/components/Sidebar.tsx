@@ -71,7 +71,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
                 </div>
               </div>
             </Link>
-            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10 group-[.is-collapsed]:hidden">
+            <div className="absolute top-4 right-4 opacity-100 z-10 group-[.is-collapsed]:hidden">
               <SignOutButton>
                 <button className="p-1.5 hover:bg-destructive/10 rounded-full transition-colors text-muted-foreground hover:text-destructive shrink-0">
                   <LogOut className="size-3.5" />
