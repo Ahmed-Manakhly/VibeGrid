@@ -83,21 +83,24 @@ export default function CreatPost() {
                         </div>
                     ) : (
                         <>
-                            <div className="flex space-x-4">
-                                <Avatar className="w-10 h-10">
-                                    <AvatarImage src={user?.imageUrl || "/avatar.png"} />
-                                </Avatar>
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:space-x-4">
+                                <div className="flex items-center gap-2 sm:block">
+                                    <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+                                        <AvatarImage src={user?.imageUrl || "/avatar.png"} />
+                                    </Avatar>
+                                    <span className="text-sm font-semibold sm:hidden">{user?.firstName || "You"}</span>
+                                </div>
                                 <Textarea placeholder="What's on your mind?" value={content} onChange={(e) => setContent(e.target.value)}
                                     ref={textareaRef}
                                     disabled={isPosting}
-                                    className="min-h-[100px] resize-none border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border bg-background p-3 text-base"
+                                    className="min-h-[100px] flex-1 w-full resize-none border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border bg-background p-3 text-base"
                                     autoFocus
                                 />
                             </div>
 
-                            <div className="flex flex-wrap gap-2 pt-2 pb-2">
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 pt-2 pb-2">
                                 <Select value={mood} onValueChange={(value) => setMood(value)}>
-                                    <SelectTrigger className="w-[140px] h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
+                                    <SelectTrigger className="w-full sm:w-[140px] h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
                                         <SelectValue placeholder="Mood" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-background border-border/50 font-mono">
@@ -113,7 +116,7 @@ export default function CreatPost() {
                                     placeholder="Tags (comma separated, e.g. React, UI)"
                                     value={tags}
                                     onChange={(e) => setTags(e.target.value)}
-                                    className="h-8 text-sm bg-background text-muted-foreground border-border/50 focus-visible:border-border focus-visible:ring-1 focus-visible:ring-border flex-1 min-w-[200px] font-mono rounded-xl transition-all"
+                                    className="w-full sm:w-auto h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 focus-visible:border-border focus-visible:ring-1 focus-visible:ring-border flex-1 min-w-0 font-mono rounded-xl transition-all"
                                 />
                             </div>
                             {/* TODO: handle image upload */}

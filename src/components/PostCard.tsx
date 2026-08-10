@@ -8,9 +8,9 @@ import toast from 'react-hot-toast';
 
 import Link from 'next/link';
 import { Avatar, AvatarImage } from './ui/avatar';
-//-------------------
 import { formatDistanceToNow } from "date-fns";
-import { DeleteAlertDialog } from './DeleteAlertDialog';
+import { formatRelativeTime } from "@/lib/utils";
+import { DeleteAlertDialog } from "./DeleteAlertDialog";
 import Image from 'next/image'
 import { Button } from './ui/button';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
@@ -91,37 +91,40 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
     //then we will use alert-dialog we got it in [ui] to create DeleteAlertDialog component | go to [components] [DeleteAlertDialog] 
     //DeleteAlertDialog the component needs isDeleting onDelete | 
     return (
-        <article className="feed-card overflow-hidden pb-4 sm:pb-5">
-                <div className="p-4 sm:p-5 space-y-4">
+        <article className="feed-card overflow-hidden pb-3 sm:pb-5">
+                <div className="p-3 sm:p-5 space-y-3 sm:space-y-4">
                     {/* AVATAR & METADATA */}
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                            <Link href={`/profile/${post.author.username}`}>
+                    <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center space-x-3 min-w-0 flex-1">
+                            <Link href={`/profile/${post.author.username}`} className="shrink-0">
                                 <Avatar className="size-8 transition-all">
                                     <AvatarImage src={post.author.image ?? "/avatar.png"} />
                                 </Avatar>
                             </Link>
-                            <div className="flex flex-col min-w-0">
-                                <Link href={`/profile/${post.author.username}`} className="font-semibold text-sm truncate">
+                            <div className="flex flex-col min-w-0 flex-1">
+                                <Link href={`/profile/${post.author.username}`} className="font-semibold text-[13px] sm:text-sm truncate">
                                     {post.author.name}
                                 </Link>
-                                <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                                    <Link href={`/profile/${post.author.username}`}>@{post.author.username}</Link>
-                                    <span>•</span>
-                                    <span>{formatDistanceToNow(new Date(post.createdAt))} ago</span>
+                                <div className="flex items-center space-x-1 sm:space-x-2 text-[11px] sm:text-xs text-muted-foreground truncate min-w-0">
+                                    <Link href={`/profile/${post.author.username}`} className="truncate">@{post.author.username}</Link>
+                                    <span className="shrink-0">•</span>
+                                    <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(post.createdAt))} ago</span>
+                                    <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(post.createdAt))}</span>
                                 </div>
                             </div>
                         </div>
                         {/* Check if current user is the post author */}
                         {dbUserId === post.author.id && (
-                            <DeleteAlertDialog isDeleting={isDeleting} onDelete={handleDeletePost} />
+                            <div className="shrink-0">
+                                <DeleteAlertDialog isDeleting={isDeleting} onDelete={handleDeletePost} />
+                            </div>
                         )}
                     </div>
 
                     {/* TEXT CONTENT */}
                     {post.content && (
                         <div>
-                            <p className="text-[15px] sm:text-base text-foreground break-words leading-relaxed">{post.content}</p>
+                            <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">{post.content}</p>
                         </div>
                     )}
                 </div>
@@ -133,10 +136,10 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                     </div>
                 )}
                 
-                <div className="px-4 sm:px-5 mt-4 space-y-4">
+                <div className="px-3 sm:px-5 mt-3 sm:mt-4 space-y-3 sm:space-y-4">
                     {/* MOOD & TAGS */}
                     {(post.mood && post.mood !== "neutral" || (post.tags && post.tags.length > 0)) && (
-                        <div className="flex flex-wrap gap-2 pt-2"> 
+                        <div className="flex flex-wrap gap-2 pt-1 sm:pt-2"> 
                             {post.mood && post.mood !== "neutral" && (
                                 <span className="px-3 py-1 text-[11px] rounded-full bg-primary/10 text-primary font-medium tracking-wide border-none">
                                     {post.mood === 'excited' ? '🚀 Excited' :
@@ -212,11 +215,12 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                             <AvatarImage src={comment.author.image ?? "/avatar.png"} />
                                         </Avatar>
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                                <span className="font-medium text-sm">{comment.author.name}</span>
-                                                <span className="text-sm text-muted-foreground">@{comment.author.username}</span>
-                                                <span className="text-sm text-muted-foreground">·</span>
-                                                <span className="text-sm text-muted-foreground">{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
+                                            <div className="flex items-center gap-x-1 sm:gap-x-2 text-[11px] sm:text-xs text-muted-foreground truncate min-w-0">
+                                                <span className="font-medium text-[13px] sm:text-sm text-foreground truncate">{comment.author.name}</span>
+                                                <span className="truncate">@{comment.author.username}</span>
+                                                <span className="shrink-0">•</span>
+                                                <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
+                                                <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(comment.createdAt))}</span>
                                             </div>
                                             <p className="text-sm break-words">{comment.content}</p>
                                         </div>
