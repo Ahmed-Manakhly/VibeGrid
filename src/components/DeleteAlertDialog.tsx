@@ -44,10 +44,10 @@ export function DeleteAlertDialog({
                     <AlertDialogDescription>{description}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel className="btn-secondary sm:mt-0">Cancel</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={onDelete}
-                        className="bg-red-500 hover:bg-red-600"
+                        className="bg-red-500 hover:bg-red-600 !bg-none border-red-500 text-white rounded-xl"
                         disabled={isDeleting}
                     >
                         {isDeleting ? "Deleting..." : "Delete"}

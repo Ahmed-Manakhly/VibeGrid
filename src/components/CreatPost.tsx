@@ -132,7 +132,7 @@ export default function CreatPost() {
                                     </Button>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Button type="button" size="sm" className="btn-secondary" onClick={() => { setIsExpanded(false); setShowImageUpload(false); setContent(''); setImageUrl(''); }} disabled={isPosting}>Cancel</Button>
+                                    <Button type="button" className="btn-secondary" onClick={() => { setIsExpanded(false); setShowImageUpload(false); setContent(''); setImageUrl(''); }} disabled={isPosting}>Cancel</Button>
                                     <Button className="btn-gradient flex items-center rounded-xl" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
                                         {isPosting ? (
                                             <>

@@ -42,8 +42,8 @@ export default async function Home() {
                     key={tag} 
                     className={`rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-all duration-300 shadow-sm border ${
                       i === 0 
-                        ? 'bg-card border-primary text-primary' 
-                        : 'bg-card border-transparent text-muted-foreground hover:border-border hover:text-foreground'
+                        ? 'surface-panel border-primary/50 text-primary -translate-y-1' 
+                        : 'bg-card border-transparent text-muted-foreground hover:border-border hover:text-foreground hover:-translate-y-1'
                     }`}
                   >
                     {tag}

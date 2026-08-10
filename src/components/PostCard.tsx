@@ -90,57 +90,65 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
     //then we will use alert-dialog we got it in [ui] to create DeleteAlertDialog component | go to [components] [DeleteAlertDialog] 
     //DeleteAlertDialog the component needs isDeleting onDelete | 
     return (
-        <article className="feed-card p-4 sm:p-6 mb-6">
-                <div className="space-y-4">
-                    <div className="flex space-x-3 sm:space-x-4">
-                        {/* AVATAR */}
-                        <Link href={`/profile/${post.author.username}`}>
-                            <Avatar className="size-8 sm:w-10 sm:h-10 transition-all">
-                                <AvatarImage src={post.author.image ?? "/avatar.png"} />
-                            </Avatar>
-                        </Link>
-                        {/* POST HEADER & TEXT CONTENT */}
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 truncate">
-                                    <Link href={`/profile/${post.author.username}`} className="font-semibold truncate">
-                                        {post.author.name}
-                                    </Link>
-                                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                                        <Link href={`/profile/${post.author.username}`}>@{post.author.username}</Link>
-                                        <span>•</span>
-                                        <span>{formatDistanceToNow(new Date(post.createdAt))} ago</span>
-                                    </div>
+        <article className="feed-card overflow-hidden pb-4 sm:pb-5">
+                <div className="p-4 sm:p-5 space-y-4">
+                    {/* AVATAR & METADATA */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <Link href={`/profile/${post.author.username}`}>
+                                <Avatar className="size-8 transition-all">
+                                    <AvatarImage src={post.author.image ?? "/avatar.png"} />
+                                </Avatar>
+                            </Link>
+                            <div className="flex flex-col min-w-0">
+                                <Link href={`/profile/${post.author.username}`} className="font-semibold text-sm truncate">
+                                    {post.author.name}
+                                </Link>
+                                <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                                    <Link href={`/profile/${post.author.username}`}>@{post.author.username}</Link>
+                                    <span>•</span>
+                                    <span>{formatDistanceToNow(new Date(post.createdAt))} ago</span>
                                 </div>
-                                {/* Check if current user is the post author */}
-                                {dbUserId === post.author.id && (
-                                    <DeleteAlertDialog isDeleting={isDeleting} onDelete={handleDeletePost} />
-                                )}
-                            </div>
-                            <p className="mt-2 text-sm text-foreground break-words">{post.content}</p>
-                            
-                            {/* MOOD & TAGS */}
-                            <div className="flex flex-wrap gap-2 mt-3"> 
-                                {post.mood && post.mood !== "neutral" && (
-                                    <span className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-border text-muted-foreground font-medium tracking-wide">
-                                        {post.mood === 'excited' ? '🚀 Excited' :
-                                         post.mood === 'learning' ? '📚 Learning' :
-                                         post.mood === 'building' ? '💻 Building' :
-                                         post.mood === 'debugging' ? '🐛 Debugging' : post.mood}
-                                    </span>
-                                )}
-                                {post.tags && post.tags.map((tag: string, idx: number) => (
-                                    <span key={idx} className="px-4 py-1.5 text-xs rounded-full bg-transparent border border-border text-muted-foreground font-medium tracking-wide">
-                                        #{tag}
-                                    </span>
-                                ))}
                             </div>
                         </div>
+                        {/* Check if current user is the post author */}
+                        {dbUserId === post.author.id && (
+                            <DeleteAlertDialog isDeleting={isDeleting} onDelete={handleDeletePost} />
+                        )}
                     </div>
-                    {/* POST IMAGE if we have an image*/}
-                    {post.image && (
-                        <div className="rounded-lg overflow-hidden">
-                            <Image src={post.image} alt="Post content" className="w-full h-auto object-cover" width={100} height={100}/>
+
+                    {/* TEXT CONTENT */}
+                    {post.content && (
+                        <div>
+                            <p className="text-[15px] sm:text-base text-foreground break-words leading-relaxed">{post.content}</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* POST IMAGE if we have an image - FULL BLEED AFTER TEXT */}
+                {post.image && (
+                    <div className="w-full bg-muted/30 border-y border-border/50">
+                        <Image src={post.image} alt="Post content" className="w-full h-auto object-cover max-h-[600px]" width={800} height={600}/>
+                    </div>
+                )}
+                
+                <div className="px-4 sm:px-5 mt-4 space-y-4">
+                    {/* MOOD & TAGS */}
+                    {(post.mood && post.mood !== "neutral" || (post.tags && post.tags.length > 0)) && (
+                        <div className="flex flex-wrap gap-2 pt-2"> 
+                            {post.mood && post.mood !== "neutral" && (
+                                <span className="px-3 py-1 text-[11px] rounded-full bg-transparent border border-border text-muted-foreground font-medium tracking-wide">
+                                    {post.mood === 'excited' ? '🚀 Excited' :
+                                     post.mood === 'learning' ? '📚 Learning' :
+                                     post.mood === 'building' ? '💻 Building' :
+                                     post.mood === 'debugging' ? '🐛 Debugging' : post.mood}
+                                </span>
+                            )}
+                            {post.tags && post.tags.map((tag: string, idx: number) => (
+                                <span key={idx} className="px-3 py-1 text-[11px] rounded-full bg-transparent border border-border text-muted-foreground font-medium tracking-wide">
+                                    #{tag}
+                                </span>
+                            ))}
                         </div>
                     )}
                     {/* LIKE & COMMENT BUTTONS */}

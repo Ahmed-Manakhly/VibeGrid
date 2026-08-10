@@ -12,7 +12,7 @@ export function MobileTabsLayout({
   const [activeTab, setActiveTab] = useState<'feed' | 'discovery'>('feed');
 
   return (
-    <div className="flex flex-col xl:flex-row gap-10 xl:items-start w-full">
+    <div className="flex flex-col xl:flex-row gap-12 xl:items-start w-full">
       {/* Mobile Tabs */}
       <div className="xl:hidden flex gap-2 border-b border-border/50 pb-0">
         <button 
@@ -43,7 +43,7 @@ export function MobileTabsLayout({
       </div>
       
       {/* Discovery Column (Right Sidebar) */}
-      <div className={`w-full xl:w-[380px] shrink-0 ${activeTab === 'discovery' ? 'block' : 'hidden xl:block'}`}>
+      <div className={`w-full xl:w-[320px] shrink-0 ${activeTab === 'discovery' ? 'block' : 'hidden xl:block'}`}>
         {discovery}
       </div>
     </div>
