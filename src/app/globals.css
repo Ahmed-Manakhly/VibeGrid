@@ -360,3 +360,42 @@
     border: 2px solid hsl(var(--border)) !important;
   }
 }
+/* Force UploadThing button to behave */
+.ut-button {
+  @apply !bg-none;
+  background-color: hsl(var(--accent)) !important;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%) !important;
+  border: 1px solid hsl(var(--accent) / 0.6) !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.ut-button:hover {
+  opacity: 0.9 !important;
+}
+.dark .ut-button {
+  background-color: hsl(var(--accent)) !important;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%) !important;
+  border: 1px solid hsl(var(--accent) / 0.6) !important;
+}
+
+/* Uploading/Uploaded states -> Green (Primary) */
+.ut-button[data-state="uploading"],
+.ut-button[data-state="uploaded"],
+.ut-uploading {
+  background-color: hsl(var(--primary)) !important;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%) !important;
+  border: 1px solid hsl(var(--primary) / 0.6) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+.dark .ut-button[data-state="uploading"],
+.dark .ut-button[data-state="uploaded"],
+.dark .ut-uploading {
+  background-color: hsl(var(--primary)) !important;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%) !important;
+  border: 1px solid hsl(var(--primary) / 0.6) !important;
+}
+.ut-button::after {
+  background-color: rgba(255, 255, 255, 0.3) !important; /* Mute the progress bar color */
+}
