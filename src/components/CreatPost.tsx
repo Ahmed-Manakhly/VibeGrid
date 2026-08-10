@@ -59,7 +59,7 @@ export default function CreatPost() {
                 <div className="space-y-4">
                     {!isExpanded ? (
                         <div className="flex items-center space-x-4 cursor-text" onClick={() => setIsExpanded(true)}>
-                            <Avatar className="w-10 h-10 border border-primary/20">
+                            <Avatar className="w-10 h-10">
                                 <AvatarImage src={user?.imageUrl || "/avatar.png"} />
                             </Avatar>
                             <div className="flex-1 rounded-xl border border-border/50 bg-background px-4 py-2.5 text-sm text-muted-foreground hover:bg-background/80 transition-colors">
@@ -69,7 +69,7 @@ export default function CreatPost() {
                     ) : (
                         <>
                             <div className="flex space-x-4">
-                                <Avatar className="w-10 h-10 border border-primary/20">
+                                <Avatar className="w-10 h-10">
                                     <AvatarImage src={user?.imageUrl || "/avatar.png"} />
                                 </Avatar>
                                 <Textarea placeholder="What's on your mind?" value={content} onChange={(e) => setContent(e.target.value)}

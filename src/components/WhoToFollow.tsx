@@ -23,7 +23,7 @@ async function WhoToFollow() {
               <div key={user.id} className="flex gap-2 items-center justify-between ">
                 <div className="flex items-center gap-1">
                   <Link href={`/profile/${user.username}`}>
-                    <Avatar className="border border-white/10 hover:border-primary/50 transition-all">
+                    <Avatar className="transition-all">
                       <AvatarImage src={user.image ?? "/avatar.png"} />
                     </Avatar>
                   </Link>

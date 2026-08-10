@@ -53,7 +53,7 @@ async function ProfileWidget() {
                 <CardContent className="pt-6">
                     <div className="flex flex-col items-center text-center">
                         <Link href={`/profile/${user.username}`} className="flex flex-col items-center justify-center" >
-                            <Avatar className="w-20 h-20 border-2 border-primary/20 hover:border-primary transition-all duration-300 drop-shadow-[0_0_8px_rgba(0,240,255,0.2)]">
+                            <Avatar className="w-20 h-20 transition-all duration-300 drop-shadow-[0_0_8px_rgba(0,240,255,0.2)]">
                                 <AvatarImage src={user.image || "/avatar.png"} /> {/**if no image we will use the placeholder */}
                                 {/* need to create a public folder */}
                             </Avatar>

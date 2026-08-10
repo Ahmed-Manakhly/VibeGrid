@@ -95,7 +95,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                     <div className="flex space-x-3 sm:space-x-4">
                         {/* AVATAR */}
                         <Link href={`/profile/${post.author.username}`}>
-                            <Avatar className="size-8 sm:w-10 sm:h-10 border border-white/10 hover:border-primary/50 transition-all">
+                            <Avatar className="size-8 sm:w-10 sm:h-10 transition-all">
                                 <AvatarImage src={post.author.image ?? "/avatar.png"} />
                             </Avatar>
                         </Link>
