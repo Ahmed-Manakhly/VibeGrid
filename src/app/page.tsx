@@ -37,14 +37,18 @@ export default async function Home() {
         discovery={
           <div className="flex flex-col gap-6 xl:sticky xl:top-[88px] xl:max-h-[calc(100vh-88px)] xl:overflow-y-auto z-10 pb-10 px-4 -mx-4 scrollbar-hide">
               <div className="flex flex-wrap gap-2 pt-2">
-                <button className="rounded-full bg-transparent border border-primary px-4 py-1.5 text-sm font-medium text-primary whitespace-nowrap transition-all duration-300">Everything</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Design</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Tech</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Culture</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Business</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Productivity</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Startups</button>
-                <button className="rounded-full bg-transparent border border-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:border-foreground/20 hover:text-foreground whitespace-nowrap transition-all duration-300">Lifestyle</button>
+                {['Everything', 'Design', 'Tech', 'Culture', 'Business', 'Productivity', 'Startups', 'Lifestyle'].map((tag, i) => (
+                  <button 
+                    key={tag} 
+                    className={`rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap transition-all duration-300 shadow-sm border ${
+                      i === 0 
+                        ? 'bg-card border-primary text-primary' 
+                        : 'bg-card border-transparent text-muted-foreground hover:border-border hover:text-foreground'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
               </div>
               
               <TrendingSidebar />

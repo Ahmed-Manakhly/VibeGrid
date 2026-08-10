@@ -10,10 +10,9 @@ export async function MobileBottomBar() {
 
   return (
     <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 nav-glass flex h-16 items-center justify-around px-4 pb-safe border-t border-border/50">
-      <MobileDropVibeButton />
-
       {user ? (
         <>
+          <MobileDropVibeButton />
           <button className="icon-button text-muted-foreground hover:text-primary transition-colors" aria-label="Notifications">
             <Bell className="size-5" />
           </button>
