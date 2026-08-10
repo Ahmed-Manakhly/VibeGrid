@@ -43,7 +43,7 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
         
         {dbUser && (
           <div className="mt-4 relative group">
-            <div className="flex flex-col gap-4 hover:bg-muted/30 transition-colors p-3 group-[.is-collapsed]:p-0 group-[.is-collapsed]:bg-transparent group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full cursor-pointer border border-transparent hover:border-border/50">
+            <div className="flex flex-col gap-4 bg-primary/10 border border-primary/50 text-primary transition-colors p-3 group-[.is-collapsed]:p-0 group-[.is-collapsed]:bg-transparent group-[.is-collapsed]:border-transparent group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full cursor-pointer">
               <div className="flex items-center gap-3">
                 <Link href={`/profile/${dbUser.username}`} className="hover:opacity-80 transition-opacity">
                   <Avatar className="shrink-0 transition-all">
