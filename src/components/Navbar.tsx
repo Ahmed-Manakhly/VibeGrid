@@ -19,7 +19,7 @@ async function Navbar() {
         <div className="lg:hidden"><VibeLogo /></div>
         
         <div className="relative w-full max-w-sm hidden sm:block">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-accent cursor-pointer hover:text-accent/80 transition-colors" />
           <input className="h-10 w-full rounded-xl border border-border/70 bg-card/60 pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" placeholder="Search the grid..." aria-label="Search the grid" />
         </div>
         
@@ -45,7 +45,7 @@ async function Navbar() {
       {/* Mobile Search Bar */}
       <div className="nav-glass sm:hidden px-5 pb-3 pt-1 border-t-0 shadow-none rounded-none !bg-background/95">
          <div className="relative w-full">
-           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-accent cursor-pointer hover:text-accent/80 transition-colors" />
            <input className="h-10 w-full rounded-xl border border-border/70 bg-card/80 pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" placeholder="Search the grid..." aria-label="Search the grid" />
          </div>
       </div>
