@@ -10,6 +10,9 @@ import { SidebarWrapper } from "@/components/SidebarWrapper";
 import { MobileBottomBar } from "@/components/MobileBottomBar";
 import { Toaster } from 'react-hot-toast'
 import { JetBrains_Mono } from 'next/font/google'
+import { bootstrap } from "@/lib/bootstrap";
+
+bootstrap(); // Runs once on server startup
 
 const jetBrainsMono = JetBrains_Mono({
   subsets: ['latin'],

@@ -15,14 +15,15 @@ import {
     toggleLikeUseCase,
     addCommentUseCase
 } from "@/shared/infrastructure/di-container";
+import { FeedQueryParams } from "@/shared/kernel/FeedQueryParams";
 
 //1//to create the post
-export async function creatPost(content: string, imageUrl: string, tags?: string[], mood?: string) {
+export async function creatPost(content: string, imageUrl: string, tags?: string[], categoryId?: string, vibeId?: string) {
     try {
         const userId = await getDbUserId() ;
         if(!userId) return ; 
         
-        const result = await createVibeUseCase.execute(content, imageUrl, userId, tags, mood);
+        const result = await createVibeUseCase.execute(content, imageUrl, userId, tags, undefined, categoryId, vibeId);
         
         if (!result.success) {
             return {success: false, error: 'failed to create a post!'}
@@ -36,11 +37,10 @@ export async function creatPost(content: string, imageUrl: string, tags?: string
     }
 }
 //2//to get all posts
-export async function getPosts(){
+export async function getPosts(params: FeedQueryParams = {}) {
     try {
-        const posts = await generateFeedUseCase.execute();
-        revalidatePath('/') ; 
-        return posts ; 
+        const result = await generateFeedUseCase.execute(params);
+        return result; 
     }catch (er){
         console.error('failed to fetch posts!' , er)
         throw new Error('failed to fetch posts!') 

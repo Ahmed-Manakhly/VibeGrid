@@ -21,8 +21,8 @@ import { Textarea } from './ui/textarea';
 //using post._count for [likesCount] will cause a type error as _count not coming from schema , but from the server action, so we will make our type
 //we will use the type of the server action | but it's a fun , so wrap it with generic | and say we need the return type | but it's a promis | so the awaited of
 //1- type posts = typeof getPosts | 2- type posts = <typeof getPosts> |3- ReturnType<typeof getPosts> | 4- Awaited<ReturnType<typeof getPosts>>
-type posts = Awaited<ReturnType<typeof getPosts>>; // still we need to get one post of the posts[]
-type post = posts[number] & { mood?: string | null, tags?: string[] };// it shold extract a single post from the array | we can make index0 posts[0]
+type FeedResponse = Awaited<ReturnType<typeof getPosts>>; 
+type post = FeedResponse['data'][number] & { category?: any, vibe?: any, tags?: any[] };
 //-----------------------------------------------
 function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { // updated | now post that we created not prisma schema Post
     const {user} = useUser();
@@ -137,20 +137,22 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                 )}
                 
                 <div className="px-3 sm:px-5 mt-3 sm:mt-4 space-y-3 sm:space-y-4">
-                    {/* MOOD & TAGS */}
-                    {(post.mood && post.mood !== "neutral" || (post.tags && post.tags.length > 0)) && (
+                    {/* CATEGORY, VIBE & TAGS */}
+                    {(post.category || post.vibe || (post.tags && post.tags.length > 0)) && (
                         <div className="flex flex-wrap gap-2 pt-1 sm:pt-2"> 
-                            {post.mood && post.mood !== "neutral" && (
-                                <span className="px-3 py-1 text-[11px] rounded-full bg-primary/10 text-primary font-medium tracking-wide border-none">
-                                    {post.mood === 'excited' ? '🚀 Excited' :
-                                     post.mood === 'learning' ? '📚 Learning' :
-                                     post.mood === 'building' ? '💻 Building' :
-                                     post.mood === 'debugging' ? '🐛 Debugging' : post.mood}
-                                </span>
+                            {post.category && (
+                                <Link href={`/explore?category=${post.category.slug}`} className="px-3 py-1 text-[11px] rounded-full bg-primary/10 text-primary font-medium tracking-wide border-none hover:bg-primary/20 transition-colors">
+                                    {post.category.emoji} {post.category.name}
+                                </Link>
                             )}
-                            {post.tags && post.tags.slice(0, 4).map((tag: string, idx: number) => (
-                                <Link href={`/explore?q=${encodeURIComponent(tag)}`} key={idx} className="px-2.5 py-1 text-[10px] rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors font-medium tracking-wide">
-                                    #{tag}
+                            {post.vibe && (
+                                <Link href={`/explore?vibe=${post.vibe.key}`} className="px-3 py-1 text-[11px] rounded-full bg-white/5 text-gray-300 font-medium tracking-wide border border-white/10 hover:bg-white/10 transition-colors">
+                                    {post.vibe.label}
+                                </Link>
+                            )}
+                            {post.tags && post.tags.slice(0, 4).map((postTag: any, idx: number) => (
+                                <Link href={`/explore?tag=${postTag.tag.slug}`} key={idx} className="px-2.5 py-1 text-[10px] rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors font-medium tracking-wide">
+                                    #{postTag.tag.name}
                                 </Link>
                             ))}
                             {post.tags && post.tags.length > 4 && (
@@ -165,9 +167,9 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                             <DialogTitle>All Tags</DialogTitle>
                                         </DialogHeader>
                                         <div className="flex flex-wrap gap-2 pt-4">
-                                            {post.tags.map((tag: string, idx: number) => (
-                                                <Link href={`/explore?q=${encodeURIComponent(tag)}`} key={idx} className="px-3 py-1.5 text-sm rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors font-medium tracking-wide">
-                                                    #{tag}
+                                            {post.tags.map((postTag: any, idx: number) => (
+                                                <Link href={`/explore?tag=${postTag.tag.slug}`} key={idx} className="px-3 py-1.5 text-sm rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors font-medium tracking-wide">
+                                                    #{postTag.tag.name}
                                                 </Link>
                                             ))}
                                         </div>

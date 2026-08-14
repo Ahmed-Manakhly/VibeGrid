@@ -1,20 +1,39 @@
-import { IVibeRepository, CreateVibeDTO, VibeFeedItem } from "../domain/IVibeRepository";
+import { IVibeRepository, VibePost } from "../domain/IVibeRepository";
 import { Result, success, failure } from "@/shared/kernel/Result";
 import { PrismaClient } from "@prisma/client";
+import { FeedQueryParams, FeedResult } from "@/shared/kernel/FeedQueryParams";
+import { FeedQueryBuilder } from "@/shared/kernel/FeedQueryBuilder";
+import { vibeFeedQueryConfig } from "./VibeFeedQueryConfig";
 
 export class PrismaVibeRepository implements IVibeRepository {
   constructor(private db: PrismaClient) {}
 
-  async create(data: CreateVibeDTO): Promise<Result<any>> {
+  async create(data: { content: string; imageUrl: string; authorId: string; categoryId?: string; vibeId?: string; tags?: string[] }): Promise<Result<any>> {
     try {
+      const postData: any = {
+      content: data.content,
+      image: data.imageUrl,
+      authorId: data.authorId,
+    };
+
+    if (data.categoryId) postData.categoryId = data.categoryId;
+    if (data.vibeId) postData.vibeId = data.vibeId;
+
+    if (data.tags && data.tags.length > 0) {
+      postData.tags = {
+        create: data.tags.map((tagSlug) => ({
+          tag: {
+            connectOrCreate: {
+              where: { slug: tagSlug },
+              create: { name: tagSlug, slug: tagSlug },
+            },
+          },
+        })),
+      };
+    }
+
       const post = await this.db.post.create({
-        data: {
-          content: data.content,
-          image: data.image,
-          authorId: data.authorId,
-          tags: data.tags || [],
-          mood: data.mood,
-        },
+        data: postData,
       });
       return success(post);
     } catch (error) {
@@ -23,7 +42,7 @@ export class PrismaVibeRepository implements IVibeRepository {
     }
   }
 
-  async delete(id: string, authorId: string): Promise<Result<void>> {
+  async deletePost(id: string, authorId: string): Promise<Result<void>> {
     try {
       const post = await this.db.post.findUnique({
         where: { id },
@@ -42,24 +61,16 @@ export class PrismaVibeRepository implements IVibeRepository {
     }
   }
 
-  async getFeed(): Promise<VibeFeedItem[]> {
-    return this.db.post.findMany({
-      include: {
-        author: {
-          select: { id: true, name: true, image: true, username: true },
-        },
-        comments: {
-          include: {
-            author: {
-              select: { id: true, name: true, image: true, username: true },
-            },
-          },
-          orderBy: { createdAt: "asc" },
-        },
-        likes: { select: { userId: true } },
-        _count: { select: { likes: true, comments: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+  async getPostById(postId: string): Promise<any | null> {
+    return this.db.post.findUnique({ where: { id: postId } });
+  }
+
+  async getFeed(params: FeedQueryParams = {}): Promise<FeedResult<VibePost>> {
+    const queryBuilder = new FeedQueryBuilder<VibePost>(
+      this.db.post,
+      params,
+      vibeFeedQueryConfig
+    );
+    return queryBuilder.execute();
   }
 }

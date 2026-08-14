@@ -8,6 +8,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id                   String          @id @default(cuid())
   email                String          @unique
@@ -18,6 +23,7 @@ model User {
   image                String?
   location             String?
   website              String?
+  role                 UserRole        @default(USER)
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt
   posts                Post[]
@@ -34,11 +40,14 @@ model Post {
   authorId      String
   content       String?
   image         String?
-  tags          String[]        @default([])
-  mood          String?
+  categoryId    String?
+  vibeId        String?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   author        User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category      Category?       @relation(fields: [categoryId], references: [id])
+  vibe          Vibe?           @relation(fields: [vibeId], references: [id])
+  tags          PostTag[]
   comments      Comment[]
   likes         Like[]
   notifications Notifications[]
@@ -101,4 +110,36 @@ enum NotificationType {
   LIKE
   COMMENT
   FOLLOW
+}
+
+model Category {
+  id    String  @id @default(cuid())
+  name  String  @unique
+  slug  String  @unique
+  emoji String?
+  posts Post[]
+}
+
+model Vibe {
+  id    String  @id @default(cuid())
+  key   String  @unique
+  label String
+  posts Post[]
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  posts     PostTag[]
+}
+
+model PostTag {
+  postId String
+  tagId  String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
 }

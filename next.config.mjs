@@ -6,7 +6,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-      domains: ['utfs.io'], // Add your hostname here
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'utfs.io',
+        },
+      ],
     },
 };
 

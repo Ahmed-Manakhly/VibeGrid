@@ -5,6 +5,6 @@ export class DeleteVibeUseCase {
   constructor(private repo: IVibeRepository) {}
 
   async execute(vibeId: string, authorId: string) {
-    return this.repo.delete(vibeId, authorId);
+    return this.repo.deletePost(vibeId, authorId);
   }
 }

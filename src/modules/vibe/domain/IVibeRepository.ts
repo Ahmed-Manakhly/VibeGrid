@@ -1,33 +1,31 @@
 import { Result } from "@/shared/kernel/Result";
-import { Prisma } from "@prisma/client";
+import { FeedQueryParams, FeedResult } from "@/shared/kernel/FeedQueryParams";
 
-export type VibeFeedItem = Prisma.PostGetPayload<{
-  include: {
+export interface VibePost {
+    id: string;
+    content: string | null;
+    image: string | null;
+    tags: any[];
     author: {
-      select: { id: true; name: true; image: true; username: true };
+        id: string;
+        username: string | null;
+        image: string | null;
+        name: string | null;
     };
-    comments: {
-      include: {
-        author: {
-          select: { id: true; name: true; image: true; username: true };
-        };
-      };
+    category?: any;
+    vibe?: any;
+    likes: { userId: string }[];
+    comments: any[];
+    _count: {
+        likes: number;
+        comments: number;
     };
-    likes: { select: { userId: true } };
-    _count: { select: { likes: true; comments: true } };
-  };
-}>;
-
-export interface CreateVibeDTO {
-  content: string;
-  image: string;
-  authorId: string;
-  tags?: string[];
-  mood?: string;
+    createdAt: Date;
 }
 
 export interface IVibeRepository {
-  create(data: CreateVibeDTO): Promise<Result<any>>;
-  delete(id: string, authorId: string): Promise<Result<void>>;
-  getFeed(): Promise<VibeFeedItem[]>;
+    create(data: { content: string, imageUrl: string, authorId: string, categoryId?: string, vibeId?: string, tags?: string[] }): Promise<Result<any>>;
+    getFeed(params?: FeedQueryParams): Promise<FeedResult<VibePost>>;
+    getPostById(postId: string): Promise<any | null>;
+    deletePost(postId: string, userId: string): Promise<Result<void>>;
 }

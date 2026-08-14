@@ -21,11 +21,20 @@ import { NotificationEventHandler } from "@/modules/notification/application/Not
 import { PrismaAuthRepository } from "@/modules/auth/infrastructure/PrismaAuthRepository";
 import { SyncUserUseCase } from "@/modules/auth/application/SyncUser.usecase";
 import { GetUserUseCase } from "@/modules/auth/application/GetUser.usecase";
+import { ClerkAuthGateway } from "@/modules/auth/infrastructure/ClerkAuthGateway";
 
 // Social Module
 import { PrismaSocialRepository } from "@/modules/social/infrastructure/PrismaSocialRepository";
 import { ToggleFollowUseCase } from "@/modules/social/application/ToggleFollow.usecase";
 import { GetSuggestedUsersUseCase } from "@/modules/social/application/GetSuggestedUsers.usecase";
+import { PrismaProfileRepository } from "@/modules/social/infrastructure/PrismaProfileRepository";
+import { GetProfileUseCase } from "@/modules/social/application/GetProfile.usecase";
+import { UpdateProfileUseCase } from "@/modules/social/application/UpdateProfile.usecase";
+
+// Taxonomy Module
+import { PrismaTaxonomyRepository } from "@/modules/taxonomy/infrastructure/PrismaTaxonomyRepository";
+import { GetTaxonomyUseCase } from "@/modules/taxonomy/application/GetTaxonomy.usecase";
+import { GetTrendingTagsUseCase } from "@/modules/taxonomy/application/GetTrendingTags.usecase";
 
 // 1. Instantiate Repositories (Inject DB)
 const vibeRepository = new PrismaVibeRepository(prisma);
@@ -33,6 +42,10 @@ const engagementRepository = new PrismaEngagementRepository(prisma);
 const notificationRepository = new PrismaNotificationRepository(prisma);
 const authRepository = new PrismaAuthRepository(prisma);
 const socialRepository = new PrismaSocialRepository(prisma);
+const taxonomyRepository = new PrismaTaxonomyRepository(prisma);
+const profileRepository = new PrismaProfileRepository(prisma);
+
+export const authGateway = new ClerkAuthGateway(prisma);
 
 // 2. Instantiate Use Cases (Inject Repositories)
 // Vibe
@@ -55,6 +68,12 @@ export const getUserUseCase = new GetUserUseCase(authRepository);
 // Social
 export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository);
 export const getSuggestedUsersUseCase = new GetSuggestedUsersUseCase(socialRepository);
+export const getProfileUseCase = new GetProfileUseCase(profileRepository);
+export const updateProfileUseCase = new UpdateProfileUseCase(profileRepository);
+
+// Taxonomy
+export const getTaxonomyUseCase = new GetTaxonomyUseCase(taxonomyRepository);
+export const getTrendingTagsUseCase = new GetTrendingTagsUseCase(taxonomyRepository);
 
 // Initialize Event Handlers
 export const notificationEventHandler = new NotificationEventHandler(notificationRepository);

@@ -1,8 +1,9 @@
 "use client";
 // get the server actions to build all the needed types for the props
-import { getProfileByUsername, getUserPosts, updateProfile } from "@/actions/profile.action";
+import { getProfileByUsername, updateProfile } from "@/actions/profile.action";
 import { toggleFollow } from "@/actions/user.action";
-import PostCard from "@/components/PostCard";
+import { getPosts } from "@/actions/post.action";
+import { InfiniteScroll } from "@/components/InfiniteScroll";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,19 +33,19 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 // make the props types
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
-type Posts = Awaited<ReturnType<typeof getUserPosts>>;
+type PostsResult = Awaited<ReturnType<typeof getPosts>>;
 
 interface ProfilePageClientProps {
     user: NonNullable<User>;
-    posts: Posts;
-    likedPosts: Posts;
+    postsResult: PostsResult;
+    likedPostsResult: PostsResult;
     isFollowing: boolean;
 }
 //-----------------------------------
 function ProfilePageClient({
     isFollowing: initialIsFollowing,
-    likedPosts,
-    posts,
+    likedPostsResult,
+    postsResult,
     user,
 }: ProfilePageClientProps) {
     const { user: currentUser } = useUser(); // get the current user
@@ -199,21 +200,23 @@ function ProfilePageClient({
                     {/* ------------------------------- */}
                     <TabsContent value="posts" className="mt-6">
                         <div className="space-y-6">
-                            {posts.length > 0 ? (
-                                posts.map((post) => <PostCard key={post.id} post={post} dbUserId={user.id} />)
-                            ) : (
-                                <div className="text-center py-8 text-muted-foreground">No posts yet</div>
-                            )}
+                            <InfiniteScroll 
+                                initialPosts={postsResult.data}
+                                initialNextCursor={postsResult.nextCursor}
+                                apiUrl={`/api/posts?authorId=${user.id}`}
+                                dbUserId={currentUser ? user.id : null}
+                            />
                         </div>
                     </TabsContent>
                     {/* ------------------------------- */}
                     <TabsContent value="likes" className="mt-6">
                         <div className="space-y-6">
-                            {likedPosts.length > 0 ? (
-                                likedPosts.map((post) => <PostCard key={post.id} post={post} dbUserId={user.id} />)
-                            ) : (
-                                <div className="text-center py-8 text-muted-foreground">No liked posts to show</div>
-                            )}
+                            <InfiniteScroll 
+                                initialPosts={likedPostsResult.data}
+                                initialNextCursor={likedPostsResult.nextCursor}
+                                apiUrl={`/api/posts?likedByUserId=${user.id}`}
+                                dbUserId={currentUser ? user.id : null}
+                            />
                         </div>
                     </TabsContent>
                 </Tabs>

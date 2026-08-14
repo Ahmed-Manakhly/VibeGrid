@@ -4,10 +4,9 @@
 
 import {
     getProfileByUsername,
-    getUserPosts,
-    getUserLikedPosts,
     isFollowing,
 } from "@/actions/profile.action"; // server actions
+import { getPosts } from "@/actions/post.action";
 import { notFound } from "next/navigation"; // not found fun from next
 //-----------------
 import ProfilePageClient from "./ProfilePageClient";
@@ -27,17 +26,17 @@ async function ProfilePageServer({ params }: { params: { username: string } }) {
     if (!user) notFound();  // notFound is a next fun to navigate to the notfound page | it should be the global one we have created 
                             //but as we got a new one created specifically for this route it will use the nearest one
                             //check the not-found page 
-    const [posts, likedPosts, isCurrentUserFollowing] = await Promise.all([
-        getUserPosts(user.id),
-        getUserLikedPosts(user.id),
+    const [postsResult, likedPostsResult, isCurrentUserFollowing] = await Promise.all([
+        getPosts({ authorId: user.id }),
+        getPosts({ likedByUserId: user.id }),
         isFollowing(user.id),
     ]); // using an array of Promises to get all the needed data and destructure all of the results
 
     return (
         <ProfilePageClient
         user={user}
-        posts={posts}
-        likedPosts={likedPosts}
+        postsResult={postsResult}
+        likedPostsResult={likedPostsResult}
         isFollowing={isCurrentUserFollowing}
         />
     );
