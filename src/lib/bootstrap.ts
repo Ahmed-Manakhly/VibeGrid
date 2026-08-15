@@ -61,11 +61,13 @@ export async function ensureAdminUser() {
   }
 }
 
-let bootstrapRan = false;
+const globalForBootstrap = globalThis as unknown as {
+  __bootstrapRan: boolean | undefined;
+};
 
 export async function bootstrap() {
-  if (bootstrapRan) return;
-  bootstrapRan = true;
+  if (globalForBootstrap.__bootstrapRan) return;
+  globalForBootstrap.__bootstrapRan = true;
 
   try {
     await pushSchema();
