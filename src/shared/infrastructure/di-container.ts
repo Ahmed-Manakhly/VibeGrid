@@ -37,7 +37,7 @@ import { GetTaxonomyUseCase } from "@/modules/taxonomy/application/GetTaxonomy.u
 import { GetTrendingTagsUseCase } from "@/modules/taxonomy/application/GetTrendingTags.usecase";
 
 // 1. Instantiate Repositories (Inject DB)
-const vibeRepository = new PrismaVibeRepository(prisma);
+export const vibeRepository = new PrismaVibeRepository(prisma);
 const engagementRepository = new PrismaEngagementRepository(prisma);
 const notificationRepository = new PrismaNotificationRepository(prisma);
 const authRepository = new PrismaAuthRepository(prisma);

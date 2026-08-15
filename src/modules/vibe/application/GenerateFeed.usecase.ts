@@ -1,11 +1,11 @@
 import { IVibeRepository, VibePost } from "../domain/IVibeRepository";
-import { FeedQueryParams, FeedResult } from "@/shared/kernel/FeedQueryParams";
+import { ExplorePostsCriteria, ExplorePostsResult } from "../domain/ExplorePostsCriteria";
 // import { vibeRepository } from "../infrastructure/PrismaVibeRepository";
 
 export class GenerateFeedUseCase {
   constructor(private repo: IVibeRepository) {}
 
-  async execute(params: FeedQueryParams = {}): Promise<FeedResult<VibePost>> {
+  async execute(params: ExplorePostsCriteria = {}): Promise<ExplorePostsResult<VibePost>> {
     return this.repo.getFeed(params);
   }
 }

@@ -24,7 +24,7 @@ import { Textarea } from './ui/textarea';
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>; 
 type post = FeedResponse['data'][number] & { category?: any, vibe?: any, tags?: any[] };
 //-----------------------------------------------
-function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { // updated | now post that we created not prisma schema Post
+function PostCard({post , dbUserId, isTruncated = false} : {post : post , dbUserId:string | null, isTruncated?: boolean}) { // updated | now post that we created not prisma schema Post
     const {user} = useUser();
     const [newComment,setNewComment] = useState('');
     const [isCommenting,setIsCommenting] = useState(false);
@@ -124,13 +124,20 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                     {/* TEXT CONTENT */}
                     {post.content && (
                         <div>
-                            <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">{post.content}</p>
+                            <p className={`text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] ${isTruncated ? "line-clamp-3" : ""}`}>
+                                {post.content}
+                            </p>
+                            {isTruncated && (
+                                <Link href={`/posts/${post.id}`} className="inline-block mt-2 text-sm font-medium text-primary hover:underline">
+                                    Read more &rarr;
+                                </Link>
+                            )}
                         </div>
                     )}
                 </div>
 
                 {/* POST IMAGE if we have an image - FULL BLEED AFTER TEXT */}
-                {post.image && (
+                {!isTruncated && post.image && (
                     <div className="w-full bg-muted/30 border-y border-border/50">
                         <Image src={post.image} alt="Post content" className="w-full h-auto object-cover max-h-[600px]" width={800} height={600}/>
                     </div>
@@ -200,14 +207,17 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                 </Button>
                             </SignInButton>
                         )}
-                        <Button variant="ghost" size="sm" onClick={() => setShowComments((prev) => !prev)}
-                        className="text-muted-foreground gap-2 hover:bg-transparent hover:text-accent">
-                            <MessageCircleIcon className={`size-5 ${showComments ? "fill-accent text-accent" : ""}`} />
-                            <span>{post.comments.length}</span>
-                        </Button>
+                        
+                        {!isTruncated && (
+                            <Button variant="ghost" size="sm" onClick={() => setShowComments((prev) => !prev)}
+                            className="text-muted-foreground gap-2 hover:bg-transparent hover:text-accent">
+                                <MessageCircleIcon className={`size-5 ${showComments ? "fill-accent text-accent" : ""}`} />
+                                <span>{post.comments.length}</span>
+                            </Button>
+                        )}
                     </div>
                      {/* COMMENTS SECTION */}
-                    {showComments && (
+                    {!isTruncated && showComments && (
                         <div className="space-y-4 pt-4 border-t border-white/10">
                             <div className="space-y-4">
                                 {/* DISPLAY COMMENTS */}

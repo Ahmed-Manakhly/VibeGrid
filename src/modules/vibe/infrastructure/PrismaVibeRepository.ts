@@ -1,8 +1,8 @@
 import { IVibeRepository, VibePost } from "../domain/IVibeRepository";
 import { Result, success, failure } from "@/shared/kernel/Result";
 import { PrismaClient } from "@prisma/client";
-import { FeedQueryParams, FeedResult } from "@/shared/kernel/FeedQueryParams";
-import { FeedQueryBuilder } from "@/shared/kernel/FeedQueryBuilder";
+import { ExplorePostsCriteria, ExplorePostsResult } from "../domain/ExplorePostsCriteria";
+import { FeedQueryBuilder } from "@/shared/infrastructure/persistence/query/FeedQueryBuilder";
 import { vibeFeedQueryConfig } from "./VibeFeedQueryConfig";
 
 export class PrismaVibeRepository implements IVibeRepository {
@@ -62,10 +62,13 @@ export class PrismaVibeRepository implements IVibeRepository {
   }
 
   async getPostById(postId: string): Promise<any | null> {
-    return this.db.post.findUnique({ where: { id: postId } });
+    return this.db.post.findUnique({ 
+      where: { id: postId },
+      include: vibeFeedQueryConfig.defaultRelations
+    });
   }
 
-  async getFeed(params: FeedQueryParams = {}): Promise<FeedResult<VibePost>> {
+  async getFeed(params: ExplorePostsCriteria = {}): Promise<ExplorePostsResult<VibePost>> {
     const queryBuilder = new FeedQueryBuilder<VibePost>(
       this.db.post,
       params,

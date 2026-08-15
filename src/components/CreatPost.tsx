@@ -22,12 +22,25 @@ export default function CreatPost() {
     const { user } = useUser()
     const [content, setContent] = useState("")
     const [imageUrl, setImageUrl] = useState("")
-    const [mood, setMood] = useState("neutral")
     const [tags, setTags] = useState("")
+    const [categoryId, setCategoryId] = useState("")
+    const [vibeId, setVibeId] = useState("")
+    const [categories, setCategories] = useState<any[]>([])
+    const [vibes, setVibes] = useState<any[]>([])
     const [isPosting, setIsPosting] = useState(false)
     const [showImageUpload, setShowImageUpload] = useState(false) // for showing the dropZone component
     const [isExpanded, setIsExpanded] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+    useEffect(() => {
+        fetch("/api/feed/filters")
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.categories) setCategories(data.categories);
+                if (data.vibes) setVibes(data.vibes);
+            })
+            .catch((err) => console.error(err));
+    }, []);
 
     useEffect(() => {
         const handleFocus = () => {
@@ -50,12 +63,13 @@ export default function CreatPost() {
             // Split tags string by comma and trim
             const parsedTags = tags.split(",").map(t => t.trim()).filter(Boolean);
 
-            const result = await creatPost(content, imageUrl, parsedTags, mood);
+            const result = await creatPost(content, imageUrl, parsedTags, categoryId || undefined, vibeId || undefined);
             if (result?.success) {
                 setContent('');
                 setImageUrl('');
                 setTags('');
-                setMood('neutral');
+                setCategoryId('');
+                setVibeId('');
                 setShowImageUpload(false);
                 setIsExpanded(false);
                 toast.success('Vibe has been dropped successfully!')
@@ -99,16 +113,28 @@ export default function CreatPost() {
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 pt-2 pb-2">
-                                <Select value={mood} onValueChange={(value) => setMood(value)}>
+                                <Select value={categoryId} onValueChange={(value) => setCategoryId(value)}>
                                     <SelectTrigger className="w-full sm:w-[140px] h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
-                                        <SelectValue placeholder="Mood" />
+                                        <SelectValue placeholder="Category" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-background border-border/50 font-mono">
-                                        <SelectItem value="neutral">😐 Neutral</SelectItem>
-                                        <SelectItem value="excited">🚀 Excited</SelectItem>
-                                        <SelectItem value="learning">📚 Learning</SelectItem>
-                                        <SelectItem value="building">💻 Building</SelectItem>
-                                        <SelectItem value="debugging">🐛 Debugging</SelectItem>
+                                        {categories.map((c) => (
+                                            <SelectItem key={c.id} value={c.id}>
+                                                {c.emoji} {c.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Select value={vibeId} onValueChange={(value) => setVibeId(value)}>
+                                    <SelectTrigger className="w-full sm:w-[140px] h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
+                                        <SelectValue placeholder="Vibe" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-background border-border/50 font-mono">
+                                        {vibes.map((v) => (
+                                            <SelectItem key={v.id} value={v.id}>
+                                                {v.label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                                 <Input

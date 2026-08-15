@@ -24,6 +24,8 @@ async function ExploreFeed({ params, dbUserId }: { params: any, dbUserId: string
         initialNextCursor={result.nextCursor}
         apiUrl="/api/posts"
         dbUserId={dbUserId}
+        mode="manual"
+        isTruncated={true}
       />
     </div>
   );

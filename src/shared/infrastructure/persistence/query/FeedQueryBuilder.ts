@@ -1,5 +1,4 @@
-import { FeedQueryParams, FeedResult } from "./FeedQueryParams";
-
+import { ExplorePostsCriteria, ExplorePostsResult } from "../../../../modules/vibe/domain/ExplorePostsCriteria";
 export type FieldConfigType = "relation-array" | "relation-scalar" | "scalar";
 
 export interface FeedQueryConfig {
@@ -17,7 +16,7 @@ export class FeedQueryBuilder<T> {
 
   constructor(
     private modelDelegate: any,
-    private params: FeedQueryParams,
+    private params: ExplorePostsCriteria,
     private config: FeedQueryConfig
   ) {
     this.limit = Math.min(Number(this.params.limit) || this.config.defaultLimit, 50);
@@ -93,7 +92,7 @@ export class FeedQueryBuilder<T> {
     return this;
   }
 
-  public async execute(): Promise<FeedResult<T>> {
+  public async execute(): Promise<ExplorePostsResult<T>> {
     this.processSearch().processFilters().processCursor();
 
     // If AND is empty, Prisma sometimes prefers undefined

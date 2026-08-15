@@ -10,9 +10,11 @@ interface InfiniteScrollProps {
   initialNextCursor: string | null;
   apiUrl: string;
   dbUserId: string | null;
+  mode?: "infinite" | "manual";
+  isTruncated?: boolean;
 }
 
-export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUserId }: InfiniteScrollProps) {
+export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUserId, mode = "infinite", isTruncated = false }: InfiniteScrollProps) {
   const [posts, setPosts] = useState(initialPosts);
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [loading, setLoading] = useState(false);
@@ -58,10 +60,10 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
   };
 
   useEffect(() => {
-    if (inView) {
+    if (mode === "infinite" && inView) {
       loadMore();
     }
-  }, [inView]);
+  }, [inView, mode]);
 
   return (
     <div className="w-full">
@@ -98,13 +100,29 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
       {/* Posts Container */}
       <div className={viewMode === "thread" ? "flex flex-col gap-6" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} dbUserId={dbUserId} />
+          <PostCard key={post.id} post={post} dbUserId={dbUserId} isTruncated={isTruncated} />
         ))}
       </div>
       
-      {nextCursor && (
+      {nextCursor && mode === "infinite" && (
         <div ref={ref} className="flex justify-center p-4">
           <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+
+      {nextCursor && mode === "manual" && (
+        <div className="flex justify-center p-8">
+          <button 
+            onClick={loadMore} 
+            disabled={loading}
+            className="px-6 py-2.5 rounded-xl bg-secondary/50 hover:bg-secondary text-sm font-medium transition-all"
+          >
+            {loading ? (
+               <div className="w-5 h-5 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+               "Load More"
+            )}
+          </button>
         </div>
       )}
       

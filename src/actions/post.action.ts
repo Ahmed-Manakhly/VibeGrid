@@ -13,9 +13,10 @@ import {
     generateFeedUseCase, 
     deleteVibeUseCase,
     toggleLikeUseCase,
-    addCommentUseCase
+    addCommentUseCase,
+    vibeRepository
 } from "@/shared/infrastructure/di-container";
-import { FeedQueryParams } from "@/shared/kernel/FeedQueryParams";
+import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
 
 //1//to create the post
 export async function creatPost(content: string, imageUrl: string, tags?: string[], categoryId?: string, vibeId?: string) {
@@ -37,7 +38,7 @@ export async function creatPost(content: string, imageUrl: string, tags?: string
     }
 }
 //2//to get all posts
-export async function getPosts(params: FeedQueryParams = {}) {
+export async function getPosts(params: ExplorePostsCriteria = {}) {
     try {
         const result = await generateFeedUseCase.execute(params);
         return result; 
@@ -84,6 +85,17 @@ export async function createComment(postId : string, content : string){
         return {success : false, error : 'failed to create a comment!'}
     }
 }
+
+export async function getPostById(postId: string) {
+    try {
+        const post = await vibeRepository.getPostById(postId);
+        return post;
+    } catch (error) {
+        console.error('failed to get post', error);
+        return null;
+    }
+}
+
 //5//to delete the post
 export async function deletePost(postId : string){
     try {

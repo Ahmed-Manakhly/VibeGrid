@@ -1,18 +1,18 @@
 import { generateFeedUseCase } from "@/shared/infrastructure/di-container";
 import { NextResponse } from "next/server";
-import { FeedQueryParams } from "@/shared/kernel/FeedQueryParams";
+import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     
-    const params: FeedQueryParams = {
-      search: searchParams.get("q") || undefined,
+    const params: ExplorePostsCriteria = {
+      cursor: searchParams.get("cursor") || undefined,
       tag: searchParams.get("tag") || undefined,
       category: searchParams.get("category") || undefined,
       vibe: searchParams.get("vibe") || undefined,
-      cursor: searchParams.get("cursor") || undefined,
-      limit: parseInt(searchParams.get("limit") || "12", 10),
+      search: searchParams.get("search") || undefined,
+      limit: searchParams.has("limit") ? Number(searchParams.get("limit")) : undefined,
     };
 
     const result = await generateFeedUseCase.execute(params);

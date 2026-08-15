@@ -1,5 +1,5 @@
 import { Result } from "@/shared/kernel/Result";
-import { FeedQueryParams, FeedResult } from "@/shared/kernel/FeedQueryParams";
+import { ExplorePostsCriteria, ExplorePostsResult } from "./ExplorePostsCriteria";
 
 export interface VibePost {
     id: string;
@@ -25,7 +25,7 @@ export interface VibePost {
 
 export interface IVibeRepository {
     create(data: { content: string, imageUrl: string, authorId: string, categoryId?: string, vibeId?: string, tags?: string[] }): Promise<Result<any>>;
-    getFeed(params?: FeedQueryParams): Promise<FeedResult<VibePost>>;
+    getFeed(params?: ExplorePostsCriteria): Promise<ExplorePostsResult<VibePost>>;
     getPostById(postId: string): Promise<any | null>;
     deletePost(postId: string, userId: string): Promise<Result<void>>;
 }

@@ -1,4 +1,4 @@
-import { FeedQueryConfig } from "@/shared/kernel/FeedQueryBuilder";
+import { FeedQueryConfig } from "@/shared/infrastructure/persistence/query/FeedQueryBuilder";
 
 export const vibeFeedQueryConfig: FeedQueryConfig = {
   defaultLimit: 12,

@@ -1,4 +1,4 @@
-export interface FeedQueryParams {
+export interface ExplorePostsCriteria {
   search?: string;
   tag?: string;
   category?: string;
@@ -10,7 +10,7 @@ export interface FeedQueryParams {
   sort?: string;
 }
 
-export interface FeedResult<T> {
+export interface ExplorePostsResult<T> {
   data: T[];
   nextCursor: string | null;
 }
