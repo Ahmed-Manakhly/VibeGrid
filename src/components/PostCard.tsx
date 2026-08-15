@@ -44,7 +44,7 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
 
     const contentLimit = 150;
     const shouldTruncate = !isDetailPage && post.content && post.content.length > contentLimit;
-    const displayContent = shouldTruncate ? post.content.slice(0, contentLimit) + "..." : post.content;
+    const displayContent = shouldTruncate && post.content ? post.content.slice(0, contentLimit) + "..." : post.content;
     const handleLike = async () => {
         if(isLiking) return;
         try {
@@ -150,8 +150,9 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                                 </Link>
                             )}
                             {shouldTruncate && (
-                                <Link href={`/vibes/${post.id}`} className="inline-block mt-2 text-sm font-medium text-primary hover:underline">
-                                    Read more &rarr;
+                                <Link href={`/vibes/${post.id}`} className="inline-flex items-center mt-2 text-sm font-medium text-primary hover:text-foreground transition-colors group">
+                                    <span className="group-hover:underline">Read more</span>
+                                    <span className="ml-1 transition-transform group-hover:translate-x-1">&rarr;</span>
                                 </Link>
                             )}
                         </div>

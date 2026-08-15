@@ -10,11 +10,11 @@ export function BackButton() {
     <Button 
       variant="ghost" 
       size="sm" 
-      className="mb-4 text-muted-foreground hover:text-foreground pl-0 group hover:bg-transparent"
+      className="mb-4 text-primary hover:text-foreground pl-0 group hover:bg-transparent transition-colors text-sm font-medium"
       onClick={() => router.back()}
     >
-      <ArrowLeftIcon className="mr-2 size-4 transition-transform group-hover:-translate-x-1" />
-      Back
+      <ArrowLeftIcon className="mr-1 size-4 transition-transform group-hover:-translate-x-1" />
+      <span className="group-hover:underline">Back</span>
     </Button>
   );
 }
