@@ -1,0 +1,61 @@
+"use client";
+
+import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, FormEvent } from "react";
+
+export function NavSearch() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/explore?q=${encodeURIComponent(query.trim())}`);
+      setQuery("");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSearch} className="relative w-full max-w-sm hidden sm:block">
+      <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-accent cursor-pointer hover:text-accent/80 transition-colors" />
+      <input 
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="h-10 w-full rounded-xl border border-border/70 bg-card/60 pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" 
+        placeholder="Search the grid..." 
+        aria-label="Search the grid" 
+      />
+    </form>
+  );
+}
+
+export function MobileNavSearch() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/explore?q=${encodeURIComponent(query.trim())}`);
+      setQuery("");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSearch} className="nav-glass sm:hidden px-5 pb-3 pt-1 border-t-0 shadow-none rounded-none !bg-background/95">
+      <div className="relative w-full">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-accent cursor-pointer hover:text-accent/80 transition-colors" />
+        <input 
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="h-10 w-full rounded-xl border border-border/70 bg-card/80 pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" 
+          placeholder="Search the grid..." 
+          aria-label="Search the grid" 
+        />
+      </div>
+    </form>
+  );
+}

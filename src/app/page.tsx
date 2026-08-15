@@ -7,6 +7,26 @@ import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { currentUser } from "@clerk/nextjs/server";
 import { InfiniteScroll } from "@/components/InfiniteScroll";
 import { CategoryPills } from "@/components/CategoryPills";
+import { Suspense } from "react";
+import Loading from "./loading";
+
+async function HomeFeed({ params, dbUserId }: { params: any, dbUserId: string | null }) {
+  const result = await getPosts({
+    category: params?.category,
+    limit: 12
+  });
+
+  return (
+    <div className="mt-4 flex flex-col gap-6">
+      <InfiniteScroll 
+        initialPosts={result.data} 
+        initialNextCursor={result.nextCursor}
+        apiUrl="/api/posts"
+        dbUserId={dbUserId}
+      />
+    </div>
+  );
+}
 
 interface PageProps {
   searchParams: {
@@ -18,13 +38,8 @@ export default async function Home({ searchParams }: PageProps) {
   const user = await currentUser()
   const dbUserId = await getDbUserId(); 
   
-  // Await searchParams in Next 15+
   const params = await searchParams;
-  
-  const result = await getPosts({
-    category: params?.category,
-    limit: 12
-  }); 
+  const suspenseKey = JSON.stringify(params);
 
 
   return (
@@ -42,13 +57,11 @@ export default async function Home({ searchParams }: PageProps) {
 
             <div className="mt-4 flex flex-col gap-6">
                {user ? <CreatPost/> : null}
-               <InfiniteScroll 
-                 initialPosts={result.data} 
-                 initialNextCursor={result.nextCursor}
-                 apiUrl="/api/posts"
-                 dbUserId={dbUserId}
-               />
             </div>
+
+            <Suspense key={suspenseKey} fallback={<Loading />}>
+               <HomeFeed params={params} dbUserId={dbUserId} />
+            </Suspense>
           </>
         }
         discovery={

@@ -13,6 +13,7 @@ export function SearchInput() {
     e.preventDefault();
     if (query.trim()) {
       router.push(`/explore?q=${encodeURIComponent(query.trim())}`);
+      setQuery("");
     } else {
       router.push("/explore");
     }

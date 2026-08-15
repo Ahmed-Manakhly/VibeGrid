@@ -1,11 +1,16 @@
 import Link from 'next/link'
 
 export default function NotFound() {
-    return (
-        <div className='flex justify-start flex-col items-center text-balance font-semibold rounded-lg bg-muted/50 m-10 p-10 border gap-2'>
-            <h1 className='text-xl'>Not Found</h1>
-            <p>404 | Could not find requested resource!</p>
-            <Link href="/" className='text-muted-foreground mt-5 text-sm'>Return to Home Page</Link>
-        </div>
-    )
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="text-4xl mb-4">🌵</div>
+      <h3 className="text-lg font-bold font-mono mb-2">404 - Grid not found</h3>
+      <p className="text-muted-foreground text-sm font-mono mb-6">
+        Could not find requested resource.
+      </p>
+      <Link href="/" className="btn-gradient px-6 py-2 rounded-xl text-sm font-semibold">
+        Return Home
+      </Link>
+    </div>
+  );
 }
