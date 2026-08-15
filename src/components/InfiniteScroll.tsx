@@ -18,7 +18,7 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
   const [posts, setPosts] = useState(initialPosts);
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<"thread" | "grid">("thread");
+  const [viewMode, setViewMode] = useState<"thread" | "grid">("grid");
   const searchParams = useSearchParams();
   const { ref, inView } = useInView();
 
