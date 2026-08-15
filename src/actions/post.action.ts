@@ -37,6 +37,32 @@ export async function creatPost(content: string, imageUrl: string, tags?: string
         return {success : false, error : 'failed to create a post!'}
     }
 }
+
+// 1.5 wrapper for react 19 form actions
+export async function createPostFormAction(prevState: any, formData: FormData) {
+    const content = formData.get('content') as string;
+    const imageUrl = formData.get('imageUrl') as string;
+    const tagsRaw = formData.get('tags') as string;
+    const categoryId = formData.get('categoryId') as string;
+    const vibeId = formData.get('vibeId') as string;
+
+    if (!content?.trim() && !imageUrl) {
+        return { success: false, error: 'Post cannot be empty.' };
+    }
+
+    const tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()).filter(Boolean) : undefined;
+
+    try {
+        const result = await creatPost(content, imageUrl, tags, categoryId || undefined, vibeId || undefined);
+        if (result?.success) {
+            return { success: true };
+        }
+        return { success: false, error: 'Failed to drop vibe.' };
+    } catch (err) {
+        return { success: false, error: 'Something went wrong.' };
+    }
+}
+
 //2//to get all posts
 export async function getPosts(params: ExplorePostsCriteria = {}) {
     try {

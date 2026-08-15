@@ -1,36 +1,76 @@
-// 1st we need to create some actions > go to [user.action.ts]
-//This is going to be a client component as we will use some states and we will not be able to use async
-
 "use client"
-//we can get the user from clerk in client component using clerk hook called useUser
 import { useUser } from "@clerk/nextjs";
-//--------------------
 import { useState, useRef, useEffect } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 // ui imports
 import { Card, CardContent } from "./ui/card";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
-import { creatPost } from "@/actions/post.action";
+import { createPostFormAction } from "@/actions/post.action";
 import toast from "react-hot-toast";
 import ImageUpload from "./ImageUpload";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Input } from "./ui/input";
 
+function SubmitButton({ disabled }: { disabled: boolean }) {
+    const { pending } = useFormStatus();
+
+    return (
+        <Button 
+            type="submit"
+            className="btn-gradient flex items-center rounded-xl" 
+            disabled={disabled || pending}
+        >
+            {pending ? (
+                <>
+                    <Loader2Icon className="size-4 mr-2 animate-spin" />
+                    Dropping...
+                </>
+            ) : (
+                <>
+                    <SendIcon className="size-4 mr-2" />
+                    Drop Vibe
+                </>
+            )}
+        </Button>
+    );
+}
+
 export default function CreatPost() {
-    const { user } = useUser()
-    const [content, setContent] = useState("")
-    const [imageUrl, setImageUrl] = useState("")
-    const [tags, setTags] = useState("")
-    const [categoryId, setCategoryId] = useState("")
-    const [vibeId, setVibeId] = useState("")
-    const [categories, setCategories] = useState<any[]>([])
-    const [vibes, setVibes] = useState<any[]>([])
-    const [isPosting, setIsPosting] = useState(false)
-    const [showImageUpload, setShowImageUpload] = useState(false) // for showing the dropZone component
-    const [isExpanded, setIsExpanded] = useState(false)
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const { user } = useUser();
+    
+    // UI state only (not form data)
+    const [imageUrl, setImageUrl] = useState("");
+    const [showImageUpload, setShowImageUpload] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    // Temporary state to conditionally disable button if empty, 
+    // even though the form handles the actual data submission natively.
+    const [contentVal, setContentVal] = useState("");
+
+    const [categories, setCategories] = useState<any[]>([]);
+    const [vibes, setVibes] = useState<any[]>([]);
+    
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const formRef = useRef<HTMLFormElement>(null);
+
+    // Form Action Hook
+    const [state, formAction] = useFormState(createPostFormAction, null);
+
+    useEffect(() => {
+        if (state?.success) {
+            toast.success('Vibe has been dropped successfully!');
+            formRef.current?.reset();
+            setContentVal("");
+            setImageUrl("");
+            setShowImageUpload(false);
+            setIsExpanded(false);
+        } else if (state?.error) {
+            toast.error(state.error);
+        }
+    }, [state]);
 
     useEffect(() => {
         fetch("/api/feed/filters")
@@ -50,42 +90,22 @@ export default function CreatPost() {
             }, 50);
         };
 
-        // Listen for changes
         window.addEventListener('focusCreatePost', handleFocus);
         return () => window.removeEventListener('focusCreatePost', handleFocus);
     }, []);
 
-    //-------------------------------------- fun
-    const handleSubmit = async () => {
-        if (!content.trim() && !imageUrl) return
-        setIsPosting(true)
-        try {
-            // Split tags string by comma and trim
-            const parsedTags = tags.split(",").map(t => t.trim()).filter(Boolean);
-
-            const result = await creatPost(content, imageUrl, parsedTags, categoryId || undefined, vibeId || undefined);
-            if (result?.success) {
-                setContent('');
-                setImageUrl('');
-                setTags('');
-                setCategoryId('');
-                setVibeId('');
-                setShowImageUpload(false);
-                setIsExpanded(false);
-                toast.success('Vibe has been dropped successfully!')
-            }
-        } catch (er) {
-            console.error('failed to drop a vibe!', er)
-            toast.error('Failed to drop a vibe!')
-        } finally {
-            setIsPosting(false)
-        }
+    const handleCancel = () => {
+        setIsExpanded(false);
+        setShowImageUpload(false);
+        setContentVal('');
+        setImageUrl('');
+        formRef.current?.reset();
     };
-    //---------------------------------------
+
     return (
         <Card id="create-post" className="mb-6 feed-card scroll-mt-24">
             <CardContent className="pt-6 ">
-                <div className="space-y-4">
+                <form action={formAction} ref={formRef} className="space-y-4">
                     {!isExpanded ? (
                         <div className="flex items-center space-x-4 cursor-text" onClick={() => setIsExpanded(true)}>
                             <Avatar className="w-10 h-10">
@@ -104,16 +124,19 @@ export default function CreatPost() {
                                     </Avatar>
                                     <span className="text-sm font-semibold sm:hidden">{user?.firstName || "You"}</span>
                                 </div>
-                                <Textarea placeholder="What's on your mind?" value={content} onChange={(e) => setContent(e.target.value)}
+                                <Textarea 
+                                    name="content"
+                                    placeholder="What's on your mind?" 
+                                    value={contentVal} 
+                                    onChange={(e) => setContentVal(e.target.value)}
                                     ref={textareaRef}
-                                    disabled={isPosting}
                                     className="min-h-[100px] flex-1 w-full resize-none border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border bg-background p-3 text-base"
                                     autoFocus
                                 />
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 pt-2 pb-2">
-                                <Select value={categoryId} onValueChange={(value) => setCategoryId(value)}>
+                                <Select name="categoryId">
                                     <SelectTrigger className="w-full sm:w-[140px] h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
                                         <SelectValue placeholder="Category" />
                                     </SelectTrigger>
@@ -125,7 +148,7 @@ export default function CreatPost() {
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                <Select value={vibeId} onValueChange={(value) => setVibeId(value)}>
+                                <Select name="vibeId">
                                     <SelectTrigger className="w-full sm:w-[140px] h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
                                         <SelectValue placeholder="Vibe" />
                                     </SelectTrigger>
@@ -138,49 +161,42 @@ export default function CreatPost() {
                                     </SelectContent>
                                 </Select>
                                 <Input
+                                    name="tags"
                                     type="text"
                                     placeholder="Tags (comma separated, e.g. React, UI)"
-                                    value={tags}
-                                    onChange={(e) => setTags(e.target.value)}
                                     className="w-full sm:w-auto h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 focus-visible:border-border focus-visible:ring-1 focus-visible:ring-border flex-1 min-w-0 font-mono rounded-xl transition-all"
                                 />
                             </div>
-                            {/* TODO: handle image upload */}
+                            
                             {(showImageUpload || imageUrl) && (
                                 <div className="border rounded-lg p-4">
                                     <ImageUpload endpoint="postImage" value={imageUrl} onChange={(url) => { setImageUrl(url); if (!url) setShowImageUpload(false); }} />
                                 </div>
                             )}
+                            
+                            {/* Hidden input for imageUrl so it submits with form */}
+                            <input type="hidden" name="imageUrl" value={imageUrl} />
+
                             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
                                 <div className="flex space-x-2">
                                     <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-white/5 transition-all rounded-xl"
-                                        onClick={() => setShowImageUpload(!showImageUpload)} disabled={isPosting}
+                                        onClick={() => setShowImageUpload(!showImageUpload)}
                                     >
                                         <ImageIcon className="size-4 mr-2" />
                                         Photo
                                     </Button>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Button type="button" variant="ghost" className="text-muted-foreground hover:bg-transparent hover:text-foreground" onClick={() => { setIsExpanded(false); setShowImageUpload(false); setContent(''); setImageUrl(''); }} disabled={isPosting}>Cancel</Button>
-                                    <Button className="btn-gradient flex items-center rounded-xl" onClick={handleSubmit} disabled={(!content.trim() && !imageUrl) || isPosting} >
-                                        {isPosting ? (
-                                            <>
-                                                <Loader2Icon className="size-4 mr-2 animate-spin" />
-                                                Dropping...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <SendIcon className="size-4 mr-2" />
-                                                Drop Vibe
-                                            </>
-                                        )}
+                                    <Button type="button" variant="ghost" className="text-muted-foreground hover:bg-transparent hover:text-foreground" onClick={handleCancel}>
+                                        Cancel
                                     </Button>
+                                    <SubmitButton disabled={!contentVal.trim() && !imageUrl} />
                                 </div>
                             </div>
                         </>
                     )}
-                </div>
+                </form>
             </CardContent>
         </Card>
-    )
+    );
 }
