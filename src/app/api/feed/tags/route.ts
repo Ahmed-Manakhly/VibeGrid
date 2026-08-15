@@ -1,26 +1,18 @@
-import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
+import { getTrendingTagsUseCase } from "@/shared/infrastructure/di-container";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    const tags = await prisma.tag.findMany({
-      take: limit,
-      include: {
-        _count: {
-          select: { posts: true },
-        },
-      },
-      orderBy: {
-        posts: {
-          _count: "desc",
-        },
-      },
-    });
+    const trendingTags = await getTrendingTagsUseCase.execute(limit);
+    
+    // Map to the expected API shape: just the tags themselves
+    const tags = trendingTags.map(t => ({
+      ...t.tag,
+      _count: { posts: t.recentCount }
+    }));
 
     return NextResponse.json({ tags });
   } catch (error: any) {

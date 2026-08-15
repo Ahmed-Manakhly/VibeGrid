@@ -47,7 +47,18 @@ export class FeedQueryBuilder<T> {
     if (this.params.search && this.config.searchFields.length > 0) {
       const or = { OR: [] as any[] };
       for (const field of this.config.searchFields) {
-        or.OR.push({ [field]: { contains: this.params.search, mode: "insensitive" } });
+        const parts = field.split(".");
+        let currentObj: any = { contains: this.params.search, mode: "insensitive" };
+        
+        for (let i = parts.length - 1; i >= 0; i--) {
+          const part = parts[i];
+          if (this.config.fieldConfigs?.[part] === "relation-array") {
+            currentObj = { [part]: { some: currentObj } };
+          } else {
+            currentObj = { [part]: currentObj };
+          }
+        }
+        or.OR.push(currentObj);
       }
       this.query.where.AND.push(or);
     }

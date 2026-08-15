@@ -10,6 +10,7 @@ import { DeleteVibeUseCase } from "@/modules/vibe/application/DeleteVibe.usecase
 import { PrismaEngagementRepository } from "@/modules/engagement/infrastructure/PrismaEngagementRepository";
 import { ToggleLikeUseCase } from "@/modules/engagement/application/ToggleLike.usecase";
 import { AddCommentUseCase } from "@/modules/engagement/application/AddComment.usecase";
+import { DeleteCommentUseCase } from "@/modules/engagement/application/DeleteComment.usecase";
 
 // Notification Module
 import { PrismaNotificationRepository } from "@/modules/notification/infrastructure/PrismaNotificationRepository";
@@ -56,6 +57,7 @@ export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository);
 // Engagement
 export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository);
 export const addCommentUseCase = new AddCommentUseCase(engagementRepository);
+export const deleteCommentUseCase = new DeleteCommentUseCase(engagementRepository);
 
 // Notification
 export const getNotificationsUseCase = new GetNotificationsUseCase(notificationRepository);

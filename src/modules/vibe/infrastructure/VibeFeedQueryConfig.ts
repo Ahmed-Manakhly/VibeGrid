@@ -3,9 +3,10 @@ import { FeedQueryConfig } from "@/shared/infrastructure/persistence/query/FeedQ
 export const vibeFeedQueryConfig: FeedQueryConfig = {
   defaultLimit: 12,
   defaultSort: { createdAt: "desc" },
-  searchFields: ["content"],
+  searchFields: ["content", "author.name", "author.username", "tags.tag.name"],
   fieldConfigs: {
-    tag: "relation-array",
+    tag: "relation-scalar",
+    tags: "relation-array",
     category: "relation-scalar",
     vibe: "relation-scalar",
   },

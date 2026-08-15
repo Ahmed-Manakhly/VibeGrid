@@ -14,6 +14,7 @@ import {
     deleteVibeUseCase,
     toggleLikeUseCase,
     addCommentUseCase,
+    deleteCommentUseCase,
     vibeRepository
 } from "@/shared/infrastructure/di-container";
 import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
@@ -105,10 +106,29 @@ export async function createComment(postId : string, content : string){
         }
 
         revalidatePath('/') ;
-        return {success : true , comment: result.value.comment} ;
-    }catch (er){
-        console.error('failed to create a comment!', er)
+        return {success : true , comment: result.value.comment};
+    }catch (error){
+        console.error('failed to create comment!', error)
         return {success : false, error : 'failed to create a comment!'}
+    }
+}
+
+//4.5 to delete a comment
+export async function deleteComment(commentId: string) {
+    try {
+        const userId = await getDbUserId();
+        if(!userId) return;
+        
+        const result = await deleteCommentUseCase.execute(commentId, userId);
+        if (!result.success) {
+            return {success: false, error: 'failed to delete comment'};
+        }
+        
+        revalidatePath('/');
+        return {success: true};
+    } catch (error) {
+        console.error('failed to delete comment', error);
+        return {success: false, error: 'failed to delete comment'};
     }
 }
 

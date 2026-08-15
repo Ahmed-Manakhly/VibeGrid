@@ -11,6 +11,7 @@ import { Avatar, AvatarImage } from './ui/avatar';
 import { formatDistanceToNow } from "date-fns";
 import { formatRelativeTime } from "@/lib/utils";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
+import { CommentCard } from "./CommentCard";
 import Image from 'next/image'
 import { Button } from './ui/button';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
@@ -24,7 +25,7 @@ import { Textarea } from './ui/textarea';
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>; 
 type post = FeedResponse['data'][number] & { category?: any, vibe?: any, tags?: any[] };
 //-----------------------------------------------
-function PostCard({post , dbUserId, isTruncated = false} : {post : post , dbUserId:string | null, isTruncated?: boolean}) { // updated | now post that we created not prisma schema Post
+function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} : {post : post , dbUserId:string | null, isTruncated?: boolean, isDetailPage?: boolean}) { // updated | now post that we created not prisma schema Post
     const {user} = useUser();
     const [newComment,setNewComment] = useState('');
     const [isCommenting,setIsCommenting] = useState(false);
@@ -108,8 +109,17 @@ function PostCard({post , dbUserId, isTruncated = false} : {post : post , dbUser
                                 <div className="flex items-center space-x-1 sm:space-x-2 text-[11px] sm:text-xs text-muted-foreground truncate min-w-0">
                                     <Link href={`/profile/${post.author.username}`} className="truncate">@{post.author.username}</Link>
                                     <span className="shrink-0">•</span>
-                                    <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(post.createdAt))} ago</span>
-                                    <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(post.createdAt))}</span>
+                                    {isDetailPage ? (
+                                        <>
+                                            <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(post.createdAt))} ago</span>
+                                            <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(post.createdAt))}</span>
+                                        </>
+                                    ) : (
+                                        <Link href={`/posts/${post.id}`} className="hover:underline flex items-center space-x-1 sm:space-x-2">
+                                            <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(post.createdAt))} ago</span>
+                                            <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(post.createdAt))}</span>
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -124,9 +134,17 @@ function PostCard({post , dbUserId, isTruncated = false} : {post : post , dbUser
                     {/* TEXT CONTENT */}
                     {post.content && (
                         <div>
-                            <p className={`text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] ${isTruncated ? "line-clamp-3" : ""}`}>
-                                {post.content}
-                            </p>
+                            {isDetailPage ? (
+                                <p className={`text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] ${isTruncated ? "line-clamp-3" : ""}`}>
+                                    {post.content}
+                                </p>
+                            ) : (
+                                <Link href={`/posts/${post.id}`} className="block hover:opacity-80 transition-opacity">
+                                    <p className={`text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] ${isTruncated ? "line-clamp-3" : ""}`}>
+                                        {post.content}
+                                    </p>
+                                </Link>
+                            )}
                             {isTruncated && (
                                 <Link href={`/posts/${post.id}`} className="inline-block mt-2 text-sm font-medium text-primary hover:underline">
                                     Read more &rarr;
@@ -221,23 +239,14 @@ function PostCard({post , dbUserId, isTruncated = false} : {post : post , dbUser
                         <div className="space-y-4 pt-4 border-t border-white/10">
                             <div className="space-y-4">
                                 {/* DISPLAY COMMENTS */}
-                                {post.comments.map((comment) => (
-                                    <div key={comment.id} className="flex space-x-3">
-                                        <Avatar className="size-8 flex-shrink-0">
-                                            <AvatarImage src={comment.author.image ?? "/avatar.png"} />
-                                        </Avatar>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-x-1 sm:gap-x-2 text-[11px] sm:text-xs text-muted-foreground truncate min-w-0">
-                                                <span className="font-medium text-[13px] sm:text-sm text-foreground truncate">{comment.author.name}</span>
-                                                <span className="truncate">@{comment.author.username}</span>
-                                                <span className="shrink-0">•</span>
-                                                <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
-                                                <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(comment.createdAt))}</span>
-                                            </div>
-                                            <p className="text-sm break-words">{comment.content}</p>
-                                        </div>
-                                    </div>
+                                {post.comments.slice(0, isDetailPage ? undefined : 2).map((comment: any) => (
+                                    <CommentCard key={comment.id} comment={comment} dbUserId={dbUserId} postId={post.id} />
                                 ))}
+                                {!isDetailPage && post.comments.length > 2 && (
+                                    <Link href={`/posts/${post.id}`} className="block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline">
+                                        View all {post.comments.length} comments &rarr;
+                                    </Link>
+                                )}
                             </div>
                             {user ? (
                                 <div className="flex space-x-3">

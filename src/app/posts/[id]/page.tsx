@@ -3,7 +3,7 @@ import { getDbUserId } from "@/actions/user.action";
 import PostCard from "@/components/PostCard";
 import { notFound } from "next/navigation";
 import { MobileTabsLayout } from "@/components/MobileTabsLayout";
-import { TrendingSidebar } from "@/components/TrendingSidebar";
+import { RelatedPostsSidebar } from "@/components/RelatedPostsSidebar";
 
 export async function generateMetadata({ params }: { params: any }) {
   const post = await getPostById(params.id);
@@ -31,12 +31,12 @@ export default async function PostPage({ params }: { params: any }) {
     <MobileTabsLayout
       feed={
         <div className="pt-4 max-w-2xl mx-auto w-full">
-          <PostCard post={post} dbUserId={dbUserId} />
+          <PostCard post={post} dbUserId={dbUserId} isDetailPage={true} />
         </div>
       }
       discovery={
         <div className="flex flex-col gap-6 xl:sticky xl:top-[88px] xl:max-h-[calc(100vh-88px)] xl:overflow-y-auto z-10 pb-10 px-4 -mx-4 scrollbar-hide">
-          <TrendingSidebar />
+          <RelatedPostsSidebar tags={post.tags} currentPostId={post.id} />
         </div>
       }
     />

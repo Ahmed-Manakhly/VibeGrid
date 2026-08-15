@@ -50,4 +50,25 @@ export class PrismaEngagementRepository implements IEngagementRepository {
       return failure(new Error("failed to create comment"));
     }
   }
+
+  async deleteComment(commentId: string, userId: string): Promise<Result<void>> {
+    try {
+      const comment = await this.db.comment.findUnique({
+        where: { id: commentId },
+      });
+      if (!comment) return failure(new Error("comment not found"));
+      
+      if (comment.authorId !== userId) {
+        return failure(new Error("unauthorized"));
+      }
+
+      await this.db.comment.delete({
+        where: { id: commentId },
+      });
+      
+      return success(undefined);
+    } catch (err) {
+      return failure(new Error("failed to delete comment"));
+    }
+  }
 }
