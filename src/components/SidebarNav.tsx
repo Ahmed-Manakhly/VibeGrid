@@ -37,7 +37,7 @@ export function SidebarNav({ profileHref }: SidebarNavProps) {
               }}
               className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
             >
-              <Icon className="size-5 shrink-0" /><span className="group-[.is-collapsed]:hidden">{label}</span>
+              <Icon className="size-5 shrink-0" /><span className="lg:group-[.is-collapsed]:hidden">{label}</span>
             </Link>
           );
         })}
@@ -59,7 +59,7 @@ export function SidebarSettingsLink() {
       }}
       className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
     >
-        <Settings className="size-5 shrink-0" /><span className="group-[.is-collapsed]:hidden">Settings</span>
+        <Settings className="size-5 shrink-0" /><span className="lg:group-[.is-collapsed]:hidden">Settings</span>
     </Link>
   );
 }

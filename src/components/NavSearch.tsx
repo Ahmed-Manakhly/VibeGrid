@@ -23,7 +23,7 @@ export function NavSearch() {
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="h-10 w-full rounded-xl border border-border/70 bg-card/60 pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" 
+        className="h-10 w-full rounded-xl border border-border/50 bg-background pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" 
         placeholder="Search the grid..." 
         aria-label="Search the grid" 
       />
@@ -51,7 +51,7 @@ export function MobileNavSearch() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="h-10 w-full rounded-xl border border-border/70 bg-card/80 pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" 
+          className="h-10 w-full rounded-xl border border-border/50 bg-background pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" 
           placeholder="Search the grid..." 
           aria-label="Search the grid" 
         />

@@ -2,8 +2,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="flex flex-col gap-6 w-full max-w-2xl mt-4">
-      {[...Array(3)].map((_, i) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mt-4">
+      {[...Array(4)].map((_, i) => (
         <div key={i} className="flex flex-col gap-4 p-4 rounded-2xl border border-border/50 bg-card/50">
           <div className="flex items-center gap-3">
             <Skeleton className="size-10 rounded-full" />

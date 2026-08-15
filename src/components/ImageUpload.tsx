@@ -28,11 +28,11 @@ function ImageUpload({ endpoint, onChange, value }: ImageUploadProps) {
     <UploadDropzone
       endpoint={endpoint}
       appearance={{
-        button: "w-auto px-6 py-2 rounded-xl text-sm font-medium mt-4 cursor-pointer !bg-accent hover:!bg-accent/90 !text-white ut-uploading:!bg-primary ut-uploading:after:!bg-primary/50",
-        container: "border border-dashed border-border/50 bg-background/50 rounded-xl p-4 transition-colors hover:border-primary/50 hover:bg-muted/10 cursor-pointer",
+        button: "w-auto px-6 py-2 rounded-xl text-sm font-medium mt-4 cursor-pointer !bg-accent hover:!bg-accent/90 !text-white ut-uploading:!bg-accent ut-uploading:after:!bg-accent/50 focus-visible:outline-none focus-visible:ring-0 focus:ring-0",
+        container: "border border-dashed border-border/50 bg-background/50 rounded-xl p-4 transition-colors hover:border-accent/50 hover:bg-muted/10 cursor-pointer focus-within:ring-0 focus-within:border-accent/50 focus-within:outline-none",
         label: "hidden",
         allowedContent: "hidden",
-        uploadIcon: "text-primary/70 mb-2 size-8"
+        uploadIcon: "text-accent/70 mb-2 size-8"
       }}
       onClientUploadComplete={(res) => {
         onChange(res?.[0].url);
