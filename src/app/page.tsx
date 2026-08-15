@@ -39,7 +39,6 @@ export default async function Home({ searchParams }: PageProps) {
               <h1 className="text-3xl font-bold font-sans">Your feed</h1>
             </div>
             
-            <CategoryPills />
 
             <div className="mt-4 flex flex-col gap-6">
                {user ? <CreatPost/> : null}
@@ -54,6 +53,7 @@ export default async function Home({ searchParams }: PageProps) {
         }
         discovery={
           <div className="flex flex-col gap-6 xl:sticky xl:top-[88px] xl:max-h-[calc(100vh-88px)] xl:overflow-y-auto z-10 pb-10 px-4 -mx-4 scrollbar-hide">
+              <CategoryPills />
               <TrendingSidebar />
               <WhoToFollow/>
           </div>

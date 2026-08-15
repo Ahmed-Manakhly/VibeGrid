@@ -31,17 +31,17 @@ export class FeedQueryBuilder<T> {
   }
 
   private buildWhereObject(fieldPath: string, value: any): any {
-    const fieldType = this.config.fieldConfigs[fieldPath] || "scalar";
-
-    if (fieldType === "relation-array") {
-      // e.g., tags: { some: { tag: { slug: value } } }
-      return { [fieldPath]: { some: { tag: { slug: value } } } };
-    } else if (fieldType === "relation-scalar") {
-      // e.g., category: { slug: value }
-      return { [fieldPath]: { slug: value } };
-    } else {
-      return { [fieldPath]: value };
+    if (fieldPath === "tag") {
+      return { tags: { some: { tag: { slug: value } } } };
     }
+    if (fieldPath === "vibe") {
+      return { vibe: { key: value } };
+    }
+    if (fieldPath === "category") {
+      return { category: { slug: value } };
+    }
+
+    return { [fieldPath]: value };
   }
 
   private processSearch() {

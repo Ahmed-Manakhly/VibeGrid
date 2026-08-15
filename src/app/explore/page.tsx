@@ -34,6 +34,10 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
       feed={
         <>
           <div className="mb-8">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="size-2 rounded-full bg-primary animate-pulse"></span>
+              <p className="eyebrow eyebrow-live">DISCOVER THE GRID</p>
+            </div>
             <h1 className="text-3xl font-bold font-sans mb-6">Explore</h1>
             <SearchInput />
           </div>

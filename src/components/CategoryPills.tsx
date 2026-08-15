@@ -28,14 +28,10 @@ export function CategoryPills() {
   if (categories.length === 0) return null;
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+    <div className="flex flex-wrap gap-2 pb-4">
       <Link
         href="/"
-        className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
-          !activeCategory
-            ? "bg-primary text-white"
-            : "bg-white/5 text-gray-300 hover:bg-white/10"
-        }`}
+        className={`topic-pill ${!activeCategory ? "topic-pill-active" : "bg-card"}`}
       >
         For You
       </Link>
@@ -44,11 +40,7 @@ export function CategoryPills() {
         <Link
           key={cat.id}
           href={`/?category=${cat.slug}`}
-          className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
-            activeCategory === cat.slug
-              ? "bg-primary text-white"
-              : "bg-white/5 text-gray-300 hover:bg-white/10"
-          }`}
+          className={`topic-pill ${activeCategory === cat.slug ? "topic-pill-active" : "bg-card"}`}
         >
           {cat.emoji} {cat.name}
         </Link>

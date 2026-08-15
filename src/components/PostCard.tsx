@@ -146,7 +146,7 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                 </Link>
                             )}
                             {post.vibe && (
-                                <Link href={`/explore?vibe=${post.vibe.key}`} className="px-3 py-1 text-[11px] rounded-full bg-white/5 text-gray-300 font-medium tracking-wide border border-white/10 hover:bg-white/10 transition-colors">
+                                <Link href={`/explore?vibe=${post.vibe.key}`} className="px-3 py-1 text-[11px] rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-foreground hover:border-border transition-colors font-medium tracking-wide">
                                     {post.vibe.label}
                                 </Link>
                             )}

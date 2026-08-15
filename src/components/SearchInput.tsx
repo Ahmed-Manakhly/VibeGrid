@@ -27,11 +27,11 @@ export function SearchInput() {
           placeholder="Search vibes, tags..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 text-white placeholder-gray-400 backdrop-blur-sm transition-all"
+          className="w-full pl-10 pr-4 py-3 bg-background border border-border/50 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder-muted-foreground backdrop-blur-sm transition-all shadow-sm"
         />
         <button
           type="submit"
-          className="absolute right-2 px-4 py-1.5 bg-primary text-white text-sm font-medium rounded-full hover:bg-primary/90 transition-colors"
+          className="absolute right-2 px-4 py-1.5 btn-gradient rounded-full text-sm font-medium"
         >
           Search
         </button>

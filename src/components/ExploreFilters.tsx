@@ -43,8 +43,8 @@ export function ExploreFilters() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter("category", null)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              !currentCategory ? "bg-primary text-white" : "bg-white/5 hover:bg-white/10 text-gray-300"
+            className={`topic-pill ${
+              !currentCategory ? "topic-pill-active" : "bg-card"
             }`}
           >
             All
@@ -53,8 +53,8 @@ export function ExploreFilters() {
             <button
               key={c.id}
               onClick={() => setFilter("category", c.slug)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                currentCategory === c.slug ? "bg-primary text-white" : "bg-white/5 hover:bg-white/10 text-gray-300"
+              className={`topic-pill ${
+                currentCategory === c.slug ? "topic-pill-active" : "bg-card"
               }`}
             >
               {c.emoji} {c.name}
@@ -68,8 +68,8 @@ export function ExploreFilters() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter("vibe", null)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              !currentVibe ? "bg-primary text-white" : "bg-white/5 hover:bg-white/10 text-gray-300"
+            className={`topic-pill ${
+              !currentVibe ? "topic-pill-active" : "bg-card"
             }`}
           >
             Any
@@ -78,8 +78,8 @@ export function ExploreFilters() {
             <button
               key={v.id}
               onClick={() => setFilter("vibe", v.key)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                currentVibe === v.key ? "bg-primary text-white" : "bg-white/5 hover:bg-white/10 text-gray-300"
+              className={`topic-pill ${
+                currentVibe === v.key ? "topic-pill-active" : "bg-card"
               }`}
             >
               {v.label}
