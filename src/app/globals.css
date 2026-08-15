@@ -319,7 +319,7 @@
   .feed-grid { @apply grid gap-6 md:grid-cols-2; }
   .feed-grid > article:first-child { @apply md:col-span-2; }
   
-  .view-switcher { @apply flex items-center rounded-xl border border-border/70 bg-card/60 p-1 backdrop-blur-xl; }
+  .view-switcher { @apply flex items-center gap-1 rounded-xl border border-border/70 bg-card/60 p-1 backdrop-blur-xl; }
   .view-switcher button { @apply inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition; }
   .view-switcher button svg { @apply size-4; }
   
@@ -331,7 +331,7 @@
   .eyebrow { @apply font-mono text-[10px] font-bold uppercase tracking-[.22em] text-muted-foreground; }
   .eyebrow-live { @apply text-primary; }
   
-  .topic-pill { @apply whitespace-nowrap rounded-full border border-border/70 px-4 py-2 text-xs text-muted-foreground transition hover:border-foreground/20 hover:text-foreground; }
+  .topic-pill { @apply whitespace-nowrap rounded-full border border-transparent px-4 py-2 text-xs text-muted-foreground transition hover:border-foreground/20 hover:text-foreground; }
   .topic-pill-active { @apply border-primary/50 bg-primary/10 text-primary; }
   
   .action-button { @apply inline-flex items-center gap-2 text-xs text-muted-foreground transition hover:text-primary; } 

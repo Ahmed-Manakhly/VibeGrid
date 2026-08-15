@@ -28,7 +28,7 @@ function ImageUpload({ endpoint, onChange, value }: ImageUploadProps) {
     <UploadDropzone
       endpoint={endpoint}
       appearance={{
-        button: "btn-gradient w-auto px-6 py-2 rounded-xl text-sm font-medium mt-4 cursor-pointer after:bg-primary ut-uploading:after:bg-primary",
+        button: "w-auto px-6 py-2 rounded-xl text-sm font-medium mt-4 cursor-pointer !bg-accent hover:!bg-accent/90 !text-white ut-uploading:!bg-primary ut-uploading:after:!bg-primary/50",
         container: "border border-dashed border-border/50 bg-background/50 rounded-xl p-4 transition-colors hover:border-primary/50 hover:bg-muted/10 cursor-pointer",
         label: "hidden",
         allowedContent: "hidden",
