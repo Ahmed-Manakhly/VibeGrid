@@ -35,12 +35,12 @@ export function ScrollToTop() {
       size="icon"
       className={cn(
         "fixed bottom-[90px] sm:bottom-8 right-4 sm:right-8 z-50 rounded-full shadow-lg transition-all duration-300 transform",
-        "btn-gradient hover:scale-110 active:scale-95",
+        "bg-background border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/50 hover:scale-110 active:scale-95",
         isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none"
       )}
       aria-label="Scroll to top"
     >
-      <ArrowUpIcon className="size-5 text-white" />
+      <ArrowUpIcon className="size-5" />
     </Button>
   );
 }
