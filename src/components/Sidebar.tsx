@@ -4,21 +4,12 @@ import { Home, Bell, User, Settings, Search, Mail, Bookmark, Users } from 'lucid
 import { VibeLogo } from './VibeLogo';
 import { CustomSignOutButton } from './CustomSignOutButton';
 import { getUserByClerkId } from '@/actions/user.action';
-import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
+import { SidebarNav } from './SidebarNav';
 
-export async function Sidebar({ active = 'Home' }: { active?: string }) {
+export async function Sidebar() {
   const authUser = await currentUser();
   const dbUser = authUser ? await getUserByClerkId(authUser.id) : null;
-
-  const items = [
-    { label: 'Home', icon: Home, href: '/' },
-    { label: 'Explore', icon: Search, href: '/explore' },
-    { label: 'Notifications', icon: Bell, href: '/notifications' },
-    { label: 'Profile', icon: User, href: authUser ? `/profile/${dbUser?.username || authUser.username || authUser.firstName}` : '/login' },
-    { label: 'Messages', icon: Mail, href: '/messages' },
-    { label: 'Bookmarks', icon: Bookmark, href: '/bookmarks' },
-    { label: 'Communities', icon: Users, href: '/communities' },
-  ];
+  const profileHref = authUser ? `/profile/${dbUser?.username || authUser.username || authUser.firstName}` : '/login';
 
   return (
     <>
@@ -26,21 +17,9 @@ export async function Sidebar({ active = 'Home' }: { active?: string }) {
         <VibeLogo />
       </div>
 
-      {/* Top user card removed to avoid duplication */}
+      <SidebarNav profileHref={profileHref} />
       
-      <div className="flex flex-col gap-2">
-        {items.map(({ label, icon: Icon, href }) => (
-          <Link key={label} href={href} className={`nav-item ${active === label ? 'nav-item-active' : ''}`}>
-            <Icon className="size-5 shrink-0" /><span className="group-[.is-collapsed]:hidden">{label}</span>
-          </Link>
-        ))}
-      </div>
-
       <div className="mt-auto flex flex-col gap-2">
-        <Link href="#" className="nav-item">
-            <Settings className="size-5 shrink-0" /><span className="group-[.is-collapsed]:hidden">Settings</span>
-        </Link>
-        
         {dbUser && (
           <div className="mt-4 relative group">
             <div className="flex flex-col gap-4 bg-primary/10 border border-primary/50 text-primary transition-colors p-3 group-[.is-collapsed]:p-0 group-[.is-collapsed]:bg-transparent group-[.is-collapsed]:border-transparent group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full cursor-pointer">
