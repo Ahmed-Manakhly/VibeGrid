@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Bell, User, Settings, Search, Mail, Bookmark, Users } from 'lucide-react';
+import { useSidebar } from './SidebarContext';
 
 interface SidebarNavProps {
   profileHref: string;
@@ -10,6 +11,7 @@ interface SidebarNavProps {
 
 export function SidebarNav({ profileHref }: SidebarNavProps) {
   const pathname = usePathname();
+  const { close } = useSidebar();
 
   const items = [
     { label: 'Home', icon: Home, href: '/' },
@@ -27,18 +29,37 @@ export function SidebarNav({ profileHref }: SidebarNavProps) {
         {items.map(({ label, icon: Icon, href }) => {
           const isActive = href === '/' ? pathname === '/' : pathname?.startsWith(href);
           return (
-            <Link key={label} href={href} className={`nav-item ${isActive ? 'nav-item-active' : ''}`}>
+            <Link 
+              key={label} 
+              href={href} 
+              onClick={() => {
+                if (window.innerWidth < 1024) close();
+              }}
+              className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
+            >
               <Icon className="size-5 shrink-0" /><span className="group-[.is-collapsed]:hidden">{label}</span>
             </Link>
           );
         })}
       </div>
-
-      <div className="mt-auto flex flex-col gap-2">
-        <Link href="/settings" className={`nav-item ${pathname?.startsWith('/settings') ? 'nav-item-active' : ''}`}>
-            <Settings className="size-5 shrink-0" /><span className="group-[.is-collapsed]:hidden">Settings</span>
-        </Link>
-      </div>
     </>
+  );
+}
+
+export function SidebarSettingsLink() {
+  const pathname = usePathname();
+  const { close } = useSidebar();
+  const isActive = pathname?.startsWith('/settings');
+
+  return (
+    <Link 
+      href="/settings" 
+      onClick={() => {
+        if (window.innerWidth < 1024) close();
+      }}
+      className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
+    >
+        <Settings className="size-5 shrink-0" /><span className="group-[.is-collapsed]:hidden">Settings</span>
+    </Link>
   );
 }

@@ -3,8 +3,8 @@ import { UserRole } from "@/shared/kernel/auth.types";
 import { execSync } from "child_process";
 
 export async function pushSchema() {
-  if (process.env.PRISMA_PUSH_IN_ENTRYPOINT === "1") {
-    console.log("Skipping schema push in bootstrap");
+  if (process.env.PRISMA_PUSH_IN_ENTRYPOINT === "1" || (process.env.NODE_ENV !== "production" && process.env.FORCE_DB_PUSH !== "1")) {
+    console.log("Skipping schema push in bootstrap (disabled in dev for performance)");
     return true;
   }
   try {

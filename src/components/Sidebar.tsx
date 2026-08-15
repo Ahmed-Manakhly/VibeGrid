@@ -4,7 +4,8 @@ import { Home, Bell, User, Settings, Search, Mail, Bookmark, Users } from 'lucid
 import { VibeLogo } from './VibeLogo';
 import { CustomSignOutButton } from './CustomSignOutButton';
 import { getUserByClerkId } from '@/actions/user.action';
-import { SidebarNav } from './SidebarNav';
+import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
+import { SidebarNav, SidebarSettingsLink } from './SidebarNav';
 
 export async function Sidebar() {
   const authUser = await currentUser();
@@ -20,6 +21,8 @@ export async function Sidebar() {
       <SidebarNav profileHref={profileHref} />
       
       <div className="mt-auto flex flex-col gap-2">
+        <SidebarSettingsLink />
+        
         {dbUser && (
           <div className="mt-4 relative group">
             <div className="flex flex-col gap-4 bg-primary/10 border border-primary/50 text-primary transition-colors p-3 group-[.is-collapsed]:p-0 group-[.is-collapsed]:bg-transparent group-[.is-collapsed]:border-transparent group-[.is-collapsed]:items-center rounded-2xl group-[.is-collapsed]:rounded-full cursor-pointer">
