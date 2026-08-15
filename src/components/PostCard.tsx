@@ -39,8 +39,12 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
     //that means when the operation is going to take some times to be updated, we need to show the user on the UI updated state instead of loading & waiting DB VALUE
     const [optimisticLikes , setOptimisticLikes] = useState(post._count.likes);
     //--------------------------------------------------------- FUNCTIONALITY OF  LIKE & COMMENT BUTTON
-    const [showComments , setShowComments] = useState(false)
+    const [showComments , setShowComments] = useState(isDetailPage);
     //---------------------------------------------------------
+
+    const contentLimit = 150;
+    const shouldTruncate = !isDetailPage && post.content && post.content.length > contentLimit;
+    const displayContent = shouldTruncate ? post.content.slice(0, contentLimit) + "..." : post.content;
     const handleLike = async () => {
         if(isLiking) return;
         try {
@@ -115,7 +119,7 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                                             <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(post.createdAt))}</span>
                                         </>
                                     ) : (
-                                        <Link href={`/posts/${post.id}`} className="hover:underline flex items-center space-x-1 sm:space-x-2">
+                                        <Link href={`/vibes/${post.id}`} className="hover:underline flex items-center space-x-1 sm:space-x-2">
                                             <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(post.createdAt))} ago</span>
                                             <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(post.createdAt))}</span>
                                         </Link>
@@ -135,18 +139,18 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                     {post.content && (
                         <div>
                             {isDetailPage ? (
-                                <p className={`text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] ${isTruncated ? "line-clamp-3" : ""}`}>
-                                    {post.content}
+                                <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
+                                    {displayContent}
                                 </p>
                             ) : (
-                                <Link href={`/posts/${post.id}`} className="block hover:opacity-80 transition-opacity">
-                                    <p className={`text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] ${isTruncated ? "line-clamp-3" : ""}`}>
-                                        {post.content}
+                                <Link href={`/vibes/${post.id}`} className="block hover:opacity-80 transition-opacity">
+                                    <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
+                                        {displayContent}
                                     </p>
                                 </Link>
                             )}
-                            {isTruncated && (
-                                <Link href={`/posts/${post.id}`} className="inline-block mt-2 text-sm font-medium text-primary hover:underline">
+                            {shouldTruncate && (
+                                <Link href={`/vibes/${post.id}`} className="inline-block mt-2 text-sm font-medium text-primary hover:underline">
                                     Read more &rarr;
                                 </Link>
                             )}
@@ -239,11 +243,11 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                         <div className="space-y-4 pt-4 border-t border-white/10">
                             <div className="space-y-4">
                                 {/* DISPLAY COMMENTS */}
-                                {post.comments.slice(0, isDetailPage ? undefined : 2).map((comment: any) => (
+                                {post.comments.slice(0, isDetailPage ? 5 : 2).map((comment: any) => (
                                     <CommentCard key={comment.id} comment={comment} dbUserId={dbUserId} postId={post.id} />
                                 ))}
-                                {!isDetailPage && post.comments.length > 2 && (
-                                    <Link href={`/posts/${post.id}`} className="block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline">
+                                {post.comments.length > (isDetailPage ? 5 : 2) && (
+                                    <Link href={`/vibes/${post.id}`} className="block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline">
                                         View all {post.comments.length} comments &rarr;
                                     </Link>
                                 )}

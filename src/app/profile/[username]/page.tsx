@@ -11,8 +11,9 @@ import { notFound } from "next/navigation"; // not found fun from next
 //-----------------
 import ProfilePageClient from "./ProfilePageClient";
 
-export async function generateMetadata({ params }: { params: { username: string } }) {
-    const user = await getProfileByUsername(params.username);
+export async function generateMetadata({ params }: { params: Promise<{ username: string }> | { username: string } }) {
+    const resolvedParams = await params;
+    const user = await getProfileByUsername(resolvedParams.username);
     if (!user) return;
 
     return {
@@ -21,8 +22,9 @@ export async function generateMetadata({ params }: { params: { username: string 
     };
 } //setting the meta tags based on the profile of the user
 
-async function ProfilePageServer({ params }: { params: { username: string } }) {
-    const user = await getProfileByUsername(params.username); // use the server action that return the user based on the username param
+async function ProfilePageServer({ params }: { params: Promise<{ username: string }> | { username: string } }) {
+    const resolvedParams = await params;
+    const user = await getProfileByUsername(resolvedParams.username); // use the server action that return the user based on the username param
     if (!user) notFound();  // notFound is a next fun to navigate to the notfound page | it should be the global one we have created 
                             //but as we got a new one created specifically for this route it will use the nearest one
                             //check the not-found page 

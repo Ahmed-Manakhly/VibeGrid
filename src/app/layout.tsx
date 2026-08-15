@@ -11,6 +11,7 @@ import { MobileBottomBar } from "@/components/MobileBottomBar";
 import { Toaster } from 'react-hot-toast'
 import { JetBrains_Mono } from 'next/font/google'
 import { bootstrap } from "@/lib/bootstrap";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 bootstrap(); // Runs once on server startup
 
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <MobileBottomBar />
               </SidebarProvider>
             </div>
+            <ScrollToTop />
             <Toaster />
           </ThemeProvider>
         </body>

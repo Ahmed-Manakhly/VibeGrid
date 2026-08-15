@@ -4,9 +4,11 @@ import PostCard from "@/components/PostCard";
 import { notFound } from "next/navigation";
 import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { RelatedPostsSidebar } from "@/components/RelatedPostsSidebar";
+import { BackButton } from "@/components/BackButton";
 
 export async function generateMetadata({ params }: { params: any }) {
-  const post = await getPostById(params.id);
+  const resolvedParams = await params;
+  const post = await getPostById(resolvedParams.id);
   if (!post) return { title: "Post Not Found" };
   
   return {
@@ -31,6 +33,7 @@ export default async function PostPage({ params }: { params: any }) {
     <MobileTabsLayout
       feed={
         <div className="pt-4 max-w-2xl mx-auto w-full">
+          <BackButton />
           <PostCard post={post} dbUserId={dbUserId} isDetailPage={true} />
         </div>
       }
