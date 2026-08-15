@@ -146,12 +146,12 @@ function PostCard({post , dbUserId} : {post : post , dbUserId:string | null}) { 
                                 </Link>
                             )}
                             {post.vibe && (
-                                <Link href={`/explore?vibe=${post.vibe.key}`} className="px-3 py-1 text-[11px] rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-foreground hover:border-border transition-colors font-medium tracking-wide">
+                                <Link href={`/explore?vibe=${post.vibe.key}`} className="px-3 py-1 text-[11px] rounded-full bg-background border border-transparent text-muted-foreground hover:text-foreground hover:border-border transition-colors font-medium tracking-wide">
                                     {post.vibe.label}
                                 </Link>
                             )}
                             {post.tags && post.tags.slice(0, 4).map((postTag: any, idx: number) => (
-                                <Link href={`/explore?tag=${postTag.tag.slug}`} key={idx} className="px-2.5 py-1 text-[10px] rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors font-medium tracking-wide">
+                                <Link href={`/explore?tag=${postTag.tag.slug}`} key={idx} className="px-2.5 py-1 text-[10px] rounded-full bg-transparent border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors font-medium italic tracking-wide">
                                     #{postTag.tag.name}
                                 </Link>
                             ))}
