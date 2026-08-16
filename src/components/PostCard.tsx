@@ -3,7 +3,7 @@ import { createComment, deletePost, getPosts, toggleLike } from '@/actions/post.
 import { SignInButton, useUser } from '@clerk/nextjs';
 // for types
 // import { Post } from '@prisma/client' ;
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 import Link from 'next/link';
@@ -40,6 +40,11 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
     const [optimisticLikes , setOptimisticLikes] = useState(post._count.likes);
     //--------------------------------------------------------- FUNCTIONALITY OF  LIKE & COMMENT BUTTON
     const [showComments , setShowComments] = useState(isDetailPage);
+    const [localComments, setLocalComments] = useState(post.comments || []);
+    
+    useEffect(() => {
+        setLocalComments(post.comments || []);
+    }, [post.comments]);
     //---------------------------------------------------------
 
     const contentLimit = 150;
@@ -62,17 +67,45 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
     //----------------------
     const handleAddComment = async () => {//create the server action on [post.action.ts] to create a comment |createComment
         if(!newComment.trim() || isCommenting) return;
+        const commentText = newComment;
+        const optimisticId = `optimistic-${Date.now()}`;
+        
         try {
             setIsCommenting(true);
-            const result = await createComment(post.id, newComment);
+            setNewComment(''); // Optimistically clear input
+            
+            const optimisticComment = {
+                id: optimisticId,
+                content: commentText,
+                authorId: dbUserId,
+                postId: post.id,
+                createdAt: new Date().toISOString(),
+                author: {
+                    id: dbUserId,
+                    name: user?.fullName || user?.firstName || user?.username || "You",
+                    username: user?.username || "",
+                    image: user?.imageUrl || "/avatar.png"
+                }
+            };
+            
+            // Optimistically update the UI
+            setLocalComments((prev: any) => [...prev, optimisticComment]);
+            
+            const result = await createComment(post.id, commentText);
             if(result?.success) {
                 toast.success('comment posted successfully');
-                setNewComment(''); // reset
-                // post.comments.push(result); // optimistic update
+                // The useEffect will eventually sync the real ID when revalidatePath completes
+            } else {
+                toast.error(result?.error || 'failed to create comment!');
+                // Rollback on expected failure
+                setLocalComments((prev: any) => prev.filter((c: any) => c.id !== optimisticId));
+                setNewComment(commentText);
             }
-            setNewComment('');
         } catch (error) {
             toast.error('failed to create comment!');
+            // Rollback on unexpected failure
+            setLocalComments((prev: any) => prev.filter((c: any) => c.id !== optimisticId));
+            setNewComment(commentText);
         } finally {
             setIsCommenting(false);
         }
@@ -235,7 +268,7 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                             <Button variant="ghost" size="sm" onClick={() => setShowComments((prev) => !prev)}
                             className="text-muted-foreground gap-2 hover:bg-transparent hover:text-accent">
                                 <MessageCircleIcon className={`size-5 ${showComments ? "fill-accent text-accent" : ""}`} />
-                                <span>{post.comments.length}</span>
+                                <span>{localComments.length}</span>
                             </Button>
                         )}
                     </div>
@@ -244,12 +277,12 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                         <div className="space-y-4 pt-4 border-t border-white/10">
                             <div className="space-y-4">
                                 {/* DISPLAY COMMENTS */}
-                                {post.comments.slice(0, isDetailPage ? 5 : 2).map((comment: any) => (
+                                {localComments.slice(0, isDetailPage ? 5 : 2).map((comment: any) => (
                                     <CommentCard key={comment.id} comment={comment} dbUserId={dbUserId} postId={post.id} />
                                 ))}
-                                {post.comments.length > (isDetailPage ? 5 : 2) && (
+                                {localComments.length > (isDetailPage ? 5 : 2) && (
                                     <Link href={`/vibes/${post.id}`} className="block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline">
-                                        View all {post.comments.length} comments &rarr;
+                                        View all {localComments.length} comments &rarr;
                                     </Link>
                                 )}
                             </div>
