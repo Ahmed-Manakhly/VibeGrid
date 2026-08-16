@@ -1,8 +1,6 @@
 import { restrictTo } from "@/shared/kernel/guards";
-import { PrismaClient } from "@prisma/client";
+import { createCategoryUseCase } from "@/shared/infrastructure/di-container";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
@@ -11,9 +9,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, slug, emoji } = body;
 
-    const category = await prisma.category.create({
-      data: { name, slug, emoji },
-    });
+    const category = await createCategoryUseCase.execute({ name, slug, emoji });
 
     return NextResponse.json(category, { status: 201 });
   } catch (error: any) {

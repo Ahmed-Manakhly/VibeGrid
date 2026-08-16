@@ -31,11 +31,14 @@ import { GetSuggestedUsersUseCase } from "@/modules/social/application/GetSugges
 import { PrismaProfileRepository } from "@/modules/social/infrastructure/PrismaProfileRepository";
 import { GetProfileUseCase } from "@/modules/social/application/GetProfile.usecase";
 import { UpdateProfileUseCase } from "@/modules/social/application/UpdateProfile.usecase";
+import { IsFollowingUseCase } from "@/modules/social/application/IsFollowing.usecase";
 
 // Taxonomy Module
 import { PrismaTaxonomyRepository } from "@/modules/taxonomy/infrastructure/PrismaTaxonomyRepository";
 import { GetTaxonomyUseCase } from "@/modules/taxonomy/application/GetTaxonomy.usecase";
 import { GetTrendingTagsUseCase } from "@/modules/taxonomy/application/GetTrendingTags.usecase";
+import { CreateCategoryUseCase } from "@/modules/taxonomy/application/CreateCategory.usecase";
+import { CreateVibeTaxonomyUseCase } from "@/modules/taxonomy/application/CreateVibeTaxonomy.usecase";
 
 // 1. Instantiate Repositories (Inject DB)
 export const vibeRepository = new PrismaVibeRepository(prisma);
@@ -72,10 +75,13 @@ export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository);
 export const getSuggestedUsersUseCase = new GetSuggestedUsersUseCase(socialRepository);
 export const getProfileUseCase = new GetProfileUseCase(profileRepository);
 export const updateProfileUseCase = new UpdateProfileUseCase(profileRepository);
+export const isFollowingUseCase = new IsFollowingUseCase(socialRepository);
 
 // Taxonomy
 export const getTaxonomyUseCase = new GetTaxonomyUseCase(taxonomyRepository);
 export const getTrendingTagsUseCase = new GetTrendingTagsUseCase(taxonomyRepository);
+export const createCategoryUseCase = new CreateCategoryUseCase(taxonomyRepository);
+export const createVibeTaxonomyUseCase = new CreateVibeTaxonomyUseCase(taxonomyRepository);
 
 // Initialize Event Handlers
 export const notificationEventHandler = new NotificationEventHandler(notificationRepository);

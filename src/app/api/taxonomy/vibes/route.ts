@@ -1,8 +1,6 @@
 import { restrictTo } from "@/shared/kernel/guards";
-import { PrismaClient } from "@prisma/client";
+import { createVibeTaxonomyUseCase } from "@/shared/infrastructure/di-container";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
@@ -11,9 +9,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { key, label } = body;
 
-    const vibe = await prisma.vibe.create({
-      data: { key, label },
-    });
+    const vibe = await createVibeTaxonomyUseCase.execute({ key, label });
 
     return NextResponse.json(vibe, { status: 201 });
   } catch (error: any) {

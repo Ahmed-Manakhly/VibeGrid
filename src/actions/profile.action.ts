@@ -5,7 +5,7 @@ import {prisma} from "@/shared/infrastructure/prisma";
 import { revalidatePath } from "next/cache";
 import { getDbUserId } from "./user.action";
 
-import { getProfileUseCase, updateProfileUseCase } from "@/shared/infrastructure/di-container";
+import { getProfileUseCase, updateProfileUseCase, isFollowingUseCase } from "@/shared/infrastructure/di-container";
 
 export async function getProfileByUsername(username: string) {
     try {
@@ -42,15 +42,7 @@ export async function isFollowing(userId: string) {
     try {
         const currentUserId = await getDbUserId();
         if (!currentUserId) return false;
-        const follow = await prisma.follows.findUnique({
-            where: {
-                followerId_followingId: {
-                    followerId: currentUserId,
-                    followingId: userId,
-                },
-            },
-        });
-        return !!follow;
+        return await isFollowingUseCase.execute(currentUserId, userId);
     } catch (error) {
         console.error("Error checking follow status:", error);
         return false;
