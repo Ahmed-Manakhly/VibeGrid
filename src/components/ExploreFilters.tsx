@@ -10,6 +10,8 @@ export function ExploreFilters() {
   
   const [categories, setCategories] = useState<any[]>([]);
   const [vibes, setVibes] = useState<any[]>([]);
+  const [tags, setTags] = useState<any[]>([]);
+  const [isTagsLoading, setIsTagsLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/feed/filters")
@@ -19,6 +21,14 @@ export function ExploreFilters() {
         if (data.vibes) setVibes(data.vibes);
       })
       .catch(console.error);
+
+    fetch("/api/feed/tags?limit=30")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.tags) setTags(data.tags);
+      })
+      .catch(console.error)
+      .finally(() => setIsTagsLoading(false));
   }, []);
 
   const setFilter = (key: string, value: string | null) => {
@@ -35,6 +45,7 @@ export function ExploreFilters() {
 
   const currentCategory = searchParams.get("category");
   const currentVibe = searchParams.get("vibe");
+  const currentTag = searchParams.get("tag");
 
   return (
     <div className="space-y-6">
@@ -86,6 +97,43 @@ export function ExploreFilters() {
             </button>
           ))}
         </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-medium text-gray-400 mb-3 uppercase tracking-wider">Tags</h3>
+        {isTagsLoading ? (
+          <p className="text-sm text-muted-foreground px-2">Loading...</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setFilter("tag", null)}
+              className={`topic-pill ${
+                !currentTag ? "topic-pill-active" : "bg-card"
+              }`}
+            >
+              All
+            </button>
+            {currentTag && !tags.find(t => t.slug === currentTag) && (
+              <button
+                onClick={() => setFilter("tag", currentTag)}
+                className="topic-pill topic-pill-active"
+              >
+                #{currentTag}
+              </button>
+            )}
+            {tags.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setFilter("tag", t.slug)}
+                className={`topic-pill ${
+                  currentTag === t.slug ? "topic-pill-active" : "bg-card"
+                }`}
+              >
+                #{t.name}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
