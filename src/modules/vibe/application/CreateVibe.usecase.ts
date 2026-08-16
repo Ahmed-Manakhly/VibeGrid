@@ -9,13 +9,29 @@ export class CreateVibeUseCase {
     if (!authorId) return { success: false as const, error: "No user found!" };
     
     // Extract hashtags from content if tags aren't explicitly provided
-    const finalTags = tags || (content.match(/#[\w]+/g) || []).map(t => t.substring(1));
+    const rawTags = tags && tags.length > 0 ? tags : (content.match(/#[\w\-]+/g) || []);
+
+    const normalizedTags = Array.from(new Set(
+      rawTags
+        .map(t => {
+          let cleaned = t.trim().toLowerCase();
+          if (cleaned.startsWith('#')) {
+            cleaned = cleaned.substring(1);
+          }
+          // Replace internal spaces with hyphens
+          cleaned = cleaned.replace(/\s+/g, '-');
+          // Remove invalid surrounding characters
+          cleaned = cleaned.replace(/^[^\w\-]+|[^\w\-]+$/g, '');
+          return cleaned;
+        })
+        .filter(t => t.length > 0)
+    ));
 
     const result = await this.repo.create({ 
       content, 
       imageUrl: image, 
       authorId,
-      tags: finalTags,
+      tags: normalizedTags,
       categoryId,
       vibeId
     });
