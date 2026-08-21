@@ -1,5 +1,4 @@
-import { ExplorePostsCriteria, ExplorePostsResult } from "../../../../modules/vibe/domain/ExplorePostsCriteria";
-export type FieldConfigType = "relation-array" | "relation-scalar" | "scalar";
+export type FieldConfigType = "relation-array" | "relation-scalar" | "scalar" | ((value: any) => any);
 
 export interface FeedQueryConfig {
   defaultLimit: number;
@@ -16,7 +15,7 @@ export class FeedQueryBuilder<T> {
 
   constructor(
     private modelDelegate: any,
-    private params: ExplorePostsCriteria,
+    private params: Record<string, any>,
     private config: FeedQueryConfig
   ) {
     this.limit = Math.min(Number(this.params.limit) || this.config.defaultLimit, 50);
@@ -29,18 +28,20 @@ export class FeedQueryBuilder<T> {
     };
   }
 
-  private buildWhereObject(fieldPath: string, value: any): any {
-    if (fieldPath === "tag") {
-      return { tags: { some: { tag: { slug: value } } } };
-    }
-    if (fieldPath === "vibe") {
-      return { vibe: { key: value } };
-    }
-    if (fieldPath === "category") {
-      return { category: { slug: value } };
-    }
+  private buildWhereObject(field: string, value: any): any {
+    const config = this.config.fieldConfigs[field];
+    if (!config) return { [field]: value };
 
-    return { [fieldPath]: value };
+    if (typeof config === "function") {
+      return config(value);
+    }
+    if (config === "relation-array") {
+      return { [field]: { some: { id: value } } };
+    }
+    if (config === "relation-scalar") {
+      return { [field]: { slug: value } };
+    }
+    return { [field]: value };
   }
 
   private processSearch() {
@@ -66,30 +67,11 @@ export class FeedQueryBuilder<T> {
   }
 
   private processFilters() {
-    const filters = {
-      tag: this.params.tag,
-      category: this.params.category,
-      vibe: this.params.vibe,
-    };
-
-    for (const [key, value] of Object.entries(filters)) {
-      if (value) {
+    for (const key of Object.keys(this.config.fieldConfigs)) {
+      const value = (this.params as any)[key];
+      if (value !== undefined && value !== null) {
         this.query.where.AND.push(this.buildWhereObject(key, value));
       }
-    }
-
-    if (this.params.authorId) {
-      this.query.where.AND.push({ authorId: this.params.authorId });
-    }
-
-    if (this.params.likedByUserId) {
-      this.query.where.AND.push({
-        likes: {
-          some: {
-            userId: this.params.likedByUserId,
-          },
-        },
-      });
     }
 
     return this;
@@ -103,7 +85,7 @@ export class FeedQueryBuilder<T> {
     return this;
   }
 
-  public async execute(): Promise<ExplorePostsResult<T>> {
+  public async execute(): Promise<{ data: T[]; nextCursor: string | null }> {
     this.processSearch().processFilters().processCursor();
 
     // If AND is empty, Prisma sometimes prefers undefined

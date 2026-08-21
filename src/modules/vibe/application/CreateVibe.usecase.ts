@@ -1,9 +1,9 @@
 import { IVibeRepository } from "../domain/IVibeRepository";
 // import { vibeRepository } from "../infrastructure/PrismaVibeRepository";
-import { DomainEventBus } from "@/shared/infrastructure/EventBus";
+import { IEventBus } from "@/shared/domain/events/IEventBus";
 
 export class CreateVibeUseCase {
-  constructor(private repo: IVibeRepository) {}
+  constructor(private vibeRepository: IVibeRepository, private eventBus: IEventBus) {}
 
   async execute(content: string, image: string, authorId: string, tags?: string[], mood?: string, categoryId?: string, vibeId?: string) {
     if (!authorId) return { success: false as const, error: "No user found!" };
@@ -27,7 +27,7 @@ export class CreateVibeUseCase {
         .filter(t => t.length > 0)
     ));
 
-    const result = await this.repo.create({ 
+    const result = await this.vibeRepository.create({ 
       content, 
       imageUrl: image, 
       authorId,
@@ -36,7 +36,7 @@ export class CreateVibeUseCase {
       vibeId
     });
     if (result.success) {
-      DomainEventBus.publish("VibeCreatedEvent", {
+      this.eventBus.publish("VibeCreatedEvent", {
         vibeId: result.value.id,
         authorId,
         timestamp: new Date(),

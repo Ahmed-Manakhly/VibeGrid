@@ -5,10 +5,14 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
   defaultSort: { createdAt: "desc" },
   searchFields: ["content", "author.name", "author.username", "tags.tag.name"],
   fieldConfigs: {
-    tag: "relation-scalar",
+    tag: (value: string) => ({ tags: { some: { tag: { slug: value } } } }),
     tags: "relation-array",
     category: "relation-scalar",
-    vibe: "relation-scalar",
+    vibe: (value: string) => ({ vibe: { key: value } }),
+    authorId: "scalar",
+    likedByUserId: (value: string) => ({
+      likes: { some: { userId: value } }
+    }),
   },
   defaultRelations: {
     author: true,

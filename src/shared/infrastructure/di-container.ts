@@ -40,6 +40,9 @@ import { GetTrendingTagsUseCase } from "@/modules/taxonomy/application/GetTrendi
 import { CreateCategoryUseCase } from "@/modules/taxonomy/application/CreateCategory.usecase";
 import { CreateVibeTaxonomyUseCase } from "@/modules/taxonomy/application/CreateVibeTaxonomy.usecase";
 
+// Events Module
+import { InMemoryEventBus } from "@/shared/infrastructure/events/InMemoryEventBus";
+
 // 1. Instantiate Repositories (Inject DB)
 export const vibeRepository = new PrismaVibeRepository(prisma);
 const engagementRepository = new PrismaEngagementRepository(prisma);
@@ -50,16 +53,17 @@ const taxonomyRepository = new PrismaTaxonomyRepository(prisma);
 const profileRepository = new PrismaProfileRepository(prisma);
 
 export const authGateway = new ClerkAuthGateway(prisma);
+export const eventBus = new InMemoryEventBus();
 
 // 2. Instantiate Use Cases (Inject Repositories)
 // Vibe
-export const createVibeUseCase = new CreateVibeUseCase(vibeRepository);
+export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus);
 export const generateFeedUseCase = new GenerateFeedUseCase(vibeRepository);
 export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository);
 
 // Engagement
-export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository);
-export const addCommentUseCase = new AddCommentUseCase(engagementRepository);
+export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository, eventBus);
+export const addCommentUseCase = new AddCommentUseCase(engagementRepository, eventBus);
 export const deleteCommentUseCase = new DeleteCommentUseCase(engagementRepository);
 
 // Notification
@@ -71,7 +75,7 @@ export const syncUserUseCase = new SyncUserUseCase(authRepository);
 export const getUserUseCase = new GetUserUseCase(authRepository);
 
 // Social
-export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository);
+export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository, eventBus);
 export const getSuggestedUsersUseCase = new GetSuggestedUsersUseCase(socialRepository);
 export const getProfileUseCase = new GetProfileUseCase(profileRepository);
 export const updateProfileUseCase = new UpdateProfileUseCase(profileRepository);
@@ -84,4 +88,4 @@ export const createCategoryUseCase = new CreateCategoryUseCase(taxonomyRepositor
 export const createVibeTaxonomyUseCase = new CreateVibeTaxonomyUseCase(taxonomyRepository);
 
 // Initialize Event Handlers
-export const notificationEventHandler = new NotificationEventHandler(notificationRepository);
+export const notificationEventHandler = new NotificationEventHandler(notificationRepository, eventBus);

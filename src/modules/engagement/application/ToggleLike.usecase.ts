@@ -1,15 +1,15 @@
 import { IEngagementRepository } from "../domain/IEngagementRepository";
 // import { engagementRepository } from "../infrastructure/PrismaEngagementRepository";
-import { DomainEventBus } from "@/shared/infrastructure/EventBus";
+import { IEventBus } from "@/shared/domain/events/IEventBus";
 
 export class ToggleLikeUseCase {
-  constructor(private repo: IEngagementRepository) {}
+  constructor(private engagementRepository: IEngagementRepository, private eventBus: IEventBus) {}
 
   async execute(vibeId: string, userId: string) {
-    const result = await this.repo.toggleLike(vibeId, userId);
+    const result = await this.engagementRepository.toggleLike(vibeId, userId);
     if (result.success && result.value.isLiked) {
       if (result.value.authorId !== userId) {
-        DomainEventBus.publish("LikeToggledEvent", {
+        this.eventBus.publish("LikeToggledEvent", {
           vibeId,
           likerId: userId,
           authorId: result.value.authorId,

@@ -1,14 +1,14 @@
 import { INotificationRepository } from "../domain/INotificationRepository";
-import { DomainEventBus } from "@/shared/infrastructure/EventBus";
+import { IEventBus } from "@/shared/domain/events/IEventBus";
 import { NotificationType } from "@prisma/client";
 
 export class NotificationEventHandler {
-  constructor(private repo: INotificationRepository) {
+  constructor(private repo: INotificationRepository, private eventBus: IEventBus) {
     this.setupListeners();
   }
 
   private setupListeners() {
-    DomainEventBus.subscribe("LikeToggledEvent", async (payload: any) => {
+    this.eventBus.subscribe("LikeToggledEvent", async (payload: any) => {
       // Create a LIKE notification for the author
       try {
         await this.repo.create({
@@ -23,7 +23,7 @@ export class NotificationEventHandler {
       }
     });
 
-    DomainEventBus.subscribe("CommentAddedEvent", async (payload: any) => {
+    this.eventBus.subscribe("CommentAddedEvent", async (payload: any) => {
       // Create a COMMENT notification for the author
       try {
         await this.repo.create({
@@ -39,7 +39,7 @@ export class NotificationEventHandler {
       }
     });
 
-    DomainEventBus.subscribe("UserFollowedEvent", async (payload: any) => {
+    this.eventBus.subscribe("UserFollowedEvent", async (payload: any) => {
       // Create a FOLLOW notification for the user being followed
       try {
         await this.repo.create({
