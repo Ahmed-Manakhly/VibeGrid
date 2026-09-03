@@ -16,7 +16,8 @@ function Navbar() {
   const { user, isAuthenticated, isLoading } = useSession();
   const pathname = usePathname();
 
-  if (pathname === '/login' || pathname === '/register') {
+  const isAuthRoute = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'].some(path => pathname.startsWith(path));
+  if (isAuthRoute) {
     return null;
   }
 

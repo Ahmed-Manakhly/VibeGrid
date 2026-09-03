@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { changePasswordAction } from '@/actions/settings.action';
 import toast from 'react-hot-toast';
+import { Lock, Eye, EyeOff, Loader2, KeyRound } from 'lucide-react';
 
 export function SecuritySettingsForm() {
   const [passwordForm, setPasswordForm] = useState({
@@ -14,6 +15,9 @@ export function SecuritySettingsForm() {
     newPassword: '',
     confirmPassword: '',
   });
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
@@ -51,46 +55,93 @@ export function SecuritySettingsForm() {
   };
 
   return (
-    <Card>
+    <Card className="border-border/50 bg-card/50 backdrop-blur-md">
       <CardHeader>
-        <CardTitle>Change Password</CardTitle>
-        <CardDescription>Ensure your account is using a long, random password to stay secure.</CardDescription>
+        <CardTitle className="flex items-center gap-2">
+          <KeyRound className="size-5 text-accent" />
+          <span>Change Password</span>
+        </CardTitle>
+        <CardDescription>
+          Ensure your account is using a strong, random password to stay secure.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-md">
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
-            <Input
-              id="currentPassword"
-              type="password"
-              value={passwordForm.currentPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="currentPassword"
+                type={showCurrent ? 'text' : 'password'}
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                required
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrent(!showCurrent)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Toggle password visibility"
+              >
+                {showCurrent ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            </div>
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="newPassword">New Password</Label>
-            <Input
-              id="newPassword"
-              type="password"
-              value={passwordForm.newPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="newPassword"
+                type={showNew ? 'text' : 'password'}
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                required
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowNew(!showNew)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Toggle password visibility"
+              >
+                {showNew ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            </div>
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm New Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={passwordForm.confirmPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirm ? 'text' : 'password'}
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                required
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm(!showConfirm)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label="Toggle password visibility"
+              >
+                {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            </div>
           </div>
+
           <div className="pt-2">
-            <Button type="submit" disabled={isChangingPassword}>
-              {isChangingPassword ? 'Updating...' : 'Update Password'}
+            <Button type="submit" disabled={isChangingPassword} className="btn-gradient flex items-center gap-2">
+              {isChangingPassword ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> Updating...
+                </>
+              ) : (
+                'Update Password'
+              )}
             </Button>
           </div>
         </form>

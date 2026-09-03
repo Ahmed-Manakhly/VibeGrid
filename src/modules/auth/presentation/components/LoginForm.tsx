@@ -58,7 +58,7 @@ export function LoginForm({ callbackUrl = '/' }: LoginFormProps) {
           </div>
         </label>
         <div className="flex justify-end">
-          <Link href="#" className="text-xs text-primary hover:underline">
+          <Link href="/forgot-password" className="text-xs text-accent hover:underline">
             Forgot password?
           </Link>
         </div>

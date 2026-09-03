@@ -34,6 +34,7 @@ export async function changePasswordAction(formData: FormData) {
       body: JSON.stringify({
         currentPassword,
         newPassword,
+        passwordConfirm: newPassword,
       }),
       cache: 'no-store',
     });

@@ -1,8 +1,5 @@
-import Metadata from 'next';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { VibeLogo } from '@/components/VibeLogo';
 import { LoginForm } from '@/components/auth/LoginForm';
+import { AuthLayoutWrapper } from '@/components/auth/AuthLayoutWrapper';
 
 export const metadata = {
   title: 'Log In | VibeGrid',
@@ -18,29 +15,19 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const callbackUrl = resolvedSearchParams?.callbackUrl || '/';
 
   return (
-    <main className="auth-page">
-      <div className="auth-orbit auth-orbit-one" />
-      <div className="auth-orbit auth-orbit-two" />
-      <div className="absolute left-6 top-6">
-        <Link href="/" className="back-link">
-          <ArrowLeft /> Back to the grid
-        </Link>
+    <AuthLayoutWrapper
+      title="Return to your signal."
+      subtitle="Pick up where the good ideas left off. Enter your credentials to access your VibeGrid account."
+      badge="WELCOME BACK"
+    >
+      <div className="text-left mb-6">
+        <p className="eyebrow text-accent font-mono text-xs uppercase tracking-wider font-semibold">ACCOUNT ACCESS</p>
+        <h2 className="font-display text-2xl font-bold tracking-tight text-foreground mt-1">
+          Log in to VibeGrid
+        </h2>
       </div>
-      <section className="auth-card">
-        <div className="flex justify-center">
-          <VibeLogo />
-        </div>
-        <div className="mt-10 text-center">
-          <p className="eyebrow">Welcome back</p>
-          <h1 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em]">
-            Return to your signal.
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            Pick up where the good ideas left off.
-          </p>
-        </div>
-        <LoginForm callbackUrl={callbackUrl} />
-      </section>
-    </main>
+      
+      <LoginForm callbackUrl={callbackUrl} />
+    </AuthLayoutWrapper>
   );
 }

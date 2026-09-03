@@ -8,7 +8,8 @@ export function SidebarWrapper({ children }: { children: React.ReactNode }) {
   const { isOpen, close, toggle } = useSidebar();
   const pathname = usePathname();
 
-  if (pathname === '/login' || pathname === '/register') {
+  const isAuthRoute = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'].some(path => pathname.startsWith(path));
+  if (isAuthRoute) {
     return null;
   }
 

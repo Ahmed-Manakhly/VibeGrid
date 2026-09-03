@@ -14,7 +14,8 @@ export function MobileBottomBar() {
   const { toggle } = useSidebar();
   const pathname = usePathname();
 
-  if (pathname === '/login' || pathname === '/register' || isLoading) return null;
+  const isAuthRoute = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'].some(path => pathname.startsWith(path));
+  if (isAuthRoute || isLoading) return null;
 
   const displayName = user?.name || user?.email.split('@')[0] || 'User';
 

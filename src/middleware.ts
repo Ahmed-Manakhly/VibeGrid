@@ -3,7 +3,7 @@ import { verifyAccessTokenRS256 } from '@/lib/auth/jwt.verifier';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
 
 const PROTECTED_ROUTES = ['/profile', '/settings', '/create-post'];
-const AUTH_ONLY_ROUTES = ['/login', '/register'];
+const AUTH_ONLY_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
