@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 import Link from 'next/link';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 import { formatDistanceToNow } from "date-fns";
 import { formatRelativeTime } from "@/lib/utils";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
@@ -115,10 +115,7 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                     <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center space-x-3 min-w-0 flex-1">
                             <Link href={`/profile/${post.author.username}`} className="shrink-0">
-                                <Avatar className="size-8 transition-all">
-                                    <AvatarImage src={post.author.image ?? "/avatar.png"} />
-                                    <AvatarFallback>{post.author.name?.charAt(0) || "U"}</AvatarFallback>
-                                </Avatar>
+                                <UserAvatar src={post.author.image} name={post.author.name} className="size-8 transition-all" />
                             </Link>
                             <div className="flex flex-col min-w-0 flex-1">
                                 <Link href={`/profile/${post.author.username}`} className="font-semibold text-[13px] sm:text-sm truncate">
@@ -262,9 +259,7 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                             </div>
                             {isAuthenticated ? (
                                 <div className="flex space-x-3">
-                                    <Avatar className="size-8 flex-shrink-0">
-                                        <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
-                                    </Avatar>
+                                    <UserAvatar src={user?.image} name={user?.name} className="size-8 flex-shrink-0" />
                                     <div className="flex-1">
                                         <Textarea placeholder="Drop a vibe..." value={newComment} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
                                             className="min-h-[80px] resize-none bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border" />

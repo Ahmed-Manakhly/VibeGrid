@@ -12,6 +12,7 @@ import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
 import { createPostFormAction } from "@/actions/post.action";
 import toast from "react-hot-toast";
 import ImageUpload from "@/components/ImageUpload";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
@@ -120,9 +121,7 @@ export default function CreatPost() {
                     {!isExpanded ? (
                         <div className="flex items-center space-x-4 cursor-text" onClick={() => setIsExpanded(true)}>
                             <Link href={profileHref} onClick={(e) => e.stopPropagation()} className="hover:opacity-80 transition-opacity">
-                                <Avatar className="w-10 h-10">
-                                    <AvatarFallback>{initialLetter}</AvatarFallback>
-                                </Avatar>
+                                <UserAvatar src={user?.image} name={displayName} className="w-10 h-10" />
                             </Link>
                             <div className="flex-1 rounded-xl border border-border/50 bg-background px-4 py-2.5 text-sm text-muted-foreground hover:bg-background/80 transition-colors">
                                 Drop a vibe...
@@ -133,9 +132,7 @@ export default function CreatPost() {
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:space-x-4">
                                 <div className="flex items-center gap-2 sm:block">
                                     <Link href={profileHref} className="hover:opacity-80 transition-opacity">
-                                        <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
-                                            <AvatarFallback>{initialLetter}</AvatarFallback>
-                                        </Avatar>
+                                        <UserAvatar src={user?.image} name={displayName} className="w-8 h-8 sm:w-10 sm:h-10" />
                                     </Link>
                                     <span className="text-sm font-semibold sm:hidden">{displayName}</span>
                                 </div>

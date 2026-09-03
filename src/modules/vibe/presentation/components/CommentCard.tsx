@@ -1,8 +1,8 @@
-"use client"
+"use client";
 import { useState } from 'react';
 import { deleteComment } from '@/actions/post.action';
 import toast from 'react-hot-toast';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 import { formatDistanceToNow } from 'date-fns';
 import { formatRelativeTime } from "@/lib/utils";
 import { Trash2Icon } from 'lucide-react';
@@ -37,9 +37,7 @@ export function CommentCard({ comment, dbUserId, postId }: { comment: any, dbUse
 
     return (
         <div className="flex space-x-3 group relative">
-            <Avatar className="size-8 flex-shrink-0">
-                <AvatarImage src={comment.author.image ?? "/avatar.png"} />
-            </Avatar>
+            <UserAvatar src={comment.author.image} name={comment.author.name} className="size-8 flex-shrink-0" />
             <div className="flex-1 min-w-0 pr-8">
                 <div className="flex items-center gap-x-1 sm:gap-x-2 text-[11px] sm:text-xs text-muted-foreground truncate min-w-0">
                     <span className="font-medium text-[13px] sm:text-sm text-foreground truncate">{comment.author.name}</span>

@@ -1,0 +1,20 @@
+{
+  "user_01": {
+    "userId": "6a99f6509278f09afaca712d",
+    "email": "developer_01@vibegrid.manakhly.tech",
+    "username": "alex_rivera",
+    "name": "Alex Rivera"
+  },
+  "user_02": {
+    "userId": "6a99f6539278f09afaca7139",
+    "email": "creator_02@vibegrid.manakhly.tech",
+    "username": "sarah_chen",
+    "name": "Sarah Chen"
+  },
+  "user_03": {
+    "userId": "6a99f6579278f09afaca7145",
+    "email": "tester_03@vibegrid.manakhly.tech",
+    "username": "grid_tester",
+    "name": "Grid Tester"
+  }
+}

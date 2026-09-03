@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 import { useAvatarUpload } from '@/modules/media/presentation/hooks/useAvatarUpload';
 import toast from 'react-hot-toast';
 
@@ -81,10 +81,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="flex flex-col items-center gap-3">
-            <Avatar className="w-20 h-20">
-              <AvatarImage src={previewUrl || user.image || '/avatar.png'} />
-              <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
-            </Avatar>
+            <UserAvatar src={previewUrl || user.image} name={user.name} className="w-20 h-20" />
             <Label htmlFor="avatar-file" className="cursor-pointer text-xs font-semibold text-primary hover:underline">
               Change Profile Picture
             </Label>

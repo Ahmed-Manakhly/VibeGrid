@@ -11,7 +11,7 @@ export async function getProfileByUsername(username: string) {
         return await getProfileUseCase.execute(username);
     } catch (error) {
         console.error("Error fetching profile:", error);
-        throw new Error("Failed to fetch profile");
+        return null;
     }
 }
 

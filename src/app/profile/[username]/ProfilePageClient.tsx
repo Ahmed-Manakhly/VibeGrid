@@ -3,7 +3,7 @@
 import { getProfileByUsername } from "@/actions/profile.action";
 import { getPosts } from "@/actions/post.action";
 import { InfiniteScroll } from "@/components/InfiniteScroll";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -52,10 +52,7 @@ function ProfilePageClient({
                     <Card className="bg-card">
                         <CardContent className="pt-6">
                             <div className="flex flex-col items-center text-center">
-                                <Avatar className="w-24 h-24">
-                                    <AvatarImage src={user.image ?? "/avatar.png"} />
-                                    <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
-                                </Avatar>
+                                <UserAvatar src={user.image} name={user.name} className="w-24 h-24" />
                                 <h1 className="mt-4 text-2xl font-bold">{user.name ?? user.username}</h1>
                                 <p className="text-muted-foreground">@{user.username}</p>
                                 <p className="mt-2 text-sm">{user.bio}</p>

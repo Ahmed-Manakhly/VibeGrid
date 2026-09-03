@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { updateProfile } from '@/actions/profile.action';
 import toast from 'react-hot-toast';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 
 interface ProfileSettingsFormProps {
   user: {
@@ -64,10 +64,7 @@ export function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
       <CardContent>
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           <div className="flex items-center gap-4 py-2">
-            <Avatar className="w-16 h-16">
-              <AvatarImage src={user.image || '/avatar.png'} />
-              <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
-            </Avatar>
+            <UserAvatar src={user.image} name={user.name} className="w-16 h-16" />
             <div>
               <p className="text-sm font-semibold">{user.name || user.username}</p>
               <p className="text-xs text-muted-foreground">{user.email}</p>

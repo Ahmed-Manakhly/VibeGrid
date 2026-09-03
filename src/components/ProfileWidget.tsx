@@ -4,7 +4,7 @@ import { Button } from './ui/button'
 import Link from 'next/link'
 import { getCurrentSession } from '@/lib/auth/server'
 import { getUserById } from '@/actions/user.action'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/UserAvatar'
 import { Separator } from './ui/separator'
 import { LinkIcon, MapPinIcon } from 'lucide-react'
 
@@ -42,9 +42,7 @@ async function ProfileWidget() {
                 <Card className="surface-panel transition-all duration-300">
                     <CardContent className="pt-6">
                         <div className="flex flex-col items-center text-center">
-                            <Avatar className="w-20 h-20">
-                                <AvatarFallback>{session.user.name?.charAt(0) || "U"}</AvatarFallback>
-                            </Avatar>
+                            <UserAvatar src={session.user.image} name={session.user.name} className="w-20 h-20" />
                             <div className="mt-4 space-y-1">
                                 <h3 className="font-semibold">{session.user.name || session.user.email.split('@')[0]}</h3>
                                 <p className="text-sm text-muted-foreground">{session.user.email}</p>
@@ -62,10 +60,7 @@ async function ProfileWidget() {
                 <CardContent className="pt-6">
                     <div className="flex flex-col items-center text-center">
                         <Link href={`/profile/${user.username}`} className="flex flex-col items-center justify-center" >
-                            <Avatar className="w-20 h-20 transition-all duration-300">
-                                <AvatarImage src={user.image || "/avatar.png"} />
-                                <AvatarFallback>{session.user.name?.charAt(0) || "U"}</AvatarFallback>
-                            </Avatar>
+                            <UserAvatar src={user.image} name={user.name} className="w-20 h-20 transition-all duration-300" />
                             <div className="mt-4 space-y-1">
                                 <h3 className="font-semibold">{user.name}</h3>
                                 <p className="text-sm text-muted-foreground">{user.username}</p>

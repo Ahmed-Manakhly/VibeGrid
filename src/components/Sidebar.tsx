@@ -3,7 +3,7 @@ import { prisma } from '@/shared/infrastructure/prisma';
 import Link from 'next/link';
 import { VibeLogo } from './VibeLogo';
 import { CustomSignOutButton } from './CustomSignOutButton';
-import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
+import { UserAvatar } from './UserAvatar';
 import { SidebarNav, SidebarSettingsLink } from './SidebarNav';
 
 export async function Sidebar() {
@@ -37,10 +37,7 @@ export async function Sidebar() {
             <div className="flex flex-col gap-4 bg-primary/10 border border-primary/50 text-primary transition-colors p-3 lg:group-[.is-collapsed]:p-0 lg:group-[.is-collapsed]:bg-transparent lg:group-[.is-collapsed]:border-transparent lg:group-[.is-collapsed]:items-center rounded-2xl lg:group-[.is-collapsed]:rounded-full cursor-pointer">
               <div className="flex items-center gap-3">
                 <Link href={profileHref} className="hover:opacity-80 transition-opacity">
-                  <Avatar className="shrink-0 transition-all">
-                    {dbUser?.image && <AvatarImage src={dbUser.image} alt={dbUser.name || 'User'} />}
-                    <AvatarFallback>{(dbUser?.name || authUser.name)?.charAt(0) || authUser.email.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
+                  <UserAvatar src={dbUser?.image} name={dbUser?.name || authUser.name} className="shrink-0 transition-all" />
                 </Link>
                 <div className="min-w-0 flex-1 lg:group-[.is-collapsed]:hidden flex items-center justify-between">
                   <Link href={profileHref} className="hover:opacity-80 transition-opacity min-w-0 flex-1 pr-2">

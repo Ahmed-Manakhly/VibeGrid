@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from '@/components/auth/SessionProvider';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 import { LogOut, User, Settings, Bookmark, Bell, MessageSquare, Compass, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
@@ -30,15 +30,10 @@ export function UserNavDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-center rounded-full outline-none"
+        className="hidden sm:flex items-center justify-center rounded-full outline-none"
         aria-label="User menu"
       >
-        <Avatar className="size-9">
-          <AvatarImage src={user.image || "/avatar.png"} alt={displayName} />
-          <AvatarFallback>
-            <User className="size-4 text-accent" />
-          </AvatarFallback>
-        </Avatar>
+        <UserAvatar src={user.image} name={displayName} className="size-9" />
       </button>
 
       {isOpen && (
