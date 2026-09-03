@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
 
     const data = await authRes.json();
 
-    if (!authRes.ok || !data.success) {
+    const isSuccess = authRes.ok && (data?.status === 'success' || data?.success === true);
+    if (!isSuccess) {
       return NextResponse.redirect(new URL('/login?error=oauth_failed', req.url));
     }
 
@@ -32,6 +33,7 @@ export async function GET(req: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
+        avatarUrl: user.avatarUrl,
       }).catch((err) => console.error('[Google OAuth Profile Bootstrap Warning]', err));
     }
 

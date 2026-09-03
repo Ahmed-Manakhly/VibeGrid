@@ -49,7 +49,7 @@ export class ProfileBootstrapService {
   /**
    * Idempotently bootstraps a native VibeGrid User/Profile record
    */
-  public static async bootstrapProfile(user: { id: string; email: string; name?: string; role?: string }): Promise<any> {
+  public static async bootstrapProfile(user: { id: string; email: string; name?: string; role?: string; avatarUrl?: string }): Promise<any> {
     const { prisma } = await import('@/shared/infrastructure/prisma');
     const userId = user.id;
     const email = user.email.toLowerCase();
@@ -60,7 +60,7 @@ export class ProfileBootstrapService {
     });
 
     if (existingUser) {
-      // Idempotent: preserve existing customized profile fields (bio, location, website, name, username)
+      // Idempotent: preserve existing customized profile fields
       return existingUser;
     }
 
@@ -73,6 +73,7 @@ export class ProfileBootstrapService {
         email,
         name: displayName,
         username: uniqueUsername,
+        image: user.avatarUrl || null,
         role: user.role === 'ADMIN' ? 'ADMIN' : 'USER',
       },
     });

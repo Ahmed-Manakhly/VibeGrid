@@ -34,7 +34,7 @@ export function UserNavDropdown() {
         aria-label="User menu"
       >
         <Avatar className="size-9">
-          <AvatarImage src="/avatar.png" alt={displayName} />
+          <AvatarImage src={user.image || "/avatar.png"} alt={displayName} />
           <AvatarFallback>
             <User className="size-4 text-accent" />
           </AvatarFallback>
@@ -50,7 +50,7 @@ export function UserNavDropdown() {
 
           <div className="flex flex-col gap-0.5">
             <Link
-              href={`/profile/${displayName.toLowerCase().replace(/\s+/g, '_')}`}
+              href={`/profile/${user.username || displayName.toLowerCase().replace(/\s+/g, '_')}`}
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
             >

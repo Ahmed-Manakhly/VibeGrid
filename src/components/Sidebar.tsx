@@ -1,4 +1,5 @@
 import { getCurrentSession } from '@/lib/auth/server';
+import { prisma } from '@/shared/infrastructure/prisma';
 import Link from 'next/link';
 import { VibeLogo } from './VibeLogo';
 import { CustomSignOutButton } from './CustomSignOutButton';
@@ -8,7 +9,17 @@ import { SidebarNav, SidebarSettingsLink } from './SidebarNav';
 export async function Sidebar() {
   const session = await getCurrentSession();
   const authUser = session.user;
-  const profileHref = authUser ? `/profile/${authUser.name || authUser.email.split('@')[0]}` : '/login';
+
+  let dbUser = null;
+  if (authUser?.id) {
+    dbUser = await prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: { username: true, name: true, email: true, image: true },
+    });
+  }
+
+  const profileUsername = dbUser?.username || authUser?.name || authUser?.email.split('@')[0];
+  const profileHref = authUser ? `/profile/${profileUsername}` : '/login';
 
   return (
     <>
@@ -27,13 +38,14 @@ export async function Sidebar() {
               <div className="flex items-center gap-3">
                 <Link href={profileHref} className="hover:opacity-80 transition-opacity">
                   <Avatar className="shrink-0 transition-all">
-                      <AvatarFallback>{authUser.name?.charAt(0) || authUser.email.charAt(0).toUpperCase()}</AvatarFallback>
+                    {dbUser?.image && <AvatarImage src={dbUser.image} alt={dbUser.name || 'User'} />}
+                    <AvatarFallback>{(dbUser?.name || authUser.name)?.charAt(0) || authUser.email.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Link>
                 <div className="min-w-0 flex-1 lg:group-[.is-collapsed]:hidden flex items-center justify-between">
                   <Link href={profileHref} className="hover:opacity-80 transition-opacity min-w-0 flex-1 pr-2">
-                    <p className="truncate text-sm font-medium">{authUser.name || authUser.email.split('@')[0]}</p>
-                    <p className="truncate font-mono text-[10px] text-muted-foreground">{authUser.email}</p>
+                    <p className="truncate text-sm font-medium">{dbUser?.name || authUser.name || authUser.email.split('@')[0]}</p>
+                    <p className="truncate font-mono text-[10px] text-muted-foreground">@{dbUser?.username || authUser.email}</p>
                   </Link>
                   <div className="shrink-0">
                     <CustomSignOutButton />

@@ -27,7 +27,7 @@ function DesktopNavbar() {
             </Link>
           </Button>
           <Button variant="ghost" className="flex items-center gap-2 hover:bg-white/5 hover:text-primary transition-all duration-300 rounded-full" asChild>
-            <Link href={`/profile/${user.name || user.email.split('@')[0]}`}>
+            <Link href={`/profile/${user.username || user.name || user.email.split('@')[0]}`}>
               <UserIcon className="w-4 h-4" />
               <span className="hidden lg:inline">Profile</span>
             </Link>
