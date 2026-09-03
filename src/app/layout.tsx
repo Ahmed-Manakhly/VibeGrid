@@ -13,6 +13,8 @@ import { JetBrains_Mono } from 'next/font/google'
 import { bootstrap } from "@/lib/bootstrap";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
+import { RootMainWrapper } from "@/components/RootMainWrapper";
+
 bootstrap(); // Runs once on server startup
 
 const jetBrainsMono = JetBrains_Mono({
@@ -50,9 +52,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </SidebarWrapper>
                 <div className="min-w-0 flex-1 transition-all duration-300">
                   <Navbar />
-                  <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-24 sm:pb-8">
+                  <RootMainWrapper>
                     {children}
-                  </main>
+                  </RootMainWrapper>
                 </div>
                 <MobileBottomBar />
               </SidebarProvider>

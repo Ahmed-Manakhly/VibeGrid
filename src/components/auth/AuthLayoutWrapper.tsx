@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSession } from '@/components/auth/SessionProvider';
 import { useRouter } from 'next/navigation';
 import { AuthHeader } from './AuthHeader';
+import AuthLoadingSkeleton from './AuthLoadingSkeleton';
 import { Sparkles, Radio, Zap, ShieldCheck, ArrowLeft } from 'lucide-react';
 
 interface AuthLayoutWrapperProps {
@@ -30,20 +31,13 @@ export function AuthLayoutWrapper({
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading || isAuthenticated) {
-    return (
-      <div className="h-[100dvh] w-full flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <div className="size-10 rounded-full border-2 border-accent border-t-transparent animate-spin" />
-          <p className="text-xs font-mono text-muted-foreground animate-pulse">Checking credentials...</p>
-        </div>
-      </div>
-    );
+    return <AuthLoadingSkeleton />;
   }
 
   return (
-    <div className="h-[100dvh] w-full flex flex-col overflow-hidden bg-background relative selection:bg-accent selection:text-white">
+    <div className="min-h-screen w-full flex flex-col bg-background relative selection:bg-accent selection:text-white">
       {/* Background Neon Ambient Glow Orbs - Edge to Edge */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
         <div className="absolute -top-40 -left-40 size-[500px] rounded-full bg-accent/20 blur-[120px] animate-pulse" />
         <div className="absolute top-1/2 -right-40 size-[600px] rounded-full bg-primary/15 blur-[140px]" />
         <div className="absolute -bottom-40 left-1/3 size-[500px] rounded-full bg-accent/15 blur-[130px]" />
@@ -61,11 +55,11 @@ export function AuthLayoutWrapper({
       {/* Auth Dedicated Fixed Topbar Header */}
       <AuthHeader />
 
-      {/* Main Content Area: Padding top for fixed header (pt-16), Edge-to-Edge Responsive Grid */}
-      <main className="flex-1 w-full flex items-center justify-center pt-16 px-4 sm:px-8 lg:px-12 pb-6 z-10 overflow-hidden">
-        <div className="w-full max-w-6xl max-h-[calc(100dvh-5rem)] flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-stretch overflow-y-auto lg:overflow-hidden custom-scrollbar">
+      {/* Main Content Area: Padding top for fixed header with top breathing space (pt-24 sm:pt-28), Edge-to-Edge Responsive Grid */}
+      <main className="flex-1 w-full flex items-center justify-center pt-24 sm:pt-28 px-4 sm:px-8 lg:px-12 pb-12 z-10">
+        <div className="w-full max-w-6xl flex flex-col-reverse lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
           
-          {/* Left Column: Visual Hero Panel (Desktop + Mobile top order) */}
+          {/* Left Column: Visual Hero Panel (Desktop left, Mobile bottom order) */}
           <div className="w-full lg:col-span-5 flex flex-col justify-between p-6 sm:p-8 rounded-3xl backdrop-blur-2xl bg-card/25 border border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.08)] relative overflow-hidden shrink-0">
             <div className="absolute -top-24 -left-24 size-48 rounded-full bg-accent/30 blur-3xl" />
             <div className="absolute -bottom-24 -right-24 size-48 rounded-full bg-primary/30 blur-3xl" />
@@ -138,7 +132,7 @@ export function AuthLayoutWrapper({
             </div>
           </div>
 
-          {/* Right Column / Mobile Form Container: Glass Card */}
+          {/* Right Column / Mobile Form Container: Glass Card (Mobile top order) */}
           <div className="w-full lg:col-span-7 flex flex-col justify-center shrink-0">
             <div className="w-full backdrop-blur-2xl bg-card/45 border border-accent/25 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(147,51,234,0.12)] relative">
               {children}
