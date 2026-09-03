@@ -1,16 +1,17 @@
-import Link from 'next/link'
-import { Bell } from 'lucide-react'
-import { ModeToggle } from './ModeToggle'
-import { VibeLogo } from './VibeLogo'
-import { getCurrentSession } from '@/lib/auth/server'
-import { MobileMenuButton } from './MobileMenuButton'
-import { CustomSignOutButton } from './CustomSignOutButton'
-import { DesktopDropVibeButton } from './DropVibeButtons'
-import { NavSearch, MobileNavSearch } from './NavSearch'
+'use client';
 
-async function Navbar() {
-  const session = await getCurrentSession();
-  const user = session.user;
+import Link from 'next/link';
+import { Bell } from 'lucide-react';
+import { ModeToggle } from './ModeToggle';
+import { VibeLogo } from './VibeLogo';
+import { useSession } from '@/components/auth/SessionProvider';
+import { MobileMenuButton } from './MobileMenuButton';
+import { UserNavDropdown } from './UserNavDropdown';
+import { DesktopDropVibeButton } from './DropVibeButtons';
+import { NavSearch, MobileNavSearch } from './NavSearch';
+
+function Navbar() {
+  const { user, isAuthenticated, isLoading } = useSession();
 
   return (
     <header className="sticky top-0 z-50 flex flex-col w-full">
@@ -22,19 +23,27 @@ async function Navbar() {
         
         <div className="ml-auto flex items-center gap-3">
           <ModeToggle />
-          {user ? (
+          {!isLoading && (
+            isAuthenticated && user ? (
               <>
-                  <button className="icon-button hidden sm:flex" aria-label="Notifications"><Bell className="size-4" /></button>
-                  <DesktopDropVibeButton />
-                  <div className="pl-2 border-l border-border/50 ml-2 hidden sm:block">
-                    <CustomSignOutButton />
-                  </div>
+                <button className="icon-button hidden sm:flex" aria-label="Notifications">
+                  <Bell className="size-4" />
+                </button>
+                <DesktopDropVibeButton />
+                <div className="pl-2 border-l border-border/50 ml-1">
+                  <UserNavDropdown />
+                </div>
               </>
-          ) : (
+            ) : (
               <>
-                  <Link href="/register" className="btn-secondary hidden items-center justify-center px-4 py-2 text-sm sm:flex">Sign up</Link>
-                  <Link href="/login" className="btn-gradient hidden items-center gap-2 px-4 py-2 text-sm sm:flex">Log in</Link>
+                <Link href="/register" className="btn-secondary hidden items-center justify-center px-4 py-2 text-sm sm:flex">
+                  Sign up
+                </Link>
+                <Link href="/login" className="btn-gradient hidden items-center gap-2 px-4 py-2 text-sm sm:flex">
+                  Log in
+                </Link>
               </>
+            )
           )}
         </div>
       </div>
@@ -42,7 +51,7 @@ async function Navbar() {
       {/* Mobile Search Bar */}
       <MobileNavSearch />
     </header>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

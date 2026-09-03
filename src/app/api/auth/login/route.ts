@@ -61,16 +61,17 @@ export async function POST(req: NextRequest) {
 
     if (user) {
       const userId = user.id || user._id;
-      const username = user.name ? user.name.toLowerCase().replace(/\s+/g, '_') : user.email.split('@')[0];
+      const displayName = user.name || user.email.split('@')[0];
+      const username = displayName.toLowerCase().replace(/\s+/g, '_');
       const { prisma } = await import('@/shared/infrastructure/prisma');
       
       await prisma.user.upsert({
         where: { id: userId },
-        update: { email: user.email, name: user.name },
+        update: { email: user.email, name: displayName },
         create: {
           id: userId,
           email: user.email,
-          name: user.name || username,
+          name: displayName,
           username,
           role: user.role === 'ADMIN' ? 'ADMIN' : 'USER',
         },

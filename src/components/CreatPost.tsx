@@ -1,5 +1,6 @@
 "use client"
 import { useSession } from "@/components/auth/SessionProvider";
+import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 // ui imports
@@ -38,8 +39,16 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
     );
 }
 
+function getDisplayInitial(user: any) {
+    if (!user) return "U";
+    const displayName = user.name || user.email?.split('@')[0] || "User";
+    return displayName.charAt(0).toUpperCase();
+}
+
 export default function CreatPost() {
     const { user } = useSession();
+    const initialLetter = getDisplayInitial(user);
+    const displayName = user?.name || user?.email?.split('@')[0] || "You";
     
     // UI state only (not form data)
     const [imageUrl, setImageUrl] = useState("");
@@ -102,15 +111,19 @@ export default function CreatPost() {
         formRef.current?.reset();
     };
 
+    const profileHref = user ? `/profile/${user.name ? user.name.toLowerCase().replace(/\s+/g, '_') : user.email.split('@')[0]}` : '/login';
+
     return (
         <Card id="create-post" className="mb-6 feed-card scroll-mt-24">
             <CardContent className="pt-6 ">
                 <form action={formAction} ref={formRef} className="space-y-4">
                     {!isExpanded ? (
                         <div className="flex items-center space-x-4 cursor-text" onClick={() => setIsExpanded(true)}>
-                            <Avatar className="w-10 h-10">
-                                <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
-                            </Avatar>
+                            <Link href={profileHref} onClick={(e) => e.stopPropagation()} className="hover:opacity-80 transition-opacity">
+                                <Avatar className="w-10 h-10">
+                                    <AvatarFallback>{initialLetter}</AvatarFallback>
+                                </Avatar>
+                            </Link>
                             <div className="flex-1 rounded-xl border border-border/50 bg-background px-4 py-2.5 text-sm text-muted-foreground hover:bg-background/80 transition-colors">
                                 Drop a vibe...
                             </div>
@@ -119,10 +132,12 @@ export default function CreatPost() {
                         <>
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:space-x-4">
                                 <div className="flex items-center gap-2 sm:block">
-                                    <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
-                                        <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
-                                    </Avatar>
-                                    <span className="text-sm font-semibold sm:hidden">{user?.name || "You"}</span>
+                                    <Link href={profileHref} className="hover:opacity-80 transition-opacity">
+                                        <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+                                            <AvatarFallback>{initialLetter}</AvatarFallback>
+                                        </Avatar>
+                                    </Link>
+                                    <span className="text-sm font-semibold sm:hidden">{displayName}</span>
                                 </div>
                                 <Textarea 
                                     name="content"
