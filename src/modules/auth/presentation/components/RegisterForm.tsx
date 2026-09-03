@@ -47,8 +47,23 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
     <div className="w-full">
       <div className="text-left mb-4">
         <p className="eyebrow text-accent font-mono text-xs uppercase tracking-wider font-semibold">CLAIM YOUR HANDLE</p>
-        <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-0.5">
-          {requiresVerification ? '🔐 Verify Email' : step === 1 ? '👤 Step 1: Account Details' : '🛡️ Step 2: Security'}
+        <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-0.5 flex items-center gap-2">
+          {requiresVerification ? (
+            <>
+              <span className="p-1.5 rounded-lg bg-accent/15 text-accent inline-flex"><KeyRound className="size-5" /></span>
+              <span>Verify Email</span>
+            </>
+          ) : step === 1 ? (
+            <>
+              <span className="p-1.5 rounded-lg bg-accent/15 text-accent inline-flex"><UserRound className="size-5" /></span>
+              <span>Step 1: Account Details</span>
+            </>
+          ) : (
+            <>
+              <span className="p-1.5 rounded-lg bg-primary/15 text-primary inline-flex"><LockKeyhole className="size-5" /></span>
+              <span>Step 2: Security</span>
+            </>
+          )}
         </h2>
       </div>
 
