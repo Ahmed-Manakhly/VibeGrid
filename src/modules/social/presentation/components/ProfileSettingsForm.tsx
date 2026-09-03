@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { updateProfile } from '@/actions/profile.action';
 import toast from 'react-hot-toast';
 import { UserAvatar } from '@/components/UserAvatar';
+import { useSession } from '@/components/auth/SessionProvider';
+import { useRouter } from 'next/navigation';
 
 interface ProfileSettingsFormProps {
   user: {
@@ -23,6 +25,9 @@ interface ProfileSettingsFormProps {
 }
 
 export function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
+  const { refreshSession } = useSession();
+  const router = useRouter();
+
   const [profileForm, setProfileForm] = useState({
     name: user.name || '',
     username: user.username || '',
@@ -44,6 +49,8 @@ export function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
 
       const res = await updateProfile(formData);
       if (res.success) {
+        await refreshSession();
+        router.refresh();
         toast.success('Settings updated successfully!');
       } else {
         toast.error(res.error || 'Failed to update settings');

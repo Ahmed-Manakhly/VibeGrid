@@ -16,6 +16,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { UserAvatar } from '@/components/UserAvatar';
 import { useAvatarUpload } from '@/modules/media/presentation/hooks/useAvatarUpload';
 import toast from 'react-hot-toast';
+import { useSession } from '@/components/auth/SessionProvider';
+import { useRouter } from 'next/navigation';
 
 interface EditProfileModalProps {
   user: {
@@ -33,6 +35,8 @@ interface EditProfileModalProps {
 
 export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalProps) {
   const { isUploading, previewUrl, handleFileSelect, uploadAvatar } = useAvatarUpload();
+  const { refreshSession } = useSession();
+  const router = useRouter();
 
   const [editForm, setEditForm] = useState({
     name: user.name || '',
@@ -61,6 +65,8 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
 
       const result = await updateProfile(formData);
       if (result.success) {
+        await refreshSession();
+        router.refresh();
         onOpenChange(false);
         toast.success('Profile updated successfully');
       } else {
