@@ -26,19 +26,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { user, tokens } = authRes.data.data;
+    let user = authRes.data?.data?.user;
+    let tokens = authRes.data?.data?.tokens;
+
+    // Fallback: If Auth Service sets tokens in cookies directly (set-cookie headers)
+    if (!tokens && authRes.data?.user) {
+      user = authRes.data.user;
+    }
 
     const response = NextResponse.json({
       success: true,
       message: 'Login successful',
-      user: {
+      user: user ? {
         id: user.id || user._id,
         email: user.email,
         name: user.name,
         role: user.role,
         isEmailVerified: user.isEmailVerified,
-      },
+      } : null,
     });
+
 
     if (tokens?.accessToken) {
       response.cookies.set(

@@ -26,12 +26,17 @@ export async function authServiceFetch<T = any>(
       data = await res.text();
     }
 
+    if (!res.ok) {
+      console.log(`[AuthServiceFetch Error] ${options.method || 'GET'} ${url} -> Status: ${res.status}`, data);
+    }
+
     return {
       ok: res.ok,
       status: res.status,
       data,
     };
   } catch (err: any) {
+    console.error(`[AuthServiceFetch Exception] ${options.method || 'GET'} ${url}`, err);
     return {
       ok: false,
       status: 500,

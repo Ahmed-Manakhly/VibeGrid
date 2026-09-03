@@ -1,5 +1,5 @@
 import { IAuthGateway } from "../domain/IAuthGateway";
-import { AuthenticatedUser, UserRole } from "@/shared/kernel/auth.types";
+import type { AuthenticatedUser, UserRole } from "@/shared/kernel/auth.types";
 import { getCurrentSession } from "@/lib/auth/server";
 import { PrismaClient } from "@prisma/client";
 
