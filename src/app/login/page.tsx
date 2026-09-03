@@ -36,6 +36,14 @@ export default function LoginPage() {
       const data = await res.json()
 
       if (!res.ok || !data.success) {
+        if (data.isEmailUnverified) {
+          toast.error(data.message || 'Email address is not verified. Redirecting to verification...')
+          setTimeout(() => {
+            router.push(`/register?email=${encodeURIComponent(email)}&verify=true`)
+          }, 1500)
+          return
+        }
+
         toast.error(data.message || 'Invalid credentials')
         setIsSubmitting(false)
         return

@@ -8,12 +8,15 @@ export async function POST(req: NextRequest) {
 
     const authRes = await authServiceFetch('/verify-email', {
       method: 'POST',
-      body: JSON.stringify({ email, code }),
+      body: JSON.stringify({ email, otp: code, code }),
     });
 
-    if (!authRes.ok || !authRes.data?.success) {
+    const isSuccess = authRes.ok && (authRes.data?.status === 'success' || authRes.data?.success === true);
+
+    if (!isSuccess) {
+      const errorMessage = authRes.data?.error || authRes.data?.message || authRes.data?.data?.message || 'Email verification failed';
       return NextResponse.json(
-        { success: false, message: authRes.data?.message || 'Email verification failed' },
+        { success: false, message: errorMessage },
         { status: authRes.status || 400 }
       );
     }

@@ -20,8 +20,16 @@ export async function POST(req: NextRequest) {
     });
 
     if (!authRes.ok || !authRes.data?.success) {
+      const errorMessage = authRes.data?.error || authRes.data?.message || authRes.data?.data?.message || 'Invalid credentials';
+      const isUnverified = typeof errorMessage === 'string' && errorMessage.toLowerCase().includes('not verified');
+
       return NextResponse.json(
-        { success: false, message: authRes.data?.message || 'Invalid credentials' },
+        { 
+          success: false, 
+          message: errorMessage,
+          isEmailUnverified: isUnverified,
+          email: isUnverified ? email : undefined
+        },
         { status: authRes.status || 401 }
       );
     }

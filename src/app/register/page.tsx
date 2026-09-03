@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, UserRound, Loader2, KeyRound } from 'lucide-react'
 import { useState } from 'react'
 import { VibeLogo } from '@/components/VibeLogo'
@@ -9,29 +9,42 @@ import toast from 'react-hot-toast'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialEmail = searchParams.get('email') || ''
+  const initialVerify = searchParams.get('verify') === 'true'
+
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(initialEmail)
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Step 2: Verification State
-  const [requiresVerification, setRequiresVerification] = useState(false)
+  const [requiresVerification, setRequiresVerification] = useState(initialVerify)
   const [verificationCode, setVerificationCode] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
 
+
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    setFormError(null)
+
     if (!name || !email || !password || !passwordConfirm) {
-      toast.error('Please fill in all fields')
+      const err = 'Please fill in all fields'
+      setFormError(err)
+      toast.error(err)
       return
     }
 
-    if (password !== passwordConfirm) {
-      toast.error('Passwords do not match')
+    if (password.trim() !== passwordConfirm.trim()) {
+      const err = 'Passwords do not match'
+      setFormError(err)
+      toast.error(err)
       return
     }
 
@@ -45,7 +58,9 @@ export default function RegisterPage() {
       const data = await res.json()
 
       if (!res.ok || !data.success) {
-        toast.error(data.message || 'Registration failed')
+        const errMsg = data.message || 'Registration failed'
+        setFormError(errMsg)
+        toast.error(errMsg)
         setIsSubmitting(false)
         return
       }
@@ -53,7 +68,9 @@ export default function RegisterPage() {
       toast.success(data.message || 'Account created! Please check your email for the verification code.')
       setRequiresVerification(true)
     } catch {
-      toast.error('An unexpected error occurred')
+      const err = 'An unexpected error occurred'
+      setFormError(err)
+      toast.error(err)
     } finally {
       setIsSubmitting(false)
     }
@@ -132,7 +149,14 @@ export default function RegisterPage() {
                 Make space for the things worth noticing.
               </p>
             </div>
-            <form onSubmit={handleRegister} className="mt-9 flex flex-col gap-5">
+
+            {formError && (
+              <div className="mt-4 p-3 rounded-xl border border-destructive/50 bg-destructive/10 text-destructive text-xs leading-relaxed font-medium">
+                {formError}
+              </div>
+            )}
+
+            <form onSubmit={handleRegister} className="mt-6 flex flex-col gap-5">
               <label className="auth-label">
                 Display name
                 <div className="auth-input-wrap">
