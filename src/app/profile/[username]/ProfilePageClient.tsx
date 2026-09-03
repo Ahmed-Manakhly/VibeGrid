@@ -1,23 +1,13 @@
 "use client";
-import { getProfileByUsername, updateProfile } from "@/actions/profile.action";
-import { toggleFollow } from "@/actions/user.action";
+
+import { getProfileByUsername } from "@/actions/profile.action";
 import { getPosts } from "@/actions/post.action";
 import { InfiniteScroll } from "@/components/InfiniteScroll";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "@/components/auth/SessionProvider";
 import { format } from "date-fns";
 import {
@@ -29,8 +19,9 @@ import {
     MapPinIcon,
 } from "lucide-react";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import Link from "next/link";
+import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
+import { EditProfileModal } from "@/modules/social/presentation/components/EditProfileModal";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type PostsResult = Awaited<ReturnType<typeof getPosts>>;
@@ -50,124 +41,8 @@ function ProfilePageClient({
 }: ProfilePageClientProps) {
     const { user: currentUser, isAuthenticated } = useSession();
     const [showEditDialog, setShowEditDialog] = useState(false);
-    const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
-    const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
-    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-    const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
-    const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(user.image || null);
-    const [uploadedAvatarMediaId, setUploadedAvatarMediaId] = useState<string | null>(null);
-
-    const [editForm, setEditForm] = useState({
-        name: user.name || "",
-        username: user.username || "",
-        bio: user.bio || "",
-        location: user.location || "",
-        website: user.website || "",
-    });
-
-    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-            toast.error("Unsupported file type. Please select JPEG, PNG, or WebP.");
-            return;
-        }
-
-        if (file.size > 10 * 1024 * 1024) {
-            toast.error("File size exceeds max limit of 10MB.");
-            return;
-        }
-
-        setSelectedAvatarFile(file);
-        setAvatarPreviewUrl(URL.createObjectURL(file));
-    };
-
-    const handleEditSubmit = async () => {
-        try {
-            setIsUploadingAvatar(true);
-            let finalMediaId = uploadedAvatarMediaId;
-
-            if (selectedAvatarFile) {
-                const { requestAvatarUploadIntentAction, confirmAvatarUploadAction } = await import('@/actions/media.action');
-                
-                // 1. Request Upload Intent
-                const intentRes = await requestAvatarUploadIntentAction({
-                    mimeType: selectedAvatarFile.type,
-                    fileSizeBytes: selectedAvatarFile.size,
-                });
-
-                if (!intentRes.success || !intentRes.data) {
-                    toast.error(intentRes.error || "Failed to create upload intent");
-                    setIsUploadingAvatar(false);
-                    return;
-                }
-
-                const { assetId, uploadUrl } = intentRes.data;
-
-                // 2. Upload file directly to MinIO presigned PUT URL
-                const putRes = await fetch(uploadUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': selectedAvatarFile.type,
-                    },
-                    body: selectedAvatarFile,
-                });
-
-                if (!putRes.ok) {
-                    toast.error("Failed to upload image file to storage");
-                    setIsUploadingAvatar(false);
-                    return;
-                }
-
-                // 3. Confirm Upload with Media Microservice
-                const confirmRes = await confirmAvatarUploadAction(assetId);
-                if (!confirmRes.success || !confirmRes.data) {
-                    toast.error(confirmRes.error || "Failed to confirm avatar upload");
-                    setIsUploadingAvatar(false);
-                    return;
-                }
-
-                finalMediaId = assetId;
-            }
-
-            const formData = new FormData();
-            Object.entries(editForm).forEach(([key, value]) => {
-                formData.append(key, value);
-            });
-            if (finalMediaId) {
-                formData.append("avatarMediaId", finalMediaId);
-            }
-
-            const result = await updateProfile(formData);
-            if (result.success) {
-                setShowEditDialog(false);
-                toast.success("Profile updated successfully");
-            } else {
-                toast.error(result.error || "Failed to update profile");
-            }
-        } catch (err: any) {
-            toast.error(err.message || "An unexpected error occurred");
-        } finally {
-            setIsUploadingAvatar(false);
-        }
-    };
-
-    const handleFollow = async () => {
-        if (!currentUser) return;
-        try {
-            setIsUpdatingFollow(true);
-            await toggleFollow(user.id);
-            setIsFollowing(!isFollowing);
-        } catch {
-            toast.error("Failed to update follow status");
-        } finally {
-            setIsUpdatingFollow(false);
-        }
-    };
 
     const isOwnProfile = currentUser?.id === user.id;
-
     const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
 
     return (
@@ -212,14 +87,11 @@ function ProfilePageClient({
                                         Edit Profile
                                     </Button>
                                 ) : (
-                                    <Button
+                                    <FollowButton
                                         className="w-full mt-4"
-                                        onClick={handleFollow}
-                                        disabled={isUpdatingFollow}
-                                        variant={isFollowing ? "outline" : "default"}
-                                    >
-                                        {isFollowing ? "Unfollow" : "Follow"}
-                                    </Button>
+                                        targetUserId={user.id}
+                                        initialIsFollowing={initialIsFollowing}
+                                    />
                                 )}
                                 <div className="w-full mt-6 space-y-2 text-sm">
                                     {user.location && (
@@ -255,127 +127,55 @@ function ProfilePageClient({
 
                 <div className="w-full min-w-0 flex-1">
                     <Tabs defaultValue="posts" className="w-full">
-                    <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
-                        <TabsTrigger
-                            value="posts"
-                            className="flex items-center gap-2 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary
-                            data-[state=active]:bg-transparent px-6 font-semibold"
-                        >
-                            <FileTextIcon className="size-4" />
-                            Posts
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="likes"
-                            className="flex items-center gap-2 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary
-                            data-[state=active]:bg-transparent px-6 font-semibold"
-                        >
-                            <HeartIcon className="size-4" />
-                            Likes
-                        </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="posts" className="mt-6">
-                        <div className="space-y-6">
-                            <InfiniteScroll 
-                                initialPosts={postsResult.data}
-                                initialNextCursor={postsResult.nextCursor}
-                                apiUrl={`/api/posts?authorId=${user.id}`}
-                                dbUserId={currentUser ? user.id : null}
-                            />
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="likes" className="mt-6">
-                        <div className="space-y-6">
-                            <InfiniteScroll 
-                                initialPosts={likedPostsResult.data}
-                                initialNextCursor={likedPostsResult.nextCursor}
-                                apiUrl={`/api/posts?likedByUserId=${user.id}`}
-                                dbUserId={currentUser ? user.id : null}
-                            />
-                        </div>
-                    </TabsContent>
-                </Tabs>
+                        <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
+                            <TabsTrigger
+                                value="posts"
+                                className="flex items-center gap-2 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary
+                                data-[state=active]:bg-transparent px-6 font-semibold"
+                            >
+                                <FileTextIcon className="size-4" />
+                                Posts
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="likes"
+                                className="flex items-center gap-2 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary
+                                data-[state=active]:bg-transparent px-6 font-semibold"
+                            >
+                                <HeartIcon className="size-4" />
+                                Likes
+                            </TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="posts" className="mt-6">
+                            <div className="space-y-6">
+                                <InfiniteScroll 
+                                    initialPosts={postsResult.data}
+                                    initialNextCursor={postsResult.nextCursor}
+                                    apiUrl={`/api/posts?authorId=${user.id}`}
+                                    dbUserId={currentUser ? user.id : null}
+                                />
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="likes" className="mt-6">
+                            <div className="space-y-6">
+                                <InfiniteScroll 
+                                    initialPosts={likedPostsResult.data}
+                                    initialNextCursor={likedPostsResult.nextCursor}
+                                    apiUrl={`/api/posts?likedByUserId=${user.id}`}
+                                    dbUserId={currentUser ? user.id : null}
+                                />
+                            </div>
+                        </TabsContent>
+                    </Tabs>
                 </div>
-                <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-                    <DialogContent className="sm:max-w-[500px]">
-                        <DialogHeader>
-                            <DialogTitle>Edit Profile</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                            <div className="flex flex-col items-center gap-3">
-                                <Avatar className="w-20 h-20">
-                                    <AvatarImage src={avatarPreviewUrl || "/avatar.png"} />
-                                    <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
-                                </Avatar>
-                                <Label htmlFor="avatar-file" className="cursor-pointer text-xs font-semibold text-primary hover:underline">
-                                    Change Profile Picture
-                                </Label>
-                                <Input
-                                    id="avatar-file"
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    className="hidden"
-                                    onChange={handleFileSelect}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Username</Label>
-                                <Input
-                                    name="username"
-                                    value={editForm.username}
-                                    onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                                    placeholder="Your unique handle"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Name</Label>
-                                <Input
-                                    name="name"
-                                    value={editForm.name}
-                                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                                    placeholder="Your name"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Bio</Label>
-                                <Textarea
-                                    name="bio"
-                                    value={editForm.bio}
-                                    onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                                    className="min-h-[100px]"
-                                    placeholder="Tell us about yourself"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Location</Label>
-                                <Input
-                                    name="location"
-                                    value={editForm.location}
-                                    onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                                    placeholder="Where are you based?"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Website</Label>
-                                <Input
-                                    name="website"
-                                    value={editForm.website}
-                                    onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
-                                    placeholder="Your personal website"
-                                />
-                            </div>
-                        </div>
-                        <div className="flex justify-end gap-3">
-                            <DialogClose asChild>
-                                <Button variant="outline" disabled={isUploadingAvatar}>Cancel</Button>
-                            </DialogClose>
-                            <Button onClick={handleEditSubmit} disabled={isUploadingAvatar}>
-                                {isUploadingAvatar ? "Saving..." : "Save Changes"}
-                            </Button>
-                        </div>
-                    </DialogContent>
-                </Dialog>
+
+                <EditProfileModal
+                    user={user}
+                    open={showEditDialog}
+                    onOpenChange={setShowEditDialog}
+                />
             </div>
         </div>
     );
 }
-export default ProfilePageClient;
+
+export default ProfilePageClient;
