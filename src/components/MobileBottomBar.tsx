@@ -23,7 +23,7 @@ export function MobileBottomBar() {
       {isAuthenticated ? (
         <>
           <MobileDropVibeButton />
-          <Link href="/notifications" className="icon-button text-muted-foreground hover:text-primary transition-colors" aria-label="Notifications">
+          <Link href="/notifications" className="icon-button text-muted-foreground hover:text-accent transition-colors" aria-label="Notifications">
             <Bell className="size-5" />
           </Link>
           <button onClick={toggle} aria-label="Open sidebar menu" className="p-0.5 rounded-full outline-none">
