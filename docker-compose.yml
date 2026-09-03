@@ -1,0 +1,29 @@
+services:
+  vibegrid_ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vibegrid_ui
+    restart: always
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SERVICE_URL=http://vibegrid_api_gateway:8000/api/auth
+      - NEXT_PUBLIC_API_GATEWAY_URL=https://vibegrid.manakhly.tech
+      - INTERNAL_API_GATEWAY_URL=http://vibegrid_api_gateway:8000
+      - LOG_DIR=/logs
+    ports:
+      - "3000:3000"
+    networks:
+      - vibegrid_net
+    volumes:
+      - vibegrid_ui_logs:/logs
+
+networks:
+  vibegrid_net:
+    name: vibegrid_net
+    external: true
+
+volumes:
+  vibegrid_ui_logs:
