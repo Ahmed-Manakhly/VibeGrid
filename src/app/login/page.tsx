@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Eye, EyeOff, LockKeyhole, Mail, Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { VibeLogo } from '@/components/VibeLogo'
 import { useSession } from '@/components/auth/SessionProvider'
 import toast from 'react-hot-toast'
@@ -19,11 +19,12 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Redirect authenticated users away from login page
-  if (typeof window !== 'undefined' && isAuthenticated) {
-    router.replace(callbackUrl)
-  }
-
+  // Redirect authenticated users away from login page safely inside effect
+  useEffect(() => {
+    if (isAuthenticated) {
+      window.location.href = callbackUrl
+    }
+  }, [isAuthenticated, callbackUrl])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,7 +58,7 @@ export default function LoginPage() {
 
       toast.success('Welcome back!')
       await refreshSession()
-      router.push(callbackUrl)
+      window.location.href = callbackUrl
     } catch {
       toast.error('An unexpected error occurred')
       setIsSubmitting(false)
