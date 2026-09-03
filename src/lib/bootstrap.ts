@@ -43,7 +43,7 @@ export async function ensureAdminUser() {
 
     const adminUser = await prisma.user.create({
       data: {
-        clerkId: "system-admin-bot",
+        id: "system-admin-bot",
         email: adminEmail.toLowerCase(),
         username: adminUsername,
         name: "System Admin",

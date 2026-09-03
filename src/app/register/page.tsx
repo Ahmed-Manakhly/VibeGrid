@@ -20,10 +20,18 @@ export default function RegisterPage() {
   const [verificationCode, setVerificationCode] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
 
+  const [passwordConfirm, setPasswordConfirm] = useState('')
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !passwordConfirm) {
       toast.error('Please fill in all fields')
+      return
+    }
+
+    if (password !== passwordConfirm) {
+      toast.error('Passwords do not match')
       return
     }
 
@@ -32,7 +40,7 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, passwordConfirm }),
       })
       const data = await res.json()
 
@@ -157,7 +165,7 @@ export default function RegisterPage() {
                   <LockKeyhole />
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="At least 8 characters"
+                    placeholder="Uppercase, lowercase, number & special char"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -168,6 +176,29 @@ export default function RegisterPage() {
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff /> : <Eye />}
+                  </button>
+                </div>
+                <span className="text-[10px] text-muted-foreground mt-1">
+                  Must include 1 uppercase, 1 lowercase, 1 number, and 1 special character (e.g. Vibe#2026!).
+                </span>
+              </label>
+              <label className="auth-label">
+                Confirm Password
+                <div className="auth-input-wrap">
+                  <LockKeyhole />
+                  <input
+                    type={showPasswordConfirm ? 'text' : 'password'}
+                    placeholder="Repeat your password"
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                    aria-label={showPasswordConfirm ? 'Hide password' : 'Show password'}
+                  >
+                    {showPasswordConfirm ? <EyeOff /> : <Eye />}
                   </button>
                 </div>
               </label>

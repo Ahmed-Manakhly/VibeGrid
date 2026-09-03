@@ -29,8 +29,9 @@ export class PrismaProfileRepository implements IProfileRepository {
 
   async updateProfile(clerkId: string, data: { name: string; bio: string; location: string; website: string; }): Promise<any | null> {
     return await this.prisma.user.update({
-      where: { clerkId },
+      where: { id: clerkId },
       data,
     });
   }
+
 }

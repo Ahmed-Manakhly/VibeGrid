@@ -34,6 +34,24 @@ export async function POST(req: NextRequest) {
       user = authRes.data.user;
     }
 
+    if (user) {
+      const userId = user.id || user._id;
+      const username = user.name ? user.name.toLowerCase().replace(/\s+/g, '_') : user.email.split('@')[0];
+      const { prisma } = await import('@/shared/infrastructure/prisma');
+      
+      await prisma.user.upsert({
+        where: { id: userId },
+        update: { email: user.email, name: user.name },
+        create: {
+          id: userId,
+          email: user.email,
+          name: user.name || username,
+          username,
+          role: user.role === 'ADMIN' ? 'ADMIN' : 'USER',
+        },
+      }).catch((err) => console.error('[Login DB Sync Warning]', err));
+    }
+
     const response = NextResponse.json({
       success: true,
       message: 'Login successful',
@@ -45,6 +63,7 @@ export async function POST(req: NextRequest) {
         isEmailVerified: user.isEmailVerified,
       } : null,
     });
+
 
 
     if (tokens?.accessToken) {
