@@ -243,7 +243,7 @@ export default function RegisterPage() {
 
             <div className="mt-6 flex flex-col gap-3">
               <a
-                href={`${process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:8000'}/api/auth/oauth/google`}
+                href="/api/auth/oauth/google"
                 className="h-11 rounded-xl border border-input bg-background/50 hover:bg-accent/10 hover:border-accent/40 font-medium text-sm flex items-center justify-center gap-2.5 transition-all"
               >
                 <svg className="size-4" viewBox="0 0 24 24">
@@ -256,7 +256,7 @@ export default function RegisterPage() {
               </a>
 
               <a
-                href={`${process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:8000'}/api/auth/oauth/github`}
+                href="/api/auth/oauth/github"
                 className="h-11 rounded-xl border border-input bg-background/50 hover:bg-accent/10 hover:border-accent/40 font-medium text-sm flex items-center justify-center gap-2.5 transition-all"
               >
                 <svg className="size-4 fill-current" viewBox="0 0 24 24">

@@ -28,11 +28,26 @@ export async function getCurrentSession(): Promise<SessionResult> {
     return { isAuthenticated: false, user: null };
   }
 
+  let name = payload.email.split('@')[0];
+  try {
+    const { prisma } = await import('@/shared/infrastructure/prisma');
+    const dbUser = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { name: true },
+    });
+    if (dbUser?.name) {
+      name = dbUser.name;
+    }
+  } catch {
+    // fallback to email prefix if DB fails
+  }
+
   return {
     isAuthenticated: true,
     user: {
       id: payload.userId,
       email: payload.email,
+      name,
       role: payload.role,
       isEmailVerified: payload.isEmailVerified,
     },
