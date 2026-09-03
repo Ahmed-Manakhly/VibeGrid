@@ -10,8 +10,15 @@ import { UserNavDropdown } from './UserNavDropdown';
 import { DesktopDropVibeButton } from './DropVibeButtons';
 import { NavSearch, MobileNavSearch } from './NavSearch';
 
+import { usePathname } from 'next/navigation';
+
 function Navbar() {
   const { user, isAuthenticated, isLoading } = useSession();
+  const pathname = usePathname();
+
+  if (pathname === '/login' || pathname === '/register') {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 flex flex-col w-full">

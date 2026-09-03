@@ -7,11 +7,14 @@ import { useSidebar } from "./SidebarContext";
 import { MobileDropVibeButton } from "./DropVibeButtons";
 import { CustomSignOutButton } from "./CustomSignOutButton";
 
+import { usePathname } from 'next/navigation';
+
 export function MobileBottomBar() {
   const { user, isAuthenticated, isLoading } = useSession();
   const { toggle } = useSidebar();
+  const pathname = usePathname();
 
-  if (isLoading) return null;
+  if (pathname === '/login' || pathname === '/register' || isLoading) return null;
 
   const displayName = user?.name || user?.email.split('@')[0] || 'User';
   const initial = displayName.charAt(0).toUpperCase();

@@ -61,10 +61,12 @@ export class PrismaTaxonomyRepository implements ITaxonomyRepository {
       where: { id: { in: tagIds } },
     });
 
-    return result.map((r) => ({
-      tag: tags.find((t) => t.id === r.tagId)!,
-      recentCount: r._count.postId,
-    }));
+    return result
+      .map((r) => ({
+        tag: tags.find((t) => t.id === r.tagId),
+        recentCount: r._count.postId,
+      }))
+      .filter((item): item is { tag: any; recentCount: number } => Boolean(item.tag));
   }
 
   async createCategory(data: { name: string; slug: string; emoji?: string }): Promise<Category> {

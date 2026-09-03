@@ -2,8 +2,15 @@
 import { useSidebar } from './SidebarContext';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
+import { usePathname } from 'next/navigation';
+
 export function SidebarWrapper({ children }: { children: React.ReactNode }) {
   const { isOpen, close, toggle } = useSidebar();
+  const pathname = usePathname();
+
+  if (pathname === '/login' || pathname === '/register') {
+    return null;
+  }
 
   return (
     <>
@@ -28,6 +35,15 @@ export function SidebarWrapper({ children }: { children: React.ReactNode }) {
           </button>
           {children}
         </div>
+
+        {/* Desktop Collapse Toggle Button */}
+        <button
+          onClick={toggle}
+          className="hidden lg:flex absolute -right-3 top-7 size-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all z-[100] shadow-md"
+          aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+        >
+          {isOpen ? <ChevronLeft className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+        </button>
       </aside>
     </>
   );
