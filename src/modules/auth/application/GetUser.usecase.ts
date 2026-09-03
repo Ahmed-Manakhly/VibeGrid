@@ -3,14 +3,14 @@ import { IAuthRepository } from "../domain/IAuthRepository";
 export class GetUserUseCase {
   constructor(private repo: IAuthRepository) {}
 
-  async execute(clerkId: string) {
-    if (!clerkId) return null;
-    return this.repo.getUserByClerkId(clerkId);
+  async execute(userId: string) {
+    if (!userId) return null;
+    return this.repo.getUserById(userId);
   }
 
-  async getDbUserId(clerkId: string): Promise<string | null> {
-    if (!clerkId) return null;
-    const user = await this.repo.getUserByClerkId(clerkId);
+  async getDbUserId(userId: string): Promise<string | null> {
+    if (!userId) return null;
+    const user = await this.repo.getUserById(userId);
     if (!user) throw new Error("user not found!");
     return user.id;
   }

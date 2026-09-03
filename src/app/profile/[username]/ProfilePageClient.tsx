@@ -52,6 +52,11 @@ function ProfilePageClient({
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
     const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
+    const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(user.image || null);
+    const [uploadedAvatarMediaId, setUploadedAvatarMediaId] = useState<string | null>(null);
+
     const [editForm, setEditForm] = useState({
         name: user.name || "",
         username: user.username || "",
@@ -60,15 +65,91 @@ function ProfilePageClient({
         website: user.website || "",
     });
 
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            toast.error("Unsupported file type. Please select JPEG, PNG, or WebP.");
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error("File size exceeds max limit of 10MB.");
+            return;
+        }
+
+        setSelectedAvatarFile(file);
+        setAvatarPreviewUrl(URL.createObjectURL(file));
+    };
+
     const handleEditSubmit = async () => {
-        const formData = new FormData();
-        Object.entries(editForm).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
-        const result = await updateProfile(formData);
-        if (result.success) {
-            setShowEditDialog(false);
-            toast.success("Profile updated successfully");
+        try {
+            setIsUploadingAvatar(true);
+            let finalMediaId = uploadedAvatarMediaId;
+
+            if (selectedAvatarFile) {
+                const { requestAvatarUploadIntentAction, confirmAvatarUploadAction } = await import('@/actions/media.action');
+                
+                // 1. Request Upload Intent
+                const intentRes = await requestAvatarUploadIntentAction({
+                    mimeType: selectedAvatarFile.type,
+                    fileSizeBytes: selectedAvatarFile.size,
+                });
+
+                if (!intentRes.success || !intentRes.data) {
+                    toast.error(intentRes.error || "Failed to create upload intent");
+                    setIsUploadingAvatar(false);
+                    return;
+                }
+
+                const { assetId, uploadUrl } = intentRes.data;
+
+                // 2. Upload file directly to MinIO presigned PUT URL
+                const putRes = await fetch(uploadUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': selectedAvatarFile.type,
+                    },
+                    body: selectedAvatarFile,
+                });
+
+                if (!putRes.ok) {
+                    toast.error("Failed to upload image file to storage");
+                    setIsUploadingAvatar(false);
+                    return;
+                }
+
+                // 3. Confirm Upload with Media Microservice
+                const confirmRes = await confirmAvatarUploadAction(assetId);
+                if (!confirmRes.success || !confirmRes.data) {
+                    toast.error(confirmRes.error || "Failed to confirm avatar upload");
+                    setIsUploadingAvatar(false);
+                    return;
+                }
+
+                finalMediaId = assetId;
+            }
+
+            const formData = new FormData();
+            Object.entries(editForm).forEach(([key, value]) => {
+                formData.append(key, value);
+            });
+            if (finalMediaId) {
+                formData.append("avatarMediaId", finalMediaId);
+            }
+
+            const result = await updateProfile(formData);
+            if (result.success) {
+                setShowEditDialog(false);
+                toast.success("Profile updated successfully");
+            } else {
+                toast.error(result.error || "Failed to update profile");
+            }
+        } catch (err: any) {
+            toast.error(err.message || "An unexpected error occurred");
+        } finally {
+            setIsUploadingAvatar(false);
         }
     };
 
@@ -220,6 +301,22 @@ function ProfilePageClient({
                             <DialogTitle>Edit Profile</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
+                            <div className="flex flex-col items-center gap-3">
+                                <Avatar className="w-20 h-20">
+                                    <AvatarImage src={avatarPreviewUrl || "/avatar.png"} />
+                                    <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
+                                </Avatar>
+                                <Label htmlFor="avatar-file" className="cursor-pointer text-xs font-semibold text-primary hover:underline">
+                                    Change Profile Picture
+                                </Label>
+                                <Input
+                                    id="avatar-file"
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    className="hidden"
+                                    onChange={handleFileSelect}
+                                />
+                            </div>
                             <div className="space-y-2">
                                 <Label>Username</Label>
                                 <Input
@@ -269,9 +366,11 @@ function ProfilePageClient({
                         </div>
                         <div className="flex justify-end gap-3">
                             <DialogClose asChild>
-                                <Button variant="outline">Cancel</Button>
+                                <Button variant="outline" disabled={isUploadingAvatar}>Cancel</Button>
                             </DialogClose>
-                            <Button onClick={handleEditSubmit}>Save Changes</Button>
+                            <Button onClick={handleEditSubmit} disabled={isUploadingAvatar}>
+                                {isUploadingAvatar ? "Saving..." : "Save Changes"}
+                            </Button>
                         </div>
                     </DialogContent>
                 </Dialog>

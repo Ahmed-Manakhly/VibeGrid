@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent} from './ui/card'
 import { Button } from './ui/button'
 import Link from 'next/link'
 import { getCurrentSession } from '@/lib/auth/server'
-import { getUserByClerkId } from '@/actions/user.action'
+import { getUserById } from '@/actions/user.action'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from './ui/separator'
 import { LinkIcon, MapPinIcon } from 'lucide-react'
@@ -35,7 +35,7 @@ async function ProfileWidget() {
     const session = await getCurrentSession();
     if (!session.isAuthenticated || !session.user) return <UnauthenticatedSidebar />;
     
-    const user = await getUserByClerkId(session.user.id);
+    const user = await getUserById(session.user.id);
     if (!user) {
         return (
             <div className="sticky top-20">

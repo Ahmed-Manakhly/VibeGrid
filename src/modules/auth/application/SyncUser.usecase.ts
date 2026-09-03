@@ -3,21 +3,21 @@ import { IAuthRepository } from "../domain/IAuthRepository";
 export class SyncUserUseCase {
   constructor(private repo: IAuthRepository) {}
 
-  async execute(clerkId: string, clerkUser: any) {
-    if (!clerkId || !clerkUser) return null;
+  async execute(userId: string, user: any) {
+    if (!userId || !user) return null;
 
-    const existingUser = await this.repo.getUserByClerkId(clerkId);
+    const existingUser = await this.repo.getUserById(userId);
     if (existingUser) return existingUser;
 
-    const username = clerkUser.username ?? clerkUser.emailAddresses[0].emailAddress.split("@")[0];
-    const name = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim();
+    const username = user.username ?? (user.email ? user.email.split("@")[0] : 'user');
+    const name = user.name || username;
 
     return this.repo.createUser({
-      clerkId,
+      id: userId,
       name,
       username,
-      email: clerkUser.emailAddresses[0].emailAddress,
-      image: clerkUser.imageUrl,
+      email: user.email,
+      image: user.image || null,
     });
   }
 }

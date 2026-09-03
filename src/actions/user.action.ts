@@ -19,8 +19,8 @@ export async function syncUser() {
     }
 }
 
-export async function getUserByClerkId(clerkId: string) {
-    return await getUserUseCase.execute(clerkId);
+export async function getUserById(userId: string) {
+    return await getUserUseCase.execute(userId);
 }
 
 export async function getDbUserId() {

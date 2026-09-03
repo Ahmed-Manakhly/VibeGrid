@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 export class PrismaAuthRepository implements IAuthRepository {
   constructor(private db: PrismaClient) {}
 
-  async getUserByClerkId(id: string): Promise<any> {
+  async getUserById(id: string): Promise<any> {
     return this.db.user.findUnique({
       where: { id },
       include: {
@@ -18,7 +18,7 @@ export class PrismaAuthRepository implements IAuthRepository {
   async createUser(data: SyncUserDTO): Promise<any> {
     return this.db.user.create({
       data: {
-        id: data.clerkId,
+        id: data.id,
         name: data.name,
         username: data.username,
         email: data.email,

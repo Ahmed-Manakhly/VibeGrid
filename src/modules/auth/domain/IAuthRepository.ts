@@ -1,5 +1,5 @@
 export interface SyncUserDTO {
-  clerkId: string;
+  id: string;
   name: string;
   username: string;
   email: string;
@@ -7,6 +7,6 @@ export interface SyncUserDTO {
 }
 
 export interface IAuthRepository {
-  getUserByClerkId(clerkId: string): Promise<any>;
+  getUserById(id: string): Promise<any>;
   createUser(data: SyncUserDTO): Promise<any>;
 }
