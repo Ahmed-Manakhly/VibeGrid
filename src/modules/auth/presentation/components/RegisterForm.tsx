@@ -48,7 +48,7 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
       <div className="text-left mb-4">
         <p className="eyebrow text-accent font-mono text-xs uppercase tracking-wider font-semibold">CLAIM YOUR HANDLE</p>
         <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-0.5">
-          {requiresVerification ? 'Verify Email' : step === 1 ? 'Step 1: Account Details' : 'Step 2: Security'}
+          {requiresVerification ? '🔐 Verify Email' : step === 1 ? '👤 Step 1: Account Details' : '🛡️ Step 2: Security'}
         </h2>
       </div>
 
@@ -90,10 +90,10 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
               </label>
 
               <button
-                className="button-glow h-11 rounded-xl font-semibold flex items-center justify-center gap-2 mt-2"
+                className="btn-gradient h-11 rounded-xl font-semibold flex items-center justify-center gap-2 mt-2 w-full"
                 type="submit"
               >
-                <span>Continue to Passwords</span>
+                <span>Continue</span>
                 <ArrowRight className="size-4" />
               </button>
             </form>
@@ -143,21 +143,22 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
                 </div>
               </label>
 
-              <div className="flex items-center gap-3 mt-2">
+              <div className="flex flex-col gap-3 mt-2">
                 <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="h-11 px-4 rounded-xl border border-input bg-background/50 hover:bg-accent/10 font-medium text-xs flex items-center justify-center gap-1.5 transition-all text-muted-foreground hover:text-foreground shrink-0"
-                >
-                  <ArrowLeft className="size-3.5" />
-                  <span>Back</span>
-                </button>
-                <button
-                  className="button-glow flex-1 h-11 rounded-xl font-semibold flex items-center justify-center gap-2"
+                  className="btn-gradient w-full h-11 rounded-xl font-semibold flex items-center justify-center gap-2"
                   type="submit"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? <Loader2 className="animate-spin size-4" /> : 'Create account'}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="inline-flex items-center justify-center gap-1.5 text-xs font-mono font-medium text-muted-foreground hover:text-foreground transition-colors py-1"
+                >
+                  <ArrowLeft className="size-3.5" />
+                  <span>Back to Step 1</span>
                 </button>
               </div>
             </form>

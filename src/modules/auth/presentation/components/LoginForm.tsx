@@ -63,7 +63,7 @@ export function LoginForm({ callbackUrl = '/' }: LoginFormProps) {
           </Link>
         </div>
         <button
-          className="button-glow h-12 rounded-xl font-semibold flex items-center justify-center gap-2"
+          className="btn-gradient h-12 rounded-xl font-semibold flex items-center justify-center gap-2"
           type="submit"
           disabled={isSubmitting}
         >

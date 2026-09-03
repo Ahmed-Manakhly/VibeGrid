@@ -142,7 +142,7 @@ export function ResetPasswordForm() {
         </label>
 
         <button
-          className="button-glow h-12 rounded-xl font-semibold flex items-center justify-center gap-2 mt-2"
+          className="btn-gradient h-12 rounded-xl font-semibold flex items-center justify-center gap-2 mt-2"
           type="submit"
           disabled={isSubmitting}
         >
