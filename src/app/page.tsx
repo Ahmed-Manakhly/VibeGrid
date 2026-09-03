@@ -4,7 +4,7 @@ import CreatPost from "@/components/CreatPost";
 import WhoToFollow from "@/components/WhoToFollow";
 import { TrendingSidebar } from "@/components/TrendingSidebar";
 import { MobileTabsLayout } from "@/components/MobileTabsLayout";
-import { currentUser } from "@clerk/nextjs/server";
+import { getCurrentSession } from "@/lib/auth/server";
 import { InfiniteScroll } from "@/components/InfiniteScroll";
 import { CategoryPills } from "@/components/CategoryPills";
 import { Suspense } from "react";
@@ -35,12 +35,11 @@ interface PageProps {
 }
 
 export default async function Home({ searchParams }: PageProps) {
-  const user = await currentUser()
+  const session = await getCurrentSession();
   const dbUserId = await getDbUserId(); 
   
   const params = await searchParams;
   const suspenseKey = JSON.stringify(params);
-
 
   return (
       <MobileTabsLayout
@@ -56,7 +55,7 @@ export default async function Home({ searchParams }: PageProps) {
             
 
             <div className="mt-4 flex flex-col gap-6">
-               {user ? <CreatPost/> : null}
+               {session.isAuthenticated ? <CreatPost/> : null}
             </div>
 
             <Suspense key={suspenseKey} fallback={<Loading />}>
@@ -74,3 +73,4 @@ export default async function Home({ searchParams }: PageProps) {
       />
   );
 }
+

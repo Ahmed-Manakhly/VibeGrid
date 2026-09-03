@@ -1,7 +1,6 @@
 "use server" ;
 
 import { prisma } from "@/shared/infrastructure/prisma";
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { getDbUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
 import { error } from "console";

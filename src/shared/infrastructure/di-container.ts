@@ -22,7 +22,7 @@ import { NotificationEventHandler } from "@/modules/notification/application/Not
 import { PrismaAuthRepository } from "@/modules/auth/infrastructure/PrismaAuthRepository";
 import { SyncUserUseCase } from "@/modules/auth/application/SyncUser.usecase";
 import { GetUserUseCase } from "@/modules/auth/application/GetUser.usecase";
-import { ClerkAuthGateway } from "@/modules/auth/infrastructure/ClerkAuthGateway";
+import { BffAuthGateway } from "@/modules/auth/infrastructure/BffAuthGateway";
 
 // Social Module
 import { PrismaSocialRepository } from "@/modules/social/infrastructure/PrismaSocialRepository";
@@ -52,7 +52,7 @@ const socialRepository = new PrismaSocialRepository(prisma);
 const taxonomyRepository = new PrismaTaxonomyRepository(prisma);
 const profileRepository = new PrismaProfileRepository(prisma);
 
-export const authGateway = new ClerkAuthGateway(prisma);
+export const authGateway = new BffAuthGateway(prisma);
 export const eventBus = new InMemoryEventBus();
 
 // 2. Instantiate Use Cases (Inject Repositories)

@@ -1,10 +1,9 @@
 "use client";
-// get the server actions to build all the needed types for the props
 import { getProfileByUsername, updateProfile } from "@/actions/profile.action";
 import { toggleFollow } from "@/actions/user.action";
 import { getPosts } from "@/actions/post.action";
 import { InfiniteScroll } from "@/components/InfiniteScroll";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -19,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { SignInButton, useUser } from "@clerk/nextjs";
+import { useSession } from "@/components/auth/SessionProvider";
 import { format } from "date-fns";
 import {
     CalendarIcon,
@@ -31,7 +30,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-// make the props types
+import Link from "next/link";
+
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type PostsResult = Awaited<ReturnType<typeof getPosts>>;
 
@@ -41,14 +41,14 @@ interface ProfilePageClientProps {
     likedPostsResult: PostsResult;
     isFollowing: boolean;
 }
-//-----------------------------------
+
 function ProfilePageClient({
     isFollowing: initialIsFollowing,
     likedPostsResult,
     postsResult,
     user,
 }: ProfilePageClientProps) {
-    const { user: currentUser } = useUser(); // get the current user
+    const { user: currentUser, isAuthenticated } = useSession();
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
     const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
@@ -77,7 +77,7 @@ function ProfilePageClient({
             setIsUpdatingFollow(true);
             await toggleFollow(user.id);
             setIsFollowing(!isFollowing);
-        } catch (error) {
+        } catch {
             toast.error("Failed to update follow status");
         } finally {
             setIsUpdatingFollow(false);
@@ -85,26 +85,25 @@ function ProfilePageClient({
     };
 
     const isOwnProfile =
-    currentUser?.username === user.username ||
-    currentUser?.emailAddresses[0].emailAddress.split("@")[0] === user.username;
+    currentUser?.name === user.username ||
+    currentUser?.email.split("@")[0] === user.username;
 
     const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
 
     return (
         <div className="w-full">
             <div className="flex flex-col lg:flex-row gap-6 items-start">
-                {/* Left Side: User Card */}
                 <div className="w-full lg:w-[350px] shrink-0 sticky top-24 lg:mt-[56px]">
                     <Card className="bg-card">
                         <CardContent className="pt-6">
                             <div className="flex flex-col items-center text-center">
                                 <Avatar className="w-24 h-24">
                                     <AvatarImage src={user.image ?? "/avatar.png"} />
+                                    <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
                                 </Avatar>
                                 <h1 className="mt-4 text-2xl font-bold">{user.name ?? user.username}</h1>
                                 <p className="text-muted-foreground">@{user.username}</p>
                                 <p className="mt-2 text-sm">{user.bio}</p>
-                                {/* PROFILE STATS */}
                                 <div className="w-full mt-6">
                                     <div className="flex justify-between mb-4">
                                         <div>
@@ -123,11 +122,10 @@ function ProfilePageClient({
                                         </div>
                                     </div>
                                 </div>
-                                {/* "FOLLOW & EDIT PROFILE" BUTTONS */}
-                                {!currentUser ? (
-                                    <SignInButton mode="modal">
-                                        <Button className="w-full mt-4">Follow</Button>
-                                    </SignInButton>
+                                {!isAuthenticated ? (
+                                    <Button className="w-full mt-4" asChild>
+                                        <Link href="/login">Follow</Link>
+                                    </Button>
                                 ) : isOwnProfile ? (
                                     <Button className="w-full mt-4" onClick={() => setShowEditDialog(true)}>
                                         <EditIcon className="size-4 mr-2" />
@@ -143,7 +141,6 @@ function ProfilePageClient({
                                         {isFollowing ? "Unfollow" : "Follow"}
                                     </Button>
                                 )}
-                                {/* LOCATION & WEBSITE */}
                                 <div className="w-full mt-6 space-y-2 text-sm">
                                     {user.location && (
                                         <div className="flex items-center text-muted-foreground">
@@ -176,7 +173,6 @@ function ProfilePageClient({
                     </Card>
                 </div>
 
-                {/* Right Side: Rest of Content (Tabs) */}
                 <div className="w-full min-w-0 flex-1">
                     <Tabs defaultValue="posts" className="w-full">
                     <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
@@ -197,7 +193,6 @@ function ProfilePageClient({
                             Likes
                         </TabsTrigger>
                     </TabsList>
-                    {/* ------------------------------- */}
                     <TabsContent value="posts" className="mt-6">
                         <div className="space-y-6">
                             <InfiniteScroll 
@@ -208,7 +203,6 @@ function ProfilePageClient({
                             />
                         </div>
                     </TabsContent>
-                    {/* ------------------------------- */}
                     <TabsContent value="likes" className="mt-6">
                         <div className="space-y-6">
                             <InfiniteScroll 
@@ -221,7 +215,6 @@ function ProfilePageClient({
                     </TabsContent>
                 </Tabs>
                 </div>
-                {/* ------------------------------- */}
                 <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
                     <DialogContent className="sm:max-w-[500px]">
                         <DialogHeader>
@@ -278,4 +271,4 @@ function ProfilePageClient({
         </div>
     );
 }
-export default ProfilePageClient;
+export default ProfilePageClient;

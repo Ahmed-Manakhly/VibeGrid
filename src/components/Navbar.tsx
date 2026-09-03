@@ -1,17 +1,16 @@
 import Link from 'next/link'
-import { Search, Bell, Plus } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import { ModeToggle } from './ModeToggle'
 import { VibeLogo } from './VibeLogo'
-import { currentUser } from '@clerk/nextjs/server'
-import { syncUser } from '@/actions/user.action'
+import { getCurrentSession } from '@/lib/auth/server'
 import { MobileMenuButton } from './MobileMenuButton'
-import { UserButton } from '@clerk/nextjs'
+import { CustomSignOutButton } from './CustomSignOutButton'
 import { DesktopDropVibeButton } from './DropVibeButtons'
 import { NavSearch, MobileNavSearch } from './NavSearch'
 
 async function Navbar() {
-  const user = await currentUser();
-  if (user) await syncUser();
+  const session = await getCurrentSession();
+  const user = session.user;
 
   return (
     <header className="sticky top-0 z-50 flex flex-col w-full">
@@ -28,7 +27,7 @@ async function Navbar() {
                   <button className="icon-button hidden sm:flex" aria-label="Notifications"><Bell className="size-4" /></button>
                   <DesktopDropVibeButton />
                   <div className="pl-2 border-l border-border/50 ml-2 hidden sm:block">
-                    <UserButton />
+                    <CustomSignOutButton />
                   </div>
               </>
           ) : (

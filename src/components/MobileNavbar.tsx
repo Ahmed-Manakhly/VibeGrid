@@ -5,37 +5,22 @@ import {
   HomeIcon,
   LogOutIcon,
   MenuIcon,
-  // MoonIcon,
-  // SunIcon,
   UserIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
-import { useAuth, SignInButton, SignOutButton } from "@clerk/nextjs";
-// import { useTheme } from "next-themes";
 import Link from "next/link";
 import { ModeToggle } from "./ModeToggle";
+import { useSession } from "@/components/auth/SessionProvider";
 
 function MobileNavbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const { isSignedIn } = useAuth();
-  // const { theme, setTheme } = useTheme();
+  const { isAuthenticated, logout } = useSession();
 
   return (
     <div className="flex md:hidden items-center space-x-2">
-      {/* <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        // className="mr-2"
-      >
-        <MoonIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-        <SunIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-        <span className="sr-only">Toggle theme</span>
-      </Button> */}
       <ModeToggle />
-      {/* --------------------------------------------- */}
       <Sheet open={showMobileMenu} onOpenChange={setShowMobileMenu}>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon">
@@ -54,7 +39,7 @@ function MobileNavbar() {
               </Link>
             </Button>
 
-            {isSignedIn ? (
+            {isAuthenticated ? (
               <>
                 <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
                   <Link href="/notifications">
@@ -68,19 +53,15 @@ function MobileNavbar() {
                     Profile
                   </Link>
                 </Button>
-                <SignOutButton>
-                  <Button variant="ghost" className="flex items-center gap-3 justify-start w-full">
-                    <LogOutIcon className="w-4 h-4" />
-                    Logout
-                  </Button>
-                </SignOutButton>
+                <Button variant="ghost" onClick={logout} className="flex items-center gap-3 justify-start w-full text-destructive">
+                  <LogOutIcon className="w-4 h-4" />
+                  Logout
+                </Button>
               </>
             ) : (
-              <SignInButton mode="modal">
-                <Button variant="default" className="w-full">
-                  Sign In
-                </Button>
-              </SignInButton>
+              <Button variant="default" className="w-full" asChild>
+                <Link href="/login">Sign In</Link>
+              </Button>
             )}
           </nav>
         </SheetContent>
@@ -89,4 +70,4 @@ function MobileNavbar() {
   );
 }
 
-export default MobileNavbar;
+export default MobileNavbar;

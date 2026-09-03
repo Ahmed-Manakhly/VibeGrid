@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
+import { SessionProvider } from "@/components/auth/SessionProvider";
 import { ThemeProvider } from "@/components/themeProvider";
 import Navbar from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
   return (
-    <ClerkProvider>
+    <SessionProvider>
       <html lang="en" suppressHydrationWarning >
         <head />
         <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased font-mono`} suppressHydrationWarning={true}>
@@ -62,6 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </ThemeProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </SessionProvider>
   );
 }
+

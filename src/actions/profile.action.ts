@@ -1,7 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
-import {prisma} from "@/shared/infrastructure/prisma";
+import { getCurrentSession } from "@/lib/auth/server";
 import { revalidatePath } from "next/cache";
 import { getDbUserId } from "./user.action";
 
@@ -18,13 +17,13 @@ export async function getProfileByUsername(username: string) {
 
 export async function updateProfile(formData: FormData) {
     try {
-        const { userId: clerkId } = await auth();
-        if (!clerkId) throw new Error("Unauthorized");
+        const session = await getCurrentSession();
+        if (!session.isAuthenticated || !session.user) throw new Error("Unauthorized");
         const name = formData.get("name") as string;
         const bio = formData.get("bio") as string;
         const location = formData.get("location") as string;
         const website = formData.get("website") as string;
-        const user = await updateProfileUseCase.execute(clerkId, {
+        const user = await updateProfileUseCase.execute(session.user.id, {
             name,
             bio,
             location,
@@ -47,4 +46,4 @@ export async function isFollowing(userId: string) {
         console.error("Error checking follow status:", error);
         return false;
     }
-}
+}

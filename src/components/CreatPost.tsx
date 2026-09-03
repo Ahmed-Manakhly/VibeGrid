@@ -1,10 +1,10 @@
 "use client"
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/components/auth/SessionProvider";
 import { useState, useRef, useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 // ui imports
 import { Card, CardContent } from "./ui/card";
-import { Avatar, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
@@ -39,7 +39,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 }
 
 export default function CreatPost() {
-    const { user } = useUser();
+    const { user } = useSession();
     
     // UI state only (not form data)
     const [imageUrl, setImageUrl] = useState("");
@@ -109,7 +109,7 @@ export default function CreatPost() {
                     {!isExpanded ? (
                         <div className="flex items-center space-x-4 cursor-text" onClick={() => setIsExpanded(true)}>
                             <Avatar className="w-10 h-10">
-                                <AvatarImage src={user?.imageUrl || "/avatar.png"} />
+                                <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1 rounded-xl border border-border/50 bg-background px-4 py-2.5 text-sm text-muted-foreground hover:bg-background/80 transition-colors">
                                 Drop a vibe...
@@ -120,9 +120,9 @@ export default function CreatPost() {
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:space-x-4">
                                 <div className="flex items-center gap-2 sm:block">
                                     <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
-                                        <AvatarImage src={user?.imageUrl || "/avatar.png"} />
+                                        <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
                                     </Avatar>
-                                    <span className="text-sm font-semibold sm:hidden">{user?.firstName || "You"}</span>
+                                    <span className="text-sm font-semibold sm:hidden">{user?.name || "You"}</span>
                                 </div>
                                 <Textarea 
                                     name="content"
@@ -200,3 +200,4 @@ export default function CreatPost() {
         </Card>
     );
 }
+
