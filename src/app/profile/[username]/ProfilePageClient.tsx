@@ -54,6 +54,7 @@ function ProfilePageClient({
     const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
     const [editForm, setEditForm] = useState({
         name: user.name || "",
+        username: user.username || "",
         bio: user.bio || "",
         location: user.location || "",
         website: user.website || "",
@@ -84,9 +85,7 @@ function ProfilePageClient({
         }
     };
 
-    const isOwnProfile =
-    currentUser?.name === user.username ||
-    currentUser?.email.split("@")[0] === user.username;
+    const isOwnProfile = currentUser?.id === user.id;
 
     const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
 
@@ -221,6 +220,15 @@ function ProfilePageClient({
                             <DialogTitle>Edit Profile</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <Label>Username</Label>
+                                <Input
+                                    name="username"
+                                    value={editForm.username}
+                                    onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                                    placeholder="Your unique handle"
+                                />
+                            </div>
                             <div className="space-y-2">
                                 <Label>Name</Label>
                                 <Input
