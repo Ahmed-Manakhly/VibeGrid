@@ -15,10 +15,10 @@ export function UserAvatar({ src, name, className }: UserAvatarProps) {
   const fallbackSrc = "/avatar.png";
 
   return (
-    <Avatar className={cn("size-10 border-[2px] border-accent/60 shrink-0", className)}>
+    <Avatar className={cn("size-10 border-[3px] border-accent shrink-0", className)}>
       <AvatarImage src={src || fallbackSrc} alt={name || "User avatar"} />
       <AvatarFallback className="bg-accent/15 text-accent">
-        <User className="size-4" />
+        <User className="size-5 text-accent fill-accent/40" />
       </AvatarFallback>
     </Avatar>
   );
