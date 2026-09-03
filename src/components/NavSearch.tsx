@@ -19,13 +19,13 @@ export function NavSearch() {
   return (
     <form onSubmit={handleSearch} className="relative w-full max-w-sm hidden sm:block">
       <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-1">
-        <Search className="size-4 text-muted-foreground cursor-pointer hover:text-primary transition-colors" />
+        <Search className="size-4 text-muted-foreground cursor-pointer hover:text-accent transition-colors" />
       </button>
       <input 
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="h-10 w-full rounded-xl border border-border/50 bg-background pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" 
+        className="h-10 w-full rounded-xl border border-border/50 bg-background pl-10 pr-4 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-accent/50" 
         placeholder="Search the grid..." 
         aria-label="Search the grid" 
       />
@@ -49,7 +49,7 @@ export function MobileNavSearch() {
     <form onSubmit={handleSearch} className="nav-glass sm:hidden px-5 pb-3 pt-1 border-t-0 shadow-none rounded-none !bg-background/95">
       <div className="relative w-full">
         <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-1">
-          <Search className="size-4 text-muted-foreground cursor-pointer hover:text-primary transition-colors" />
+          <Search className="size-4 text-muted-foreground cursor-pointer hover:text-accent transition-colors" />
         </button>
         <input 
           type="text"
