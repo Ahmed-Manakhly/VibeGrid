@@ -19,7 +19,10 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ email, password }),
     });
 
-    if (!authRes.ok || !authRes.data?.success) {
+    const isSuccess = authRes.ok && (authRes.data?.status === 'success' || authRes.data?.success === true);
+    console.log('[BFF Login Debug] authRes.status:', authRes.status, 'isSuccess:', isSuccess, 'authRes.data:', JSON.stringify(authRes.data));
+
+    if (!isSuccess) {
       const errorMessage = authRes.data?.error || authRes.data?.message || authRes.data?.data?.message || 'Invalid credentials';
       const isUnverified = typeof errorMessage === 'string' && errorMessage.toLowerCase().includes('not verified');
 
@@ -34,13 +37,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let user = authRes.data?.data?.user;
-    let tokens = authRes.data?.data?.tokens;
+    const result = authRes.data?.data || authRes.data;
+    let user = result?.user;
+    let accessToken = result?.accessToken || result?.tokens?.accessToken;
+    let refreshToken = result?.refreshToken || result?.tokens?.refreshToken;
 
-    // Fallback: If Auth Service sets tokens in cookies directly (set-cookie headers)
-    if (!tokens && authRes.data?.user) {
-      user = authRes.data.user;
+    // Fallback: Parse Set-Cookie header sent by Auth Microservice
+    if (!accessToken && authRes.headers) {
+      const headers = authRes.headers;
+      const getCookieVal = (name: string) => {
+        const rawCookies = (headers as any).getSetCookie ? (headers as any).getSetCookie() : [headers.get('set-cookie') || ''];
+        for (const header of rawCookies) {
+          const match = header.match(new RegExp(`${name}=([^;]+)`));
+          if (match) return match[1];
+        }
+        return null;
+      };
+      accessToken = getCookieVal(COOKIE_CONFIG.accessToken.name);
+      refreshToken = getCookieVal(COOKIE_CONFIG.refreshToken.name);
     }
+
+    console.log('[BFF Login Tokens Debug] accessToken found:', !!accessToken, 'refreshToken found:', !!refreshToken);
 
     if (user) {
       const userId = user.id || user._id;
@@ -74,18 +91,18 @@ export async function POST(req: NextRequest) {
 
 
 
-    if (tokens?.accessToken) {
+    if (accessToken) {
       response.cookies.set(
         COOKIE_CONFIG.accessToken.name,
-        tokens.accessToken,
+        accessToken,
         COOKIE_CONFIG.accessToken.options
       );
     }
 
-    if (tokens?.refreshToken) {
+    if (refreshToken) {
       response.cookies.set(
         COOKIE_CONFIG.refreshToken.name,
-        tokens.refreshToken,
+        refreshToken,
         COOKIE_CONFIG.refreshToken.options
       );
     }

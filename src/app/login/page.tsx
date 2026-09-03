@@ -12,12 +12,18 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/'
-  const { refreshSession } = useSession()
+  const { isAuthenticated, refreshSession } = useSession()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Redirect authenticated users away from login page
+  if (typeof window !== 'undefined' && isAuthenticated) {
+    router.replace(callbackUrl)
+  }
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

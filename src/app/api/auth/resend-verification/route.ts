@@ -6,21 +6,24 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email } = body;
 
-    const authRes = await authServiceFetch('/resend-verification', {
+    const authRes = await authServiceFetch('/create-email-token', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
 
-    if (!authRes.ok || !authRes.data?.success) {
+    const isSuccess = authRes.ok && (authRes.data?.status === 'success' || authRes.data?.success === true);
+
+    if (!isSuccess) {
+      const errorMessage = authRes.data?.error || authRes.data?.message || authRes.data?.data?.message || 'Failed to resend verification code';
       return NextResponse.json(
-        { success: false, message: authRes.data?.message || 'Failed to resend verification code' },
+        { success: false, message: errorMessage },
         { status: authRes.status || 400 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: authRes.data.message || 'Verification code resent successfully',
+      message: authRes.data?.data?.message || 'Verification code resent successfully',
     });
   } catch (error: any) {
     return NextResponse.json(

@@ -3,7 +3,7 @@ const GATEWAY_BASE_URL = process.env.INTERNAL_API_GATEWAY_URL || process.env.NEX
 export async function authServiceFetch<T = any>(
   endpoint: string,
   options: RequestInit = {}
-): Promise<{ ok: boolean; status: number; data: T }> {
+): Promise<{ ok: boolean; status: number; headers?: Headers; data: T }> {
   const url = `${GATEWAY_BASE_URL.replace(/\/$/, '')}/api/auth${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
   
   const headers = new Headers(options.headers || {});
@@ -33,6 +33,7 @@ export async function authServiceFetch<T = any>(
     return {
       ok: res.ok,
       status: res.status,
+      headers: res.headers,
       data,
     };
   } catch (err: any) {
