@@ -24,23 +24,15 @@ export async function GET(req: NextRequest) {
 
     const { user, accessToken, refreshToken } = data.data || {};
 
+    // Idempotent Native Profile Bootstrap
     if (user) {
-      const userId = user.id || user._id;
-      const displayName = user.name || user.email.split('@')[0];
-      const username = displayName.toLowerCase().replace(/\s+/g, '_');
-      const { prisma } = await import('@/shared/infrastructure/prisma');
-
-      await prisma.user.upsert({
-        where: { id: userId },
-        update: { email: user.email, name: displayName },
-        create: {
-          id: userId,
-          email: user.email,
-          name: displayName,
-          username,
-          role: user.role === 'ADMIN' ? 'ADMIN' : 'USER',
-        },
-      }).catch((err) => console.error('[OAuth DB Sync Warning]', err));
+      const { ProfileBootstrapService } = await import('@/modules/social/application/ProfileBootstrapService');
+      await ProfileBootstrapService.bootstrapProfile({
+        id: user.id || user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      }).catch((err) => console.error('[GitHub OAuth Profile Bootstrap Warning]', err));
     }
 
     const response = NextResponse.redirect(new URL('/', req.url));
