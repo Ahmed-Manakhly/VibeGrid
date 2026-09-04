@@ -29,4 +29,5 @@ export interface ICacheService {
   releaseLock(lockKey: string, lockOwnerToken: string): Promise<boolean>;
   rateLimit(limitKey: string, options: RateLimitOptions): Promise<RateLimitResult>;
   publish?(channel: string, message: string): Promise<number>;
+  ping?(): Promise<boolean>;
 }

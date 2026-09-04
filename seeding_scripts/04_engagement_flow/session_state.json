@@ -19,11 +19,11 @@
   },
   "posts": {
     "post_01": {
-      "id": "cmtniabw500656bq593cth5vz",
+      "id": "cmtnixjge007r6bq5gtror4ci",
       "authorRef": "user_01",
       "authorId": "6a9b3231412fbdb2e0662587",
       "content": "Excited to launch the new VibeGrid microservice architecture! #tech #microservices #vibegrid",
-      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3231412fbdb2e0662587/ast_3fe6e0f2-c2b9-4ee3-8df8-8e91e58f20aa.png",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3231412fbdb2e0662587/ast_623f81d1-49ff-4dcd-a303-0e7b5bd799ca.png",
       "tags": [
         "tech",
         "microservices",
@@ -31,18 +31,18 @@
       ]
     },
     "post_02": {
-      "id": "cmtniac9g006b6bq59f9oczfr",
+      "id": "cmtnixjrn007x6bq5xwt56bdl",
       "authorRef": "user_02",
       "authorId": "6a9b3234412fbdb2e0662593",
       "content": "Designing high-performance real-time data streams with Redis & RabbitMQ. #cloud #systemdesign",
-      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3234412fbdb2e0662593/ast_2ac094fa-4088-4568-a574-2c470dac50eb.png",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3234412fbdb2e0662593/ast_18ffa91c-3c7b-4a3d-9015-98ec0b4306e9.png",
       "tags": [
         "cloud",
         "systemdesign"
       ]
     },
     "post_03": {
-      "id": "cmtniacj9006g6bq5orb4fu80",
+      "id": "cmtnixk0y00826bq5mw4i1q7z",
       "authorRef": "user_03",
       "authorId": "6a9b3237412fbdb2e066259f",
       "content": "Automated seeding flow verification in progress. Everything running clean! #testing #automation",
@@ -85,19 +85,19 @@
         "userRef": "user_02",
         "userId": "6a9b3234412fbdb2e0662593",
         "postRef": "post_01",
-        "postId": "cmtniabw500656bq593cth5vz"
+        "postId": "cmtnixjge007r6bq5gtror4ci"
       },
       {
         "userRef": "user_03",
         "userId": "6a9b3237412fbdb2e066259f",
         "postRef": "post_01",
-        "postId": "cmtniabw500656bq593cth5vz"
+        "postId": "cmtnixjge007r6bq5gtror4ci"
       },
       {
         "userRef": "user_01",
         "userId": "6a9b3231412fbdb2e0662587",
         "postRef": "post_02",
-        "postId": "cmtniac9g006b6bq59f9oczfr"
+        "postId": "cmtnixjrn007x6bq5xwt56bdl"
       }
     ],
     "comments": [
@@ -105,7 +105,7 @@
         "userRef": "user_02",
         "userId": "6a9b3234412fbdb2e0662593",
         "postRef": "post_01",
-        "postId": "cmtniabw500656bq593cth5vz",
+        "postId": "cmtnixjge007r6bq5gtror4ci",
         "content": "Awesome setup! Great to see clean architecture in action.",
         "commentId": null
       },
@@ -113,7 +113,7 @@
         "userRef": "user_03",
         "userId": "6a9b3237412fbdb2e066259f",
         "postRef": "post_01",
-        "postId": "cmtniabw500656bq593cth5vz",
+        "postId": "cmtnixjge007r6bq5gtror4ci",
         "content": "Verified from test runner! Looks rock solid.",
         "commentId": null
       },
@@ -121,7 +121,7 @@
         "userRef": "user_01",
         "userId": "6a9b3231412fbdb2e0662587",
         "postRef": "post_02",
-        "postId": "cmtniac9g006b6bq59f9oczfr",
+        "postId": "cmtnixjrn007x6bq5xwt56bdl",
         "content": "Redis stampede protection is working smoothly.",
         "commentId": null
       }

@@ -197,4 +197,14 @@ export class RedisCacheService implements ICacheService {
       return 0;
     }
   }
+
+  public async ping(): Promise<boolean> {
+    if (!this.client) return false;
+    try {
+      const res = await this.client.ping();
+      return res === 'PONG';
+    } catch (err) {
+      return false;
+    }
+  }
 }

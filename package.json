@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "jest --runInBand",
     "seed:taxonomy": "node seeding_bots/00_taxonomy_flow/bot.js",
     "seed:posts": "node seeding_bots/01_users_posts_flow/bot.js",
     "seed:all": "npm run seed:taxonomy && npm run seed:posts"
