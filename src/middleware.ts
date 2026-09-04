@@ -4,6 +4,14 @@ import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
 
 const PROTECTED_ROUTES = ['/profile', '/settings', '/create-post'];
 const AUTH_ONLY_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
+const EXEMPT_FROM_PROFILE_CHECK = [
+  '/complete-profile',
+  '/api',
+  '/logout',
+  '/_next',
+  '/static',
+  '/favicon.ico',
+];
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -36,6 +44,42 @@ export default async function middleware(req: NextRequest) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // 3. Profile Completion Gate for authenticated users
+  if (payload) {
+    const isExempt = EXEMPT_FROM_PROFILE_CHECK.some((route) =>
+      pathname === route || pathname.startsWith(`${route}/`)
+    );
+
+    if (!isExempt) {
+      try {
+        const { prisma } = await import('@/shared/infrastructure/prisma');
+        const dbUser = await prisma.user.findUnique({
+          where: { id: payload.userId },
+          select: { username: true, name: true },
+        });
+
+        const isProfileComplete = Boolean(
+          dbUser &&
+            dbUser.username &&
+            dbUser.username.trim() !== '' &&
+            !dbUser.username.startsWith('user_') &&
+            dbUser.name &&
+            dbUser.name.trim() !== ''
+        );
+
+        if (!isProfileComplete) {
+          const completeUrl = new URL('/complete-profile', req.url);
+          if (pathname !== '/') {
+            completeUrl.searchParams.set('callbackUrl', pathname);
+          }
+          return NextResponse.redirect(completeUrl);
+        }
+      } catch (err) {
+        // Fallback to allow next on database query error
+      }
+    }
   }
 
   return NextResponse.next();
