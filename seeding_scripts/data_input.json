@@ -1,0 +1,89 @@
+{
+  "_comment": "MASTER SEEDING INPUT CONTRACT — VibeGrid Standalone HTTP Seeding",
+  "env": {
+    "API_URL": "http://localhost:8000/api",
+    "BFF_URL": "http://localhost:3000/api",
+    "THROTTLE_MS": 300
+  },
+  "users": [
+    {
+      "id": "user_01",
+      "email": "developer_01@vibegrid.manakhly.tech",
+      "password": "Password#2026!",
+      "name": "Alex Rivera",
+      "profile": {
+        "name": "Alex Rivera",
+        "username": "alex_rivera",
+        "bio": "Building production systems & microservices with clean architecture.",
+        "location": "Cairo, Egypt",
+        "website": "https://vibegrid.manakhly.tech"
+      }
+    },
+    {
+      "id": "user_02",
+      "email": "creator_02@vibegrid.manakhly.tech",
+      "password": "Password#2026!",
+      "name": "Sarah Chen",
+      "profile": {
+        "name": "Sarah Chen",
+        "username": "sarah_chen",
+        "bio": "Full-stack cloud architectures & real-time tech streams.",
+        "location": "Remote",
+        "website": "https://vibegrid.manakhly.tech"
+      }
+    },
+    {
+      "id": "user_03",
+      "email": "tester_03@vibegrid.manakhly.tech",
+      "password": "Password#2026!",
+      "name": "Grid Tester",
+      "profile": {
+        "name": "Grid Tester",
+        "username": "grid_tester",
+        "bio": "Automated test agent checking signals & posts.",
+        "location": "The Grid",
+        "website": "https://vibegrid.manakhly.tech"
+      }
+    }
+  ],
+  "posts": [
+    {
+      "id": "post_01",
+      "authorRef": "user_01",
+      "content": "Excited to launch the new VibeGrid microservice architecture! #tech #microservices #vibegrid",
+      "tags": ["tech", "microservices", "vibegrid"],
+      "mediaFixture": "sample_test.png"
+    },
+    {
+      "id": "post_02",
+      "authorRef": "user_02",
+      "content": "Designing high-performance real-time data streams with Redis & RabbitMQ. #cloud #systemdesign",
+      "tags": ["cloud", "systemdesign"],
+      "mediaFixture": "sample_test.png"
+    },
+    {
+      "id": "post_03",
+      "authorRef": "user_03",
+      "content": "Automated seeding flow verification in progress. Everything running clean! #testing #automation",
+      "tags": ["testing", "automation"]
+    }
+  ],
+  "socialGraph": [
+    { "followerRef": "user_01", "targetRef": "user_02" },
+    { "followerRef": "user_01", "targetRef": "user_03" },
+    { "followerRef": "user_02", "targetRef": "user_03" },
+    { "followerRef": "user_03", "targetRef": "user_01" }
+  ],
+  "engagement": {
+    "likes": [
+      { "userRef": "user_02", "postRef": "post_01" },
+      { "userRef": "user_03", "postRef": "post_01" },
+      { "userRef": "user_01", "postRef": "post_02" }
+    ],
+    "comments": [
+      { "userRef": "user_02", "postRef": "post_01", "content": "Awesome setup! Great to see clean architecture in action." },
+      { "userRef": "user_03", "postRef": "post_01", "content": "Verified from test runner! Looks rock solid." },
+      { "userRef": "user_01", "postRef": "post_02", "content": "Redis stampede protection is working smoothly." }
+    ]
+  }
+}

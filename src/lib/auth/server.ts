@@ -19,7 +19,16 @@ export interface SessionResult {
 
 export async function getCurrentSession(): Promise<SessionResult> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_CONFIG.accessToken.name)?.value;
+  let token = cookieStore.get(COOKIE_CONFIG.accessToken.name)?.value;
+
+  if (!token) {
+    const { headers } = await import('next/headers');
+    const headerStore = await headers();
+    const authHeader = headerStore.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
 
   if (!token) {
     return { isAuthenticated: false, user: null };

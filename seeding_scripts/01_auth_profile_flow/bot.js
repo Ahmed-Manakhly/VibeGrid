@@ -37,8 +37,11 @@ function saveQueue(data) {
   fs.writeFileSync(INPUT_PATH, JSON.stringify(data, null, 2));
 }
 
+const ROOT_SESSION_PATH = path.join(__dirname, '..', 'session_state.json');
+
 function saveSession(sessionData) {
   fs.writeFileSync(SESSION_PATH, JSON.stringify(sessionData, null, 2));
+  fs.writeFileSync(ROOT_SESSION_PATH, JSON.stringify(sessionData, null, 2));
 }
 
 async function verifyEmailViaApi(apiUrl, email) {

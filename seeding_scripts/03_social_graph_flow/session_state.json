@@ -1,0 +1,82 @@
+{
+  "user_01": {
+    "userId": "6a99f6509278f09afaca712d",
+    "email": "developer_01@vibegrid.manakhly.tech",
+    "username": "alex_rivera",
+    "name": "Alex Rivera"
+  },
+  "user_02": {
+    "userId": "6a99f6539278f09afaca7139",
+    "email": "creator_02@vibegrid.manakhly.tech",
+    "username": "sarah_chen",
+    "name": "Sarah Chen"
+  },
+  "user_03": {
+    "userId": "6a99f6579278f09afaca7145",
+    "email": "tester_03@vibegrid.manakhly.tech",
+    "username": "grid_tester",
+    "name": "Grid Tester"
+  },
+  "posts": {
+    "post_01": {
+      "id": "cmtnfa4kp00016bq7gd2tzr2v",
+      "authorRef": "user_01",
+      "authorId": "6a99f6509278f09afaca712d",
+      "content": "Excited to launch the new VibeGrid microservice architecture! #tech #microservices #vibegrid",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a99f6509278f09afaca712d/ast_5b0aebc8-466a-4303-adc1-6b04b8f98d7b.png",
+      "tags": [
+        "tech",
+        "microservices",
+        "vibegrid"
+      ]
+    },
+    "post_02": {
+      "id": "cmtnfa4y900066bq7n1odtt5x",
+      "authorRef": "user_02",
+      "authorId": "6a99f6539278f09afaca7139",
+      "content": "Designing high-performance real-time data streams with Redis & RabbitMQ. #cloud #systemdesign",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a99f6539278f09afaca7139/ast_323ba074-eb01-4a05-9029-329cbd13ec74.png",
+      "tags": [
+        "cloud",
+        "systemdesign"
+      ]
+    },
+    "post_03": {
+      "id": "cmtnfa58n000a6bq7190w2y2l",
+      "authorRef": "user_03",
+      "authorId": "6a99f6579278f09afaca7145",
+      "content": "Automated seeding flow verification in progress. Everything running clean! #testing #automation",
+      "imageUrl": null,
+      "tags": [
+        "testing",
+        "automation"
+      ]
+    }
+  },
+  "socialGraph": [
+    {
+      "followerRef": "user_01",
+      "followerId": "6a99f6509278f09afaca712d",
+      "targetRef": "user_02",
+      "targetUserId": "6a99f6539278f09afaca7139"
+    },
+    {
+      "followerRef": "user_01",
+      "followerId": "6a99f6509278f09afaca712d",
+      "targetRef": "user_03",
+      "targetUserId": "6a99f6579278f09afaca7145"
+    },
+    {
+      "followerRef": "user_02",
+      "followerId": "6a99f6539278f09afaca7139",
+      "targetRef": "user_03",
+      "targetUserId": "6a99f6579278f09afaca7145"
+    },
+    {
+      "followerRef": "user_03",
+      "followerId": "6a99f6579278f09afaca7145",
+      "targetRef": "user_01",
+      "targetUserId": "6a99f6509278f09afaca712d"
+    }
+  ]
+}
