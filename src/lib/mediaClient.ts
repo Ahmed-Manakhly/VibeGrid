@@ -13,16 +13,13 @@ export interface UploadMediaResult {
   mimeType: string;
 }
 
-const MEDIA_SERVICE_URL = process.env.NEXT_PUBLIC_MEDIA_API_URL || 'http://localhost:3002';
-
 export async function uploadMediaAsset({ file, purpose }: UploadMediaOptions): Promise<UploadMediaResult> {
-  // Step 1: Request Upload Intent
-  const intentRes = await fetch(`${MEDIA_SERVICE_URL}/api/media/upload-intent`, {
+  // Step 1: Request Upload Intent from BFF (/api/media/upload-intent)
+  const intentRes = await fetch('/api/media/upload-intent', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include',
     body: JSON.stringify({
       filename: file.name,
       mimeType: file.type,
@@ -53,13 +50,12 @@ export async function uploadMediaAsset({ file, purpose }: UploadMediaOptions): P
     throw new Error('Failed to upload file to storage server');
   }
 
-  // Step 3: Confirm Upload with Media Service
-  const confirmRes = await fetch(`${MEDIA_SERVICE_URL}/api/media/confirm-upload`, {
+  // Step 3: Confirm Upload with BFF (/api/media/confirm-upload)
+  const confirmRes = await fetch('/api/media/confirm-upload', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include',
     body: JSON.stringify({ assetId }),
   });
 
