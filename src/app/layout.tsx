@@ -15,6 +15,8 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 
 import { RootMainWrapper } from "@/components/RootMainWrapper";
 
+import { RealtimeProvider } from "@/shared/infrastructure/socket/RealtimeProvider";
+
 bootstrap(); // Runs once on server startup
 
 const jetBrainsMono = JetBrains_Mono({
@@ -41,29 +43,31 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
   return (
     <SessionProvider>
-      <html lang="en" suppressHydrationWarning >
-        <head />
-        <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased font-mono`} suppressHydrationWarning={true}>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-            <div className="flex min-h-screen bg-background text-foreground">
-              <SidebarProvider>
-                <SidebarWrapper>
-                  <Sidebar />
-                </SidebarWrapper>
-                <div className="min-w-0 flex-1 transition-all duration-300">
-                  <Navbar />
-                  <RootMainWrapper>
-                    {children}
-                  </RootMainWrapper>
-                </div>
-                <MobileBottomBar />
-              </SidebarProvider>
-            </div>
-            <ScrollToTop />
-            <Toaster />
-          </ThemeProvider>
-        </body>
-      </html>
+      <RealtimeProvider>
+        <html lang="en" suppressHydrationWarning >
+          <head />
+          <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased font-mono`} suppressHydrationWarning={true}>
+            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+              <div className="flex min-h-screen bg-background text-foreground">
+                <SidebarProvider>
+                  <SidebarWrapper>
+                    <Sidebar />
+                  </SidebarWrapper>
+                  <div className="min-w-0 flex-1 transition-all duration-300">
+                    <Navbar />
+                    <RootMainWrapper>
+                      {children}
+                    </RootMainWrapper>
+                  </div>
+                  <MobileBottomBar />
+                </SidebarProvider>
+              </div>
+              <ScrollToTop />
+              <Toaster />
+            </ThemeProvider>
+          </body>
+        </html>
+      </RealtimeProvider>
     </SessionProvider>
   );
 }
