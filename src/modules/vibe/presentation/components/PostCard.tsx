@@ -170,7 +170,11 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
 
                 {!isTruncated && post.image && (
                     <div className="w-full bg-muted/30 border-y border-border/50">
-                        <Image src={post.image} alt="Post content" className="w-full h-auto object-cover max-h-[600px]" width={800} height={600}/>
+                        {post.image.endsWith('.mp4') || post.image.endsWith('.webm') || post.image.endsWith('.mov') || post.image.includes('video/') ? (
+                            <video src={post.image} controls className="w-full h-auto object-cover max-h-[600px] rounded-none" />
+                        ) : (
+                            <Image src={post.image} alt="Post content" className="w-full h-auto object-cover max-h-[600px]" width={800} height={600}/>
+                        )}
                     </div>
                 )}
                 
