@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import PostCard from "./PostCard";
 import { useSearchParams } from "next/navigation";
+import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 
 interface InfiniteScrollProps {
   initialPosts: any[];
@@ -21,12 +22,52 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
   const [viewMode, setViewMode] = useState<"thread" | "grid">("grid");
   const searchParams = useSearchParams();
   const { ref, inView } = useInView();
+  const { latestFeedSignal } = useRealtime();
 
   // Reset when searchParams change (so initialPosts take over)
   useEffect(() => {
     setPosts(initialPosts);
     setNextCursor(initialNextCursor);
   }, [searchParams, initialPosts, initialNextCursor]);
+
+  // Controlled Realtime Reconciliation: Prepend new posts without destroying loaded pagination
+  useEffect(() => {
+    if (!latestFeedSignal) return;
+
+    if (latestFeedSignal.type === "post_deleted" && latestFeedSignal.postId) {
+      setPosts((prev) => prev.filter((p) => p.id !== latestFeedSignal.postId));
+      return;
+    }
+
+    if (latestFeedSignal.type === "new_content" || latestFeedSignal.type === "post_updated") {
+      const fetchLatest = async () => {
+        try {
+          const base = new URL(apiUrl, window.location.origin);
+          const pageParams = new URLSearchParams(searchParams.toString());
+          pageParams.forEach((value, key) => {
+            base.searchParams.set(key, value);
+          });
+          base.searchParams.set("limit", "5");
+
+          const res = await fetch(base.toString());
+          const data = await res.json();
+
+          if (data.data && Array.isArray(data.data)) {
+            setPosts((prev) => {
+              const existingIds = new Set(prev.map((p) => p.id));
+              const freshPosts = data.data.filter((p: any) => !existingIds.has(p.id));
+              if (freshPosts.length === 0) return prev;
+              return [...freshPosts, ...prev];
+            });
+          }
+        } catch (error) {
+          console.error("Failed to reconcile realtime feed update", error);
+        }
+      };
+
+      fetchLatest();
+    }
+  }, [latestFeedSignal, apiUrl, searchParams]);
 
   const loadMore = async () => {
     if (loading || !nextCursor) return;

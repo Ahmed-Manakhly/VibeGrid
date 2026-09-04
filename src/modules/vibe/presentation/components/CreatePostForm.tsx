@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, FilmIcon, Loader2Icon, SendIcon } from "lucide-react";
 import { createPostFormAction } from "@/actions/post.action";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import ImageUpload from "@/components/ImageUpload";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -48,6 +49,7 @@ function getDisplayInitial(user: any) {
 
 export default function CreatPost() {
     const { user } = useSession();
+    const router = useRouter();
     const initialLetter = getDisplayInitial(user);
     const displayName = user?.name || user?.email?.split('@')[0] || "You";
     
