@@ -12,7 +12,7 @@ export default function AuthLoading() {
 
       <AuthHeader />
 
-      <main className="flex-1 w-full flex items-center justify-center pt-24 sm:pt-28 px-4 sm:px-8 lg:px-12 pb-12 z-10">
+      <main className="flex-1 w-full flex items-start justify-center pt-24 sm:pt-28 px-6 sm:px-24 lg:px-44 xl:px-64 pb-12 z-10">
         <div className="w-full max-w-6xl flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
           
           {/* Left Hero Skeleton (Desktop) */}
@@ -37,7 +37,7 @@ export default function AuthLoading() {
           </div>
 
           {/* Right Form Card Skeleton */}
-          <div className="w-full lg:col-span-7 flex flex-col justify-center shrink-0">
+          <div className="w-full lg:col-span-7 flex flex-col justify-start shrink-0">
             <div className="w-full backdrop-blur-2xl bg-card/45 border border-accent/25 rounded-3xl p-6 sm:p-8 space-y-6">
               <div className="space-y-2">
                 <Skeleton className="h-4 w-28 rounded-md" />

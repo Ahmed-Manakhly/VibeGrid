@@ -56,8 +56,8 @@ export function AuthLayoutWrapper({
       <AuthHeader />
 
       {/* Main Content Area: Padding top for fixed header with top breathing space (pt-24 sm:pt-28), Edge-to-Edge Responsive Grid */}
-      <main className="flex-1 w-full flex items-center justify-center pt-24 sm:pt-28 px-4 sm:px-8 lg:px-12 pb-12 z-10">
-        <div className="w-full max-w-6xl flex flex-col-reverse lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
+      <main className="flex-1 w-full flex items-start justify-center pt-24 sm:pt-28 px-6 sm:px-24 lg:px-44 xl:px-64 pb-12 z-10">
+        <div className="w-full flex flex-col-reverse lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
           
           {/* Left Column: Visual Hero Panel (Desktop left, Mobile bottom order) */}
           <div className="w-full lg:col-span-5 flex flex-col justify-between p-6 sm:p-8 rounded-3xl backdrop-blur-2xl bg-card/25 border border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.08)] relative overflow-hidden shrink-0">
@@ -133,7 +133,7 @@ export function AuthLayoutWrapper({
           </div>
 
           {/* Right Column / Mobile Form Container: Glass Card (Mobile top order) */}
-          <div className="w-full lg:col-span-7 flex flex-col justify-center shrink-0">
+          <div className="w-full lg:col-span-7 flex flex-col justify-start shrink-0">
             <div className="w-full backdrop-blur-2xl bg-card/45 border border-accent/25 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(147,51,234,0.12)] relative">
               {children}
             </div>
