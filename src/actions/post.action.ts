@@ -68,9 +68,9 @@ export async function getPosts(params: ExplorePostsCriteria = {}) {
     try {
         const result = await generateFeedUseCase.execute(params);
         return result; 
-    }catch (er){
-        console.error('failed to fetch posts!' , er)
-        throw new Error('failed to fetch posts!') 
+    } catch (er){
+        console.error('failed to fetch posts!' , er);
+        return { data: [], nextCursor: null };
     }
 }
 //3// to toggle Likes on the post
