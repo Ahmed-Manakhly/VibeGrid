@@ -11,9 +11,11 @@
 This document details the architecture design and impact of completing the **Async Worker Pool** and **Consumer Idempotency Layer** for VibeGrid.
 
 The system relies on an **at-least-once delivery model**:
+
 ```text
 Database Transaction ──► OutboxEvent ──► Outbox Relay ──► RabbitMQ (domain.events)
 ```
+
 Because transient network failures or process restarts during message ACK can cause duplicate delivery of events from RabbitMQ, downstream workers must enforce **strict consumer idempotency** to prevent duplicate side effects (such as duplicate timeline feed entries, duplicate user notifications, or duplicate search index projections).
 
 ---

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getCurrentSession } from "@/lib/auth/server";
 import { getProfileUseCase, updateProfileUseCase } from "@/shared/infrastructure/di-container";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const session = await getCurrentSession();

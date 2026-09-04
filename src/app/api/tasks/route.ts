@@ -16,6 +16,8 @@ let tasks: Task[] = [
 ];
 
 
+export const dynamic = "force-dynamic";
+
 //handler 1
 export async function GET() {
     return Response.json(tasks);

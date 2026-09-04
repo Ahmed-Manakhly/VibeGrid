@@ -9,6 +9,7 @@
 ## 1. Executive Summary
 
 This document details the architecture design, security enforcement, and health monitoring infrastructure implemented in **Phase 2.8 / Phase 1.1.2 — Security Hardening, Health Monitoring & Production Infrastructure**:
+
 1. **Silent Access Token Refresh:** Seamless background access token renewal in Next.js BFF middleware when RS256 access tokens expire, exchanging HttpOnly `vibegrid_refresh_token` without user interruption or infinite redirect loops.
 2. **CSRF & Origin Guard:** Defense-in-depth origin and header validation (`SameSite=Lax` HttpOnly cookies, `Origin` / `Referer` verification, `X-Requested-With` header enforcement) on state-changing HTTP methods (`POST`, `PUT`, `PATCH`, `DELETE`).
 3. **Distributed Rate Limiting:** Standardized rate limiting utilizing `RedisCacheService.rateLimit` on Auth, API Gateway, and application routes returning HTTP 429 with `Retry-After` headers and Pino log correlation threading.
@@ -49,7 +50,7 @@ Incoming Request ──► Next.js Middleware
 | **CSRF Attacks** | Origin/Referer header check + `SameSite=Lax` cookies for `POST`/`PUT`/`DELETE`. | Next.js Middleware |
 | **Brute Force / Abuse** | Redis-backed sliding window rate limiter (HTTP 429 + `Retry-After`). | `RedisCacheService` & API Routes |
 | **Token Family Replay** | Auth Service token family revocation & `passwordChangedAt` invalidation. | Auth Microservice |
-| **Log Credential Leakage**| Pino log redaction (`authorization`, `token`, `password`, `secret`). | `PinoLogger` & Microservices |
+| **Log Credential Leakage** | Pino log redaction (`authorization`, `token`, `password`, `secret`). | `PinoLogger` & Microservices |
 
 ---
 

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { cacheService } from '@/shared/infrastructure/di-container';
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const uptime = process.uptime();
   let redisStatus = 'unknown';

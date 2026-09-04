@@ -30,6 +30,7 @@ find "$BACKUP_DIR" -type f -name "*.dump" -mtime +14 -delete
 ### PostgreSQL Point-In-Time Restoration
 
 To restore from a logical dump:
+
 ```bash
 # 1. Stop active BFF to terminate open pool connections
 docker stop vibegrid-bff

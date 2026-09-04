@@ -1,6 +1,8 @@
 import { getTaxonomyUseCase } from "@/shared/infrastructure/di-container";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const data = await getTaxonomyUseCase.execute();

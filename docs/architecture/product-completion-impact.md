@@ -9,6 +9,7 @@
 ## 1. Executive Summary
 
 This document details the architecture design and impact of completing the core user-facing product vertical slice for VibeGrid:
+
 1. **Feed Read Path & Caching:** Hybrid timeline read strategy leveraging Redis (`timeline:{userId}`) hydrated with Prisma batch queries, stampede protection via `RedisCacheService`, and pull fallback for hot accounts / explore queries.
 2. **Post Lifecycle:** Complete Post Create, Read, and Delete flows integrated with Transactional Outbox domain events (`vibe.created`, `post.deleted`) and MinIO media presigned upload intent confirmation.
 3. **Engagement & Social Graph:** Complete Follow/Unfollow, Like/Unlike, Comment, and Re-Grid amplification flows. All actions produce atomic Outbox events that trigger RabbitMQ workers (`NotificationWorker`, `FanOutWorker`, `SearchIndexWorker`) and push live Socket.IO events (`notification:new`, `feed:updated`).

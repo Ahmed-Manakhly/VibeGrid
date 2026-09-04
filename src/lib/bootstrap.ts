@@ -67,7 +67,13 @@ const globalForBootstrap = globalThis as unknown as {
 };
 
 export async function bootstrap() {
-  if (process.env.NEXT_PHASE === "phase-production-build") return;
+  if (
+    process.env.NEXT_PHASE === "phase-production-build" ||
+    process.env.BUILDING_NEXT === "1" ||
+    process.argv.some((arg) => arg.includes("build"))
+  ) {
+    return;
+  }
   if (globalForBootstrap.__bootstrapRan) return;
   globalForBootstrap.__bootstrapRan = true;
 

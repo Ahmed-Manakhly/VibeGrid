@@ -3,6 +3,7 @@
 ## 1. Overview
 
 This document defines the production topology for deploying VibeGrid on a Virtual Private Server (VPS). The deployment leverages a two-tier proxy architecture:
+
 1. **Host Nginx Proxy + Certbot SSL**: Handles public TLS termination (`443`), domain routing, and proxies traffic into local container ports.
 2. **Container Gateway (Nginx API Gateway)**: Handles internal microservice routing (`/api/auth`, `/api/media`, `/api/realtime`), JWT `auth_request` subrequests, and rate-limiting headers.
 
@@ -156,6 +157,7 @@ crontab -e
 ```
 
 Configure credentials in `$HOME/.vibegrid_alert.env`:
+
 ```bash
 ALERT_WEBHOOK_URL="https://discord.com/api/webhooks/..."
 TELEGRAM_BOT_TOKEN="123456789:ABC..."

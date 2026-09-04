@@ -19,28 +19,31 @@ The **Transactional Outbox Pattern** guarantees **atomic event persistence** wit
 ## 2. Current State vs. Target State Architecture
 
 ### Current State (In-Memory Event Bus)
+
 ```text
 HTTP Request ──► UseCase ──► DB Mutation (Prisma Commit)
                             └──► InMemoryEventBus ──► NotificationEventHandler (Transient)
 ```
+
 *Risk*: Database mutation succeeds, but event is lost on crash/restart; or event triggers, but DB transaction rolls back.
 
 ### Target State (Transactional Outbox & Outbox Relay)
+
 ```text
 HTTP Request ──► UseCase ──► BEGIN Prisma DB Transaction
-                               ├── DB Mutation (User, Post, Like, Comment, Follow)
-                               └── INSERT OutboxEvent (Status: PENDING)
-                             COMMIT
-                                  │
-                                  ▼ (PostgreSQL Outbox Table)
-                       [ Outbox Relay Worker ]
-                                  │ (FOR UPDATE SKIP LOCKED Claim)
-                                  ▼
-                    [ RabbitMQ Exchange: domain.events ] (Publisher Confirms)
-                         │                 │                 │
-                         ▼                 ▼                 ▼
-                   q.email         q.user.onboarding   Future Workers
-                (services/email)  (services/onboarding)
+                                ├── DB Mutation (User, Post, Like, Comment, Follow)
+                                └── INSERT OutboxEvent (Status: PENDING)
+                              COMMIT
+                                   │
+                                   ▼ (PostgreSQL Outbox Table)
+                        [ Outbox Relay Worker ]
+                                   │ (FOR UPDATE SKIP LOCKED Claim)
+                                   ▼
+                     [ RabbitMQ Exchange: domain.events ] (Publisher Confirms)
+                          │                 │                 │
+                          ▼                 ▼                 ▼
+                    q.email         q.user.onboarding   Future Workers
+                 (services/email)  (services/onboarding)
 ```
 
 ---
@@ -48,6 +51,7 @@ HTTP Request ──► UseCase ──► BEGIN Prisma DB Transaction
 ## 3. Core Components & Affected Areas
 
 ### A. Domain & Persistence Layer (Prisma & PostgreSQL)
+
 1. **`OutboxEvent` Prisma Model**:
    - Fields: `id`, `eventId`, `eventType`, `aggregateType`, `aggregateId`, `payload` (JSONB), `occurredAt`, `status` (`PENDING`, `CLAIMED`, `PUBLISHED`, `FAILED`), `attempts`, `availableAt`, `publishedAt`, `lastError`, `createdAt`, `updatedAt`.
    - Indexing: `@@index([status, availableAt])`, `@@index([createdAt])`, `@@index([aggregateId])`.
@@ -57,11 +61,13 @@ HTTP Request ──► UseCase ──► BEGIN Prisma DB Transaction
    - Clean Architecture ports: `IOutboxRepository` (`append`, `claimBatch`, `markPublished`, `markFailed`, `releaseLease`).
 
 ### B. Use Case & Unit of Work Layer (BFF)
+
 1. **Transaction-Aware Event Dispatching**:
    - `TransactionalOutboxEventBus` implementing `IEventBus`.
    - Extends existing domain use cases (`CreateVibeUseCase`, `ToggleFollowUseCase`, `ToggleLikeUseCase`, `AddCommentUseCase`) to execute domain mutation and outbox event append inside a single Prisma `$transaction`.
 
 ### C. Outbox Relay Worker (`src/workers/OutboxRelayWorker.ts`)
+
 1. **Concurrency Control**:
    - Uses PostgreSQL `FOR UPDATE SKIP LOCKED` raw query via Prisma to atomically claim batches of pending outbox events across multiple worker instances without lock contention.
 2. **RabbitMQ Publisher Confirms**:
@@ -72,6 +78,7 @@ HTTP Request ──► UseCase ──► BEGIN Prisma DB Transaction
    - Transitions to `FAILED` status after `maxAttempts` (default: 5).
 
 ### D. Downstream Microservices Compatibility
+
 - **`services/email`**: Consumes `user.registered`, `email.verification.requested`, `password.reset.requested` from `domain.events` exchange.
 - **`services/onboarding`**: Consumes `user.registered` from `domain.events` exchange.
 - **Idempotency**: Downstream workers retain their two-phase claim check in Redis (`acquireClaim`/`markCompleted`), ensuring at-least-once delivery safety.

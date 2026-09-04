@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getCurrentSession } from "@/lib/auth/server";
 import { toggleFollowUseCase } from "@/shared/infrastructure/di-container";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     const session = await getCurrentSession();

@@ -76,6 +76,7 @@ Domain Event ──► Outbox ──► Relay ──► RabbitMQ ──► Notif
 ## 5. Compatibility & Regression Guard
 
 This implementation:
+
 - Protects existing `NotificationWorker` (worker handles DB persistence, then publishes to Redis Pub/Sub).
 - Protects existing `FanOutWorker` (worker updates Redis timeline sorted sets, then publishes feed update signal).
 - Reuses `PinoLogger` and `X-Request-ID` correlation ID context binding.
