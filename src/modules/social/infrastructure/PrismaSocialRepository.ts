@@ -52,4 +52,12 @@ export class PrismaSocialRepository implements ISocialRepository {
       },
     });
   }
+
+  async getFollowerIds(followingId: string): Promise<string[]> {
+    const records = await this.db.follows.findMany({
+      where: { followingId },
+      select: { followerId: true },
+    });
+    return records.map((r) => r.followerId);
+  }
 }
