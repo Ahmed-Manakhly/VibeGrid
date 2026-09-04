@@ -137,6 +137,7 @@ server {
 ## 4. MinIO Object Storage & Log Archival
 
 MinIO runs in production with strict bucket separation:
+
 1. **`vibegrid-media`**: Public/presigned image and video uploads.
 2. **`vibegrid-logs`**: Immutable structured log archive (`logs/<service>/YYYY/MM/DD/`).
 

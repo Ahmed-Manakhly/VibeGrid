@@ -67,9 +67,11 @@ docker exec -it vibegrid-mongodb mongorestore --db vibegrid-auth /tmp/mongodump/
 
 1. **Volume Mounts**: MinIO data is persisted on host volume `minio_data` mapped to `/data` inside container.
 2. **Media Bucket (`vibegrid-media`)**: Synchronized to secondary S3 or offline backup daily via `mc mirror`:
+
    ```bash
    mc mirror --overwrite minio/vibegrid-media /var/backups/vibegrid/minio-media/
    ```
+
 3. **Log Archival Bucket (`vibegrid-logs`)**: Immutable rotated JSON logs retained under `logs/<service>/YYYY/MM/DD/`.
 
 ---
@@ -86,6 +88,7 @@ docker exec -it vibegrid-mongodb mongorestore --db vibegrid-auth /tmp/mongodump/
 1. Secrets must **never** be committed to Git.
 2. Production environment variables are backed up to a secure password-manager store (`.env.production.encrypted`).
 3. To recover an environment node:
+
    ```bash
    gpg --decrypt .env.production.encrypted > /home/deploy/VibeGrid_Services/.env
    ```
