@@ -33,10 +33,10 @@ export class PrismaTaxonomyRepository implements ITaxonomyRepository {
   }
 
   async getTrendingTags(limit: number): Promise<any[]> {
-    // Trending = tags from posts created in the last 24h
+    // 1. Try fetching trending tags from posts created in the last 24h
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-    const result = await this.db.postTag.groupBy({
+    let result = await this.db.postTag.groupBy({
       by: ["tagId"],
       where: {
         post: {
@@ -55,6 +55,30 @@ export class PrismaTaxonomyRepository implements ITaxonomyRepository {
       },
       take: limit,
     });
+
+    // 2. If no recent posts/tags in 24h, fall back to top tags across all recent activity
+    if (result.length < limit) {
+      const existingTagIds = result.map((r) => r.tagId);
+      const fallbackResult = await this.db.postTag.groupBy({
+        by: ["tagId"],
+        where: {
+          tagId: {
+            notIn: existingTagIds,
+          },
+        },
+        _count: {
+          postId: true,
+        },
+        orderBy: {
+          _count: {
+            postId: "desc",
+          },
+        },
+        take: limit - result.length,
+      });
+
+      result = [...result, ...fallbackResult];
+    }
 
     const tagIds = result.map((r) => r.tagId);
     const tags = await this.db.tag.findMany({

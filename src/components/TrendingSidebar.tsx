@@ -34,6 +34,13 @@ export function TrendingSidebar() {
     }
 
     fetchTrending();
+
+    const handleRefresh = () => {
+      fetchTrending();
+    };
+
+    window.addEventListener('refreshTrending', handleRefresh);
+    return () => window.removeEventListener('refreshTrending', handleRefresh);
   }, []);
 
   return (

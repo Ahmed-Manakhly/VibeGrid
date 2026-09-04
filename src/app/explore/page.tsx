@@ -25,7 +25,6 @@ async function ExploreFeed({ params, dbUserId }: { params: any, dbUserId: string
         apiUrl="/api/posts"
         dbUserId={dbUserId}
         mode="manual"
-        isTruncated={true}
       />
     </div>
   );

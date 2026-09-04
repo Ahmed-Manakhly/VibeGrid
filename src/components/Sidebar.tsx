@@ -6,6 +6,8 @@ import { CustomSignOutButton } from './CustomSignOutButton';
 import { UserAvatar } from './UserAvatar';
 import { SidebarNav, SidebarSettingsLink } from './SidebarNav';
 
+import { SidebarUserCard } from './SidebarUserCard';
+
 export async function Sidebar() {
   const session = await getCurrentSession();
   const authUser = session.user;
@@ -33,24 +35,13 @@ export async function Sidebar() {
         <SidebarSettingsLink />
         
         {authUser && (
-          <div className="mt-4 relative group">
-            <div className="flex flex-col gap-4 bg-primary/10 border border-primary/50 text-primary transition-colors p-3 lg:group-[.is-collapsed]:p-0 lg:group-[.is-collapsed]:bg-transparent lg:group-[.is-collapsed]:border-transparent lg:group-[.is-collapsed]:items-center rounded-2xl lg:group-[.is-collapsed]:rounded-full cursor-pointer">
-              <div className="flex items-center gap-3">
-                <Link href={profileHref} className="hover:opacity-80 transition-opacity">
-                  <UserAvatar src={dbUser?.image} name={dbUser?.name || authUser.name} className="shrink-0 transition-all" />
-                </Link>
-                <div className="min-w-0 flex-1 lg:group-[.is-collapsed]:hidden flex items-center justify-between">
-                  <Link href={profileHref} className="hover:opacity-80 transition-opacity min-w-0 flex-1 pr-2">
-                    <p className="truncate text-sm font-medium">{dbUser?.name || authUser.name || authUser.email.split('@')[0]}</p>
-                    <p className="truncate font-mono text-[10px] text-muted-foreground">@{dbUser?.username || authUser.email}</p>
-                  </Link>
-                  <div className="shrink-0">
-                    <CustomSignOutButton />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SidebarUserCard
+            profileHref={profileHref}
+            userImage={dbUser?.image}
+            userName={dbUser?.name || authUser.name}
+            userUsername={dbUser?.username}
+            userEmail={authUser.email}
+          />
         )}
       </div>
     </>

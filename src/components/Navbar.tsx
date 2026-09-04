@@ -34,9 +34,13 @@ function Navbar() {
           {!isLoading && (
             isAuthenticated && user ? (
               <>
-                <button className="icon-button hidden sm:flex" aria-label="Notifications">
+                <Link 
+                  href="/notifications" 
+                  className="icon-button hidden sm:flex" 
+                  aria-label="Notifications"
+                >
                   <Bell className="size-4" />
-                </button>
+                </Link>
                 <DesktopDropVibeButton />
                 <div className="pl-2 border-l border-border/50 ml-1">
                   <UserNavDropdown />
