@@ -1,5 +1,8 @@
 import { prisma } from "./prisma";
 
+// Cache Infrastructure
+import { RedisCacheService } from "../infrastructure/cache/RedisCacheService";
+
 // Vibe Module
 import { PrismaVibeRepository } from "@/modules/vibe/infrastructure/PrismaVibeRepository";
 import { CreateVibeUseCase } from "@/modules/vibe/application/CreateVibe.usecase";
@@ -43,6 +46,9 @@ import { CreateVibeTaxonomyUseCase } from "@/modules/taxonomy/application/Create
 // Events Module
 import { InMemoryEventBus } from "@/shared/infrastructure/events/InMemoryEventBus";
 
+// 0. Cache Singleton
+export const cacheService = new RedisCacheService();
+
 // 1. Instantiate Repositories (Inject DB)
 export const vibeRepository = new PrismaVibeRepository(prisma);
 const engagementRepository = new PrismaEngagementRepository(prisma);
@@ -55,7 +61,7 @@ const profileRepository = new PrismaProfileRepository(prisma);
 export const authGateway = new BffAuthGateway(prisma);
 export const eventBus = new InMemoryEventBus();
 
-// 2. Instantiate Use Cases (Inject Repositories)
+// 2. Instantiate Use Cases (Inject Repositories & Cache)
 // Vibe
 export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus);
 export const generateFeedUseCase = new GenerateFeedUseCase(vibeRepository);
@@ -77,15 +83,16 @@ export const getUserUseCase = new GetUserUseCase(authRepository);
 // Social
 export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository, eventBus);
 export const getSuggestedUsersUseCase = new GetSuggestedUsersUseCase(socialRepository);
-export const getProfileUseCase = new GetProfileUseCase(profileRepository);
-export const updateProfileUseCase = new UpdateProfileUseCase(profileRepository);
+export const getProfileUseCase = new GetProfileUseCase(profileRepository, cacheService);
+export const updateProfileUseCase = new UpdateProfileUseCase(profileRepository, cacheService);
 export const isFollowingUseCase = new IsFollowingUseCase(socialRepository);
 
 // Taxonomy
-export const getTaxonomyUseCase = new GetTaxonomyUseCase(taxonomyRepository);
+export const getTaxonomyUseCase = new GetTaxonomyUseCase(taxonomyRepository, cacheService);
 export const getTrendingTagsUseCase = new GetTrendingTagsUseCase(taxonomyRepository);
 export const createCategoryUseCase = new CreateCategoryUseCase(taxonomyRepository);
 export const createVibeTaxonomyUseCase = new CreateVibeTaxonomyUseCase(taxonomyRepository);
 
 // Initialize Event Handlers
 export const notificationEventHandler = new NotificationEventHandler(notificationRepository, eventBus);
+
