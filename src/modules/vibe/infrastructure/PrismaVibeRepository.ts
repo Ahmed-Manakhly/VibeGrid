@@ -70,6 +70,16 @@ export class PrismaVibeRepository implements IVibeRepository {
     });
   }
 
+  async getPostsByIds(postIds: string[]): Promise<VibePost[]> {
+    if (!postIds || postIds.length === 0) return [];
+    const posts = await this.db.post.findMany({
+      where: { id: { in: postIds } },
+      include: vibeFeedQueryConfig.defaultRelations,
+    });
+    const postMap = new Map(posts.map((p) => [p.id, p as unknown as VibePost]));
+    return postIds.map((id) => postMap.get(id)).filter(Boolean) as VibePost[];
+  }
+
   async getFeed(params: ExplorePostsCriteria = {}): Promise<ExplorePostsResult<VibePost>> {
     const queryBuilder = new FeedQueryBuilder<VibePost>(
       this.db.post,

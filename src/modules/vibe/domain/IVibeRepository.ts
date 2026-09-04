@@ -27,5 +27,6 @@ export interface IVibeRepository {
     create(data: { content: string, imageUrl: string, authorId: string, categoryId?: string, vibeId?: string, tags?: string[] }, tx?: any): Promise<Result<any>>;
     getFeed(params?: ExplorePostsCriteria): Promise<ExplorePostsResult<VibePost>>;
     getPostById(postId: string): Promise<any | null>;
+    getPostsByIds(postIds: string[]): Promise<VibePost[]>;
     deletePost(postId: string, userId: string, tx?: any): Promise<Result<void>>;
 }

@@ -33,6 +33,34 @@ export class PrismaEngagementRepository implements IEngagementRepository {
     }
   }
 
+  async toggleReGrid(vibeId: string, userId: string): Promise<Result<{ isReGridded: boolean; authorId: string; regrid?: any }>> {
+    try {
+      const post = await this.db.post.findUnique({
+        where: { id: vibeId },
+        select: { authorId: true },
+      });
+      if (!post) return failure(new Error("post not found!"));
+
+      const exReGrid = await this.db.reGrid.findUnique({
+        where: { userId_postId: { postId: vibeId, userId } },
+      });
+
+      if (exReGrid) {
+        await this.db.reGrid.delete({
+          where: { userId_postId: { postId: vibeId, userId } },
+        });
+        return success({ isReGridded: false, authorId: post.authorId });
+      } else {
+        const regrid = await this.db.reGrid.create({
+          data: { postId: vibeId, userId },
+        });
+        return success({ isReGridded: true, authorId: post.authorId, regrid });
+      }
+    } catch (err) {
+      return failure(new Error("failed to toggle regrid"));
+    }
+  }
+
   async addComment(vibeId: string, userId: string, content: string): Promise<Result<{ commentId: string; authorId: string, comment: any }>> {
     try {
       const post = await this.db.post.findUnique({

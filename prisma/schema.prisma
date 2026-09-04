@@ -33,6 +33,7 @@ model User {
   following            Follows[]       @relation("follower")
   notifications        Notifications[] @relation("userNotifications")
   notificationsCreated Notifications[] @relation("NotificationCreator")
+  regrids              ReGrid[]
 }
 
 model Post {
@@ -51,6 +52,7 @@ model Post {
   comments      Comment[]
   likes         Like[]
   notifications Notifications[]
+  regrids       ReGrid[]
 }
 
 model Comment {
@@ -172,5 +174,17 @@ model OutboxEvent {
   @@index([createdAt])
   @@index([aggregateId])
   @@index([eventType])
+}
+
+model ReGrid {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([userId, postId])
+  @@unique([userId, postId])
 }
 

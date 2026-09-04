@@ -15,6 +15,7 @@ import { DeleteVibeUseCase } from "@/modules/vibe/application/DeleteVibe.usecase
 // Engagement Module
 import { PrismaEngagementRepository } from "@/modules/engagement/infrastructure/PrismaEngagementRepository";
 import { ToggleLikeUseCase } from "@/modules/engagement/application/ToggleLike.usecase";
+import { ToggleReGridUseCase } from "@/modules/engagement/application/ToggleReGrid.usecase";
 import { AddCommentUseCase } from "@/modules/engagement/application/AddComment.usecase";
 import { DeleteCommentUseCase } from "@/modules/engagement/application/DeleteComment.usecase";
 
@@ -69,11 +70,12 @@ export const eventBus = new TransactionalOutboxEventBus(outboxRepository);
 // 2. Instantiate Use Cases (Inject Repositories & Cache)
 // Vibe
 export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus);
-export const generateFeedUseCase = new GenerateFeedUseCase(vibeRepository);
-export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository);
+export const generateFeedUseCase = new GenerateFeedUseCase(vibeRepository, cacheService);
+export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository, eventBus);
 
 // Engagement
 export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository, eventBus);
+export const toggleReGridUseCase = new ToggleReGridUseCase(engagementRepository, eventBus);
 export const addCommentUseCase = new AddCommentUseCase(engagementRepository, eventBus);
 export const deleteCommentUseCase = new DeleteCommentUseCase(engagementRepository);
 

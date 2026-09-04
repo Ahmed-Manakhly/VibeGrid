@@ -154,9 +154,37 @@ async function runEngagementFlow() {
     await sleep(env.THROTTLE_MS || 300);
   }
 
-  // 5. Re-Grid Capability Audit
-  console.log('\n[FLOW 04] Auditing Re-Grid / Amplification capability...');
-  console.log('   ℹ [FLOW 04] Re-Grid / Amplification skipped (BLOCKED — REQUIRED API NOT IMPLEMENTED)');
+  // 5. Seed Re-Grids (Post Amplification)
+  console.log('\n[FLOW 04] Seeding Re-Grids (Post Amplification)...');
+  sessionData.engagement.regrids = [];
+  const regridSpecs = [
+    { userRef: 'creator_02', postRef: 'post_01' },
+    { userRef: 'tester_03', postRef: 'post_01' },
+  ];
+
+  for (const regridSpec of regridSpecs) {
+    const userClient = userClients[regridSpec.userRef];
+    const postSession = sessionData.posts[regridSpec.postRef];
+    const userSession = sessionData[regridSpec.userRef];
+
+    if (userClient && postSession) {
+      console.log(`   🔄 User ${userSession.username} Re-Gridding post ${postSession.id.substring(0, 8)}...`);
+      const regridRes = await userClient.post(`/posts/${postSession.id}/regrid`);
+
+      if (!regridRes.ok || !regridRes.data?.success) {
+        console.warn(`   ⚠️ Re-Grid response notice:`, regridRes.data || regridRes.rawBody);
+      } else {
+        console.log(`   ✓ Re-Grid created successfully`);
+        sessionData.engagement.regrids.push({
+          userRef: regridSpec.userRef,
+          userId: userSession.userId,
+          postRef: regridSpec.postRef,
+          postId: postSession.id,
+        });
+      }
+      await sleep(env.THROTTLE_MS || 300);
+    }
+  }
 
   saveSession(sessionData);
   console.log('\n🎉 FLOW 04: Engagement Seeding complete!\n');

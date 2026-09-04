@@ -1,4 +1,5 @@
 export interface ExplorePostsCriteria {
+  userId?: string;
   search?: string;
   tag?: string;
   category?: string;
