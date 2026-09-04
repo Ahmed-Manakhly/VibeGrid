@@ -55,8 +55,8 @@ export function AuthLayoutWrapper({
       {/* Auth Dedicated Fixed Topbar Header */}
       <AuthHeader />
 
-      {/* Main Content Area: Padding top for fixed header with top breathing space (pt-24 sm:pt-28), Edge-to-Edge Responsive Grid */}
-      <main className="flex-1 w-full flex items-start justify-center pt-24 sm:pt-28 px-6 sm:px-24 lg:px-44 xl:px-64 pb-12 z-10">
+      {/* Main Content Area: Doubled top padding for fixed header (pt-24 sm:pt-48), Edge-to-Edge Responsive Grid */}
+      <main className="flex-1 w-full flex items-start justify-center pt-24 sm:pt-48 px-6 sm:px-24 lg:px-44 xl:px-64 pb-12 z-10">
         <div className="w-full flex flex-col-reverse lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
           
           {/* Left Column: Visual Hero Panel (Desktop left, Mobile bottom order) */}
