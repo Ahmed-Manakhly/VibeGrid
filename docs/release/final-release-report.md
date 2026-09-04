@@ -15,6 +15,7 @@ FINAL RELEASE DECISION: PRODUCTION READY WITH EXPLICIT LIMITATIONS
 ```
 
 ### Justification
+
 - All core application logic, microservices, async worker pool, transactional outbox relay, realtime gateway, security controls, and health monitoring have passed **100% of automated Jest test suites** (15/15 suites, 40/40 tests) and **100% of HTTP Seeding Flows** (Flows 01–05).
 - **Explicit Limitation:** Final VPS deployment (physical host Nginx domain binding, Certbot SSL certificate issuance, and live DNS propagation) is documented and verified in docker-compose topology, but requires execution on the target cloud host.
 
