@@ -165,6 +165,27 @@ export class NotificationWorker {
       creatorId,
       type: notifType,
     });
+
+    try {
+      if (this.cacheService.publish) {
+        const realtimePayload = JSON.stringify({
+          userId: targetUserId,
+          notification: {
+            id: created.id,
+            type: created.type,
+            userId: created.userId,
+            creatorId: created.creatorId,
+            postId: created.postId,
+            commentId: created.commentId,
+            isRead: created.isRead,
+            createdAt: created.createdAt,
+          },
+        });
+        await this.cacheService.publish("realtime:notification", realtimePayload);
+      }
+    } catch (pubErr) {
+      this.logger.warn("Failed to publish notification event to Redis Pub/Sub", { error: pubErr });
+    }
   }
 
   private getDeathCount(msg: ConsumeMessage): number {

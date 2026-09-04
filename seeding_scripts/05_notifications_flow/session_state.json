@@ -19,11 +19,11 @@
   },
   "posts": {
     "post_01": {
-      "id": "cmtnhes4r002x6bq5snv30qjg",
+      "id": "cmtnhy4l1004j6bq5nrqmk2zw",
       "authorRef": "user_01",
       "authorId": "6a9b3231412fbdb2e0662587",
       "content": "Excited to launch the new VibeGrid microservice architecture! #tech #microservices #vibegrid",
-      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3231412fbdb2e0662587/ast_8a943feb-13d2-4527-92ca-72216572904c.png",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3231412fbdb2e0662587/ast_03f8a8ce-f3cf-476d-8b55-b61c2fa0b8a0.png",
       "tags": [
         "tech",
         "microservices",
@@ -31,18 +31,18 @@
       ]
     },
     "post_02": {
-      "id": "cmtnhesjo00336bq5ohh5kuhu",
+      "id": "cmtnhy4vj004p6bq5uh4bfbcd",
       "authorRef": "user_02",
       "authorId": "6a9b3234412fbdb2e0662593",
       "content": "Designing high-performance real-time data streams with Redis & RabbitMQ. #cloud #systemdesign",
-      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3234412fbdb2e0662593/ast_c1c1d59a-7b19-4bb6-80fa-783c0d875523.png",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3234412fbdb2e0662593/ast_eab20bef-8afe-4b08-ac10-2a16fe6fabae.png",
       "tags": [
         "cloud",
         "systemdesign"
       ]
     },
     "post_03": {
-      "id": "cmtnhesub00386bq5yjrjyltm",
+      "id": "cmtnhy54h004u6bq5m5i95aun",
       "authorRef": "user_03",
       "authorId": "6a9b3237412fbdb2e066259f",
       "content": "Automated seeding flow verification in progress. Everything running clean! #testing #automation",
@@ -85,19 +85,19 @@
         "userRef": "user_02",
         "userId": "6a9b3234412fbdb2e0662593",
         "postRef": "post_01",
-        "postId": "cmtnhes4r002x6bq5snv30qjg"
+        "postId": "cmtnhy4l1004j6bq5nrqmk2zw"
       },
       {
         "userRef": "user_03",
         "userId": "6a9b3237412fbdb2e066259f",
         "postRef": "post_01",
-        "postId": "cmtnhes4r002x6bq5snv30qjg"
+        "postId": "cmtnhy4l1004j6bq5nrqmk2zw"
       },
       {
         "userRef": "user_01",
         "userId": "6a9b3231412fbdb2e0662587",
         "postRef": "post_02",
-        "postId": "cmtnhesjo00336bq5ohh5kuhu"
+        "postId": "cmtnhy4vj004p6bq5uh4bfbcd"
       }
     ],
     "comments": [
@@ -105,7 +105,7 @@
         "userRef": "user_02",
         "userId": "6a9b3234412fbdb2e0662593",
         "postRef": "post_01",
-        "postId": "cmtnhes4r002x6bq5snv30qjg",
+        "postId": "cmtnhy4l1004j6bq5nrqmk2zw",
         "content": "Awesome setup! Great to see clean architecture in action.",
         "commentId": null
       },
@@ -113,7 +113,7 @@
         "userRef": "user_03",
         "userId": "6a9b3237412fbdb2e066259f",
         "postRef": "post_01",
-        "postId": "cmtnhes4r002x6bq5snv30qjg",
+        "postId": "cmtnhy4l1004j6bq5nrqmk2zw",
         "content": "Verified from test runner! Looks rock solid.",
         "commentId": null
       },
@@ -121,7 +121,7 @@
         "userRef": "user_01",
         "userId": "6a9b3231412fbdb2e0662587",
         "postRef": "post_02",
-        "postId": "cmtnhesjo00336bq5ohh5kuhu",
+        "postId": "cmtnhy4vj004p6bq5uh4bfbcd",
         "content": "Redis stampede protection is working smoothly.",
         "commentId": null
       }
@@ -132,39 +132,39 @@
       "count": 5,
       "items": [
         {
-          "id": "cmtnhewp0004c6bq539cgk2av",
+          "id": "cmtnhy8h8005y6bq5nhggvkux",
           "type": "COMMENT",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:28.932Z"
+          "createdAt": "2026-09-04T21:59:30.669Z"
         },
         {
-          "id": "cmtnhewev00476bq57p5lylsl",
+          "id": "cmtnhy87c005t6bq5cem27o5c",
           "type": "COMMENT",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:28.568Z"
+          "createdAt": "2026-09-04T21:59:30.313Z"
         },
         {
-          "id": "cmtnhevpq003x6bq5nkhlfwvr",
+          "id": "cmtnhy7gk005j6bq546zd483w",
           "type": "LIKE",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:27.662Z"
+          "createdAt": "2026-09-04T21:59:29.348Z"
         },
         {
-          "id": "cmtnhevea003s6bq559e246mf",
+          "id": "cmtnhy76t005e6bq5x10zcihb",
           "type": "LIKE",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:27.250Z"
+          "createdAt": "2026-09-04T21:59:28.997Z"
         },
         {
-          "id": "cmtnheufd003n6bq5e6fdr8n9",
+          "id": "cmtnhy6ia00596bq5esajkmq6",
           "type": "FOLLOW",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:25.994Z"
+          "createdAt": "2026-09-04T21:59:28.114Z"
         }
       ]
     },
@@ -172,25 +172,25 @@
       "count": 3,
       "items": [
         {
-          "id": "cmtnhewzz004h6bq5lwpy5d2y",
+          "id": "cmtnhy8r600636bq5924he9qe",
           "type": "COMMENT",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:29.327Z"
+          "createdAt": "2026-09-04T21:59:31.026Z"
         },
         {
-          "id": "cmtnhevzi00426bq5gsklqpo7",
+          "id": "cmtnhy7r7005o6bq5lazl1u3t",
           "type": "LIKE",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:28.015Z"
+          "createdAt": "2026-09-04T21:59:29.732Z"
         },
         {
-          "id": "cmtnhetk6003e6bq587hyb5em",
+          "id": "cmtnhy5qq00506bq53pwbxv0h",
           "type": "FOLLOW",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:24.870Z"
+          "createdAt": "2026-09-04T21:59:27.122Z"
         }
       ]
     },
@@ -198,18 +198,18 @@
       "count": 2,
       "items": [
         {
-          "id": "cmtnheu4n003k6bq5ov6uj1su",
+          "id": "cmtnhy68u00566bq53519m8d6",
           "type": "FOLLOW",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:25.607Z"
+          "createdAt": "2026-09-04T21:59:27.774Z"
         },
         {
-          "id": "cmtnhetu9003h6bq5w667dtv9",
+          "id": "cmtnhy5zq00536bq5iocnkja9",
           "type": "FOLLOW",
           "actorId": null,
           "read": false,
-          "createdAt": "2026-09-04T21:44:25.233Z"
+          "createdAt": "2026-09-04T21:59:27.446Z"
         }
       ]
     }

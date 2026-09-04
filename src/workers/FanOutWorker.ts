@@ -147,6 +147,19 @@ export class FanOutWorker {
       vibeId,
       pushedCount: followers.length,
     });
+
+    try {
+      if (this.cacheService.publish) {
+        const feedSignalPayload = JSON.stringify({
+          type: "new_content",
+          postId: vibeId,
+          recipientIds: followers,
+        });
+        await this.cacheService.publish("realtime:feed", feedSignalPayload);
+      }
+    } catch (pubErr) {
+      this.logger.warn("Failed to publish feed signal to Redis Pub/Sub", { error: pubErr });
+    }
   }
 
   private getDeathCount(msg: ConsumeMessage): number {

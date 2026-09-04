@@ -187,4 +187,14 @@ export class RedisCacheService implements ICacheService {
       return defaultResult;
     }
   }
+
+  public async publish(channel: string, message: string): Promise<number> {
+    if (!this.client) return 0;
+    try {
+      return await this.client.publish(channel, message);
+    } catch (err) {
+      this.logger.warn(`[RedisCacheService] PUBLISH failed for channel [${channel}]`, { channel, error: err });
+      return 0;
+    }
+  }
 }
