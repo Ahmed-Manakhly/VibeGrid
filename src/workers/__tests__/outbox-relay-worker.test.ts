@@ -93,7 +93,7 @@ describe("OutboxRelayWorker Unit Tests", () => {
     expect(result.failed).toBe(1);
     expect(mockRepo.markFailed).toHaveBeenCalledWith(
       "evt_fail_1",
-      expect.stringContaining("RabbitMQ ACK failed: RabbitMQ Channel NACK"),
+      expect.stringContaining("RabbitMQ Channel NACK"),
       expect.any(Date),
       false
     );

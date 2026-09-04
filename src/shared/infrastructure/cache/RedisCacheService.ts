@@ -6,12 +6,17 @@ import {
   RateLimitOptions,
   RateLimitResult,
 } from '@/shared/application/ports/ICacheService';
+import { ILogger } from '@/shared/application/ports/ILogger';
+import { PinoLogger } from '../PinoLogger';
 
 export class RedisCacheService implements ICacheService {
   private client: Redis | null = null;
+  private logger: ILogger;
   private inFlightPromises = new Map<string, Promise<any>>();
 
-  constructor(redisClientOrUrl?: Redis | string) {
+  constructor(redisClientOrUrl?: Redis | string, logger?: ILogger) {
+    this.logger = logger || new PinoLogger("vibegrid-cache");
+
     if (typeof redisClientOrUrl === 'string') {
       this.client = new Redis(redisClientOrUrl, { lazyConnect: true, maxRetriesPerRequest: 3 });
     } else if (redisClientOrUrl) {
@@ -23,13 +28,12 @@ export class RedisCacheService implements ICacheService {
 
     if (this.client && typeof this.client.on === 'function') {
       this.client.on('error', (err) => {
-        console.error('[RedisCacheService] Redis client error:', err?.message || err);
+        this.logger.error('[RedisCacheService] Redis client error:', err);
       });
     }
   }
 
   private applyJitter(ttlSeconds: number): number {
-    // 10% bounded jitter
     const jitter = Math.floor(Math.random() * (ttlSeconds * 0.1));
     return Math.max(1, ttlSeconds + (Math.random() > 0.5 ? jitter : -jitter));
   }
@@ -41,7 +45,7 @@ export class RedisCacheService implements ICacheService {
       if (!raw) return null;
       return JSON.parse(raw) as T;
     } catch (err) {
-      console.warn(`[RedisCacheService] GET failed for key [${key}], falling back to miss`, err);
+      this.logger.warn(`[RedisCacheService] GET failed for key [${key}], falling back to miss`, { key, error: err });
       return null;
     }
   }
@@ -56,7 +60,7 @@ export class RedisCacheService implements ICacheService {
         await this.client.set(key, serialized);
       }
     } catch (err) {
-      console.warn(`[RedisCacheService] SET failed for key [${key}]`, err);
+      this.logger.warn(`[RedisCacheService] SET failed for key [${key}]`, { key, error: err });
     }
   }
 
@@ -65,16 +69,17 @@ export class RedisCacheService implements ICacheService {
     try {
       await this.client.del(key);
     } catch (err) {
-      console.warn(`[RedisCacheService] DELETE failed for key [${key}]`, err);
+      this.logger.warn(`[RedisCacheService] DELETE failed for key [${key}]`, { key, error: err });
     }
   }
 
   public async exists(key: string): Promise<boolean> {
     if (!this.client) return false;
     try {
-      const count = await this.client.exists(key);
-      return count > 0;
-    } catch {
+      const res = await this.client.exists(key);
+      return res === 1;
+    } catch (err) {
+      this.logger.warn(`[RedisCacheService] EXISTS failed for key [${key}]`, { key, error: err });
       return false;
     }
   }
@@ -84,37 +89,29 @@ export class RedisCacheService implements ICacheService {
     loader: () => Promise<T>,
     options?: GetOrSetOptions
   ): Promise<T> {
-    // 1. Try cache lookup
     const cached = await this.get<T>(key);
     if (cached !== null) {
       return cached;
     }
 
-    // 2. Request coalescing (In-memory stampede lock per Node process)
     if (this.inFlightPromises.has(key)) {
       return this.inFlightPromises.get(key)!;
     }
 
-    const loadPromise = (async () => {
+    const promise = (async () => {
       try {
-        const loadedValue = await loader();
-        let finalTtl = options?.ttlSeconds;
-        if (finalTtl && options?.enableJitter) {
-          finalTtl = this.applyJitter(finalTtl);
-        }
-
-        if (loadedValue !== undefined && loadedValue !== null) {
-          await this.set(key, loadedValue, finalTtl);
-        }
-
-        return loadedValue;
+        const fresh = await loader();
+        const baseTtl = options?.ttlSeconds || 300;
+        const finalTtl = options?.enableJitter !== false ? this.applyJitter(baseTtl) : baseTtl;
+        await this.set(key, fresh, finalTtl);
+        return fresh;
       } finally {
         this.inFlightPromises.delete(key);
       }
     })();
 
-    this.inFlightPromises.set(key, loadPromise);
-    return loadPromise;
+    this.inFlightPromises.set(key, promise);
+    return promise;
   }
 
   public async acquireLock(
@@ -128,7 +125,7 @@ export class RedisCacheService implements ICacheService {
       const result = await this.client.set(lockKey, lockOwnerToken, 'PX', ttlMs, 'NX');
       return result === 'OK';
     } catch (err) {
-      console.warn(`[RedisCacheService] Acquire lock failed for [${lockKey}]`, err);
+      this.logger.warn(`[RedisCacheService] Acquire lock failed for [${lockKey}]`, { lockKey, error: err });
       return false;
     }
   }
@@ -146,7 +143,7 @@ export class RedisCacheService implements ICacheService {
       const res = await this.client.eval(luaScript, 1, lockKey, lockOwnerToken);
       return res === 1;
     } catch (err) {
-      console.warn(`[RedisCacheService] Release lock failed for [${lockKey}]`, err);
+      this.logger.warn(`[RedisCacheService] Release lock failed for [${lockKey}]`, { lockKey, error: err });
       return false;
     }
   }
@@ -186,7 +183,7 @@ export class RedisCacheService implements ICacheService {
         resetSeconds: ttl > 0 ? ttl : windowSeconds,
       };
     } catch (err) {
-      console.warn(`[RedisCacheService] RateLimit failed for [${limitKey}], failing open`, err);
+      this.logger.warn(`[RedisCacheService] RateLimit failed for [${limitKey}], failing open`, { limitKey, error: err });
       return defaultResult;
     }
   }

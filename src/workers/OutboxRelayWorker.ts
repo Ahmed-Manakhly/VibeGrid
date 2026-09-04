@@ -1,6 +1,8 @@
 import amqp, { ConfirmChannel, Connection } from "amqplib";
 import { IOutboxRepository } from "@/modules/outbox/domain/IOutboxRepository";
 import { OutboxEvent } from "@/modules/outbox/domain/OutboxEvent";
+import { ILogger } from "@/shared/application/ports/ILogger";
+import { PinoLogger } from "@/shared/infrastructure/PinoLogger";
 
 export interface OutboxRelayWorkerConfig {
   rabbitUrl: string;
@@ -10,6 +12,7 @@ export interface OutboxRelayWorkerConfig {
   maxAttempts?: number;
   leaseMs?: number;
   workerId?: string;
+  logger?: ILogger;
 }
 
 export class OutboxRelayWorker {
@@ -17,6 +20,7 @@ export class OutboxRelayWorker {
   private channel: any = null;
   private isRunning = false;
   private timerId: NodeJS.Timeout | null = null;
+  private logger: ILogger;
 
   private readonly exchange: string;
   private readonly pollIntervalMs: number;
@@ -42,13 +46,14 @@ export class OutboxRelayWorker {
     this.maxAttempts = config.maxAttempts || 5;
     this.leaseMs = config.leaseMs || 30000;
     this.workerId = config.workerId || `relay-worker-${process.pid}-${Math.random().toString(36).substring(2, 7)}`;
+    this.logger = config.logger || new PinoLogger("vibegrid-outbox-relay");
   }
 
   public async start(): Promise<void> {
     if (this.isRunning) return;
     this.isRunning = true;
 
-    console.log(`🚀 [OutboxRelayWorker] Starting relay worker [${this.workerId}]...`);
+    this.logger.info(`Starting relay worker [${this.workerId}]`, { workerId: this.workerId });
     await this.connectRabbit();
 
     this.scheduleNextPoll(0);
@@ -60,13 +65,14 @@ export class OutboxRelayWorker {
       const conn: any = await amqp.connect(rabbitUrl);
       this.connection = conn;
       this.channel = await conn.createConfirmChannel();
+      await this.channel.assertExchange(this.exchange, "topic", { durable: true });
 
-      if (this.channel) {
-        await this.channel.assertExchange(this.exchange, "topic", { durable: true });
-        console.log(`✅ [OutboxRelayWorker] Connected to RabbitMQ Exchange [${this.exchange}] with Confirm Channel.`);
-      }
+      this.logger.info(`Connected to RabbitMQ Exchange [${this.exchange}] with Confirm Channel`, {
+        exchange: this.exchange,
+        workerId: this.workerId,
+      });
     } catch (err: any) {
-      console.error(`❌ [OutboxRelayWorker] Failed to connect to RabbitMQ:`, err.message);
+      this.logger.error(`Failed to connect to RabbitMQ`, { error: err, workerId: this.workerId });
     }
   }
 
@@ -74,7 +80,7 @@ export class OutboxRelayWorker {
     if (!this.isRunning) return;
     this.timerId = setTimeout(() => {
       this.pollAndPublish()
-        .catch((err) => console.error(`[OutboxRelayWorker] Error in poll iteration:`, err))
+        .catch((err) => this.logger.error(`Error in poll iteration`, { error: err, workerId: this.workerId }))
         .finally(() => this.scheduleNextPoll(this.pollIntervalMs));
     }, delayMs);
   }
@@ -84,70 +90,98 @@ export class OutboxRelayWorker {
 
     if (!this.channel) {
       await this.connectRabbit();
-      if (!this.channel) return { claimed: 0, published: 0, failed: 0 };
+      if (!this.channel) {
+        return { claimed: 0, published: 0, failed: 0 };
+      }
     }
 
-    // 1. Atomically claim batch of pending events using FOR UPDATE SKIP LOCKED
-    const events = await this.outboxRepo.claimBatch(this.batchSize, this.workerId, this.leaseMs);
+    let events: OutboxEvent[] = [];
+    try {
+      events = await this.outboxRepo.claimBatch(this.batchSize, this.workerId, this.leaseMs);
+    } catch (err) {
+      this.logger.error(`Error claiming pending outbox events`, { error: err, workerId: this.workerId });
+      return { claimed: 0, published: 0, failed: 0 };
+    }
+
     if (events.length === 0) {
       return { claimed: 0, published: 0, failed: 0 };
     }
 
+    this.logger.info(`Claimed ${events.length} pending outbox event(s)`, {
+      count: events.length,
+      workerId: this.workerId,
+    });
     this.metrics.totalClaimed += events.length;
-    console.log(`📡 [OutboxRelayWorker] Claimed ${events.length} pending outbox event(s)`);
 
     const publishedIds: string[] = [];
-    let failedCount = 0;
+    const failedEvents: Array<{ event: OutboxEvent; error: string }> = [];
 
-    // 2. Publish each event with RabbitMQ Publisher Confirmation
     for (const event of events) {
       try {
-        await this.publishEventWithConfirm(event);
+        await this.publishWithConfirmation(event);
         publishedIds.push(event.eventId);
       } catch (err: any) {
-        failedCount++;
-        const nextAttempts = event.attempts + 1;
-        const isMax = nextAttempts >= this.maxAttempts;
-        const backoffMs = this.calculateBackoff(nextAttempts);
-        const availableAt = new Date(Date.now() + backoffMs);
-
-        console.error(
-          `⚠️ [OutboxRelayWorker] Failed to publish event [${event.eventId}] (${event.eventType}). Attempt ${nextAttempts}/${this.maxAttempts}. Error: ${err.message}`
-        );
-
-        await this.outboxRepo.markFailed(event.eventId, err.message || "Publish failed", availableAt, isMax);
+        this.logger.error(`Failed to publish outbox event [${event.eventId}]`, {
+          eventId: event.eventId,
+          eventType: event.eventType,
+          error: err,
+        });
+        failedEvents.push({ event, error: err?.message || String(err) });
       }
     }
 
-    // 3. Mark successfully published events
     if (publishedIds.length > 0) {
       await this.outboxRepo.markPublished(publishedIds);
       this.metrics.totalPublished += publishedIds.length;
-      console.log(`   ✓ Successfully published ${publishedIds.length} outbox event(s) to RabbitMQ.`);
+      this.logger.info(`Successfully published ${publishedIds.length} outbox event(s) to RabbitMQ`, {
+        publishedCount: publishedIds.length,
+        workerId: this.workerId,
+      });
     }
 
-    this.metrics.totalFailed += failedCount;
-    return { claimed: events.length, published: publishedIds.length, failed: failedCount };
+    for (const { event, error } of failedEvents) {
+      this.metrics.totalFailed++;
+      const nextAttempt = event.attempts + 1;
+      const isMaxAttempts = nextAttempt >= this.maxAttempts;
+      const baseDelayMs = Math.min(1000 * Math.pow(2, nextAttempt), 60000);
+      const jitterMs = Math.floor(Math.random() * 500);
+      const availableAt = new Date(Date.now() + baseDelayMs + jitterMs);
+
+      await this.outboxRepo.markFailed(event.eventId, error, availableAt, isMaxAttempts);
+    }
+
+    return {
+      claimed: events.length,
+      published: publishedIds.length,
+      failed: failedEvents.length,
+    };
   }
 
-  private publishEventWithConfirm(event: OutboxEvent): Promise<void> {
+  private publishWithConfirmation(event: OutboxEvent): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (!this.channel) {
-        return reject(new Error("RabbitMQ confirm channel not initialized"));
-      }
+      const envelope = event.toCanonicalEnvelope();
+      const content = Buffer.from(JSON.stringify(envelope));
 
-      const envelope = event.toCanonicalEnvelope(1);
       const routingKey = event.eventType;
-      const buffer = Buffer.from(JSON.stringify(envelope));
 
       this.channel.publish(
         this.exchange,
         routingKey,
-        buffer,
-        { persistent: true, messageId: event.eventId, timestamp: Math.floor(event.occurredAt.getTime() / 1000) },
+        content,
+        {
+          persistent: true,
+          contentType: "application/json",
+          messageId: event.eventId,
+          timestamp: event.createdAt.getTime(),
+          headers: {
+            aggregateType: event.aggregateType,
+            aggregateId: event.aggregateId,
+            correlationId: (event.payload as any)?.correlationId || event.eventId,
+          },
+        },
         (err: any) => {
           if (err) {
-            reject(new Error(`RabbitMQ ACK failed: ${err.message || err}`));
+            reject(err);
           } else {
             resolve();
           }
@@ -156,37 +190,26 @@ export class OutboxRelayWorker {
     });
   }
 
-  private calculateBackoff(attempt: number): number {
-    const baseMs = 1000;
-    const maxBackoffMs = 60000;
-    const jitter = Math.floor(Math.random() * 200);
-    const exponential = Math.min(maxBackoffMs, baseMs * Math.pow(2, attempt - 1));
-    return exponential + jitter;
+  public async stop(): Promise<void> {
+    this.isRunning = false;
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+    if (this.channel && typeof this.channel.close === "function") {
+      await this.channel.close().catch(() => {});
+    }
+    if (this.connection && typeof this.connection.close === "function") {
+      await this.connection.close().catch(() => {});
+    }
+    this.logger.info(`Stopped relay worker [${this.workerId}]`, { workerId: this.workerId });
   }
 
   public getMetrics() {
-    return { ...this.metrics, isRunning: this.isRunning, workerId: this.workerId };
-  }
-
-  public async stop(): Promise<void> {
-    this.isRunning = false;
-    if (this.timerId) clearTimeout(this.timerId);
-
-    if (this.outboxRepo && typeof this.outboxRepo.releaseLease === 'function') {
-      try {
-        await this.outboxRepo.releaseLease(this.workerId);
-      } catch {
-        // Ignore release lease errors during shutdown
-      }
-    }
-
-    if (this.channel && typeof (this.channel as any).close === 'function') {
-      await (this.channel as any).close().catch(() => {});
-    }
-    if (this.connection && typeof (this.connection as any).close === 'function') {
-      await (this.connection as any).close().catch(() => {});
-    }
-
-    console.log(`🛑 [OutboxRelayWorker] Stopped relay worker [${this.workerId}].`);
+    return {
+      ...this.metrics,
+      workerId: this.workerId,
+      isRunning: this.isRunning,
+    };
   }
 }

@@ -1,7 +1,10 @@
 import { prisma } from "./prisma";
 
-// Cache Infrastructure
+// Cache & Logging Infrastructure
 import { RedisCacheService } from "../infrastructure/cache/RedisCacheService";
+import { PinoLogger } from "../infrastructure/PinoLogger";
+
+export const logger = new PinoLogger("vibegrid-bff");
 
 // Vibe Module
 import { PrismaVibeRepository } from "@/modules/vibe/infrastructure/PrismaVibeRepository";

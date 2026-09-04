@@ -1,14 +1,19 @@
 import { IEventBus } from "@/shared/domain/events/IEventBus";
 import { IOutboxRepository } from "../domain/IOutboxRepository";
 import { OutboxEvent } from "../domain/OutboxEvent";
+import { ILogger } from "@/shared/application/ports/ILogger";
+import { PinoLogger } from "@/shared/infrastructure/PinoLogger";
 import crypto from "crypto";
 
 type EventCallback<T = any> = (event: T) => Promise<void> | void;
 
 export class TransactionalOutboxEventBus implements IEventBus {
   private listeners: Record<string, EventCallback[]> = {};
+  private logger: ILogger;
 
-  constructor(private outboxRepository: IOutboxRepository) {}
+  constructor(private outboxRepository: IOutboxRepository, logger?: ILogger) {
+    this.logger = logger || new PinoLogger("vibegrid-eventbus");
+  }
 
   public subscribe<T>(eventName: string, callback: EventCallback<T>): void {
     if (!this.listeners[eventName]) {
@@ -35,7 +40,7 @@ export class TransactionalOutboxEventBus implements IEventBus {
     // 2. Dispatch to local in-memory subscribers asynchronously
     const callbacks = this.listeners[eventName] || [];
     Promise.allSettled(callbacks.map((cb) => cb(payload))).catch((err) =>
-      console.error(`[TransactionalOutboxEventBus] Subscriber error for ${eventName}:`, err)
+      this.logger.error(`Subscriber error for event [${eventName}]`, { eventName, error: err })
     );
   }
 

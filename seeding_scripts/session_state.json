@@ -19,11 +19,11 @@
   },
   "posts": {
     "post_01": {
-      "id": "cmtnfys8e00016bq5baq9vb0l",
+      "id": "cmtngt2kp001n6bq52roj1sl2",
       "authorRef": "user_01",
       "authorId": "6a9b3231412fbdb2e0662587",
       "content": "Excited to launch the new VibeGrid microservice architecture! #tech #microservices #vibegrid",
-      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3231412fbdb2e0662587/ast_bf7ec462-6436-4157-99ca-70c275590b7c.png",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3231412fbdb2e0662587/ast_794e3dd0-d631-413f-9029-631f4cf647a0.png",
       "tags": [
         "tech",
         "microservices",
@@ -31,18 +31,18 @@
       ]
     },
     "post_02": {
-      "id": "cmtnfysnq00076bq5brwlw73n",
+      "id": "cmtngt2yg001t6bq5he2bu6c6",
       "authorRef": "user_02",
       "authorId": "6a9b3234412fbdb2e0662593",
       "content": "Designing high-performance real-time data streams with Redis & RabbitMQ. #cloud #systemdesign",
-      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3234412fbdb2e0662593/ast_74c2f484-1efd-43ae-9727-5100924f4f8a.png",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6a9b3234412fbdb2e0662593/ast_43695a18-bbe4-4880-89ba-3fad5882b423.png",
       "tags": [
         "cloud",
         "systemdesign"
       ]
     },
     "post_03": {
-      "id": "cmtnfysxj000c6bq5m70redo6",
+      "id": "cmtngt39r001y6bq5k79zbdhx",
       "authorRef": "user_03",
       "authorId": "6a9b3237412fbdb2e066259f",
       "content": "Automated seeding flow verification in progress. Everything running clean! #testing #automation",
@@ -85,19 +85,19 @@
         "userRef": "user_02",
         "userId": "6a9b3234412fbdb2e0662593",
         "postRef": "post_01",
-        "postId": "cmtnfys8e00016bq5baq9vb0l"
+        "postId": "cmtngt2kp001n6bq52roj1sl2"
       },
       {
         "userRef": "user_03",
         "userId": "6a9b3237412fbdb2e066259f",
         "postRef": "post_01",
-        "postId": "cmtnfys8e00016bq5baq9vb0l"
+        "postId": "cmtngt2kp001n6bq52roj1sl2"
       },
       {
         "userRef": "user_01",
         "userId": "6a9b3231412fbdb2e0662587",
         "postRef": "post_02",
-        "postId": "cmtnfysnq00076bq5brwlw73n"
+        "postId": "cmtngt2yg001t6bq5he2bu6c6"
       }
     ],
     "comments": [
@@ -105,7 +105,7 @@
         "userRef": "user_02",
         "userId": "6a9b3234412fbdb2e0662593",
         "postRef": "post_01",
-        "postId": "cmtnfys8e00016bq5baq9vb0l",
+        "postId": "cmtngt2kp001n6bq52roj1sl2",
         "content": "Awesome setup! Great to see clean architecture in action.",
         "commentId": null
       },
@@ -113,7 +113,7 @@
         "userRef": "user_03",
         "userId": "6a9b3237412fbdb2e066259f",
         "postRef": "post_01",
-        "postId": "cmtnfys8e00016bq5baq9vb0l",
+        "postId": "cmtngt2kp001n6bq52roj1sl2",
         "content": "Verified from test runner! Looks rock solid.",
         "commentId": null
       },
@@ -121,7 +121,7 @@
         "userRef": "user_01",
         "userId": "6a9b3231412fbdb2e0662587",
         "postRef": "post_02",
-        "postId": "cmtnfysnq00076bq5brwlw73n",
+        "postId": "cmtngt2yg001t6bq5he2bu6c6",
         "content": "Redis stampede protection is working smoothly.",
         "commentId": null
       }
@@ -129,67 +129,109 @@
   },
   "notifications": {
     "user_01": {
-      "count": 5,
+      "count": 9,
       "items": [
+        {
+          "id": "cmtngt6ws002q6bq5pomq4het",
+          "type": "COMMENT",
+          "actorId": null,
+          "read": false,
+          "createdAt": "2026-09-04T21:27:35.740Z"
+        },
+        {
+          "id": "cmtngt6mq002l6bq5l8mr3bsi",
+          "type": "COMMENT",
+          "actorId": null,
+          "read": false,
+          "createdAt": "2026-09-04T21:27:35.378Z"
+        },
+        {
+          "id": "cmtngt60g002b6bq5z1nvwfbz",
+          "type": "LIKE",
+          "actorId": null,
+          "read": false,
+          "createdAt": "2026-09-04T21:27:34.576Z"
+        },
+        {
+          "id": "cmtngt5pv00266bq5l7leqiv0",
+          "type": "LIKE",
+          "actorId": null,
+          "read": false,
+          "createdAt": "2026-09-04T21:27:34.196Z"
+        },
         {
           "id": "cmtnfyx52001g6bq5a99x6q45",
           "type": "COMMENT",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:04:03.398Z"
         },
         {
           "id": "cmtnfywus001b6bq5adurq3zq",
           "type": "COMMENT",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:04:03.028Z"
         },
         {
           "id": "cmtnfyvof00116bq5zf0fvxof",
           "type": "LIKE",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:04:01.503Z"
         },
         {
           "id": "cmtnfyves000w6bq5n8mkwj1m",
           "type": "LIKE",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:04:01.156Z"
         },
         {
           "id": "cmtnfyugw000r6bq5kjtef42q",
           "type": "FOLLOW",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:03:59.936Z"
         }
       ]
     },
     "user_02": {
-      "count": 3,
+      "count": 5,
       "items": [
+        {
+          "id": "cmtngt76s002v6bq50a9qmuxn",
+          "type": "COMMENT",
+          "actorId": null,
+          "read": false,
+          "createdAt": "2026-09-04T21:27:36.101Z"
+        },
+        {
+          "id": "cmtngt6af002g6bq5hzufswk1",
+          "type": "LIKE",
+          "actorId": null,
+          "read": false,
+          "createdAt": "2026-09-04T21:27:34.935Z"
+        },
         {
           "id": "cmtnfyxfy001l6bq5sll0y50d",
           "type": "COMMENT",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:04:03.790Z"
         },
         {
           "id": "cmtnfyvz800166bq55y59g75e",
           "type": "LIKE",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:04:01.892Z"
         },
         {
           "id": "cmtnfytnl000i6bq5q6dolxw9",
           "type": "FOLLOW",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:03:58.881Z"
         }
       ]
@@ -201,14 +243,14 @@
           "id": "cmtnfyu6z000o6bq5n4xiyqe5",
           "type": "FOLLOW",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:03:59.580Z"
         },
         {
           "id": "cmtnfytxt000l6bq5dazbmmu9",
           "type": "FOLLOW",
           "actorId": null,
-          "read": false,
+          "read": true,
           "createdAt": "2026-09-04T21:03:59.249Z"
         }
       ]
