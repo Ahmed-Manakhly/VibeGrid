@@ -22,6 +22,7 @@ export async function uploadMediaAsset({ file, purpose }: UploadMediaOptions): P
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
     body: JSON.stringify({
       filename: file.name,
       mimeType: file.type,
@@ -32,10 +33,12 @@ export async function uploadMediaAsset({ file, purpose }: UploadMediaOptions): P
 
   if (!intentRes.ok) {
     const errorData = await intentRes.json().catch(() => ({}));
-    throw new Error(errorData.error || 'Failed to initiate upload intent');
+    throw new Error(errorData.error || errorData.message || 'Failed to initiate upload intent');
   }
 
-  const { assetId, uploadUrl } = await intentRes.json();
+  const intentData = await intentRes.json();
+  const assetId = intentData.data?.assetId || intentData.assetId;
+  const uploadUrl = intentData.data?.uploadUrl || intentData.uploadUrl;
 
   // Step 2: Directly upload binary content to pre-signed URL (MinIO)
   const putRes = await fetch(uploadUrl, {
@@ -56,15 +59,17 @@ export async function uploadMediaAsset({ file, purpose }: UploadMediaOptions): P
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
     body: JSON.stringify({ assetId }),
   });
 
   if (!confirmRes.ok) {
     const errorData = await confirmRes.json().catch(() => ({}));
-    throw new Error(errorData.error || 'Failed to confirm upload');
+    throw new Error(errorData.error || errorData.message || 'Failed to confirm upload');
   }
 
-  const { publicUrl } = await confirmRes.json();
+  const confirmData = await confirmRes.json();
+  const publicUrl = confirmData.data?.publicUrl || confirmData.publicUrl;
 
   return {
     assetId,

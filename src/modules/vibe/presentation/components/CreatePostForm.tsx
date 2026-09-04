@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
+import { ImageIcon, FilmIcon, Loader2Icon, SendIcon } from "lucide-react";
 import { createPostFormAction } from "@/actions/post.action";
 import toast from "react-hot-toast";
 import ImageUpload from "@/components/ImageUpload";
@@ -195,8 +195,11 @@ export default function CreatPost() {
                                     <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-white/5 transition-all rounded-xl"
                                         onClick={() => setShowImageUpload(!showImageUpload)}
                                     >
-                                        <ImageIcon className="size-4 mr-2" />
-                                        Photo
+                                        <div className="flex items-center gap-1.5 mr-2">
+                                            <ImageIcon className="size-4" />
+                                            <FilmIcon className="size-4" />
+                                        </div>
+                                        Media
                                     </Button>
                                 </div>
                                 <div className="flex items-center gap-2">
