@@ -2,6 +2,8 @@
 // placing generateMetadata here | which is a next fun to change the tile dynamically for ex | it will also has an access to the params
 //so we can set the metaData based on this user and all the info about him
 
+export const dynamic = "force-dynamic";
+
 import {
     getProfileByUsername,
     isFollowing,

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getPostById } from "@/actions/post.action";
 import { getDbUserId } from "@/actions/user.action";
 import PostCard from "@/components/PostCard";

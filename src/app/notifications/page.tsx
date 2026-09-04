@@ -9,6 +9,8 @@
 
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { getNotifications, markNotificationsAsRead } from "@/actions/notification.action";
 import { NotificationsSkeleton } from "@/components/NotificationSkeleton";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
