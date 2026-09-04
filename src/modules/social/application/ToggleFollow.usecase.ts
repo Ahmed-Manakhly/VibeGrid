@@ -15,7 +15,7 @@ export class ToggleFollowUseCase {
     } else {
       await this.socialRepository.addFollow(userId, targetUserId);
       
-      this.eventBus.publish("UserFollowedEvent", {
+      await this.eventBus.publish("UserFollowedEvent", {
         followerId: userId,
         followingId: targetUserId,
         timestamp: new Date(),

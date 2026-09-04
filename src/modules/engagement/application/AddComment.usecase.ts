@@ -9,7 +9,7 @@ export class AddCommentUseCase {
     const result = await this.engagementRepository.addComment(vibeId, userId, content);
     if (result.success) {
       if (result.value.authorId !== userId) {
-        this.eventBus.publish("CommentAddedEvent", {
+        await this.eventBus.publish("CommentAddedEvent", {
           vibeId,
           commentId: result.value.commentId,
           commenterId: userId,

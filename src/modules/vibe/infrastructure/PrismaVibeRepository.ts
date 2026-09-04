@@ -8,8 +8,9 @@ import { vibeFeedQueryConfig } from "./VibeFeedQueryConfig";
 export class PrismaVibeRepository implements IVibeRepository {
   constructor(private db: PrismaClient) {}
 
-  async create(data: { content: string; imageUrl: string; authorId: string; categoryId?: string; vibeId?: string; tags?: string[] }): Promise<Result<any>> {
+  async create(data: { content: string; imageUrl: string; authorId: string; categoryId?: string; vibeId?: string; tags?: string[] }, tx?: any): Promise<Result<any>> {
     try {
+      const db = tx || this.db;
       const postData: any = {
       content: data.content,
       image: data.imageUrl,
@@ -32,7 +33,7 @@ export class PrismaVibeRepository implements IVibeRepository {
       };
     }
 
-      const post = await this.db.post.create({
+      const post = await db.post.create({
         data: postData,
       });
       return success(post);
@@ -42,9 +43,10 @@ export class PrismaVibeRepository implements IVibeRepository {
     }
   }
 
-  async deletePost(id: string, authorId: string): Promise<Result<void>> {
+  async deletePost(id: string, authorId: string, tx?: any): Promise<Result<void>> {
     try {
-      const post = await this.db.post.findUnique({
+      const db = tx || this.db;
+      const post = await db.post.findUnique({
         where: { id },
         select: { authorId: true },
       });
@@ -53,7 +55,7 @@ export class PrismaVibeRepository implements IVibeRepository {
       if (post.authorId !== authorId)
         return failure(new Error("you are not the author of this post!"));
 
-      await this.db.post.delete({ where: { id } });
+      await db.post.delete({ where: { id } });
       return success(undefined);
     } catch (error) {
       console.error("[PrismaVibeRepository] Error deleting vibe", error);

@@ -43,13 +43,15 @@ import { GetTrendingTagsUseCase } from "@/modules/taxonomy/application/GetTrendi
 import { CreateCategoryUseCase } from "@/modules/taxonomy/application/CreateCategory.usecase";
 import { CreateVibeTaxonomyUseCase } from "@/modules/taxonomy/application/CreateVibeTaxonomy.usecase";
 
-// Events Module
-import { InMemoryEventBus } from "@/shared/infrastructure/events/InMemoryEventBus";
+// Outbox Module
+import { PrismaOutboxRepository } from "@/modules/outbox/infrastructure/PrismaOutboxRepository";
+import { TransactionalOutboxEventBus } from "@/modules/outbox/infrastructure/TransactionalOutboxEventBus";
 
 // 0. Cache Singleton
 export const cacheService = new RedisCacheService();
 
 // 1. Instantiate Repositories (Inject DB)
+export const outboxRepository = new PrismaOutboxRepository(prisma);
 export const vibeRepository = new PrismaVibeRepository(prisma);
 const engagementRepository = new PrismaEngagementRepository(prisma);
 const notificationRepository = new PrismaNotificationRepository(prisma);
@@ -59,7 +61,7 @@ const taxonomyRepository = new PrismaTaxonomyRepository(prisma);
 const profileRepository = new PrismaProfileRepository(prisma);
 
 export const authGateway = new BffAuthGateway(prisma);
-export const eventBus = new InMemoryEventBus();
+export const eventBus = new TransactionalOutboxEventBus(outboxRepository);
 
 // 2. Instantiate Use Cases (Inject Repositories & Cache)
 // Vibe

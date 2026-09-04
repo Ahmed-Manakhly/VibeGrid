@@ -9,7 +9,7 @@ export class ToggleLikeUseCase {
     const result = await this.engagementRepository.toggleLike(vibeId, userId);
     if (result.success && result.value.isLiked) {
       if (result.value.authorId !== userId) {
-        this.eventBus.publish("LikeToggledEvent", {
+        await this.eventBus.publish("LikeToggledEvent", {
           vibeId,
           likerId: userId,
           authorId: result.value.authorId,

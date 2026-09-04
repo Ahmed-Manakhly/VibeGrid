@@ -36,7 +36,7 @@ export class CreateVibeUseCase {
       vibeId
     });
     if (result.success) {
-      this.eventBus.publish("VibeCreatedEvent", {
+      await this.eventBus.publish("VibeCreatedEvent", {
         vibeId: result.value.id,
         authorId,
         timestamp: new Date(),
