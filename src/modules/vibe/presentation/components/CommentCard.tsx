@@ -43,8 +43,8 @@ export function CommentCard({ comment, dbUserId, postId }: { comment: any, dbUse
                     <span className="font-medium text-[13px] sm:text-sm text-foreground truncate">{comment.author.name}</span>
                     <span className="truncate">@{comment.author.username}</span>
                     <span className="shrink-0">•</span>
-                    <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
-                    <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(comment.createdAt))}</span>
+                    <span className="shrink-0 hidden sm:inline" suppressHydrationWarning>{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
+                    <span className="shrink-0 sm:hidden" suppressHydrationWarning>{formatRelativeTime(new Date(comment.createdAt))}</span>
                 </div>
                 <p className="text-sm break-words">{comment.content}</p>
             </div>

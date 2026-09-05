@@ -118,7 +118,7 @@ function NotificationsPage() {
                                             </div>
                                         )}
                                         {/* ------------------------------------------------ */}
-                                        <p className="text-sm text-muted-foreground pl-6">
+                                        <p className="text-sm text-muted-foreground pl-6" suppressHydrationWarning>
                                             {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                                         </p>
                                     </div>

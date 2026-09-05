@@ -126,13 +126,13 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                                     <span className="shrink-0">•</span>
                                     {isDetailPage ? (
                                         <>
-                                            <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(post.createdAt))} ago</span>
-                                            <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(post.createdAt))}</span>
+                                            <span className="shrink-0 hidden sm:inline" suppressHydrationWarning>{formatDistanceToNow(new Date(post.createdAt))} ago</span>
+                                            <span className="shrink-0 sm:hidden" suppressHydrationWarning>{formatRelativeTime(new Date(post.createdAt))}</span>
                                         </>
                                     ) : (
                                         <Link href={`/vibes/${post.id}`} className="hover:underline flex items-center space-x-1 sm:space-x-2">
-                                            <span className="shrink-0 hidden sm:inline">{formatDistanceToNow(new Date(post.createdAt))} ago</span>
-                                            <span className="shrink-0 sm:hidden">{formatRelativeTime(new Date(post.createdAt))}</span>
+                                            <span className="shrink-0 hidden sm:inline" suppressHydrationWarning>{formatDistanceToNow(new Date(post.createdAt))} ago</span>
+                                            <span className="shrink-0 sm:hidden" suppressHydrationWarning>{formatRelativeTime(new Date(post.createdAt))}</span>
                                         </Link>
                                     )}
                                 </div>
