@@ -24,11 +24,29 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
   const { ref, inView } = useInView();
   const { latestFeedSignal } = useRealtime();
 
-  // Reset when searchParams change (so initialPosts take over)
+  const [prevSearchParams, setPrevSearchParams] = useState(searchParams.toString());
+
+  // Reconcile initialPosts when server revalidates or searchParams change
   useEffect(() => {
-    setPosts(initialPosts);
-    setNextCursor(initialNextCursor);
-  }, [searchParams, initialPosts, initialNextCursor]);
+    const currentParamsStr = searchParams.toString();
+    if (currentParamsStr !== prevSearchParams) {
+      setPrevSearchParams(currentParamsStr);
+      setPosts(initialPosts);
+      setNextCursor(initialNextCursor);
+      return;
+    }
+
+    setPosts((prev) => {
+      if (!prev || prev.length === 0) {
+        setNextCursor(initialNextCursor);
+        return initialPosts;
+      }
+      const existingIds = new Set(prev.map((p) => p.id));
+      const newItems = initialPosts.filter((p) => !existingIds.has(p.id));
+      if (newItems.length === 0) return prev;
+      return [...newItems, ...prev];
+    });
+  }, [searchParams, initialPosts, initialNextCursor, prevSearchParams]);
 
   // Controlled Realtime Reconciliation: Prepend new posts without destroying loaded pagination
   useEffect(() => {

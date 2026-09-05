@@ -73,6 +73,27 @@ export class RedisCacheService implements ICacheService {
     }
   }
 
+  public async delByPattern(pattern: string): Promise<void> {
+    if (!this.client) return;
+    try {
+      let cursor = '0';
+      const keysToDelete: string[] = [];
+      do {
+        const [nextCursor, keys] = await this.client.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+        cursor = nextCursor;
+        if (keys && keys.length > 0) {
+          keysToDelete.push(...keys);
+        }
+      } while (cursor !== '0');
+
+      if (keysToDelete.length > 0) {
+        await this.client.del(...keysToDelete);
+      }
+    } catch (err) {
+      this.logger.warn(`[RedisCacheService] delByPattern failed for pattern [${pattern}]`, { pattern, error: err });
+    }
+  }
+
   public async exists(key: string): Promise<boolean> {
     if (!this.client) return false;
     try {

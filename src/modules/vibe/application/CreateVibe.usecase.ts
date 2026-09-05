@@ -1,9 +1,13 @@
 import { IVibeRepository } from "../domain/IVibeRepository";
-// import { vibeRepository } from "../infrastructure/PrismaVibeRepository";
 import { IEventBus } from "@/shared/domain/events/IEventBus";
+import { ICacheService } from "@/shared/application/ports/ICacheService";
 
 export class CreateVibeUseCase {
-  constructor(private vibeRepository: IVibeRepository, private eventBus: IEventBus) {}
+  constructor(
+    private vibeRepository: IVibeRepository,
+    private eventBus: IEventBus,
+    private cacheService?: ICacheService
+  ) {}
 
   async execute(content: string, image: string, authorId: string, tags?: string[], mood?: string, categoryId?: string, vibeId?: string) {
     if (!authorId) return { success: false as const, error: "No user found!" };
@@ -36,6 +40,10 @@ export class CreateVibeUseCase {
       vibeId
     });
     if (result.success) {
+      if (this.cacheService?.delByPattern) {
+        await this.cacheService.delByPattern("feed:query:*");
+        await this.cacheService.delByPattern(`timeline:${authorId}`);
+      }
       await this.eventBus.publish("VibeCreatedEvent", {
         vibeId: result.value.id,
         authorId,

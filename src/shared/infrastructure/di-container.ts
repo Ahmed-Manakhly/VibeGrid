@@ -69,9 +69,9 @@ export const eventBus = new TransactionalOutboxEventBus(outboxRepository);
 
 // 2. Instantiate Use Cases (Inject Repositories & Cache)
 // Vibe
-export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus);
+export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus, cacheService);
 export const generateFeedUseCase = new GenerateFeedUseCase(vibeRepository, cacheService);
-export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository, eventBus);
+export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository, eventBus, cacheService);
 
 // Engagement
 export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository, eventBus);

@@ -23,6 +23,7 @@ export interface ICacheService {
   get<T>(key: string): Promise<T | null>;
   set<T>(key: string, value: T, ttlSeconds?: number): Promise<void>;
   delete(key: string): Promise<void>;
+  delByPattern?(pattern: string): Promise<void>;
   exists(key: string): Promise<boolean>;
   getOrSet<T>(key: string, loader: () => Promise<T>, options?: GetOrSetOptions): Promise<T>;
   acquireLock(lockKey: string, lockOwnerToken: string, options?: LockOptions): Promise<boolean>;
