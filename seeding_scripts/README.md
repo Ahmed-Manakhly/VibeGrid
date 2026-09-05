@@ -13,8 +13,8 @@ VibeGrid utilizes a **standalone HTTP seeding architecture**. Seeder bots intera
 > [!WARNING]
 > **Full System Wipe (Two Databases)**
 > VibeGrid uses PostgreSQL (for profiles) and MongoDB (for auth credentials). To perform a true full wipe before seeding, you must clean both:
-> 1. `node seeding_scripts/db_cleaners/clean_all.js --confirm` (Wipes Prisma/PostgreSQL)
-> 2. `node ../VibeGrid_Services/services/auth/scripts/clean_mongo.js` (Wipes MongoDB)
+> 1. `node seeding_scripts/db_cleaners/clean_all.js --confirm` (Wipes Prisma/PostgreSQL, **INCLUDING** Admins)
+> 2. `node ../VibeGrid_Services/services/auth/scripts/clean_mongo.js --include-admins` (Wipes MongoDB completely, **INCLUDING** Admins)
 
 ---
 
