@@ -39,8 +39,8 @@ async function cleanAll() {
     ['Tag',            () => prisma.tag.deleteMany({})],
     ['Category',       () => prisma.category.deleteMany({})],
     ['Vibe',           () => prisma.vibe.deleteMany({})],
-    // Users last (preserve ADMIN)
-    ['User',           () => prisma.user.deleteMany({ where: { role: { not: 'ADMIN' } } })],
+    // Users (Leaf-level entity that connects to everything else)
+    ['User',           () => prisma.user.deleteMany({})],
   ];
 
   for (const [label, fn] of steps) {
