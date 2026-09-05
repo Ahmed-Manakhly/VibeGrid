@@ -4,21 +4,29 @@ import { PrismaClient } from "@prisma/client";
 export class PrismaSocialRepository implements ISocialRepository {
   constructor(private db: PrismaClient) {}
 
-  async getSuggestedUsers(currentUserId: string): Promise<any[]> {
+  async getSuggestedUsers(currentUserId?: string): Promise<any[]> {
     try {
+      const whereCondition = currentUserId
+        ? {
+            AND: [
+              { NOT: { id: currentUserId } },
+              { NOT: { followers: { some: { followerId: currentUserId } } } },
+            ],
+          }
+        : {};
+
       return this.db.user.findMany({
-        where: {
-          AND: [
-            { NOT: { id: currentUserId } },
-            { NOT: { followers: { some: { followerId: currentUserId } } } },
-          ],
-        },
+        where: whereCondition,
         select: {
           id: true,
           name: true,
           username: true,
           image: true,
-          _count: { select: { followers: true } },
+          bio: true,
+          _count: { select: { followers: true, posts: true } },
+        },
+        orderBy: {
+          followers: { _count: "desc" },
         },
         take: 3,
       });

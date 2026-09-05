@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Zap, UserRound, Loader2 } from 'lucide-react';
+import { Zap, UserRound, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { UserAvatar } from '@/components/UserAvatar';
+import FollowButton from '@/components/FollowButton';
 
 type TrendingTag = {
   tag: {
@@ -14,18 +16,43 @@ type TrendingTag = {
   recentCount: number;
 };
 
+type SpotlightCreator = {
+  id: string;
+  name: string;
+  username: string;
+  image: string | null;
+  bio: string | null;
+  _count: {
+    followers: number;
+    posts: number;
+  };
+};
+
 export function TrendingSidebar() {
   const [trending, setTrending] = useState<TrendingTag[]>([]);
+  const [featuredCreator, setFeaturedCreator] = useState<SpotlightCreator | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchTrending() {
+    async function fetchData() {
       try {
-        const res = await fetch('/api/feed/trending?limit=5');
-        if (!res.ok) throw new Error('Failed to fetch trending topics');
-        const data = await res.json();
-        setTrending(data.trending || []);
+        const [trendingRes, creatorsRes] = await Promise.all([
+          fetch('/api/feed/trending?limit=5'),
+          fetch('/api/social/suggested')
+        ]);
+        
+        if (trendingRes.ok) {
+          const trendingData = await trendingRes.json();
+          setTrending(trendingData.trending || []);
+        }
+        
+        if (creatorsRes.ok) {
+          const creatorsData = await creatorsRes.json();
+          if (creatorsData.creators && creatorsData.creators.length > 0) {
+            setFeaturedCreator(creatorsData.creators[0]);
+          }
+        }
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -33,10 +60,10 @@ export function TrendingSidebar() {
       }
     }
 
-    fetchTrending();
+    fetchData();
 
     const handleRefresh = () => {
-      fetchTrending();
+      fetchData();
     };
 
     window.addEventListener('refreshTrending', handleRefresh);
@@ -78,12 +105,56 @@ export function TrendingSidebar() {
             )}
         </section>
 
-        <section className="rounded-xl border bg-card/30 overflow-hidden">
+        <section className="rounded-xl border bg-card/30 overflow-hidden relative">
             <div className="p-5">
-                <p className="eyebrow">Creator spotlight</p>
-                <h2 className="mt-2 font-display text-lg font-semibold">Make the unseen visible.</h2>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">Meet the people shaping the next layer of culture.</p>
-                <Link href="#" className="button-outline mt-5 inline-flex">Explore creators <UserRound className="size-4 ml-2" /></Link>
+                <div className="flex items-center justify-between">
+                  <p className="eyebrow flex items-center gap-1.5">
+                    <Sparkles className="size-3 text-primary animate-pulse" />
+                    Creator spotlight
+                  </p>
+                </div>
+
+                {featuredCreator ? (
+                  <div className="mt-4 space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <Link href={`/profile/${featuredCreator.username}`} className="flex items-center gap-3 group min-w-0 flex-1">
+                        <UserAvatar src={featuredCreator.image} name={featuredCreator.name} className="size-10 shrink-0 group-hover:opacity-80 transition-opacity" />
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                            {featuredCreator.name}
+                          </h3>
+                          <p className="text-xs text-muted-foreground truncate">
+                            @{featuredCreator.username}
+                          </p>
+                        </div>
+                      </Link>
+                      <div className="shrink-0">
+                        <FollowButton userId={featuredCreator.id} />
+                      </div>
+                    </div>
+
+                    <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                      {featuredCreator.bio || "Meet the creators shaping the next layer of digital culture."}
+                    </p>
+
+                    <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground pt-2 border-t border-border/50">
+                      <span>{featuredCreator._count.followers} followers</span>
+                      <span>{featuredCreator._count.posts} vibes</span>
+                    </div>
+
+                    <Link href="/explore" className="button-outline mt-2 w-full justify-center inline-flex items-center text-xs">
+                      Explore all creators <UserRound className="size-3.5 ml-2" />
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="mt-2 font-display text-lg font-semibold">Make the unseen visible.</h2>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">Meet the people shaping the next layer of culture.</p>
+                    <Link href="/explore" className="button-outline mt-5 inline-flex text-xs">
+                      Explore creators <UserRound className="size-4 ml-2" />
+                    </Link>
+                  </>
+                )}
             </div>
         </section>
     </div>
