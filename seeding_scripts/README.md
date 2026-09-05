@@ -10,6 +10,12 @@ VibeGrid utilizes a **standalone HTTP seeding architecture**. Seeder bots intera
 3. **Public Application Boundaries Only**: Seeder bots authenticate and send HTTP requests exactly like real client applications.
 4. **Data & Session Contract**: State is preserved across flows in `session_state.json` and driven by `data_input.json`. Sensitive credentials and raw secrets are never persisted to session state.
 
+> [!WARNING]
+> **Full System Wipe (Two Databases)**
+> VibeGrid uses PostgreSQL (for profiles) and MongoDB (for auth credentials). To perform a true full wipe before seeding, you must clean both:
+> 1. `node seeding_scripts/db_cleaners/clean_all.js --confirm` (Wipes Prisma/PostgreSQL)
+> 2. `node ../VibeGrid_Services/services/auth/scripts/clean_mongo.js` (Wipes MongoDB)
+
 ---
 
 ## Flow Hierarchy & Canonical Execution Order
