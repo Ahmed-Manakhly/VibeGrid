@@ -10,9 +10,8 @@ export class ProfileBootstrapService {
       .replace(/_+/g, '_')
       .replace(/^_+|_+$/g, '');
 
-    if (!base || base.length < 3) {
-      base = `user_${email.split('@')[0].replace(/[^a-z0-9_]/g, '')}`;
-    }
+    // Force the 'user_' prefix so the middleware triggers the onboarding flow
+    base = `user_${base || email.split('@')[0].replace(/[^a-z0-9_]/g, '')}`;
 
     if (base.length > 20) {
       base = base.substring(0, 20);

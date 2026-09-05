@@ -27,10 +27,12 @@ export async function POST(req: NextRequest) {
     }
 
     const resData = authRes.data?.data || authRes.data;
+    const requiresEmailVerification = resData?.requiresEmailVerification ?? true; // Default to true if manual registration
 
     return NextResponse.json({
       success: true,
       message: resData?.message || 'Account created successfully. Verification required.',
+      requiresEmailVerification,
       data: resData,
     });
 
