@@ -1,5 +1,3 @@
-import { prisma } from "@/shared/infrastructure/prisma";
-import { UserRole } from "@/shared/kernel/auth.types";
 import { execSync } from "child_process";
 
 export async function pushSchema() {
@@ -22,46 +20,6 @@ export async function pushSchema() {
   }
 }
 
-export async function ensureAdminUser() {
-  if (process.env.NEXT_PHASE === "phase-production-build") return;
-  const adminEmail = process.env.ADMIN_EMAIL;
-  const adminUsername = process.env.ADMIN_USERNAME || "admin";
-
-  if (!adminEmail) {
-    console.warn("⚠️ ADMIN_EMAIL not set. Skipping admin user bootstrap.");
-    return;
-  }
-
-  try {
-    const existingAdmin = await prisma.user.findFirst({
-      where: { role: "ADMIN" },
-    });
-
-    if (existingAdmin) {
-      console.log("Admin user already exists. Skipping creation.");
-      return;
-    }
-
-    const adminUser = await prisma.user.create({
-      data: {
-        id: "system-admin-bot",
-        email: adminEmail.toLowerCase(),
-        username: adminUsername,
-        name: "System Admin",
-        role: "ADMIN",
-      },
-    });
-
-    console.log(`✅ Admin user created successfully: ${adminUser.email}`);
-  } catch (error: any) {
-    if (error.code === "P2002") {
-      console.log("Admin user already exists (created by another process).");
-      return;
-    }
-    console.error("Failed to create admin user", error);
-  }
-}
-
 const globalForBootstrap = globalThis as unknown as {
   __bootstrapRan: boolean | undefined;
 };
@@ -79,7 +37,6 @@ export async function bootstrap() {
 
   try {
     await pushSchema();
-    await ensureAdminUser();
     console.log("✅ Bootstrap completed successfully!");
   } catch (error) {
     console.error("❌ Bootstrap failed", error);
