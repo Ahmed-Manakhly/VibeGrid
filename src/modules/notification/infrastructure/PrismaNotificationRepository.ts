@@ -13,7 +13,7 @@ export class PrismaNotificationRepository implements INotificationRepository {
             select: { id: true, name: true, username: true, image: true },
           },
           post: {
-            select: { id: true, content: true, image: true },
+            select: { id: true, content: true, mediaUrl: true, mediaType: true },
           },
           comment: {
             select: { id: true, content: true, createdAt: true },

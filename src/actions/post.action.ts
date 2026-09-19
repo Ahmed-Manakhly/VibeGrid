@@ -19,12 +19,12 @@ import {
 import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
 
 //1//to create the post
-export async function creatPost(content: string, imageUrl: string, tags?: string[], categoryId?: string, vibeId?: string) {
+export async function creatPost(content: string, mediaUrl?: string, mediaType?: any, tags?: string[], categoryId?: string, vibeId?: string) {
     try {
         const userId = await getDbUserId() ;
         if(!userId) return ; 
         
-        const result = await createVibeUseCase.execute(content, imageUrl, userId, tags, undefined, categoryId, vibeId);
+        const result = await createVibeUseCase.execute(content, mediaUrl, mediaType, userId, tags, undefined, categoryId, vibeId);
         
         if (!result.success) {
             return {success: false, error: 'failed to create a post!'}
@@ -41,19 +41,21 @@ export async function creatPost(content: string, imageUrl: string, tags?: string
 // 1.5 wrapper for react 19 form actions
 export async function createPostFormAction(prevState: any, formData: FormData) {
     const content = formData.get('content') as string;
-    const imageUrl = formData.get('imageUrl') as string;
+    const mediaUrl = formData.get('mediaUrl') as string || formData.get('imageUrl') as string;
+    const rawMediaType = formData.get('mediaType') as string;
+    const mediaType = rawMediaType ? (rawMediaType.toUpperCase() as any) : undefined;
     const tagsRaw = formData.get('tags') as string;
     const categoryId = formData.get('categoryId') as string;
     const vibeId = formData.get('vibeId') as string;
 
-    if (!content?.trim() && !imageUrl) {
+    if (!content?.trim() && !mediaUrl) {
         return { success: false, error: 'Post cannot be empty.' };
     }
 
     const tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()).filter(Boolean) : undefined;
 
     try {
-        const result = await creatPost(content, imageUrl, tags, categoryId || undefined, vibeId || undefined);
+        const result = await creatPost(content, mediaUrl, mediaType, tags, categoryId || undefined, vibeId || undefined);
         if (result?.success) {
             return { success: true };
         }

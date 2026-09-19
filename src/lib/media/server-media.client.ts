@@ -1,8 +1,9 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 
-const getGatewayUrl = () => process.env.INTERNAL_API_GATEWAY_URL || 'http://localhost:8000';
+const getGatewayUrl = () => EnvConfigRepository.getEndpoints().apiBaseUrl;
 
 export async function createMediaUploadIntent(params: {
   mimeType: string;

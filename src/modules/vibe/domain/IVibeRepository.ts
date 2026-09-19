@@ -1,10 +1,12 @@
 import { Result } from "@/shared/kernel/Result";
 import { ExplorePostsCriteria, ExplorePostsResult } from "./ExplorePostsCriteria";
+import { MediaType } from "@prisma/client";
 
 export interface VibePost {
     id: string;
     content: string | null;
-    image: string | null;
+    mediaUrl: string | null;
+    mediaType: MediaType | null;
     tags: any[];
     author: {
         id: string;
@@ -24,7 +26,7 @@ export interface VibePost {
 }
 
 export interface IVibeRepository {
-    create(data: { content: string, imageUrl: string, authorId: string, categoryId?: string, vibeId?: string, tags?: string[] }, tx?: any): Promise<Result<any>>;
+    create(data: { content: string, mediaUrl?: string, mediaType?: MediaType, authorId: string, categoryId?: string, vibeId?: string, tags?: string[] }, tx?: any): Promise<Result<any>>;
     getFeed(params?: ExplorePostsCriteria): Promise<ExplorePostsResult<VibePost>>;
     getPostById(postId: string): Promise<any | null>;
     getPostsByIds(postIds: string[]): Promise<VibePost[]>;

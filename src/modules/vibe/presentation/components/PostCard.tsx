@@ -10,14 +10,16 @@ import { formatDistanceToNow } from "date-fns";
 import { formatRelativeTime } from "@/lib/utils";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
 import { CommentCard } from "./CommentCard";
-import Image from 'next/image'
+import urlRelative from '@/lib/utils/urlRelative';
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { HeartIcon, LogInIcon, MessageCircleIcon, SendIcon } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { PostMediaContainer } from './PostMediaContainer';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>; 
-type post = FeedResponse['data'][number] & { category?: any, vibe?: any, tags?: any[] };
+type post = FeedResponse['data'][number] & { category?: any, vibe?: any, tags?: any[], mediaUrl?: string | null, mediaType?: any };
 
 function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} : {post : post , dbUserId:string | null, isTruncated?: boolean, isDetailPage?: boolean}) {
     const { user, isAuthenticated } = useSession();
@@ -168,14 +170,8 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                     )}
                 </div>
 
-                {!isTruncated && post.image && (
-                    <div className="w-full bg-muted/30 border-y border-border/50">
-                        {post.image.endsWith('.mp4') || post.image.endsWith('.webm') || post.image.endsWith('.mov') || post.image.includes('video/') ? (
-                            <video src={post.image} controls className="w-full h-auto object-cover max-h-[600px] rounded-none" />
-                        ) : (
-                            <Image src={post.image} alt="Post content" className="w-full h-auto object-cover max-h-[600px]" width={800} height={600}/>
-                        )}
-                    </div>
+                {!isTruncated && post.mediaUrl && (
+                    <PostMediaContainer mediaUrl={post.mediaUrl} mediaType={post.mediaType} />
                 )}
                 
                 <div className="px-3 sm:px-5 mt-3 sm:mt-4 space-y-3 sm:space-y-4">

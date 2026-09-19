@@ -54,7 +54,7 @@ describe("Outbox End-to-End Integration Flow", () => {
   it("should perform atomic DB write + Outbox insert, and Relay should publish to RabbitMQ", async () => {
     // 1. Execute UseCase
     const postContent = `E2E Transactional Outbox test ${Date.now()}`;
-    const result = await createVibeUseCase.execute(postContent, "", testUserId, ["e2e", "outbox"]);
+    const result = await createVibeUseCase.execute(postContent, undefined, undefined, testUserId, ["e2e", "outbox"]);
 
     expect(result.success).toBe(true);
     if (!result.success) return;

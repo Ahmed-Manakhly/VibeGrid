@@ -36,11 +36,17 @@ model User {
   regrids              ReGrid[]
 }
 
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
 model Post {
   id            String          @id @default(cuid())
   authorId      String
   content       String?
-  image         String?
+  mediaUrl      String?
+  mediaType     MediaType?
   categoryId    String?
   vibeId        String?
   createdAt     DateTime        @default(now())

@@ -163,7 +163,8 @@ async function runPostsMediaFlow() {
     // Create Post via HTTP API
     const createRes = await authorClient.post('/posts', {
       content: pConfig.content,
-      imageUrl: imageUrl || undefined,
+      mediaUrl: imageUrl || undefined,
+      mediaType: imageUrl ? 'IMAGE' : undefined,
       tags: pConfig.tags,
     });
 

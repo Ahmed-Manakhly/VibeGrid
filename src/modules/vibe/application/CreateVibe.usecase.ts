@@ -1,6 +1,7 @@
 import { IVibeRepository } from "../domain/IVibeRepository";
 import { IEventBus } from "@/shared/domain/events/IEventBus";
 import { ICacheService } from "@/shared/application/ports/ICacheService";
+import { MediaType } from "@prisma/client";
 
 export class CreateVibeUseCase {
   constructor(
@@ -9,7 +10,16 @@ export class CreateVibeUseCase {
     private cacheService?: ICacheService
   ) {}
 
-  async execute(content: string, image: string, authorId: string, tags?: string[], mood?: string, categoryId?: string, vibeId?: string) {
+  async execute(
+    content: string,
+    mediaUrl?: string,
+    mediaType?: MediaType,
+    authorId?: string,
+    tags?: string[],
+    mood?: string,
+    categoryId?: string,
+    vibeId?: string
+  ) {
     if (!authorId) return { success: false as const, error: "No user found!" };
     
     // Extract hashtags from content if tags aren't explicitly provided
@@ -33,7 +43,8 @@ export class CreateVibeUseCase {
 
     const result = await this.vibeRepository.create({ 
       content, 
-      imageUrl: image, 
+      mediaUrl,
+      mediaType,
       authorId,
       tags: normalizedTags,
       categoryId,
