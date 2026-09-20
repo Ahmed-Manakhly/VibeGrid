@@ -13,9 +13,24 @@
  */
 
 const { PrismaClient } = require('@prisma/client');
+const { execSync } = require('child_process');
 const prisma = new PrismaClient();
 
 const confirmed = process.argv.includes('--confirm');
+
+function ensureSchemaPushed() {
+  try {
+    console.log('🔄 PostgreSQL tables missing. Auto-syncing schema with Prisma...');
+    execSync('npx prisma db push --accept-data-loss', {
+      stdio: 'inherit',
+      cwd: process.cwd(),
+      env: process.env,
+    });
+    console.log('✅ PostgreSQL schema created successfully!\n');
+  } catch (err) {
+    console.error('❌ Failed to push Prisma schema:', err.message);
+  }
+}
 
 async function cleanAll() {
   if (!confirmed) {
@@ -48,6 +63,17 @@ async function cleanAll() {
       const r = await fn();
       console.log(`   ✅ ${label.padEnd(20)} — deleted ${r.count} row(s)`);
     } catch (e) {
+      if (e.message && e.message.includes('does not exist in the current database')) {
+        ensureSchemaPushed();
+        try {
+          const retryRes = await fn();
+          console.log(`   ✅ ${label.padEnd(20)} — deleted ${retryRes.count} row(s)`);
+          continue;
+        } catch (retryErr) {
+          console.error(`   ❌ ${label.padEnd(20)} — ${retryErr.message}`);
+          continue;
+        }
+      }
       console.error(`   ❌ ${label.padEnd(20)} — ${e.message}`);
     }
   }

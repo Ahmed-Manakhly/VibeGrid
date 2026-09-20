@@ -1,5 +1,8 @@
 // lib/prisma.ts
 import { PrismaClient } from "@prisma/client";
+import { ensureDatabaseSchemaPushed } from "./bootstrap";
+
+ensureDatabaseSchemaPushed();
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
