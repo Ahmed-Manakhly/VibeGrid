@@ -7,6 +7,9 @@ export const REDACT_PATHS = [
   "authorization",
   "headers.authorization",
   "req.headers.authorization",
+  "cookie",
+  "set-cookie",
+  "headers.cookie",
   "token",
   "accessToken",
   "refreshToken",
@@ -17,6 +20,8 @@ export const REDACT_PATHS = [
   "secret",
   "clientSecret",
   "otp",
+  "email",
+  "to",
 ];
 
 export class PinoLogger implements ILogger {

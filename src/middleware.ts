@@ -45,6 +45,17 @@ export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const method = req.method.toUpperCase();
 
+  // 0. Request Correlation Tracking (X-Request-ID)
+  let requestId = req.headers.get('x-request-id');
+  if (!requestId || typeof requestId !== 'string' || requestId.trim().length === 0) {
+    requestId = crypto.randomUUID();
+  } else {
+    requestId = requestId.trim().replace(/[^a-zA-Z0-9\-_.]/g, '');
+  }
+
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('x-request-id', requestId);
+
   // 0. Bypass static assets & Next.js internals
   if (
     pathname.startsWith('/_next') ||
@@ -52,7 +63,9 @@ export default async function middleware(req: NextRequest) {
     pathname.includes('.') ||
     pathname === '/favicon.ico'
   ) {
-    return NextResponse.next();
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
+    res.headers.set('x-request-id', requestId);
+    return res;
   }
 
   // 1. CSRF & Origin Guard for state-changing HTTP methods (POST, PUT, PATCH, DELETE)
@@ -172,7 +185,9 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
-  return applyRefreshedCookies(NextResponse.next());
+  const response = applyRefreshedCookies(NextResponse.next({ request: { headers: requestHeaders } }));
+  response.headers.set('x-request-id', requestId);
+  return response;
 }
 
 export const config = {
