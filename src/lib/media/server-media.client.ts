@@ -2,6 +2,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
+import { getCorrelationHeaders } from '@/lib/request-context';
 
 const getGatewayUrl = () => EnvConfigRepository.getEndpoints().apiBaseUrl;
 
@@ -18,11 +19,13 @@ export async function createMediaUploadIntent(params: {
   }
 
   try {
+    const correlationHeaders = await getCorrelationHeaders();
     const res = await fetch(`${getGatewayUrl()}/api/media/upload-intent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        ...correlationHeaders,
       },
       body: JSON.stringify(params),
       cache: 'no-store',

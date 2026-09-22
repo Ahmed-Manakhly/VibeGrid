@@ -1,4 +1,5 @@
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
+import { getCorrelationHeaders } from '@/lib/request-context';
 
 export async function authServiceFetch<T = any>(
   endpoint: string,
@@ -7,7 +8,12 @@ export async function authServiceFetch<T = any>(
   const { apiBaseUrl } = EnvConfigRepository.getEndpoints();
   const url = `${apiBaseUrl.replace(/\/$/, '')}/api/auth${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
   
+  const correlationHeaders = await getCorrelationHeaders();
   const headers = new Headers(options.headers || {});
+  Object.entries(correlationHeaders).forEach(([k, v]) => {
+    if (!headers.has(k)) headers.set(k, v);
+  });
+
   if (!headers.has('Content-Type') && options.body && typeof options.body === 'string') {
     headers.set('Content-Type', 'application/json');
   }

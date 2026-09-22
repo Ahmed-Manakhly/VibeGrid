@@ -1,4 +1,4 @@
-import { generateFeedUseCase, createVibeUseCase } from "@/shared/infrastructure/di-container";
+import { generateFeedUseCase, createVibeUseCase, logger } from "@/shared/infrastructure/di-container";
 import { NextResponse } from "next/server";
 import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
 import { getCurrentSession } from "@/lib/auth/server";
@@ -22,6 +22,7 @@ export async function GET(request: Request) {
     
     return NextResponse.json(result);
   } catch (error: any) {
+    logger.error("Error generating feed", error, { path: "/api/posts" });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -61,6 +62,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, post: result.value }, { status: 201 });
   } catch (error: any) {
+    logger.error("Error creating vibe post", error, { path: "/api/posts" });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

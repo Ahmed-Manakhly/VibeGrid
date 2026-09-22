@@ -89,7 +89,7 @@ export const getUserUseCase = new GetUserUseCase(authRepository);
 
 // Social
 export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository, eventBus);
-export const getSuggestedUsersUseCase = new GetSuggestedUsersUseCase(socialRepository);
+export const getSuggestedUsersUseCase = new GetSuggestedUsersUseCase(socialRepository, cacheService);
 export const getProfileUseCase = new GetProfileUseCase(profileRepository, cacheService);
 export const updateProfileUseCase = new UpdateProfileUseCase(profileRepository, cacheService);
 export const isFollowingUseCase = new IsFollowingUseCase(socialRepository);
