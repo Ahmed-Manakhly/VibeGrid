@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentSession } from '@/lib/auth/server';
-
-const GATEWAY_URL = process.env.INTERNAL_API_GATEWAY_URL || process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:8000';
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +12,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const token = req.cookies.get('access_token')?.value;
 
-    const gatewayRes = await fetch(`${GATEWAY_URL}/api/media/confirm-upload`, {
+    const { apiBaseUrl } = EnvConfigRepository.getEndpoints();
+    const gatewayRes = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/media/confirm-upload`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

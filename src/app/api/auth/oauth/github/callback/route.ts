@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -10,8 +11,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const authServiceUrl = process.env.INTERNAL_API_GATEWAY_URL || 'http://localhost:8000';
-    const authRes = await fetch(`${authServiceUrl}/api/auth/oauth/github/callback?code=${encodeURIComponent(code)}`, {
+    const { apiBaseUrl } = EnvConfigRepository.getEndpoints();
+    const authRes = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/auth/oauth/github/callback?code=${encodeURIComponent(code)}`, {
       headers: { 'Accept': 'application/json' },
       cache: 'no-store',
     });

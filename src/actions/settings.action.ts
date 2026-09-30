@@ -2,8 +2,7 @@
 
 import { getCurrentSession } from '@/lib/auth/server';
 import { revalidatePath } from 'next/cache';
-
-const getGatewayUrl = () => process.env.INTERNAL_API_GATEWAY_URL || 'http://localhost:8000';
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 
 export async function changePasswordAction(formData: FormData) {
   const currentPassword = formData.get('currentPassword') as string;
@@ -25,7 +24,8 @@ export async function changePasswordAction(formData: FormData) {
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_CONFIG.accessToken.name)?.value;
 
-    const res = await fetch(`${getGatewayUrl()}/api/auth/change-password`, {
+    const { apiBaseUrl } = EnvConfigRepository.getEndpoints();
+    const res = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/auth/change-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
