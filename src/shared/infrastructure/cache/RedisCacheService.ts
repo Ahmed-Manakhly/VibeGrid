@@ -9,6 +9,8 @@ import {
 import { ILogger } from '@/shared/application/ports/ILogger';
 import { PinoLogger } from '../PinoLogger';
 
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
+
 export class RedisCacheService implements ICacheService {
   private client: Redis | null = null;
   private logger: ILogger;
@@ -22,8 +24,12 @@ export class RedisCacheService implements ICacheService {
     } else if (redisClientOrUrl) {
       this.client = redisClientOrUrl;
     } else {
-      const url = process.env.REDIS_URL || 'redis://:VgRedis_R2026%23m4%24ZpQ%219wKx@localhost:6379';
-      this.client = new Redis(url, { maxRetriesPerRequest: 3 });
+      const redisUrl = EnvConfigRepository.getRedisUrl();
+      if (redisUrl) {
+        this.client = new Redis(redisUrl, { maxRetriesPerRequest: 3 });
+      } else {
+        this.logger.warn('[RedisCacheService] REDIS_URL is not defined in EnvConfigRepository; running with cache disabled.');
+      }
     }
 
     if (this.client && typeof this.client.on === 'function') {
