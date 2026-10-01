@@ -45,7 +45,7 @@ export function UserNavDropdown() {
 
           <div className="flex flex-col gap-0.5">
             <Link
-              href={`/profile/${user.username || displayName.toLowerCase().replace(/\s+/g, '_')}`}
+              href={user.username ? `/profile/${user.username}` : '/complete-profile'}
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
             >
@@ -91,7 +91,6 @@ export function UserNavDropdown() {
           <div className="pt-1.5 mt-1 border-t border-border/50">
             <button
               onClick={() => {
-                setIsOpen(false);
                 logout();
               }}
               className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-xl transition-colors"

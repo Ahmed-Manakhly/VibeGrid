@@ -160,10 +160,10 @@ export default async function middleware(req: NextRequest) {
     if (!isExempt) {
       try {
         const { ProfileRules } = await import('@/modules/social/domain/ProfileRules');
-        // Evaluate profile completion from token payload or cached session
+        
         const isProfileComplete = ProfileRules.isProfileComplete({
-          username: (payload as any).username || payload.sub,
-          name: (payload as any).name || payload.email.split('@')[0],
+          username: (payload as any).username,
+          name: (payload as any).name,
         });
 
         if (!isProfileComplete) {

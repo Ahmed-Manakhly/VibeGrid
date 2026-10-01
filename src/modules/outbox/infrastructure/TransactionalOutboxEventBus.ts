@@ -3,7 +3,6 @@ import { IOutboxRepository } from "../domain/IOutboxRepository";
 import { OutboxEvent } from "../domain/OutboxEvent";
 import { ILogger } from "@/shared/application/ports/ILogger";
 import { PinoLogger } from "@/shared/infrastructure/PinoLogger";
-import crypto from "crypto";
 
 type EventCallback<T = any> = (event: T) => Promise<void> | void;
 

@@ -40,14 +40,16 @@ export async function getCurrentSession(): Promise<SessionResult> {
   }
 
   let name = payload.email.split('@')[0];
+  let username: string | undefined = undefined;
   try {
     const { getProfileUseCase } = await import('@/shared/infrastructure/di-container');
     const dbUser: any = await getProfileUseCase.execute(payload.userId).catch(() => null);
-    if (dbUser?.name) {
-      name = dbUser.name;
+    if (dbUser) {
+      if (dbUser.name) name = dbUser.name;
+      if (dbUser.username) username = dbUser.username;
     }
   } catch {
-    // fallback to email prefix if DB fails
+    // fallback if DB fails
   }
 
   return {
@@ -56,6 +58,7 @@ export async function getCurrentSession(): Promise<SessionResult> {
       id: payload.userId,
       email: payload.email,
       name,
+      username,
       role: payload.role,
       isEmailVerified: payload.isEmailVerified,
     },

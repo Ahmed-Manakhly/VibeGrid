@@ -14,11 +14,11 @@ export async function Sidebar() {
 
   let dbUser: any = null;
   if (authUser?.id) {
-    dbUser = await getProfileUseCase.execute(authUser.username || authUser.id).catch(() => null);
+    dbUser = await getProfileUseCase.execute(authUser.id).catch(() => null);
   }
 
-  const profileUsername = dbUser?.username || authUser?.name || authUser?.email.split('@')[0];
-  const profileHref = authUser ? `/profile/${profileUsername}` : '/login';
+  const profileUsername = dbUser?.username || (authUser?.username && !authUser.username.includes('@') ? authUser.username : null) || (authUser?.email ? `user_${authUser.email.split('@')[0]}` : null);
+  const profileHref = authUser && profileUsername ? `/profile/${profileUsername}` : '/login';
 
   return (
     <>

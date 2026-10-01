@@ -33,13 +33,7 @@ export function AuthLayoutWrapper({
   }, [isAuthenticated, isLoading, router]);
 
   if (isAuthenticated) {
-    return (
-      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-6">
-        <div className="w-full max-w-4xl space-y-4">
-          <Loading />
-        </div>
-      </div>
-    );
+    return <AuthLoadingSkeleton />;
   }
 
   if (isLoading) {

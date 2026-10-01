@@ -1,3 +1,6 @@
+import { IAuthRepository } from '@/modules/auth/domain/IAuthRepository';
+import { prisma } from '@/shared/infrastructure/prisma';
+
 export class ProfileBootstrapService {
   /**
    * Sanitizes and generates a unique username from an email or name
@@ -23,12 +26,12 @@ export class ProfileBootstrapService {
   /**
    * Ensures username uniqueness in PostgreSQL DB by appending numerical suffix if colliding
    */
-  public static async resolveUniqueUsername(prisma: any, candidate: string, userId: string): Promise<string> {
+  public static async resolveUniqueUsername(db: any, candidate: string, userId: string): Promise<string> {
     let username = candidate;
     let counter = 1;
 
     while (true) {
-      const existing = await prisma.user.findFirst({
+      const existing = await db.user.findFirst({
         where: {
           username,
           NOT: { id: userId },
@@ -50,26 +53,36 @@ export class ProfileBootstrapService {
    */
   public static async bootstrapProfile(
     user: { id: string; email: string; name?: string; role?: string; avatarUrl?: string },
-    userRepoOrDb?: any
+    authRepo?: IAuthRepository
   ): Promise<any> {
-    const db = userRepoOrDb || (await import('@/shared/infrastructure/prisma')).prisma;
     const userId = user.id;
     const email = user.email.toLowerCase();
     const displayName = user.name || email.split('@')[0];
 
-    const existingUser = await db.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (existingUser) {
-      // Idempotent: preserve existing customized profile fields
-      return existingUser;
+    if (authRepo) {
+      const existingUser = await authRepo.getUserById(userId);
+      if (existingUser) return existingUser;
+    } else {
+      const existingUser = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+      if (existingUser) return existingUser;
     }
 
     const candidateUsername = this.generateUsernameCandidate(email, user.name);
-    const uniqueUsername = await this.resolveUniqueUsername(db, candidateUsername, userId);
+    const uniqueUsername = await this.resolveUniqueUsername(prisma, candidateUsername, userId);
 
-    return await db.user.create({
+    if (authRepo) {
+      return await authRepo.createUser({
+        id: userId,
+        email,
+        name: displayName,
+        username: uniqueUsername,
+        image: user.avatarUrl || '',
+      });
+    }
+
+    return await prisma.user.create({
       data: {
         id: userId,
         email,

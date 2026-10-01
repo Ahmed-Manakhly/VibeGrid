@@ -15,14 +15,14 @@ export async function GET() {
     }
 
     const { getProfileUseCase } = await import('@/shared/infrastructure/di-container');
-    const dbUser: any = await getProfileUseCase.execute(session.user.username || session.user.id).catch(() => null);
+    const dbUser: any = await getProfileUseCase.execute(session.user.id).catch(() => null);
 
     return NextResponse.json({
       success: true,
       isAuthenticated: true,
       user: {
         ...session.user,
-        username: dbUser?.username || session.user.name || session.user.email.split('@')[0],
+        username: dbUser?.username || session.user.username || `user_${session.user.email.split('@')[0]}`,
         name: dbUser?.name || session.user.name,
         image: dbUser?.image || null,
       },
