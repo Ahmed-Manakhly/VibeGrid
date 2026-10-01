@@ -8,6 +8,8 @@ import { AuthHeader } from './AuthHeader';
 import AuthLoadingSkeleton from './AuthLoadingSkeleton';
 import { Sparkles, Radio, Zap, ShieldCheck, ArrowLeft } from 'lucide-react';
 
+import Loading from '@/app/loading';
+
 interface AuthLayoutWrapperProps {
   title: string;
   subtitle: string;
@@ -30,7 +32,17 @@ export function AuthLayoutWrapper({
     }
   }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading || isAuthenticated) {
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-4xl space-y-4">
+          <Loading />
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
     return <AuthLoadingSkeleton />;
   }
 

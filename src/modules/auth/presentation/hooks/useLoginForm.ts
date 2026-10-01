@@ -52,10 +52,11 @@ export function useLoginForm({ callbackUrl = '/' }: UseLoginFormProps) {
         return;
       }
 
-      const userName = data?.data?.user?.name || data?.data?.user?.email?.split('@')[0] || 'back';
+      const userName = data?.user?.name || data?.user?.username || data?.user?.email?.split('@')[0] || 'friend';
       toast.success(`Welcome to VibeGrid, ${userName}! 🚀`);
       await refreshSession();
-      window.location.href = callbackUrl;
+      router.replace(callbackUrl);
+      router.refresh();
     } catch {
       toast.error('An unexpected error occurred');
       setIsSubmitting(false);

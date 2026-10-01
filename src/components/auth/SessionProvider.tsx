@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from '@/components/ui/toast';
 import { Loader2, LogOut } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
+
 export interface SafeUser {
   id: string;
   email: string;
@@ -33,6 +35,7 @@ const SessionContext = createContext<SessionContextType>({
 });
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<SafeUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -73,11 +76,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore network errors during logout flow
     } finally {
-      // Small artificial delay so the user sees the smooth transition UI
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 600));
       setUser(null);
       setIsAuthenticated(false);
-      window.location.href = '/login';
+      setIsLoggingOut(false);
+      router.replace('/login');
     }
   };
 
