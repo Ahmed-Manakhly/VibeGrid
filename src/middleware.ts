@@ -151,33 +151,7 @@ export default async function middleware(req: NextRequest) {
     return clearAuthCookies(NextResponse.redirect(loginUrl));
   }
 
-  // 6. Profile Completion Gate for authenticated users
-  if (payload) {
-    const isExempt = EXEMPT_FROM_PROFILE_CHECK.some((route) =>
-      pathname === route || pathname.startsWith(`${route}/`)
-    );
 
-    if (!isExempt) {
-      try {
-        const { ProfileRules } = await import('@/modules/social/domain/ProfileRules');
-        
-        const isProfileComplete = ProfileRules.isProfileComplete({
-          username: (payload as any).username,
-          name: (payload as any).name,
-        });
-
-        if (!isProfileComplete) {
-          const completeUrl = new URL('/complete-profile', req.url);
-          if (pathname !== '/') {
-            completeUrl.searchParams.set('callbackUrl', pathname);
-          }
-          return applyRefreshedCookies(NextResponse.redirect(completeUrl));
-        }
-      } catch (err) {
-        // Fallback on evaluation error
-      }
-    }
-  }
 
   const response = applyRefreshedCookies(NextResponse.next({ request: { headers: requestHeaders } }));
   response.headers.set('x-request-id', requestId);

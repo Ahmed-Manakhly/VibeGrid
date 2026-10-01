@@ -4,9 +4,14 @@ import { IProfileRepository } from "../domain/IProfileRepository";
 export class PrismaProfileRepository implements IProfileRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async getProfileByUsername(username: string): Promise<any | null> {
-    return await this.prisma.user.findUnique({
-      where: { username },
+  async getProfileByUsername(usernameOrId: string): Promise<any | null> {
+    return await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: usernameOrId },
+          { id: usernameOrId },
+        ],
+      },
       select: {
         id: true,
         name: true,

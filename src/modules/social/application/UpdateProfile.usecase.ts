@@ -16,6 +16,9 @@ export class UpdateProfileUseCase {
     const profile = await this.profileRepository.updateProfile(userId, data);
 
     if (this.cacheService && profile) {
+      if (userId) {
+        await this.cacheService.delete(RedisKeys.user(userId)).catch(() => {});
+      }
       if (profile.username) {
         await this.cacheService.delete(RedisKeys.user(profile.username)).catch(() => {});
       }

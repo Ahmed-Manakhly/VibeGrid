@@ -53,6 +53,12 @@ export async function updateProfile(formData: FormData) {
         return { success: true, user: result.user };
     } catch (error: any) {
         console.error("Error updating profile:", error);
+        
+        // Handle Prisma unique constraint violation for username (P2002)
+        if (error.code === 'P2002' || error.message?.includes('Unique constraint failed on the fields: (`username`)')) {
+            return { success: false, error: 'That username is already taken. Please choose a different handle.' };
+        }
+
         return { success: false, error: error.message || "Failed to update profile" };
     }
 }

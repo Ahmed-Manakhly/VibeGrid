@@ -66,10 +66,11 @@ export function CompleteProfileClient({ user }: CompleteProfileClientProps) {
 
       const res = await updateProfile(formData);
 
-      if (res.success) {
+      if (res.success && res.user) {
         toast.success('Profile completed successfully!');
         await refreshSession();
-        router.push(callbackUrl);
+        const nextUrl = res.user.username ? `/profile/${res.user.username}` : callbackUrl;
+        router.push(nextUrl);
         router.refresh();
       } else {
         toast.error(res.error || 'Failed to complete profile');
