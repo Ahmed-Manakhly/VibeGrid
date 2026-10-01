@@ -69,18 +69,23 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setIsLoggingOut(true);
 
     const userName = user?.name || user?.username || 'friend';
-    toast.info(`See you soon, ${userName}! Signing out...`);
+    toast.info(`See you soon, ${userName}! 👋`);
 
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
     } catch {
       // Ignore network errors during logout flow
     } finally {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      setUser(null);
-      setIsAuthenticated(false);
-      setIsLoggingOut(false);
+      // Execute seamless page navigation before clearing state to prevent React DOM tree divergence
       router.replace('/login');
+      router.refresh();
+      
+      // Delay state clearing slightly until router replacement takes effect
+      setTimeout(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+        setIsLoggingOut(false);
+      }, 100);
     }
   };
 

@@ -13,10 +13,12 @@ const EXEMPT_FROM_PROFILE_CHECK = [
   '/favicon.ico',
 ];
 
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
+
 async function attemptSilentRefresh(refreshToken: string) {
   try {
-    const authUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:8001';
-    const res = await fetch(`${authUrl}/api/auth/refresh-token`, {
+    const { apiBaseUrl } = EnvConfigRepository.getEndpoints();
+    const res = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/auth/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
