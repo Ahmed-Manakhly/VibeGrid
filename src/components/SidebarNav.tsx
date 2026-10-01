@@ -27,7 +27,10 @@ export function SidebarNav({ profileHref }: SidebarNavProps) {
     <>
       <div className="flex flex-col gap-2">
         {items.map(({ label, icon: Icon, href }) => {
-          const isActive = href === '/' ? pathname === '/' : pathname?.startsWith(href);
+          const isActive = href === '/' 
+            ? pathname === '/' 
+            : Boolean(pathname?.startsWith(href));
+
           return (
             <Link 
               key={label} 
