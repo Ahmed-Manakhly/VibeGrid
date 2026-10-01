@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 
 export function useAvatarUpload() {
   const [isUploading, setIsUploading] = useState(false);

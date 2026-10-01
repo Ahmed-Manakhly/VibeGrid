@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, KeyRound, LockKeyhole, Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export function ResetPasswordForm() {

@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { UserAvatar } from '@/components/UserAvatar';
 import { useAvatarUpload } from '@/modules/media/presentation/hooks/useAvatarUpload';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 import { useSession } from '@/components/auth/SessionProvider';
 import { useRouter } from 'next/navigation';
 

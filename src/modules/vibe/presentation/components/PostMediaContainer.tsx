@@ -16,7 +16,7 @@ export function PostMediaContainer({
   mediaUrl,
   mediaType,
   alt = "Post media content",
-  className = "w-full h-auto object-cover max-h-[600px]",
+  className = "w-full h-auto object-contain max-h-[650px] mx-auto bg-black/20",
 }: PostMediaContainerProps) {
   const { imgOrigin } = EnvConfigRepository.getEndpoints();
   const resolvedUrl = urlRelative(mediaUrl, imgOrigin, null);

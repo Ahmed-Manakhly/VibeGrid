@@ -2,7 +2,7 @@
 import { createComment, deletePost, getPosts, toggleLike } from '@/actions/post.action';
 import { useSession } from '@/components/auth/SessionProvider';
 import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 
 import Link from 'next/link';
 import { UserAvatar } from '@/components/UserAvatar';

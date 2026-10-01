@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { XIcon, UploadCloudIcon, Loader2Icon, FilmIcon, ImageIcon } from "lucide-react";
 import { uploadMediaAsset, isVideoUrl } from "@/lib/mediaClient";
-import toast from "react-hot-toast";
+import { toast } from "@/components/ui/toast";
 
 interface ImageUploadProps {
   onChange: (url: string) => void;
@@ -37,9 +37,9 @@ function ImageUpload({ onChange, value, purpose = 'post_attachment' }: ImageUplo
     return (
       <div className="relative max-w-md w-full overflow-hidden rounded-xl border border-border/50 bg-background/50">
         {isVid ? (
-          <video src={value} controls className="w-full max-h-64 object-contain rounded-xl" />
+          <video src={value} controls className="w-full max-h-80 object-contain rounded-xl bg-black/40" />
         ) : (
-          <img src={value} alt="Media Upload" className="w-full max-h-64 object-cover rounded-xl" />
+          <img src={value} alt="Media Upload" className="w-full max-h-80 object-contain rounded-xl bg-black/40" />
         )}
         <button
           onClick={() => onChange("")}

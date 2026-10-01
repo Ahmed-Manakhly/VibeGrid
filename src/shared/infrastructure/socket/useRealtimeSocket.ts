@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 
 export interface NotificationSignal {
   id: string;
@@ -80,7 +80,7 @@ export function useRealtimeSocket() {
 
     socket.on('feed:updated', (signal: FeedSignal) => {
       setLatestFeedSignal(signal);
-      toast('⚡ New vibes available in your feed', { icon: '📰' });
+      toast.info('⚡ New vibes available in your feed');
     });
 
     socket.on('presence:online', (presence: PresenceSignal) => {

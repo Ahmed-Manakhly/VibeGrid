@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
-import toast from 'react-hot-toast'
+import { toast } from '@/components/ui/toast';
 
 interface UseRegisterFormProps {
   initialEmail?: string

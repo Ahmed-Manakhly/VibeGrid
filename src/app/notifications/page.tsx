@@ -20,7 +20,7 @@ import { formatDistanceToNow } from "date-fns";
 import { HeartIcon, MessageCircleIcon, UserPlusIcon } from "lucide-react";
 
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "@/components/ui/toast";
 
 type Notifications = Awaited<ReturnType<typeof getNotifications>>;
 type Notification = Notifications[number]; //we got the type of single notification 

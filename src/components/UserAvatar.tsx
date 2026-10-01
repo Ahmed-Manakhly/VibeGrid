@@ -15,7 +15,13 @@ interface UserAvatarProps {
 
 export function UserAvatar({ src, name, className }: UserAvatarProps) {
   const { imgOrigin } = EnvConfigRepository.getEndpoints();
-  const avatarSrc = urlRelative(src, imgOrigin, "/avatar.png") || "/avatar.png";
+  let avatarSrc = "/avatar.png";
+
+  if (src && (src.startsWith("blob:") || src.startsWith("data:"))) {
+    avatarSrc = src;
+  } else {
+    avatarSrc = urlRelative(src, imgOrigin, "/avatar.png") || "/avatar.png";
+  }
 
   return (
     <Avatar className={cn("size-10 border-[3px] border-accent shrink-0", className)}>

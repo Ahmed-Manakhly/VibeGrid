@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { deleteComment } from '@/actions/post.action';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 import { UserAvatar } from '@/components/UserAvatar';
 import { formatDistanceToNow } from 'date-fns';
 import { formatRelativeTime } from "@/lib/utils";

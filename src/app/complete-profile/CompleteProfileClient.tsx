@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { UserAvatar } from '@/components/UserAvatar';
 import { updateProfile } from '@/actions/profile.action';
 import { useSession } from '@/components/auth/SessionProvider';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 import { Sparkles, CheckCircle2, User, Camera } from 'lucide-react';
 
 interface CompleteProfileClientProps {

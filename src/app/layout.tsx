@@ -8,7 +8,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/SidebarContext";
 import { SidebarWrapper } from "@/components/SidebarWrapper";
 import { MobileBottomBar } from "@/components/MobileBottomBar";
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from '@/components/ui/toast';
 import { JetBrains_Mono } from 'next/font/google'
 import { bootstrap } from "@/lib/bootstrap";
 import { ScrollToTop } from "@/components/ScrollToTop";

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ImageIcon, FilmIcon, Loader2Icon, SendIcon } from "lucide-react";
 import { createPostFormAction } from "@/actions/post.action";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { toast } from "@/components/ui/toast";
 import ImageUpload from "@/components/ImageUpload";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

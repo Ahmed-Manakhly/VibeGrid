@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/components/auth/SessionProvider';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 
 interface UseLoginFormProps {
   callbackUrl?: string;

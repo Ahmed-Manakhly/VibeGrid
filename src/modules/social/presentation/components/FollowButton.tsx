@@ -3,7 +3,7 @@
 import { toggleFollow } from "@/actions/user.action";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "@/components/ui/toast";
 
 interface FollowButtonProps {
   targetUserId: string;

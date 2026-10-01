@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { updateProfile } from '@/actions/profile.action';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 import { UserAvatar } from '@/components/UserAvatar';
 import { useSession } from '@/components/auth/SessionProvider';
 import { useRouter } from 'next/navigation';

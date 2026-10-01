@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { OnboardingProfileBanner } from '@/components/OnboardingProfileBanner';
 
 export function RootMainWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -11,8 +12,11 @@ export function RootMainWrapper({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-24 sm:pb-8">
-      {children}
-    </main>
+    <>
+      <OnboardingProfileBanner />
+      <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-24 sm:pb-8">
+        {children}
+      </main>
+    </>
   );
 }

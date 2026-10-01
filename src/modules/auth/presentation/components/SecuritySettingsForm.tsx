@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { changePasswordAction } from '@/actions/settings.action';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 import { Lock, Eye, EyeOff, Loader2, KeyRound } from 'lucide-react';
 
 export function SecuritySettingsForm() {

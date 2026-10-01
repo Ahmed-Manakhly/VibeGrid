@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, Loader2, KeyRound } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from '@/components/ui/toast';
 import { useRouter } from 'next/navigation';
 
 export function ForgotPasswordForm() {
