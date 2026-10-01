@@ -50,17 +50,7 @@ export class EnvConfigRepository {
   }
 
   public static getRedisUrl(): string {
-    const envMode: string = process.env.NODE_ENV || 'development';
-    let rawUrl: string;
-
-    if (envMode === 'docker_development') {
-      rawUrl = process.env.REDIS_URL_DOCKER_DEV || process.env.REDIS_URL || '';
-    } else if (envMode === 'production') {
-      rawUrl = process.env.REDIS_URL_PROD || process.env.REDIS_URL || '';
-    } else {
-      rawUrl = process.env.REDIS_URL_DEV || process.env.REDIS_URL || '';
-    }
-
+    const rawUrl = process.env.REDIS_URL || '';
     if (!rawUrl) {
       return '';
     }
@@ -70,8 +60,8 @@ export class EnvConfigRepository {
         const parts = rawUrl.replace('redis://', '').split('@');
         const creds = parts[0].split(':');
         if (creds.length === 2) {
-          const user = encodeURIComponent(decodeURIComponent(creds[0]));
-          const pass = encodeURIComponent(decodeURIComponent(creds[1]));
+          const user = creds[0] ? encodeURIComponent(decodeURIComponent(creds[0])) : '';
+          const pass = creds[1] ? encodeURIComponent(decodeURIComponent(creds[1])) : '';
           return `redis://${user}:${pass}@${parts[1]}`;
         }
       }
