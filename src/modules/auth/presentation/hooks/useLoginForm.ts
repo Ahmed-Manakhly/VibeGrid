@@ -52,7 +52,8 @@ export function useLoginForm({ callbackUrl = '/' }: UseLoginFormProps) {
         return;
       }
 
-      toast.success('Welcome back!');
+      const userName = data?.data?.user?.name || data?.data?.user?.email?.split('@')[0] || 'back';
+      toast.success(`Welcome to VibeGrid, ${userName}! 🚀`);
       await refreshSession();
       window.location.href = callbackUrl;
     } catch {
