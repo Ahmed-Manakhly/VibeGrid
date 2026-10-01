@@ -48,13 +48,16 @@ export class ProfileBootstrapService {
   /**
    * Idempotently bootstraps a native VibeGrid User/Profile record
    */
-  public static async bootstrapProfile(user: { id: string; email: string; name?: string; role?: string; avatarUrl?: string }): Promise<any> {
-    const { prisma } = await import('@/shared/infrastructure/prisma');
+  public static async bootstrapProfile(
+    user: { id: string; email: string; name?: string; role?: string; avatarUrl?: string },
+    userRepoOrDb?: any
+  ): Promise<any> {
+    const db = userRepoOrDb || (await import('@/shared/infrastructure/prisma')).prisma;
     const userId = user.id;
     const email = user.email.toLowerCase();
     const displayName = user.name || email.split('@')[0];
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await db.user.findUnique({
       where: { id: userId },
     });
 
@@ -64,9 +67,9 @@ export class ProfileBootstrapService {
     }
 
     const candidateUsername = this.generateUsernameCandidate(email, user.name);
-    const uniqueUsername = await this.resolveUniqueUsername(prisma, candidateUsername, userId);
+    const uniqueUsername = await this.resolveUniqueUsername(db, candidateUsername, userId);
 
-    return await prisma.user.create({
+    return await db.user.create({
       data: {
         id: userId,
         email,

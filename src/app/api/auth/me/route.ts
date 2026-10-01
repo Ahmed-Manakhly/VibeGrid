@@ -14,11 +14,8 @@ export async function GET() {
       });
     }
 
-    const { prisma } = await import('@/shared/infrastructure/prisma');
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { username: true, name: true, email: true, image: true, role: true },
-    });
+    const { getProfileUseCase } = await import('@/shared/infrastructure/di-container');
+    const dbUser: any = await getProfileUseCase.execute(session.user.username || session.user.id).catch(() => null);
 
     return NextResponse.json({
       success: true,

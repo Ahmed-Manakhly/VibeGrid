@@ -1,5 +1,5 @@
 import { getCurrentSession } from "@/lib/auth/server";
-import { prisma } from "@/shared/infrastructure/prisma";
+import { getProfileUseCase } from "@/shared/infrastructure/di-container";
 import { redirect } from "next/navigation";
 import SettingsPageClient from "./SettingsPageClient";
 
@@ -9,21 +9,7 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      username: true,
-      bio: true,
-      location: true,
-      website: true,
-      image: true,
-      role: true,
-      createdAt: true,
-    },
-  });
+  const dbUser = await getProfileUseCase.execute(session.user.username || session.user.id).catch(() => null);
 
   if (!dbUser) {
     redirect("/login");

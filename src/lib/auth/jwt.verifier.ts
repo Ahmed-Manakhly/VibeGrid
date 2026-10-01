@@ -33,7 +33,7 @@ export async function verifyAccessTokenRS256(token: string): Promise<AuthJwtPayl
       userId: (payload.userId || payload.sub) as string,
       email: payload.email as string,
       role: (payload.role as string) || 'USER',
-      isEmailVerified: true,
+      isEmailVerified: Boolean(payload.isEmailVerified ?? payload.email_verified ?? false),
       type: (payload.type as string) || 'access',
       iat: payload.iat,
       exp: payload.exp,

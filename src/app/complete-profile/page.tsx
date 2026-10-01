@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getCurrentSession } from '@/lib/auth/server';
-import { prisma } from '@/shared/infrastructure/prisma';
+import { getProfileUseCase } from '@/shared/infrastructure/di-container';
+import { ProfileRules } from '@/modules/social/domain/ProfileRules';
 import { CompleteProfileClient } from './CompleteProfileClient';
 
 export const metadata = {
@@ -15,19 +16,9 @@ export default async function CompleteProfilePage() {
     redirect('/login?callbackUrl=/complete-profile');
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { id: true, email: true, name: true, username: true, bio: true, image: true },
-  });
+  const dbUser: any = await getProfileUseCase.execute(session.user.username || session.user.id).catch(() => null);
 
-  const isComplete = Boolean(
-    dbUser &&
-      dbUser.username &&
-      dbUser.username.trim() !== '' &&
-      !dbUser.username.startsWith('user_') &&
-      dbUser.name &&
-      dbUser.name.trim() !== ''
-  );
+  const isComplete = ProfileRules.isProfileComplete(dbUser);
 
   if (isComplete) {
     redirect('/');

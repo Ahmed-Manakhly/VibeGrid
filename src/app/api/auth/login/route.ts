@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authServiceFetch } from '@/lib/auth/auth.client';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
 
+import { logger } from '@/shared/infrastructure/di-container';
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -20,7 +22,7 @@ export async function POST(req: NextRequest) {
     });
 
     const isSuccess = authRes.ok && (authRes.data?.status === 'success' || authRes.data?.success === true);
-    console.log('[BFF Login Debug] authRes.status:', authRes.status, 'isSuccess:', isSuccess, 'authRes.data:', JSON.stringify(authRes.data));
+    logger.info('[BFF Login] Auth service response', { status: authRes.status, isSuccess });
 
     if (!isSuccess) {
       const errorMessage = authRes.data?.error || authRes.data?.message || authRes.data?.data?.message || 'Invalid credentials';
@@ -57,7 +59,7 @@ export async function POST(req: NextRequest) {
       refreshToken = getCookieVal(COOKIE_CONFIG.refreshToken.name);
     }
 
-    console.log('[BFF Login Tokens Debug] accessToken found:', !!accessToken, 'refreshToken found:', !!refreshToken);
+    logger.info('[BFF Login] Session tokens acquired', { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken });
 
     if (user) {
       const { ProfileBootstrapService } = await import('@/modules/social/application/ProfileBootstrapService');

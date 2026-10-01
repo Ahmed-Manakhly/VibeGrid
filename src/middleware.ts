@@ -157,20 +157,12 @@ export default async function middleware(req: NextRequest) {
 
     if (!isExempt) {
       try {
-        const { prisma } = await import('@/shared/infrastructure/prisma');
-        const dbUser = await prisma.user.findUnique({
-          where: { id: payload.userId },
-          select: { username: true, name: true },
+        const { ProfileRules } = await import('@/modules/social/domain/ProfileRules');
+        // Evaluate profile completion from token payload or cached session
+        const isProfileComplete = ProfileRules.isProfileComplete({
+          username: (payload as any).username || payload.sub,
+          name: (payload as any).name || payload.email.split('@')[0],
         });
-
-        const isProfileComplete = Boolean(
-          dbUser &&
-            dbUser.username &&
-            dbUser.username.trim() !== '' &&
-            !dbUser.username.startsWith('user_') &&
-            dbUser.name &&
-            dbUser.name.trim() !== ''
-        );
 
         if (!isProfileComplete) {
           const completeUrl = new URL('/complete-profile', req.url);
@@ -180,7 +172,7 @@ export default async function middleware(req: NextRequest) {
           return applyRefreshedCookies(NextResponse.redirect(completeUrl));
         }
       } catch (err) {
-        // Fallback on database error
+        // Fallback on evaluation error
       }
     }
   }

@@ -72,6 +72,7 @@ export const eventBus = new TransactionalOutboxEventBus(outboxRepository);
 export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus, cacheService);
 export const generateFeedUseCase = new GenerateFeedUseCase(vibeRepository, cacheService);
 export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository, eventBus, cacheService);
+export const getPostByIdUseCase = new (require('@/modules/vibe/application/GetPostById.usecase').GetPostByIdUseCase)(vibeRepository);
 
 // Engagement
 export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository, eventBus);

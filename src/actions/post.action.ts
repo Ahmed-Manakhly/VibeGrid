@@ -1,6 +1,5 @@
 "use server" ;
 
-import { prisma } from "@/shared/infrastructure/prisma";
 import { getDbUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
 import { error } from "console";
@@ -14,7 +13,7 @@ import {
     toggleLikeUseCase,
     addCommentUseCase,
     deleteCommentUseCase,
-    vibeRepository
+    getPostByIdUseCase
 } from "@/shared/infrastructure/di-container";
 import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
 
@@ -135,7 +134,7 @@ export async function deleteComment(commentId: string) {
 
 export async function getPostById(postId: string) {
     try {
-        const post = await vibeRepository.getPostById(postId);
+        const post = await getPostByIdUseCase.execute(postId);
         return post;
     } catch (error) {
         console.error('failed to get post', error);

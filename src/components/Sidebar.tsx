@@ -1,5 +1,5 @@
 import { getCurrentSession } from '@/lib/auth/server';
-import { prisma } from '@/shared/infrastructure/prisma';
+import { getProfileUseCase } from '@/shared/infrastructure/di-container';
 import Link from 'next/link';
 import { VibeLogo } from './VibeLogo';
 import { CustomSignOutButton } from './CustomSignOutButton';
@@ -12,12 +12,9 @@ export async function Sidebar() {
   const session = await getCurrentSession();
   const authUser = session.user;
 
-  let dbUser = null;
+  let dbUser: any = null;
   if (authUser?.id) {
-    dbUser = await prisma.user.findUnique({
-      where: { id: authUser.id },
-      select: { username: true, name: true, email: true, image: true },
-    });
+    dbUser = await getProfileUseCase.execute(authUser.username || authUser.id).catch(() => null);
   }
 
   const profileUsername = dbUser?.username || authUser?.name || authUser?.email.split('@')[0];
