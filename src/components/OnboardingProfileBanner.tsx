@@ -36,9 +36,9 @@ export function OnboardingProfileBanner() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [interestRes, catRes] = await Promise.all([
+        const [interestRes, filterRes] = await Promise.all([
           fetch('/api/social/interests'),
-          fetch('/api/taxonomy/categories'),
+          fetch('/api/feed/filters'),
         ]);
         if (interestRes.ok) {
           const data = await interestRes.json();
@@ -46,10 +46,12 @@ export function OnboardingProfileBanner() {
             setSelectedIds(data.interests.map((i: any) => i.id));
           }
         }
-        if (catRes.ok) {
-          const catData = await catRes.json();
-          if (catData.success && Array.isArray(catData.categories)) {
-            setCategories(catData.categories);
+        if (filterRes.ok) {
+          const filterData = await filterRes.json();
+          if (filterData.success && Array.isArray(filterData.categories)) {
+            setCategories(filterData.categories);
+          } else if (Array.isArray(filterData.categories)) {
+            setCategories(filterData.categories);
           }
         }
       } catch (e) {
