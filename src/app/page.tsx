@@ -31,17 +31,15 @@ async function HomeFeed({ params, dbUserId }: { params: any, dbUserId: string | 
 }
 
 interface PageProps {
-  searchParams: {
-    category?: string;
-  };
+  searchParams: Promise<{ category?: string }> | { category?: string };
 }
 
 export default async function Home({ searchParams }: PageProps) {
   const session = await getCurrentSession();
   const dbUserId = await getDbUserId(); 
   
-  const params = await searchParams;
-  const suspenseKey = JSON.stringify(params);
+  const params = await (searchParams as any);
+  const suspenseKey = JSON.stringify(params || {});
 
   return (
       <MobileTabsLayout
