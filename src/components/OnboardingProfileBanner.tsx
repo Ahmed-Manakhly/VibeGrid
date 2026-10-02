@@ -17,7 +17,6 @@ export function OnboardingProfileBanner() {
   const pathname = usePathname();
   const [dismissed, setDismissed] = useState(false);
 
-  // Do not display banner on auth pages
   const isExcludedRoute = [
     '/login',
     '/register',
@@ -26,14 +25,12 @@ export function OnboardingProfileBanner() {
     '/verify-email',
   ].some((route) => pathname.startsWith(route));
 
-  if (isLoading || !isAuthenticated || !user || isExcludedRoute || dismissed) {
-    return null;
-  }
-
-  const isComplete = ProfileRules.isProfileComplete(user);
+  const shouldFetch = !isLoading && isAuthenticated && Boolean(user) && !isExcludedRoute && !dismissed;
 
   // Load user's interests and taxonomy categories on mount
   useEffect(() => {
+    if (!shouldFetch) return;
+
     async function loadData() {
       try {
         const [interestRes, filterRes] = await Promise.all([
@@ -61,7 +58,13 @@ export function OnboardingProfileBanner() {
       }
     }
     loadData();
-  }, []);
+  }, [shouldFetch]);
+
+  if (!shouldFetch) {
+    return null;
+  }
+
+  const isComplete = ProfileRules.isProfileComplete(user);
 
   // Helper to toggle category selection
   const toggleCategory = (id: string) => {
@@ -118,7 +121,7 @@ export function OnboardingProfileBanner() {
             </div>
             <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
               <Link
-                href={user.username ? `/profile/${user.username}?edit=true` : '/login'}
+                href={user?.username ? `/profile/${user.username}?edit=true` : '/login'}
                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs sm:text-sm shadow-md shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Complete Profile</span>
