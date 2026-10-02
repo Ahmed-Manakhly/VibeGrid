@@ -1,39 +1,39 @@
-import Redis from 'ioredis';
-import {
-  ICacheService,
-  GetOrSetOptions,
-  LockOptions,
-  RateLimitOptions,
-  RateLimitResult,
-} from '@/shared/application/ports/ICacheService';
+import 'server-only';
+import { ICacheService, GetOrSetOptions, LockOptions, RateLimitOptions, RateLimitResult } from '@/shared/application/ports/ICacheService';
 import { ILogger } from '@/shared/application/ports/ILogger';
 import { PinoLogger } from '../PinoLogger';
-
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 
 export class RedisCacheService implements ICacheService {
-  private client: Redis | null = null;
+  private client: any = null;
   private logger: ILogger;
   private inFlightPromises = new Map<string, Promise<any>>();
 
-  constructor(redisClientOrUrl?: Redis | string, logger?: ILogger) {
+  constructor(redisClientOrUrl?: any, logger?: ILogger) {
     this.logger = logger || new PinoLogger("vibegrid-cache");
 
-    if (typeof redisClientOrUrl === 'string') {
-      this.client = new Redis(redisClientOrUrl, { lazyConnect: true, maxRetriesPerRequest: 3 });
-    } else if (redisClientOrUrl) {
-      this.client = redisClientOrUrl;
-    } else {
-      const redisUrl = EnvConfigRepository.getRedisUrl();
-      if (redisUrl) {
-        this.client = new Redis(redisUrl, { maxRetriesPerRequest: 3 });
-      } else {
-        this.logger.warn('[RedisCacheService] REDIS_URL is not defined in EnvConfigRepository; running with cache disabled.');
+    if (typeof window === 'undefined') {
+      try {
+        const Redis = require('ioredis');
+        if (typeof redisClientOrUrl === 'string') {
+          this.client = new Redis(redisClientOrUrl, { lazyConnect: true, maxRetriesPerRequest: 3 });
+        } else if (redisClientOrUrl) {
+          this.client = redisClientOrUrl;
+        } else {
+          const redisUrl = EnvConfigRepository.getRedisUrl();
+          if (redisUrl) {
+            this.client = new Redis(redisUrl, { maxRetriesPerRequest: 3 });
+          } else {
+            this.logger.warn('[RedisCacheService] REDIS_URL is not defined in EnvConfigRepository; running with cache disabled.');
+          }
+        }
+      } catch (e) {
+        this.logger.warn('[RedisCacheService] Failed to load ioredis module; running with cache disabled.');
       }
     }
 
     if (this.client && typeof this.client.on === 'function') {
-      this.client.on('error', (err) => {
+      this.client.on('error', (err: unknown) => {
         this.logger.error('[RedisCacheService] Redis client error:', err);
       });
     }
@@ -50,7 +50,7 @@ export class RedisCacheService implements ICacheService {
       const raw = await this.client.get(key);
       if (!raw) return null;
       return JSON.parse(raw) as T;
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(`[RedisCacheService] GET failed for key [${key}], falling back to miss`, { key, error: err });
       return null;
     }
@@ -65,7 +65,7 @@ export class RedisCacheService implements ICacheService {
       } else {
         await this.client.set(key, serialized);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(`[RedisCacheService] SET failed for key [${key}]`, { key, error: err });
     }
   }
@@ -74,7 +74,7 @@ export class RedisCacheService implements ICacheService {
     if (!this.client) return;
     try {
       await this.client.del(key);
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(`[RedisCacheService] DELETE failed for key [${key}]`, { key, error: err });
     }
   }
@@ -95,7 +95,7 @@ export class RedisCacheService implements ICacheService {
       if (keysToDelete.length > 0) {
         await this.client.del(...keysToDelete);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(`[RedisCacheService] delByPattern failed for pattern [${pattern}]`, { pattern, error: err });
     }
   }
@@ -105,7 +105,7 @@ export class RedisCacheService implements ICacheService {
     try {
       const res = await this.client.exists(key);
       return res === 1;
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(`[RedisCacheService] EXISTS failed for key [${key}]`, { key, error: err });
       return false;
     }
@@ -151,7 +151,7 @@ export class RedisCacheService implements ICacheService {
     try {
       const result = await this.client.set(lockKey, lockOwnerToken, 'PX', ttlMs, 'NX');
       return result === 'OK';
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(`[RedisCacheService] Acquire lock failed for [${lockKey}]`, { lockKey, error: err });
       return false;
     }
@@ -169,7 +169,7 @@ export class RedisCacheService implements ICacheService {
     try {
       const res = await this.client.eval(luaScript, 1, lockKey, lockOwnerToken);
       return res === 1;
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(`[RedisCacheService] Release lock failed for [${lockKey}]`, { lockKey, error: err });
       return false;
     }
@@ -209,7 +209,7 @@ export class RedisCacheService implements ICacheService {
         remainingRequests,
         resetSeconds: ttl > 0 ? ttl : windowSeconds,
       };
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(`[RedisCacheService] RateLimit failed for [${limitKey}], failing open`, { limitKey, error: err });
       return defaultResult;
     }
@@ -219,7 +219,7 @@ export class RedisCacheService implements ICacheService {
     if (!this.client) return 0;
     try {
       return await this.client.publish(channel, message);
-    } catch (err) {
+    } catch (err: unknown) {
       this.logger.warn(`[RedisCacheService] PUBLISH failed for channel [${channel}]`, { channel, error: err });
       return 0;
     }
@@ -230,7 +230,7 @@ export class RedisCacheService implements ICacheService {
     try {
       const res = await this.client.ping();
       return res === 'PONG';
-    } catch (err) {
+    } catch (err: unknown) {
       return false;
     }
   }

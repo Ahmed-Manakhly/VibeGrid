@@ -2,7 +2,7 @@ import { ICacheService } from '@/shared/application/ports/ICacheService';
 import { ILogger } from '@/shared/application/ports/ILogger';
 import { authServiceFetch } from '@/lib/auth/auth.client';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
-import crypto from 'crypto';
+
 
 export interface RefreshSessionResult {
   success: boolean;
@@ -18,8 +18,12 @@ export class RefreshSessionCoordinator {
     private logger: ILogger
   ) {}
 
-  private hashToken(refreshToken: string): string {
-    return crypto.createHash('sha256').update(refreshToken).digest('hex').substring(0, 32);
+  private async hashToken(refreshToken: string): Promise<string> {
+    const msgUint8 = new TextEncoder().encode(refreshToken);
+    const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    return `fp_${hex.substring(0, 32)}`;
   }
 
   public async refresh(refreshToken: string): Promise<RefreshSessionResult> {
@@ -27,7 +31,7 @@ export class RefreshSessionCoordinator {
       return { success: false, status: 401, message: 'Refresh token missing' };
     }
 
-    const tokenFp = this.hashToken(refreshToken);
+    const tokenFp = await this.hashToken(refreshToken);
     const lockKey = `lock:refresh:${tokenFp}`;
     const resultKey = `refresh:result:${tokenFp}`;
 
@@ -38,7 +42,7 @@ export class RefreshSessionCoordinator {
       return cachedResult;
     }
 
-    const lockOwnerToken = crypto.randomUUID();
+    const lockOwnerToken = globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Math.random().toString(36).substring(2);
 
     // 2. Acquire 5-second distributed Redis lock to serialize concurrent refresh attempts
     const acquired = await this.cacheService.acquireLock(lockKey, lockOwnerToken, { ttlMs: 5000 });

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAccessTokenRS256 } from '@/lib/auth/jwt.verifier';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
-import { logger } from '@/shared/infrastructure/di-container';
+import { EdgeLogger } from '@/shared/infrastructure/EdgeLogger';
+import { ILogger } from '@/shared/application/ports/ILogger';
+
+const logger: ILogger = new EdgeLogger('vibegrid-middleware');
 
 const PROTECTED_ROUTES = ['/profile', '/settings', '/create-post'];
 const AUTH_ONLY_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];

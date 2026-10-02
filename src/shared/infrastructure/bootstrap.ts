@@ -1,5 +1,7 @@
 import { execSync } from 'child_process';
-import { logger } from './di-container';
+import { PinoLogger } from './PinoLogger';
+
+const logger = new PinoLogger('vibegrid-bootstrap');
 
 let isBootstrapped = false;
 
