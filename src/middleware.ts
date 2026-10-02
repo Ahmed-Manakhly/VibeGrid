@@ -14,14 +14,14 @@ const EXEMPT_FROM_PROFILE_CHECK = [
 
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 
-async function attemptSilentRefresh(refreshToken: string) {
+async function attemptSilentRefresh(refreshToken: string, requestUrl: string) {
   try {
-    const { apiBaseUrl } = EnvConfigRepository.getEndpoints();
-    const res = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/auth/refresh`, {
+    const origin = new URL(requestUrl).origin;
+    const res = await fetch(`${origin}/api/auth/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Cookie: `refresh_token=${refreshToken}; vibegrid_refresh_token=${refreshToken}`,
+        Cookie: `${COOKIE_CONFIG.refreshToken.name}=${refreshToken}`,
       },
       body: JSON.stringify({ refreshToken }),
     });
@@ -106,7 +106,7 @@ export default async function middleware(req: NextRequest) {
   // 3. Silent Access Token Refresh when access_token is expired/missing but refresh_token exists
   if (!payload && refreshToken) {
     console.log(`[AUTH_FORENSIC_TRACE] reqId=${requestId} path=${pathname} action=ATTEMPT_SILENT_REFRESH`);
-    refreshedTokens = await attemptSilentRefresh(refreshToken);
+    refreshedTokens = await attemptSilentRefresh(refreshToken, req.url);
     if (refreshedTokens && refreshedTokens.accessToken) {
       payload = await verifyAccessTokenRS256(refreshedTokens.accessToken);
       requestHeaders.set('x-refreshed-access-token', refreshedTokens.accessToken);

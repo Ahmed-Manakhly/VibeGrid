@@ -66,51 +66,39 @@ export async function getCurrentSession(): Promise<SessionResult> {
 
     if (refreshToken) {
       try {
-        const { EnvConfigRepository } = await import('@/modules/config/infrastructure/EnvConfigRepository');
-        const { apiBaseUrl } = EnvConfigRepository.getEndpoints();
-        const refreshRes = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/auth/refresh`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Cookie: `refresh_token=${refreshToken}; vibegrid_refresh_token=${refreshToken}`,
-          },
-          body: JSON.stringify({ refreshToken }),
-          cache: 'no-store',
-        });
+        const { refreshSessionCoordinator } = await import('@/shared/infrastructure/di-container');
+        const refreshResult = await refreshSessionCoordinator.refresh(refreshToken);
 
         logger.info('[AUTH_FORENSIC_TRACE] getCurrentSession fallback refresh response', {
           reqId,
-          status: refreshRes.status,
-          ok: refreshRes.ok,
+          status: refreshResult.status,
+          ok: refreshResult.success,
         });
 
-        if (refreshRes.ok) {
-          const refreshData = await refreshRes.json();
-          const newTokens = refreshData?.data || refreshData;
-          const freshAccessToken = newTokens?.accessToken;
-          const freshRefreshToken = newTokens?.refreshToken || newTokens?.tokens?.refreshToken;
-          if (typeof freshAccessToken === 'string' && freshAccessToken.length > 0) {
-            token = freshAccessToken;
-            payload = await verifyAccessTokenRS256(freshAccessToken);
+        if (refreshResult.success && refreshResult.accessToken) {
+          const freshAccessToken = refreshResult.accessToken;
+          const freshRefreshToken = refreshResult.refreshToken;
 
-            // Persist rotated tokens to browser cookies when in mutable context (Route Handlers / Server Actions)
-            try {
+          token = freshAccessToken;
+          payload = await verifyAccessTokenRS256(freshAccessToken);
+
+          // Persist rotated tokens to browser cookies when in mutable context (Route Handlers / Server Actions)
+          try {
+            cookieStore.set(
+              COOKIE_CONFIG.accessToken.name,
+              freshAccessToken,
+              COOKIE_CONFIG.accessToken.options
+            );
+            if (typeof freshRefreshToken === 'string' && freshRefreshToken.length > 0) {
               cookieStore.set(
-                COOKIE_CONFIG.accessToken.name,
-                freshAccessToken,
-                COOKIE_CONFIG.accessToken.options
+                COOKIE_CONFIG.refreshToken.name,
+                freshRefreshToken,
+                COOKIE_CONFIG.refreshToken.options
               );
-              if (typeof freshRefreshToken === 'string' && freshRefreshToken.length > 0) {
-                cookieStore.set(
-                  COOKIE_CONFIG.refreshToken.name,
-                  freshRefreshToken,
-                  COOKIE_CONFIG.refreshToken.options
-                );
-              }
-              logger.info('[AUTH_FORENSIC_TRACE] getCurrentSession persisted fallback refresh cookies', { reqId });
-            } catch {
-              logger.info('[AUTH_FORENSIC_TRACE] getCurrentSession cookieStore.set readonly context', { reqId });
             }
+            logger.info('[AUTH_FORENSIC_TRACE] getCurrentSession persisted fallback refresh cookies', { reqId });
+          } catch {
+            logger.info('[AUTH_FORENSIC_TRACE] getCurrentSession cookieStore.set readonly context', { reqId });
           }
         }
       } catch (err: any) {
