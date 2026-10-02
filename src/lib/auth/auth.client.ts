@@ -1,5 +1,6 @@
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 import { getCorrelationHeaders } from '@/lib/request-context';
+import { logger } from '@/shared/infrastructure/di-container';
 
 export async function authServiceFetch<T = any>(
   endpoint: string,
@@ -34,7 +35,7 @@ export async function authServiceFetch<T = any>(
     }
 
     if (!res.ok) {
-      console.log(`[AuthServiceFetch Error] ${options.method || 'GET'} ${url} -> Status: ${res.status}`, data);
+      logger.warn(`[AuthServiceFetch Error] ${options.method || 'GET'} ${url} -> Status: ${res.status}`, { data });
     }
 
     return {
@@ -44,7 +45,7 @@ export async function authServiceFetch<T = any>(
       data,
     };
   } catch (err: any) {
-    console.error(`[AuthServiceFetch Exception] ${options.method || 'GET'} ${url}`, err);
+    logger.error(`[AuthServiceFetch Exception] ${options.method || 'GET'} ${url}`, err);
     return {
       ok: false,
       status: 500,
@@ -52,3 +53,4 @@ export async function authServiceFetch<T = any>(
     };
   }
 }
+

@@ -23,7 +23,8 @@ export class PrismaNotificationRepository implements INotificationRepository {
       });
       return notifications;
     } catch (error) {
-      console.error("[PrismaNotificationRepository] Error fetching notifications:", error);
+      const { logger } = require("@/shared/infrastructure/di-container");
+      logger.error("[PrismaNotificationRepository] Error fetching notifications", error);
       throw new Error("Failed to fetch notifications");
     }
   }
@@ -36,7 +37,8 @@ export class PrismaNotificationRepository implements INotificationRepository {
       });
       return true;
     } catch (error) {
-      console.error("[PrismaNotificationRepository] Error marking notifications as read:", error);
+      const { logger } = require("@/shared/infrastructure/di-container");
+      logger.error("[PrismaNotificationRepository] Error marking notifications as read", error);
       return false;
     }
   }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
+import { logger } from '@/shared/infrastructure/di-container';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest) {
         name: user.name,
         role: user.role,
         avatarUrl: user.avatarUrl,
-      }).catch((err) => console.error('[Google OAuth Profile Bootstrap Warning]', err));
+      }).catch((err) => logger.warn('[Google OAuth Profile Bootstrap Warning]', { error: err }));
     }
 
     // Response redirecting to homepage after setting BFF HttpOnly cookies
@@ -76,7 +77,8 @@ export async function GET(req: NextRequest) {
 
     return response;
   } catch (err) {
-    console.error('[Google OAuth BFF Callback Error]', err);
+    logger.error('[Google OAuth BFF Callback Error]', err);
     return NextResponse.redirect(new URL('/login?error=oauth_server_error', req.url));
   }
 }
+

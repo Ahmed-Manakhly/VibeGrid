@@ -31,7 +31,8 @@ export class PrismaSocialRepository implements ISocialRepository {
         take: 3,
       });
     } catch (err) {
-      console.error("couldn't fetch suggested users!", err);
+      const { logger } = require("@/shared/infrastructure/di-container");
+      logger.error("couldn't fetch suggested users!", err);
       return [];
     }
   }

@@ -17,9 +17,11 @@ export class NotificationEventHandler {
           type: NotificationType.LIKE,
           postId: payload.vibeId,
         });
-        console.log(`[NotificationEventHandler] LIKE notification created for user ${payload.authorId}`);
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.info(`[NotificationEventHandler] LIKE notification created for user ${payload.authorId}`);
       } catch (error) {
-        console.error("[NotificationEventHandler] Error creating LIKE notification", error);
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.error("[NotificationEventHandler] Error creating LIKE notification", error);
       }
     });
 
@@ -33,9 +35,11 @@ export class NotificationEventHandler {
           postId: payload.vibeId,
           commentId: payload.commentId,
         });
-        console.log(`[NotificationEventHandler] COMMENT notification created for user ${payload.authorId}`);
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.info(`[NotificationEventHandler] COMMENT notification created for user ${payload.authorId}`);
       } catch (error) {
-        console.error("[NotificationEventHandler] Error creating COMMENT notification", error);
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.error("[NotificationEventHandler] Error creating COMMENT notification", error);
       }
     });
 
@@ -47,10 +51,13 @@ export class NotificationEventHandler {
           creatorId: payload.followerId,
           type: NotificationType.FOLLOW,
         });
-        console.log(`[NotificationEventHandler] FOLLOW notification created for user ${payload.followingId}`);
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.info(`[NotificationEventHandler] FOLLOW notification created for user ${payload.followingId}`);
       } catch (error) {
-        console.error("[NotificationEventHandler] Error creating FOLLOW notification", error);
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.error("[NotificationEventHandler] Error creating FOLLOW notification", error);
       }
     });
   }
 }
+

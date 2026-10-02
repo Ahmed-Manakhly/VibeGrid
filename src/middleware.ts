@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAccessTokenRS256 } from '@/lib/auth/jwt.verifier';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
+import { logger } from '@/shared/infrastructure/di-container';
 
 const PROTECTED_ROUTES = ['/profile', '/settings', '/create-post'];
 const AUTH_ONLY_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
@@ -101,18 +102,18 @@ export default async function middleware(req: NextRequest) {
   let payload = accessToken ? await verifyAccessTokenRS256(accessToken) : null;
   let refreshedTokens: { accessToken: string; refreshToken: string } | null = null;
 
-  console.log(`[AUTH_FORENSIC_TRACE] reqId=${requestId} path=${pathname} method=${method} hasAccessCookie=${Boolean(accessToken)} accessValid=${Boolean(payload)} hasRefreshCookie=${Boolean(refreshToken)}`);
+  logger.debug('[AUTH_FORENSIC_TRACE]', { requestId, pathname, method, hasAccessCookie: Boolean(accessToken), accessValid: Boolean(payload), hasRefreshCookie: Boolean(refreshToken) });
 
   // 3. Silent Access Token Refresh when access_token is expired/missing but refresh_token exists
   if (!payload && refreshToken) {
-    console.log(`[AUTH_FORENSIC_TRACE] reqId=${requestId} path=${pathname} action=ATTEMPT_SILENT_REFRESH`);
+    logger.debug('[AUTH_FORENSIC_TRACE] Attempting silent refresh', { requestId, pathname });
     refreshedTokens = await attemptSilentRefresh(refreshToken, req.url);
     if (refreshedTokens && refreshedTokens.accessToken) {
       payload = await verifyAccessTokenRS256(refreshedTokens.accessToken);
       requestHeaders.set('x-refreshed-access-token', refreshedTokens.accessToken);
-      console.log(`[AUTH_FORENSIC_TRACE] reqId=${requestId} path=${pathname} action=SILENT_REFRESH_SUCCESS injectedHeader=YES payloadValid=${Boolean(payload)}`);
+      logger.info('[AUTH_FORENSIC_TRACE] Silent refresh success', { requestId, pathname, payloadValid: Boolean(payload) });
     } else {
-      console.log(`[AUTH_FORENSIC_TRACE] reqId=${requestId} path=${pathname} action=SILENT_REFRESH_FAILED`);
+      logger.warn('[AUTH_FORENSIC_TRACE] Silent refresh failed', { requestId, pathname });
     }
   }
 
@@ -129,14 +130,14 @@ export default async function middleware(req: NextRequest) {
         refreshedTokens.refreshToken,
         COOKIE_CONFIG.refreshToken.options
       );
-      console.log(`[AUTH_FORENSIC_TRACE] reqId=${requestId} path=${pathname} action=APPLY_REFRESHED_COOKIES_TO_RESPONSE`);
+      logger.debug('[AUTH_FORENSIC_TRACE] Applied refreshed cookies', { requestId, pathname });
     }
     return response;
   };
 
   // Helper to clear invalid auth cookies
   const clearAuthCookies = (response: NextResponse) => {
-    console.log(`[AUTH_FORENSIC_TRACE] reqId=${requestId} path=${pathname} action=CLEAR_AUTH_COOKIES`);
+    logger.debug('[AUTH_FORENSIC_TRACE] Clearing auth cookies', { requestId, pathname });
     response.cookies.delete(COOKIE_CONFIG.accessToken.name);
     response.cookies.delete(COOKIE_CONFIG.refreshToken.name);
     return response;
@@ -145,7 +146,7 @@ export default async function middleware(req: NextRequest) {
   // 4. Auth-only routes (/login, /register) -> Redirect to homepage if authenticated
   const isAuthOnlyRoute = AUTH_ONLY_ROUTES.includes(pathname);
   if (isAuthOnlyRoute && payload) {
-    console.log(`[AUTH_FORENSIC_TRACE] reqId=${requestId} path=${pathname} action=REDIRECT_AUTH_ONLY_TO_HOME`);
+    logger.info('[AUTH_FORENSIC_TRACE] Redirecting auth-only route to home', { requestId, pathname });
     return applyRefreshedCookies(NextResponse.redirect(new URL('/', req.url)));
   }
 
@@ -155,7 +156,7 @@ export default async function middleware(req: NextRequest) {
   );
 
   if (isProtectedRoute && !payload) {
-    console.log(`[AUTH_FORENSIC_TRACE] reqId=${requestId} path=${pathname} action=REDIRECT_PROTECTED_TO_LOGIN`);
+    logger.info('[AUTH_FORENSIC_TRACE] Redirecting unauthenticated user from protected route to login', { requestId, pathname });
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return clearAuthCookies(NextResponse.redirect(loginUrl));

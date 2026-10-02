@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentSession } from '@/lib/auth/server';
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
+import { logger } from '@/shared/infrastructure/di-container';
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,7 +27,8 @@ export async function POST(req: NextRequest) {
     const data = await gatewayRes.json();
     return NextResponse.json(data, { status: gatewayRes.status });
   } catch (error: any) {
-    console.error('[BFF Media Upload Intent Error]', error);
+    logger.error('[BFF Media Upload Intent Error]', error);
     return NextResponse.json({ success: false, error: error?.message || 'Media service request failed' }, { status: 500 });
   }
 }
+
