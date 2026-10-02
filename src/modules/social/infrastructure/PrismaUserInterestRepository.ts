@@ -1,11 +1,19 @@
 import { PrismaClient } from '@prisma/client';
 import { IUserInterestRepository } from '@/modules/social/domain/IUserInterestRepository';
 
+type CategoryDTO = {
+  id: string;
+  name: string;
+  slug: string;
+  emoji: string | null;
+};
+
 export class PrismaUserInterestRepository implements IUserInterestRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
-  async getUserInterests(userId: string) {
-    const interests = await this.prisma.userInterest.findMany({
+  // Get categories the user is interested in
+  async getUserInterests(userId: string): Promise<CategoryDTO[]> {
+    const interests = await (this.prisma as any).userInterest.findMany({
       where: { userId },
       select: {
         category: {
@@ -18,17 +26,15 @@ export class PrismaUserInterestRepository implements IUserInterestRepository {
         },
       },
     });
-    return interests.map((i) => i.category);
+    return interests.map((i: any) => i.category);
   }
 
-  async setUserInterests(userId: string, categoryIds: string[]) {
-    // atomic replace: delete then create within a transaction
-    await this.prisma.$transaction(async (tx) => {
-      await tx.userInterest.deleteMany({ where: { userId } });
-      const creates = categoryIds.map((catId) => ({ userId, categoryId: catId }));
-      if (creates.length) {
-        await tx.userInterest.createMany({ data: creates });
-      }
-    });
+  // Replace the user's interests atomically
+  async setUserInterests(userId: string, categoryIds: string[]): Promise<void> {
+    const creates = categoryIds.map((catId) => ({ userId, categoryId: catId }));
+    await this.prisma.$transaction([
+      (this.prisma as any).userInterest.deleteMany({ where: { userId } }),
+      ...(creates.length ? [(this.prisma as any).userInterest.createMany({ data: creates })] : []),
+    ]);
   }
 }
