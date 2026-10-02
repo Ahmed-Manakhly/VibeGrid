@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
-      }).catch((err) => console.error('[Login Profile Bootstrap Warning]', err));
+      }).catch((err) => logger.warn('[Login Profile Bootstrap Warning]', { error: err }));
     }
 
     const response = NextResponse.json({

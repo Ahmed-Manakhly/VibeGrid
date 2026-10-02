@@ -4,13 +4,13 @@ import { getCurrentSession } from "@/lib/auth/server";
 import { revalidatePath } from "next/cache";
 import { getDbUserId } from "./user.action";
 
-import { getProfileUseCase, updateProfileUseCase, isFollowingUseCase } from "@/shared/infrastructure/di-container";
+import { getProfileUseCase, updateProfileUseCase, isFollowingUseCase, logger } from "@/shared/infrastructure/di-container";
 
 export async function getProfileByUsername(username: string) {
     try {
         return await getProfileUseCase.execute(username);
     } catch (error) {
-        console.error("Error fetching profile:", error);
+        logger.error("Error fetching profile", error, { username });
         return null;
     }
 }
@@ -56,7 +56,7 @@ export async function updateProfile(formData: FormData) {
         revalidatePath(`/profile/${result.user.username}`);
         return { success: true, user: result.user };
     } catch (error: any) {
-        console.error("Error updating profile:", error);
+        logger.error("Error updating profile", error);
         
         // Handle Prisma unique constraint violation for username (P2002)
         if (error.code === 'P2002' || error.message?.includes('Unique constraint failed on the fields: (`username`)')) {
@@ -73,7 +73,8 @@ export async function isFollowing(userId: string) {
         if (!currentUserId) return false;
         return await isFollowingUseCase.execute(currentUserId, userId);
     } catch (error) {
-        console.error("Error checking follow status:", error);
+        logger.error("Error checking follow status", error, { userId });
         return false;
     }
-}
+}
+

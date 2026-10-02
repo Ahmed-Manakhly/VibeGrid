@@ -2,9 +2,6 @@
 
 import { getDbUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
-import { error } from "console";
-
-
 
 import { 
     createVibeUseCase, 
@@ -13,7 +10,8 @@ import {
     toggleLikeUseCase,
     addCommentUseCase,
     deleteCommentUseCase,
-    getPostByIdUseCase
+    getPostByIdUseCase,
+    logger
 } from "@/shared/infrastructure/di-container";
 import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
 
@@ -32,7 +30,7 @@ export async function creatPost(content: string, mediaUrl?: string, mediaType?: 
         revalidatePath('/') ; 
         return {success : true , post: result.value} ; 
     }catch (er){
-        console.error('failed to create a post!' , er)
+        logger.error('failed to create a post!', er);
         return {success : false, error : 'failed to create a post!'}
     }
 }
@@ -60,6 +58,7 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
         }
         return { success: false, error: 'Failed to drop vibe.' };
     } catch (err) {
+        logger.error('Error in createPostFormAction', err);
         return { success: false, error: 'Something went wrong.' };
     }
 }
@@ -70,7 +69,7 @@ export async function getPosts(params: ExplorePostsCriteria = {}) {
         const result = await generateFeedUseCase.execute(params);
         return result; 
     } catch (er){
-        console.error('failed to fetch posts!' , er);
+        logger.error('failed to fetch posts!', er);
         return { data: [], nextCursor: null };
     }
 }
@@ -88,7 +87,7 @@ export async function toggleLike(postId : string){
         revalidatePath('/') ;
         return {success : true} ;
     } catch (error) {
-        console.error('failed to toggle like!', error)
+        logger.error('failed to toggle like!', error, { postId });
         return {success : false, error : 'failed to toggle like!'}
     }
 }
@@ -108,7 +107,7 @@ export async function createComment(postId : string, content : string){
         revalidatePath('/') ;
         return {success : true , comment: result.value.comment};
     }catch (error){
-        console.error('failed to create comment!', error)
+        logger.error('failed to create comment!', error, { postId });
         return {success : false, error : 'failed to create a comment!'}
     }
 }
@@ -127,7 +126,7 @@ export async function deleteComment(commentId: string) {
         revalidatePath('/');
         return {success: true};
     } catch (error) {
-        console.error('failed to delete comment', error);
+        logger.error('failed to delete comment', error, { commentId });
         return {success: false, error: 'failed to delete comment'};
     }
 }
@@ -137,7 +136,7 @@ export async function getPostById(postId: string) {
         const post = await getPostByIdUseCase.execute(postId);
         return post;
     } catch (error) {
-        console.error('failed to get post', error);
+        logger.error('failed to get post', error, { postId });
         return null;
     }
 }
@@ -156,7 +155,7 @@ export async function deletePost(postId : string){
         revalidatePath('/') ; // purge the cash
         return {success : true} ;
     }catch (er: any){
-        console.error('failed to delete a post!', er)
+        logger.error('failed to delete a post!', er, { postId });
         return {success : false, error : er.message || 'failed to delete a post!'}
     }
-}
+}

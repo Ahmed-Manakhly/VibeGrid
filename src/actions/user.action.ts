@@ -6,7 +6,8 @@ import {
     syncUserUseCase, 
     getUserUseCase, 
     toggleFollowUseCase, 
-    getSuggestedUsersUseCase 
+    getSuggestedUsersUseCase,
+    logger
 } from "@/shared/infrastructure/di-container";
 
 export async function syncUser() {
@@ -15,7 +16,7 @@ export async function syncUser() {
         if (!session.isAuthenticated || !session.user) return;
         return await syncUserUseCase.execute(session.user.id, session.user);
     } catch (err) {
-        console.error("Error syncing user:", err);
+        logger.error("Error syncing user", err);
     }
 }
 
@@ -35,7 +36,7 @@ export async function getRandomUsers() {
         if (!userId) return [];
         return await getSuggestedUsersUseCase.execute(userId);
     } catch (err) {
-        console.error("couldn't fetch users!", err);
+        logger.error("Could not fetch suggested users", err);
         return [];
     }
 }
@@ -50,8 +51,9 @@ export async function toggleFollow(targetUserId: string) {
         revalidatePath("/");
         return result;
     } catch (error) {
-        console.error("Error in toggleFollow", error);
+        logger.error("Error in toggleFollow", error, { targetUserId });
         return { success: false, error: "Error toggling follow" };
     }
 }
+
 

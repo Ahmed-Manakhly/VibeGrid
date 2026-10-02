@@ -1,7 +1,8 @@
 import { execSync } from "child_process";
+import { logger } from "@/shared/infrastructure/di-container";
 
 export async function pushSchema() {
-  console.log("ℹ️ Schema push managed by deployment migrations");
+  logger.info("ℹ️ Schema push managed by deployment migrations");
   return true;
 }
 
@@ -22,8 +23,9 @@ export async function bootstrap() {
 
   try {
     await pushSchema();
-    console.log("✅ Bootstrap completed successfully!");
+    logger.info("✅ Bootstrap completed successfully!");
   } catch (error) {
-    console.error("❌ Bootstrap failed", error);
+    logger.error("❌ Bootstrap failed", error);
   }
 }
+

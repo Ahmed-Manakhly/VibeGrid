@@ -1,7 +1,7 @@
 "use server";
 
 import { getDbUserId } from "./user.action";
-import { getNotificationsUseCase, markAsReadUseCase } from "@/shared/infrastructure/di-container";
+import { getNotificationsUseCase, markAsReadUseCase, logger } from "@/shared/infrastructure/di-container";
 
 export async function getNotifications() {
     try {
@@ -9,7 +9,7 @@ export async function getNotifications() {
         if (!userId) return [];
         return await getNotificationsUseCase.execute(userId);
     } catch (error) {
-        console.error("Error fetching notifications:", error);
+        logger.error("Error fetching notifications", error);
         throw new Error("Failed to fetch notifications");
     }
 }
@@ -19,7 +19,8 @@ export async function markNotificationsAsRead(notificationIds: string[]) {
         const result = await markAsReadUseCase.execute(notificationIds);
         return { success: result.success };
     } catch (error) {
-        console.error("Error marking notifications as read:", error);
+        logger.error("Error marking notifications as read", error, { notificationIds });
         return { success: false };
     }
 }
+
