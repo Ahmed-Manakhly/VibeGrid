@@ -30,7 +30,7 @@ import { PrismaAuthRepository } from "@/modules/auth/infrastructure/PrismaAuthRe
 import { SyncUserUseCase } from "@/modules/auth/application/SyncUser.usecase";
 import { GetUserUseCase } from "@/modules/auth/application/GetUser.usecase";
 import { BffAuthGateway } from "@/modules/auth/infrastructure/BffAuthGateway";
-import { RefreshSessionCoordinator } from "@/modules/auth/application/RefreshSessionCoordinator";
+export { refreshSessionCoordinator } from "@/modules/auth/infrastructure/refreshCoordinator";
 
 // Social Module
 import { PrismaSocialRepository } from "@/modules/social/infrastructure/PrismaSocialRepository";
@@ -88,7 +88,6 @@ export const markAsReadUseCase = new MarkAsReadUseCase(notificationRepository);
 // Auth
 export const syncUserUseCase = new SyncUserUseCase(authRepository);
 export const getUserUseCase = new GetUserUseCase(authRepository);
-export const refreshSessionCoordinator = new RefreshSessionCoordinator(cacheService, logger);
 
 // Social
 export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository, eventBus);

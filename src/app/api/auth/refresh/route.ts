@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
-import { refreshSessionCoordinator } from '@/shared/infrastructure/di-container';
+import { refreshSessionCoordinator } from '@/modules/auth/infrastructure/refreshCoordinator';
 
 export async function POST(req: NextRequest) {
   try {

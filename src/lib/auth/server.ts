@@ -66,7 +66,7 @@ export async function getCurrentSession(): Promise<SessionResult> {
 
     if (refreshToken) {
       try {
-        const { refreshSessionCoordinator } = await import('@/shared/infrastructure/di-container');
+        const { refreshSessionCoordinator } = await import('@/modules/auth/infrastructure/refreshCoordinator');
         const refreshResult = await refreshSessionCoordinator.refresh(refreshToken);
 
         logger.info('[AUTH_FORENSIC_TRACE] getCurrentSession fallback refresh response', {
