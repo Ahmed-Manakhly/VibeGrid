@@ -45,7 +45,7 @@ export function UserNavDropdown() {
 
           <div className="flex flex-col gap-0.5">
             <Link
-              href={user.username ? `/profile/${user.username}` : '/complete-profile'}
+              href={user.username ? `/profile/${user.username}` : '/login'}
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
             >

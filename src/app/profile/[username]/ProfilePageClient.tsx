@@ -18,8 +18,9 @@ import {
     LinkIcon,
     MapPinIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
 import { EditProfileModal } from "@/modules/social/presentation/components/EditProfileModal";
 
@@ -40,7 +41,25 @@ function ProfilePageClient({
     user,
 }: ProfilePageClientProps) {
     const { user: currentUser, isAuthenticated } = useSession();
-    const [showEditDialog, setShowEditDialog] = useState(false);
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const isEditRequested = searchParams.get('edit') === 'true' || searchParams.get('complete') === 'true';
+    const [showEditDialog, setShowEditDialog] = useState(isEditRequested);
+
+    useEffect(() => {
+        if (isEditRequested) {
+            setShowEditDialog(true);
+        }
+    }, [isEditRequested]);
+
+    const handleOpenChange = (open: boolean) => {
+        setShowEditDialog(open);
+        if (!open && isEditRequested) {
+            router.replace(pathname, { scroll: false });
+        }
+    };
 
     const isOwnProfile = currentUser?.id === user.id;
     const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
@@ -168,7 +187,7 @@ function ProfilePageClient({
                 <EditProfileModal
                     user={user}
                     open={showEditDialog}
-                    onOpenChange={setShowEditDialog}
+                    onOpenChange={handleOpenChange}
                 />
             </div>
         </div>

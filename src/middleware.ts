@@ -5,7 +5,6 @@ import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
 const PROTECTED_ROUTES = ['/profile', '/settings', '/create-post'];
 const AUTH_ONLY_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
 const EXEMPT_FROM_PROFILE_CHECK = [
-  '/complete-profile',
   '/api',
   '/logout',
   '/_next',

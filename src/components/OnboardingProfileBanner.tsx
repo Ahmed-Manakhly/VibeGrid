@@ -11,9 +11,8 @@ export function OnboardingProfileBanner() {
   const pathname = usePathname();
   const [dismissed, setDismissed] = useState(false);
 
-  // Do not display banner on complete-profile page or auth pages
+  // Do not display banner on auth pages
   const isExcludedRoute = [
-    '/complete-profile',
     '/login',
     '/register',
     '/forgot-password',
@@ -61,7 +60,7 @@ export function OnboardingProfileBanner() {
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
             <Link
-              href={user.username ? `/profile/${user.username}/complete` : '/complete-profile'}
+              href={user.username ? `/profile/${user.username}?edit=true` : '/login'}
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs sm:text-sm shadow-md shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Complete Profile</span>
