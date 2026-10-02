@@ -22,6 +22,10 @@ export async function updateProfile(formData: FormData) {
         
         const name = formData.get("name") as string;
         const username = formData.get("username") as string;
+        // Validation: disallow temporary usernames prefixed with "user_"
+        if (username && username.startsWith('user_')) {
+          return { success: false, error: 'Temporary usernames are not allowed. Please choose a custom handle.' };
+        }
         const bio = formData.get("bio") as string;
         const location = formData.get("location") as string;
         const website = formData.get("website") as string;

@@ -45,6 +45,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
     location: user.location || '',
     website: user.website || '',
   });
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEditSubmit = async () => {
@@ -104,9 +105,15 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             <Input
               name="username"
               value={editForm.username}
-              onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+              onChange={(e) => {
+                setEditForm({ ...editForm, username: e.target.value });
+                if (usernameError) setUsernameError(null);
+              }}
               placeholder="Your unique handle"
             />
+            {usernameError && (
+              <p className="text-xs text-red-500 mt-1">{usernameError}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label>Name</Label>
