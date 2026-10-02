@@ -37,9 +37,12 @@ import { PrismaSocialRepository } from "@/modules/social/infrastructure/PrismaSo
 import { ToggleFollowUseCase } from "@/modules/social/application/ToggleFollow.usecase";
 import { GetSuggestedUsersUseCase } from "@/modules/social/application/GetSuggestedUsers.usecase";
 import { PrismaProfileRepository } from "@/modules/social/infrastructure/PrismaProfileRepository";
+import { PrismaUserInterestRepository } from "@/modules/social/infrastructure/PrismaUserInterestRepository";
 import { GetProfileUseCase } from "@/modules/social/application/GetProfile.usecase";
 import { UpdateProfileUseCase } from "@/modules/social/application/UpdateProfile.usecase";
 import { IsFollowingUseCase } from "@/modules/social/application/IsFollowing.usecase";
+import { GetUserInterestsUseCase } from "@/modules/social/application/GetUserInterests.usecase";
+import { SetUserInterestsUseCase } from "@/modules/social/application/SetUserInterests.usecase";
 
 // Taxonomy Module
 import { PrismaTaxonomyRepository } from "@/modules/taxonomy/infrastructure/PrismaTaxonomyRepository";
@@ -62,6 +65,7 @@ const engagementRepository = new PrismaEngagementRepository(prisma);
 const notificationRepository = new PrismaNotificationRepository(prisma);
 const authRepository = new PrismaAuthRepository(prisma);
 const socialRepository = new PrismaSocialRepository(prisma);
+const userInterestRepository = new PrismaUserInterestRepository(prisma);
 const taxonomyRepository = new PrismaTaxonomyRepository(prisma);
 const profileRepository = new PrismaProfileRepository(prisma);
 
@@ -91,6 +95,9 @@ export const getUserUseCase = new GetUserUseCase(authRepository);
 
 // Social
 export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository, eventBus);
+export const getUserInterestsUseCase = new GetUserInterestsUseCase(userInterestRepository);
+export const setUserInterestsUseCase = new SetUserInterestsUseCase(userInterestRepository);
+
 export const getSuggestedUsersUseCase = new GetSuggestedUsersUseCase(socialRepository, cacheService);
 export const getProfileUseCase = new GetProfileUseCase(profileRepository, cacheService);
 export const updateProfileUseCase = new UpdateProfileUseCase(profileRepository, cacheService);
