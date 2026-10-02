@@ -46,9 +46,17 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch('/api/auth/me', { cache: 'no-store' });
       const data = await res.json();
       if (data.success && data.isAuthenticated && data.user) {
+        if (!isAuthenticated && user === null) {
+          toast.success('Session verified: Authenticated ⚡');
+        } else if (user && user.id === data.user.id) {
+          toast.info('Session refreshed 🔄');
+        }
         setUser(data.user);
         setIsAuthenticated(true);
       } else {
+        if (isAuthenticated) {
+          toast.error('Session expired: Logged out 🔒');
+        }
         setUser(null);
         setIsAuthenticated(false);
       }

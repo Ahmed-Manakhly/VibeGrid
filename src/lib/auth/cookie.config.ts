@@ -1,22 +1,28 @@
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
+
+const isProduction = EnvConfigRepository.isProduction();
+const { accessTokenMaxAge, refreshTokenMaxAge } = EnvConfigRepository.getCookieConfig();
+
 export const COOKIE_CONFIG = {
   accessToken: {
     name: 'access_token',
     options: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax' as const,
       path: '/',
-      maxAge: 15 * 60, // 15 minutes (in seconds for Next.js cookies API)
+      maxAge: accessTokenMaxAge,
     },
   },
   refreshToken: {
     name: 'refresh_token',
     options: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax' as const,
       path: '/',
-      maxAge: 7 * 24 * 60 * 60, // 7 days (in seconds)
+      maxAge: refreshTokenMaxAge,
     },
   },
 };
+

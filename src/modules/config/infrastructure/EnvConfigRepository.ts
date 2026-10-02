@@ -49,6 +49,24 @@ export class EnvConfigRepository {
     };
   }
 
+  public static getEnvMode(): 'development' | 'docker_development' | 'production' {
+    return (process.env.NODE_ENV as any) || 'development';
+  }
+
+  public static isProduction(): boolean {
+    return this.getEnvMode() === 'production';
+  }
+
+  public static getCookieConfig() {
+    const accessTokenMaxAge = parseInt(process.env.COOKIE_ACCESS_TOKEN_MAX_AGE_SEC || '900', 10);
+    const refreshTokenMaxAge = parseInt(process.env.COOKIE_REFRESH_TOKEN_MAX_AGE_SEC || '604800', 10);
+
+    return {
+      accessTokenMaxAge: isNaN(accessTokenMaxAge) || accessTokenMaxAge <= 0 ? 900 : accessTokenMaxAge,
+      refreshTokenMaxAge: isNaN(refreshTokenMaxAge) || refreshTokenMaxAge <= 0 ? 604800 : refreshTokenMaxAge,
+    };
+  }
+
   public static getRedisUrl(): string {
     const rawUrl = process.env.REDIS_URL || '';
     if (!rawUrl) {
