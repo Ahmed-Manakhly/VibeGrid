@@ -9,12 +9,10 @@ import { SidebarProvider } from "@/components/SidebarContext";
 import { SidebarWrapper } from "@/components/SidebarWrapper";
 import { MobileBottomBar } from "@/components/MobileBottomBar";
 import { Toaster } from '@/components/ui/toast';
-import { JetBrains_Mono } from 'next/font/google'
+import { JetBrains_Mono } from 'next/font/google';
 import { bootstrap } from "@/lib/bootstrap";
 import { ScrollToTop } from "@/components/ScrollToTop";
-
 import { RootMainWrapper } from "@/components/RootMainWrapper";
-
 import { RealtimeProvider } from "@/shared/infrastructure/socket/RealtimeProvider";
 
 bootstrap(); // Runs once on server startup
@@ -22,7 +20,7 @@ bootstrap(); // Runs once on server startup
 const jetBrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains-mono',
-})
+});
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -40,13 +38,13 @@ export const metadata: Metadata = {
   description: "Real-time Tech Newsfeed / Developer Pulse. Drop a Vibe and Tune In.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <SessionProvider>
-      <RealtimeProvider>
-        <html lang="en" suppressHydrationWarning >
-          <head />
-          <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased font-mono`} suppressHydrationWarning={true}>
+    <html lang="en" suppressHydrationWarning>
+      <head />
+      <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased font-mono`} suppressHydrationWarning={true}>
+        <SessionProvider>
+          <RealtimeProvider>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
               <div className="flex min-h-screen bg-background text-foreground">
                 <SidebarProvider>
@@ -65,10 +63,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <ScrollToTop />
               <Toaster />
             </ThemeProvider>
-          </body>
-        </html>
-      </RealtimeProvider>
-    </SessionProvider>
+          </RealtimeProvider>
+        </SessionProvider>
+      </body>
+    </html>
   );
 }
-

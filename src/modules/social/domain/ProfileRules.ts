@@ -5,7 +5,6 @@ export class ProfileRules {
     return Boolean(
       username &&
       username.trim() !== '' &&
-      !username.startsWith('user_') &&
       name &&
       name.trim() !== ''
     );

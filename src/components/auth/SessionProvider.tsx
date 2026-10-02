@@ -40,13 +40,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
+  const initialCheckRef = React.useRef(false);
 
   const fetchSession = async () => {
     try {
       const res = await fetch('/api/auth/me', { cache: 'no-store' });
       const data = await res.json();
       if (data.success && data.isAuthenticated && data.user) {
-        if (!isAuthenticated && user === null) {
+        if (!initialCheckRef.current) {
+          initialCheckRef.current = true;
           toast.success('Session verified: Authenticated ⚡');
         } else if (user && user.id === data.user.id) {
           toast.info('Session refreshed 🔄');

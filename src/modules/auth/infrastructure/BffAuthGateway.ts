@@ -1,12 +1,12 @@
 import { IAuthGateway } from "../domain/IAuthGateway";
 import type { AuthenticatedUser, UserRole } from "@/shared/kernel/auth.types";
-import { getCurrentSession } from "@/lib/auth/server";
 import { PrismaClient } from "@prisma/client";
 
 export class BffAuthGateway implements IAuthGateway {
   constructor(private db: PrismaClient) {}
 
   async getCurrentUser(): Promise<AuthenticatedUser | null> {
+    const { getCurrentSession } = await import("@/lib/auth/server");
     const session = await getCurrentSession();
 
     if (!session.isAuthenticated || !session.user) return null;
@@ -20,6 +20,7 @@ export class BffAuthGateway implements IAuthGateway {
   }
 
   async getUserRole(userId: string): Promise<UserRole> {
+    const { getCurrentSession } = await import("@/lib/auth/server");
     const session = await getCurrentSession();
     if (session.user && session.user.id === userId) {
       return (session.user.role as UserRole) || 'USER';
@@ -34,4 +35,3 @@ export class BffAuthGateway implements IAuthGateway {
     return dbUser.role as UserRole;
   }
 }
-

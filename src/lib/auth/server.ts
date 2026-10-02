@@ -116,8 +116,11 @@ export async function getCurrentSession(): Promise<SessionResult> {
   let name = payload.email.split('@')[0];
   let username: string | undefined = undefined;
   try {
-    const { getProfileUseCase } = await import('@/shared/infrastructure/di-container');
-    const dbUser: any = await getProfileUseCase.execute(payload.userId).catch(() => null);
+    const { prisma } = await import('@/shared/infrastructure/prisma');
+    const dbUser = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { name: true, username: true },
+    }).catch(() => null);
     if (dbUser) {
       if (dbUser.name) name = dbUser.name;
       if (dbUser.username) username = dbUser.username;

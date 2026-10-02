@@ -34,6 +34,7 @@ model User {
   notifications        Notifications[] @relation("userNotifications")
   notificationsCreated Notifications[] @relation("NotificationCreator")
   regrids              ReGrid[]
+  interests            UserInterest[]
 }
 
 enum MediaType {
@@ -194,3 +195,12 @@ model ReGrid {
   @@unique([userId, postId])
 }
 
+
+model UserInterest {
+  userId     String
+  categoryId String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([userId, categoryId])
+}
