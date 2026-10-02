@@ -17,7 +17,7 @@ import { UserAvatar } from '@/components/UserAvatar';
 import { useAvatarUpload } from '@/modules/media/presentation/hooks/useAvatarUpload';
 import { toast } from '@/components/ui/toast';
 import { useSession } from '@/components/auth/SessionProvider';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface EditProfileModalProps {
   user: {
@@ -37,6 +37,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
   const { isUploading, previewUrl, handleFileSelect, uploadAvatar } = useAvatarUpload();
   const { refreshSession } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   const [editForm, setEditForm] = useState({
     name: user.name || '',
@@ -67,8 +68,15 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
       const result = await updateProfile(formData);
       if (result && result.success) {
         await refreshSession();
-        router.refresh();
         onOpenChange(false);
+
+        const newUsername = result.user?.username;
+        if (newUsername && newUsername !== user.username) {
+          router.push(`/profile/${newUsername}`);
+        } else {
+          router.replace(pathname, { scroll: false });
+          router.refresh();
+        }
         toast.success('Profile updated successfully');
       } else {
         toast.error(result?.error || 'Failed to update profile');
