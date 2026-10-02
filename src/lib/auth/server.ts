@@ -15,6 +15,7 @@ export interface SafeUser {
 export interface SessionResult {
   isAuthenticated: boolean;
   user: SafeUser | null;
+  accessToken?: string;
 }
 
 export async function getCurrentSession(): Promise<SessionResult> {
@@ -30,11 +31,40 @@ export async function getCurrentSession(): Promise<SessionResult> {
     }
   }
 
-  if (!token) {
-    return { isAuthenticated: false, user: null };
+  let payload = token ? await verifyAccessTokenRS256(token) : null;
+
+  // If access token is missing or expired, attempt silent refresh using refresh_token cookie
+  if (!payload) {
+    const refreshToken = cookieStore.get(COOKIE_CONFIG.refreshToken.name)?.value;
+    if (refreshToken) {
+      try {
+        const { EnvConfigRepository } = await import('@/modules/config/infrastructure/EnvConfigRepository');
+        const { apiBaseUrl } = EnvConfigRepository.getEndpoints();
+        const refreshRes = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/auth/refresh`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Cookie: `refresh_token=${refreshToken}; vibegrid_refresh_token=${refreshToken}`,
+          },
+          body: JSON.stringify({ refreshToken }),
+          cache: 'no-store',
+        });
+
+        if (refreshRes.ok) {
+          const refreshData = await refreshRes.json();
+          const newTokens = refreshData?.data || refreshData;
+          const freshAccessToken = newTokens?.accessToken;
+          if (typeof freshAccessToken === 'string' && freshAccessToken.length > 0) {
+            token = freshAccessToken;
+            payload = await verifyAccessTokenRS256(freshAccessToken);
+          }
+        }
+      } catch {
+        // Silent catch for network failure during refresh
+      }
+    }
   }
 
-  const payload = await verifyAccessTokenRS256(token);
   if (!payload) {
     return { isAuthenticated: false, user: null };
   }
@@ -54,6 +84,7 @@ export async function getCurrentSession(): Promise<SessionResult> {
 
   return {
     isAuthenticated: true,
+    accessToken: token,
     user: {
       id: payload.userId,
       email: payload.email,

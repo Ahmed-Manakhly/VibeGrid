@@ -5,12 +5,13 @@ import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRe
 export async function POST(req: NextRequest) {
   try {
     const session = await getCurrentSession();
-    if (!session.isAuthenticated) {
+    if (!session.isAuthenticated || !session.user) {
       return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
     }
 
-    const body = await req.json();
     const token = req.cookies.get('access_token')?.value;
+
+    const body = await req.json();
 
     const { apiBaseUrl } = EnvConfigRepository.getEndpoints();
     const gatewayRes = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/api/media/confirm-upload`, {

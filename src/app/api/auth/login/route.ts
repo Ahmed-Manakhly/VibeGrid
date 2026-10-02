@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     if (accessToken) {
       response.cookies.set(
         COOKIE_CONFIG.accessToken.name,
-        accessToken,
+        decodeURIComponent(accessToken),
         COOKIE_CONFIG.accessToken.options
       );
     }
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     if (refreshToken) {
       response.cookies.set(
         COOKIE_CONFIG.refreshToken.name,
-        refreshToken,
+        decodeURIComponent(refreshToken),
         COOKIE_CONFIG.refreshToken.options
       );
     }
