@@ -54,9 +54,28 @@ export async function getCurrentSession(): Promise<SessionResult> {
           const refreshData = await refreshRes.json();
           const newTokens = refreshData?.data || refreshData;
           const freshAccessToken = newTokens?.accessToken;
+          const freshRefreshToken = newTokens?.refreshToken || newTokens?.tokens?.refreshToken;
           if (typeof freshAccessToken === 'string' && freshAccessToken.length > 0) {
             token = freshAccessToken;
             payload = await verifyAccessTokenRS256(freshAccessToken);
+
+            // Persist rotated tokens to browser cookies when in mutable context (Route Handlers / Server Actions)
+            try {
+              cookieStore.set(
+                COOKIE_CONFIG.accessToken.name,
+                freshAccessToken,
+                COOKIE_CONFIG.accessToken.options
+              );
+              if (typeof freshRefreshToken === 'string' && freshRefreshToken.length > 0) {
+                cookieStore.set(
+                  COOKIE_CONFIG.refreshToken.name,
+                  freshRefreshToken,
+                  COOKIE_CONFIG.refreshToken.options
+                );
+              }
+            } catch {
+              // Read-only context (RSC page rendering); client SessionProvider / API route will persist on next request
+            }
           }
         }
       } catch {

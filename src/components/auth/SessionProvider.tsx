@@ -43,7 +43,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const fetchSession = async () => {
     try {
-      const res = await fetch('/api/auth/me');
+      const res = await fetch('/api/auth/me', { cache: 'no-store' });
       const data = await res.json();
       if (data.success && data.isAuthenticated && data.user) {
         setUser(data.user);

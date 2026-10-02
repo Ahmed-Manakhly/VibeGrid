@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation';
 import { useSession } from '@/components/auth/SessionProvider';
 import { Sparkles, ArrowRight, UserCheck, X } from 'lucide-react';
 
+import { ProfileRules } from '@/modules/social/domain/ProfileRules';
+
 export function OnboardingProfileBanner() {
   const { user, isAuthenticated, isLoading } = useSession();
   const pathname = usePathname();
@@ -24,10 +26,10 @@ export function OnboardingProfileBanner() {
     return null;
   }
 
-  // Check if profile is incomplete (default auto-generated username or missing custom handle)
-  const isIncompleteProfile = !user.username || user.username.startsWith('user_');
+  // Single Source of Truth Profile Completion Check
+  const isComplete = ProfileRules.isProfileComplete(user);
 
-  if (!isIncompleteProfile) {
+  if (isComplete) {
     return null;
   }
 

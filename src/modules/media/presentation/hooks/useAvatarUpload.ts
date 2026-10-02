@@ -39,8 +39,8 @@ export function useAvatarUpload() {
         fileSizeBytes: selectedFile.size,
       });
 
-      if (!intentRes.success || !intentRes.data) {
-        toast.error(intentRes.error || 'Failed to create upload intent');
+      if (!intentRes || !intentRes.success || !intentRes.data) {
+        toast.error(intentRes?.error || 'Failed to create upload intent');
         return null;
       }
 
@@ -62,8 +62,8 @@ export function useAvatarUpload() {
 
       // 3. Confirm Upload with Media Microservice
       const confirmRes = await confirmAvatarUploadAction(assetId);
-      if (!confirmRes.success || !confirmRes.data) {
-        toast.error(confirmRes.error || 'Failed to confirm avatar upload');
+      if (!confirmRes || !confirmRes.success || !confirmRes.data) {
+        toast.error(confirmRes?.error || 'Failed to confirm avatar upload');
         return null;
       }
 

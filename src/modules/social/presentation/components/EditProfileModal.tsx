@@ -64,13 +64,13 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
       }
 
       const result = await updateProfile(formData);
-      if (result.success) {
+      if (result && result.success) {
         await refreshSession();
         router.refresh();
         onOpenChange(false);
         toast.success('Profile updated successfully');
       } else {
-        toast.error(result.error || 'Failed to update profile');
+        toast.error(result?.error || 'Failed to update profile');
       }
     } catch (err: any) {
       toast.error(err.message || 'An unexpected error occurred');

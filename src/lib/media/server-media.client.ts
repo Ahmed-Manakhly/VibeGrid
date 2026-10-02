@@ -1,6 +1,5 @@
 import 'server-only';
-import { cookies } from 'next/headers';
-import { COOKIE_CONFIG } from '@/lib/auth/cookie.config';
+import { getCurrentSession } from '@/lib/auth/server';
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 import { getCorrelationHeaders } from '@/lib/request-context';
 
@@ -11,12 +10,11 @@ export async function createMediaUploadIntent(params: {
   fileSizeBytes: number;
   purpose: 'avatar' | 'post_attachment';
 }) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_CONFIG.accessToken.name)?.value;
-
-  if (!token) {
+  const session = await getCurrentSession();
+  if (!session.isAuthenticated || !session.accessToken) {
     return { success: false, error: 'Authentication required' };
   }
+  const token = session.accessToken;
 
   try {
     const correlationHeaders = await getCorrelationHeaders();
@@ -43,12 +41,11 @@ export async function createMediaUploadIntent(params: {
 }
 
 export async function confirmMediaUpload(assetId: string) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_CONFIG.accessToken.name)?.value;
-
-  if (!token) {
+  const session = await getCurrentSession();
+  if (!session.isAuthenticated || !session.accessToken) {
     return { success: false, error: 'Authentication required' };
   }
+  const token = session.accessToken;
 
   try {
     const res = await fetch(`${getGatewayUrl()}/api/media/confirm-upload`, {
@@ -73,10 +70,9 @@ export async function confirmMediaUpload(assetId: string) {
 }
 
 export async function fetchServerMediaAsset(assetId: string) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_CONFIG.accessToken.name)?.value;
-
-  if (!token) return null;
+  const session = await getCurrentSession();
+  if (!session.isAuthenticated || !session.accessToken) return null;
+  const token = session.accessToken;
 
   try {
     const res = await fetch(`${getGatewayUrl()}/api/media/assets/${assetId}`, {
