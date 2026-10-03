@@ -29,6 +29,7 @@ model User {
   posts                Post[]
   comments             Comment[]
   likes                Like[]
+  bookmarks            Bookmark[]
   followers            Follows[]       @relation("following")
   following            Follows[]       @relation("follower")
   notifications        Notifications[] @relation("userNotifications")
@@ -58,6 +59,7 @@ model Post {
   tags          PostTag[]
   comments      Comment[]
   likes         Like[]
+  bookmarks     Bookmark[]
   notifications Notifications[]
   regrids       ReGrid[]
 }
@@ -67,15 +69,31 @@ model Comment {
   content       String
   authorId      String
   postId        String
+  parentId      String?
   createdAt     DateTime        @default(now())
   author        User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
   post          Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent        Comment?        @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies       Comment[]       @relation("CommentReplies")
   notifications Notifications[]
 
   @@index([authorId, postId])
+  @@index([parentId])
 }
 
 model Like {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([userId, postId])
+  @@unique([userId, postId])
+}
+
+model Bookmark {
   id        String   @id @default(cuid())
   postId    String
   userId    String

@@ -15,6 +15,7 @@ export async function GET(request: Request) {
       category: searchParams.get("category") || undefined,
       vibe: searchParams.get("vibe") || undefined,
       search: searchParams.get("search") || undefined,
+      bookmarkedByUserId: searchParams.get("bookmarkedByUserId") || undefined,
       limit: searchParams.has("limit") ? Number(searchParams.get("limit")) : undefined,
     };
 

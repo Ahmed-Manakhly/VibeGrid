@@ -6,6 +6,7 @@ export interface ExplorePostsCriteria {
   vibe?: string;
   authorId?: string;
   likedByUserId?: string;
+  bookmarkedByUserId?: string;
   cursor?: string;
   limit?: number;
   sort?: string;

@@ -8,6 +8,8 @@ import {
     generateFeedUseCase, 
     deleteVibeUseCase,
     toggleLikeUseCase,
+    toggleReGridUseCase,
+    toggleBookmarkUseCase,
     addCommentUseCase,
     deleteCommentUseCase,
     getPostByIdUseCase,
@@ -92,14 +94,52 @@ export async function toggleLike(postId : string){
     }
 }
 
-//4//to create a comment
-export async function createComment(postId : string, content : string){
+//3.5 to toggle Bookmarks on the post
+export async function toggleBookmark(postId : string){
     try {
         const userId = await getDbUserId() ;
-        if(!userId) return ;
+        if(!userId) return { success: false, error: 'Unauthorized' };
+        
+        const result = await toggleBookmarkUseCase.execute(postId, userId);
+        if (!result.success) {
+            return {success : false, error : 'failed to toggle bookmark!'}
+        }
+
+        revalidatePath('/') ;
+        return {success : true, isBookmarked: result.value.isBookmarked} ;
+    } catch (error) {
+        logger.error('failed to toggle bookmark!', error, { postId });
+        return {success : false, error : 'failed to toggle bookmark!'}
+    }
+}
+
+//3.6 to toggle ReGrid (Repost/Share) on the post
+export async function toggleReGrid(postId : string){
+    try {
+        const userId = await getDbUserId() ;
+        if(!userId) return { success: false, error: 'Unauthorized' };
+        
+        const result = await toggleReGridUseCase.execute(postId, userId);
+        if (!result.success) {
+            return {success : false, error : 'failed to toggle regrid!'}
+        }
+
+        revalidatePath('/') ;
+        return {success : true, isReGridded: result.value.isReGridded} ;
+    } catch (error) {
+        logger.error('failed to toggle regrid!', error, { postId });
+        return {success : false, error : 'failed to toggle regrid!'}
+    }
+}
+
+//4//to create a comment or reply
+export async function createComment(postId : string, content : string, parentId?: string){
+    try {
+        const userId = await getDbUserId() ;
+        if(!userId) return { success: false, error: 'Unauthorized' };
         if(!content) throw new Error('comment content is required!') ;
         
-        const result = await addCommentUseCase.execute(postId, userId, content);
+        const result = await addCommentUseCase.execute(postId, userId, content, parentId);
         if (!result.success) {
             return {success : false, error : 'failed to create a comment!'}
         }

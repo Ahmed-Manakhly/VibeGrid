@@ -13,19 +13,39 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
     likedByUserId: (value: string) => ({
       likes: { some: { userId: value } }
     }),
+    bookmarkedByUserId: (value: string) => ({
+      bookmarks: { some: { userId: value } }
+    }),
   },
   defaultRelations: {
     author: true,
     tags: { include: { tag: true } },
     category: true,
     vibe: true,
-    comments: { include: { author: true }, orderBy: { createdAt: "asc" } },
+    comments: { 
+      where: { parentId: null },
+      include: { 
+        author: true,
+        replies: { include: { author: true }, orderBy: { createdAt: "asc" } } 
+      }, 
+      orderBy: { createdAt: "asc" } 
+    },
     likes: {
       select: {
         userId: true,
         user: { select: { id: true, name: true, username: true, image: true } },
       },
     },
-    _count: { select: { likes: true, comments: true } },
+    bookmarks: {
+      select: {
+        userId: true
+      }
+    },
+    regrids: {
+      select: {
+        userId: true
+      }
+    },
+    _count: { select: { likes: true, comments: true, bookmarks: true, regrids: true } },
   },
 };

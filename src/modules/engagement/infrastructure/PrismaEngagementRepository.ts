@@ -61,7 +61,36 @@ export class PrismaEngagementRepository implements IEngagementRepository {
     }
   }
 
-  async addComment(vibeId: string, userId: string, content: string): Promise<Result<{ commentId: string; authorId: string, comment: any }>> {
+  async toggleBookmark(vibeId: string, userId: string): Promise<Result<{ isBookmarked: boolean; authorId: string }>> {
+    try {
+      const post = await this.db.post.findUnique({
+        where: { id: vibeId },
+        select: { authorId: true },
+      });
+      if (!post) return failure(new Error("post not found!"));
+
+      const dbAny = this.db as any;
+      const exBookmark = await dbAny.bookmark.findUnique({
+        where: { userId_postId: { postId: vibeId, userId } },
+      });
+
+      if (exBookmark) {
+        await dbAny.bookmark.delete({
+          where: { userId_postId: { postId: vibeId, userId } },
+        });
+        return success({ isBookmarked: false, authorId: post.authorId });
+      } else {
+        await dbAny.bookmark.create({
+          data: { postId: vibeId, userId },
+        });
+        return success({ isBookmarked: true, authorId: post.authorId });
+      }
+    } catch (err) {
+      return failure(new Error("failed to toggle bookmark"));
+    }
+  }
+
+  async addComment(vibeId: string, userId: string, content: string, parentId?: string): Promise<Result<{ commentId: string; authorId: string, comment: any }>> {
     try {
       const post = await this.db.post.findUnique({
         where: { id: vibeId },
@@ -70,7 +99,13 @@ export class PrismaEngagementRepository implements IEngagementRepository {
       if (!post) return failure(new Error("post not found!"));
 
       const newComment = await this.db.comment.create({
-        data: { content, authorId: userId, postId: vibeId },
+        data: { 
+          content, 
+          authorId: userId, 
+          postId: vibeId,
+          ...(parentId ? { parentId } : {})
+        },
+        include: { author: true }
       });
 
       return success({ commentId: newComment.id, authorId: post.authorId, comment: newComment });

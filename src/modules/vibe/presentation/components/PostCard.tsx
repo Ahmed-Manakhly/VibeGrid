@@ -1,5 +1,4 @@
-"use client"
-import { createComment, deletePost, getPosts, toggleLike } from '@/actions/post.action';
+import { createComment, deletePost, getPosts, toggleLike, toggleBookmark, toggleReGrid } from '@/actions/post.action';
 import { useSession } from '@/components/auth/SessionProvider';
 import { useState, useEffect } from 'react';
 import { toast } from '@/components/ui/toast';
@@ -14,22 +13,31 @@ import urlRelative from '@/lib/utils/urlRelative';
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { HeartIcon, LogInIcon, MessageCircleIcon, SendIcon } from 'lucide-react';
+import { HeartIcon, LogInIcon, MessageCircleIcon, SendIcon, BookmarkIcon, RepeatIcon } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { PostMediaContainer } from './PostMediaContainer';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>; 
-type post = FeedResponse['data'][number] & { category?: any, vibe?: any, tags?: any[], mediaUrl?: string | null, mediaType?: any };
+type post = FeedResponse['data'][number] & { category?: any, vibe?: any, tags?: any[], mediaUrl?: string | null, mediaType?: any, bookmarks?: any[], regrids?: any[] };
 
 function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} : {post : post , dbUserId:string | null, isTruncated?: boolean, isDetailPage?: boolean}) {
     const { user, isAuthenticated } = useSession();
     const [newComment,setNewComment] = useState('');
     const [isCommenting,setIsCommenting] = useState(false);
     const [isLiking,setIsLiking] = useState(false);
+    const [isBookmarking, setIsBookmarking] = useState(false);
+    const [isReGridding, setIsReGridding] = useState(false);
     const [isDeleting , setIsDeleting] = useState(false);
 
-    const [hasLiked , setHasLiked]= useState(post.likes.some(like => like.userId === dbUserId));
-    const [optimisticLikes , setOptimisticLikes] = useState(post._count.likes);
+    const [hasLiked , setHasLiked]= useState(post.likes?.some(like => like.userId === dbUserId) || false);
+    const [optimisticLikes , setOptimisticLikes] = useState(post._count?.likes || 0);
+
+    const [hasBookmarked, setHasBookmarked] = useState(post.bookmarks?.some(b => b.userId === dbUserId) || false);
+    const [optimisticBookmarks, setOptimisticBookmarks] = useState(post._count?.bookmarks || (post.bookmarks?.length || 0));
+
+    const [hasReGridded, setHasReGridded] = useState(post.regrids?.some(r => r.userId === dbUserId) || false);
+    const [optimisticReGrids, setOptimisticReGrids] = useState(post._count?.regrids || (post.regrids?.length || 0));
+
     const [showComments , setShowComments] = useState(isDetailPage);
     const [localComments, setLocalComments] = useState(post.comments || []);
     
@@ -48,12 +56,60 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
             setOptimisticLikes((prev:number) => hasLiked ? prev - 1 : prev + 1) ;
             await toggleLike(post.id)
         } catch {
-            setOptimisticLikes(post._count.likes)
-            setHasLiked(post.likes.some(like => like.userId === dbUserId))
+            setOptimisticLikes(post._count?.likes || 0)
+            setHasLiked(post.likes?.some(like => like.userId === dbUserId) || false)
         } finally {
             setIsLiking(false);
         }
     }
+
+    const handleBookmark = async () => {
+        if (isBookmarking) return;
+        try {
+            setIsBookmarking(true);
+            const nextBookmarked = !hasBookmarked;
+            setHasBookmarked(nextBookmarked);
+            setOptimisticBookmarks((prev: number) => hasBookmarked ? Math.max(0, prev - 1) : prev + 1);
+            const res = await toggleBookmark(post.id);
+            if (!res?.success) {
+                setHasBookmarked(hasBookmarked);
+                setOptimisticBookmarks(post._count?.bookmarks || (post.bookmarks?.length || 0));
+                toast.error(res?.error || 'Failed to update bookmark');
+            } else {
+                toast.success(nextBookmarked ? 'Vibe saved to bookmarks' : 'Removed from bookmarks');
+            }
+        } catch {
+            setHasBookmarked(hasBookmarked);
+            setOptimisticBookmarks(post._count?.bookmarks || (post.bookmarks?.length || 0));
+            toast.error('Failed to update bookmark');
+        } finally {
+            setIsBookmarking(false);
+        }
+    };
+
+    const handleReGrid = async () => {
+        if (isReGridding) return;
+        try {
+            setIsReGridding(true);
+            const nextReGridded = !hasReGridded;
+            setHasReGridded(nextReGridded);
+            setOptimisticReGrids((prev: number) => hasReGridded ? Math.max(0, prev - 1) : prev + 1);
+            const res = await toggleReGrid(post.id);
+            if (!res?.success) {
+                setHasReGridded(hasReGridded);
+                setOptimisticReGrids(post._count?.regrids || (post.regrids?.length || 0));
+                toast.error(res?.error || 'Failed to update regrid');
+            } else {
+                toast.success(nextReGridded ? 'Vibe re-gridded to your feed' : 'Re-grid removed');
+            }
+        } catch {
+            setHasReGridded(hasReGridded);
+            setOptimisticReGrids(post._count?.regrids || (post.regrids?.length || 0));
+            toast.error('Failed to update regrid');
+        } finally {
+            setIsReGridding(false);
+        }
+    };
 
     const handleAddComment = async () => {
         if(!newComment.trim() || isCommenting) return;
@@ -275,6 +331,40 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                             className="text-muted-foreground gap-2 hover:bg-transparent hover:text-accent">
                                 <MessageCircleIcon className={`size-5 ${showComments ? "fill-accent text-accent" : ""}`} />
                                 <span>{localComments.length}</span>
+                            </Button>
+                        )}
+
+                        {/* ReGrid / Repost Action */}
+                        {isAuthenticated ? (
+                            <Button
+                                className={`text-muted-foreground gap-2 hover:bg-transparent ${hasReGridded ? "text-green-500 hover:text-green-600" : "hover:text-green-500" }`}
+                                variant="ghost" size="sm" onClick={handleReGrid}
+                            >
+                                <RepeatIcon className={`size-5 ${hasReGridded ? "text-green-500" : ""}`} />
+                                <span>{optimisticReGrids}</span>
+                            </Button>
+                        ) : (
+                            <Button variant="ghost" size="sm" className="text-muted-foreground gap-2 hover:bg-transparent hover:text-green-500" asChild>
+                                <Link href="/login">
+                                    <RepeatIcon className="size-5" />
+                                    <span>{optimisticReGrids}</span>
+                                </Link>
+                            </Button>
+                        )}
+
+                        {/* Bookmark Action */}
+                        {isAuthenticated ? (
+                            <Button
+                                className={`ml-auto text-muted-foreground gap-2 hover:bg-transparent ${hasBookmarked ? "text-primary hover:text-primary/90" : "hover:text-primary" }`}
+                                variant="ghost" size="sm" onClick={handleBookmark}
+                            >
+                                <BookmarkIcon className={`size-5 ${hasBookmarked ? "fill-primary text-primary" : ""}`} />
+                            </Button>
+                        ) : (
+                            <Button variant="ghost" size="sm" className="ml-auto text-muted-foreground gap-2 hover:bg-transparent hover:text-primary" asChild>
+                                <Link href="/login">
+                                    <BookmarkIcon className="size-5" />
+                                </Link>
                             </Button>
                         )}
                     </div>

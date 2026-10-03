@@ -17,10 +17,14 @@ export interface VibePost {
     category?: any;
     vibe?: any;
     likes: { userId: string }[];
+    bookmarks?: { userId: string }[];
+    regrids?: { userId: string }[];
     comments: any[];
     _count: {
         likes: number;
         comments: number;
+        bookmarks?: number;
+        regrids?: number;
     };
     createdAt: Date;
 }

@@ -16,6 +16,7 @@ import { DeleteVibeUseCase } from "@/modules/vibe/application/DeleteVibe.usecase
 import { PrismaEngagementRepository } from "@/modules/engagement/infrastructure/PrismaEngagementRepository";
 import { ToggleLikeUseCase } from "@/modules/engagement/application/ToggleLike.usecase";
 import { ToggleReGridUseCase } from "@/modules/engagement/application/ToggleReGrid.usecase";
+import { ToggleBookmarkUseCase } from "@/modules/engagement/application/ToggleBookmark.usecase";
 import { AddCommentUseCase } from "@/modules/engagement/application/AddComment.usecase";
 import { DeleteCommentUseCase } from "@/modules/engagement/application/DeleteComment.usecase";
 
@@ -82,6 +83,7 @@ export const getPostByIdUseCase = new (require('@/modules/vibe/application/GetPo
 // Engagement
 export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository, eventBus);
 export const toggleReGridUseCase = new ToggleReGridUseCase(engagementRepository, eventBus);
+export const toggleBookmarkUseCase = new ToggleBookmarkUseCase(engagementRepository, eventBus);
 export const addCommentUseCase = new AddCommentUseCase(engagementRepository, eventBus);
 export const deleteCommentUseCase = new DeleteCommentUseCase(engagementRepository);
 
