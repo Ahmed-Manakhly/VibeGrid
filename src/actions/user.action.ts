@@ -7,6 +7,7 @@ import {
     getUserUseCase, 
     toggleFollowUseCase, 
     getSuggestedUsersUseCase,
+    searchUsersUseCase,
     logger
 } from "@/shared/infrastructure/di-container";
 
@@ -37,6 +38,16 @@ export async function getRandomUsers() {
         return await getSuggestedUsersUseCase.execute(userId);
     } catch (err) {
         logger.error("Could not fetch suggested users", err);
+        return [];
+    }
+}
+
+export async function searchUsers(query: string) {
+    try {
+        if (!query || !query.trim()) return [];
+        return await searchUsersUseCase.execute(query);
+    } catch (err) {
+        logger.error("Error searching users", err, { query });
         return [];
     }
 }

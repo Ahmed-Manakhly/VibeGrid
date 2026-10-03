@@ -37,6 +37,41 @@ export class PrismaSocialRepository implements ISocialRepository {
     }
   }
 
+  async searchUsers(query: string, limit: number = 6): Promise<any[]> {
+    try {
+      if (!query || !query.trim()) return [];
+      const searchTerm = query.trim();
+      return this.db.user.findMany({
+        where: {
+          OR: [
+            { username: { contains: searchTerm, mode: "insensitive" } },
+            { name: { contains: searchTerm, mode: "insensitive" } },
+            { bio: { contains: searchTerm, mode: "insensitive" } },
+            { location: { contains: searchTerm, mode: "insensitive" } },
+          ],
+        },
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          image: true,
+          bio: true,
+          location: true,
+          website: true,
+          _count: { select: { followers: true, posts: true } },
+        },
+        orderBy: [
+          { username: "asc" },
+        ],
+        take: limit,
+      });
+    } catch (err) {
+      const { logger } = require("@/shared/infrastructure/di-container");
+      logger.error("Error searching users", err, { query });
+      return [];
+    }
+  }
+
   async getFollow(followerId: string, followingId: string): Promise<any> {
     return this.db.follows.findUnique({
       where: {

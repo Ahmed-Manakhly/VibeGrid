@@ -37,6 +37,7 @@ export { refreshSessionCoordinator } from "@/modules/auth/infrastructure/refresh
 import { PrismaSocialRepository } from "@/modules/social/infrastructure/PrismaSocialRepository";
 import { ToggleFollowUseCase } from "@/modules/social/application/ToggleFollow.usecase";
 import { GetSuggestedUsersUseCase } from "@/modules/social/application/GetSuggestedUsers.usecase";
+import { SearchUsersUseCase } from "@/modules/social/application/SearchUsers.usecase";
 import { PrismaProfileRepository } from "@/modules/social/infrastructure/PrismaProfileRepository";
 import { PrismaUserInterestRepository } from "@/modules/social/infrastructure/PrismaUserInterestRepository";
 import { GetProfileUseCase } from "@/modules/social/application/GetProfile.usecase";
@@ -101,6 +102,7 @@ export const getUserInterestsUseCase = new GetUserInterestsUseCase(userInterestR
 export const setUserInterestsUseCase = new SetUserInterestsUseCase(userInterestRepository, taxonomyRepository);
 
 export const getSuggestedUsersUseCase = new GetSuggestedUsersUseCase(socialRepository, cacheService);
+export const searchUsersUseCase = new SearchUsersUseCase(socialRepository);
 export const getProfileUseCase = new GetProfileUseCase(profileRepository, cacheService);
 export const updateProfileUseCase = new UpdateProfileUseCase(profileRepository, cacheService);
 export const isFollowingUseCase = new IsFollowingUseCase(socialRepository);
