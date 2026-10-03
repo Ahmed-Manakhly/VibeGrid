@@ -89,16 +89,30 @@ export class PrismaVibeRepository implements IVibeRepository {
         const searchTerm = params.search.trim();
         const limit = Math.min(params.limit || 12, 50);
 
-        // Native PostgreSQL Full-Text Search with ts_rank ordering for posts
+        // Native PostgreSQL Full-Text Search with ts_rank ordering for posts (including author & tags metadata)
         const matchedPostIds: { id: string; rank: number }[] = await this.db.$queryRaw`
           SELECT 
             p.id,
             ts_rank(
-              to_tsvector('english', coalesce(p.content, '')),
+              to_tsvector('english', 
+                coalesce(p.content, '') || ' ' || 
+                coalesce(u.name, '') || ' ' || 
+                coalesce(u.username, '') || ' ' ||
+                coalesce(string_agg(t.name, ' '), '')
+              ),
               websearch_to_tsquery('english', ${searchTerm})
             ) as rank
           FROM "Post" p
-          WHERE to_tsvector('english', coalesce(p.content, '')) @@ websearch_to_tsquery('english', ${searchTerm})
+          LEFT JOIN "User" u ON p."authorId" = u.id
+          LEFT JOIN "PostTag" pt ON p.id = pt."postId"
+          LEFT JOIN "Tag" t ON pt."tagId" = t.id
+          WHERE to_tsvector('english', 
+            coalesce(p.content, '') || ' ' || 
+            coalesce(u.name, '') || ' ' || 
+            coalesce(u.username, '') || ' ' ||
+            coalesce(string_agg(t.name, ' '), '')
+          ) @@ websearch_to_tsquery('english', ${searchTerm})
+          GROUP BY p.id, u.id
           ORDER BY rank DESC, p."createdAt" DESC
           LIMIT ${limit + 1};
         `;

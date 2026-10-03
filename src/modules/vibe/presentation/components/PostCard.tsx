@@ -17,6 +17,9 @@ import { HeartIcon, LogInIcon, MessageCircleIcon, SendIcon, BookmarkIcon, Repeat
 import { Textarea } from '@/components/ui/textarea';
 import { PostMediaContainer } from './PostMediaContainer';
 
+import { PostContentValueObject } from '@/modules/vibe/domain/PostContentValueObject';
+import { CodeBlockViewer } from './CodeBlockViewer';
+
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>; 
 type post = FeedResponse['data'][number] & { category?: any, vibe?: any, tags?: any[], mediaUrl?: string | null, mediaType?: any, bookmarks?: any[], regrids?: any[] };
 
@@ -45,9 +48,11 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
         setLocalComments(post.comments || []);
     }, [post.comments]);
 
+    const structuredContent = PostContentValueObject.parse(post.content);
+    const contentText = structuredContent.text;
     const contentLimit = 150;
-    const shouldTruncate = !isDetailPage && post.content && post.content.length > contentLimit;
-    const displayContent = shouldTruncate && post.content ? post.content.slice(0, contentLimit) + "..." : post.content;
+    const shouldTruncate = !isDetailPage && contentText && contentText.length > contentLimit;
+    const displayContent = shouldTruncate && contentText ? contentText.slice(0, contentLimit) + "..." : contentText;
     const handleLike = async () => {
         if(isLiking) return;
         try {
@@ -204,18 +209,28 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                     </div>
 
                     {post.content && (
-                        <div>
-                            {isDetailPage ? (
-                                <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
-                                    {displayContent}
-                                </p>
-                            ) : (
-                                <Link href={`/vibes/${post.id}`} className="block hover:opacity-80 transition-opacity">
+                        <div className="space-y-3">
+                            {contentText && (
+                                isDetailPage ? (
                                     <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
                                         {displayContent}
                                     </p>
-                                </Link>
+                                ) : (
+                                    <Link href={`/vibes/${post.id}`} className="block hover:opacity-80 transition-opacity">
+                                        <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
+                                            {displayContent}
+                                        </p>
+                                    </Link>
+                                )
                             )}
+
+                            {structuredContent.codeBlock && (
+                                <CodeBlockViewer
+                                    language={structuredContent.codeBlock.language}
+                                    code={structuredContent.codeBlock.code}
+                                />
+                            )}
+
                             {shouldTruncate && (
                                 <Link href={`/vibes/${post.id}`} className="inline-flex items-center mt-2 text-sm font-medium text-primary hover:text-foreground transition-colors group">
                                     <span className="group-hover:underline">Read more</span>

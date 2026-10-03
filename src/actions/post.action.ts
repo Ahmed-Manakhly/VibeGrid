@@ -37,9 +37,14 @@ export async function creatPost(content: string, mediaUrl?: string, mediaType?: 
     }
 }
 
+import { PostContentValueObject, SupportedLanguage } from "@/modules/vibe/domain/PostContentValueObject";
+
 // 1.5 wrapper for react 19 form actions
 export async function createPostFormAction(prevState: any, formData: FormData) {
-    const content = formData.get('content') as string;
+    const rawContent = formData.get('content') as string || '';
+    const codeSnippet = formData.get('codeSnippet') as string;
+    const codeLanguage = (formData.get('codeLanguage') as string || 'typescript') as SupportedLanguage;
+
     const mediaUrl = formData.get('mediaUrl') as string || formData.get('imageUrl') as string;
     const rawMediaType = formData.get('mediaType') as string;
     const mediaType = rawMediaType ? (rawMediaType.toUpperCase() as any) : undefined;
@@ -47,14 +52,19 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
     const categoryId = formData.get('categoryId') as string;
     const vibeId = formData.get('vibeId') as string;
 
-    if (!content?.trim() && !mediaUrl) {
+    const finalContent = PostContentValueObject.format(
+        rawContent,
+        codeSnippet?.trim() ? { language: codeLanguage, code: codeSnippet } : undefined
+    );
+
+    if (!finalContent?.trim() && !mediaUrl) {
         return { success: false, error: 'Post cannot be empty.' };
     }
 
     const tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()).filter(Boolean) : undefined;
 
     try {
-        const result = await creatPost(content, mediaUrl, mediaType, tags, categoryId || undefined, vibeId || undefined);
+        const result = await creatPost(finalContent, mediaUrl, mediaType, tags, categoryId || undefined, vibeId || undefined);
         if (result?.success) {
             return { success: true };
         }

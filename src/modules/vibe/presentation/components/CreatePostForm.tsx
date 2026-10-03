@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, FilmIcon, Loader2Icon, SendIcon } from "lucide-react";
+import { ImageIcon, FilmIcon, Loader2Icon, SendIcon, CodeIcon } from "lucide-react";
 import { createPostFormAction } from "@/actions/post.action";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
@@ -56,6 +56,9 @@ export default function CreatPost() {
     // UI state only (not form data)
     const [imageUrl, setImageUrl] = useState("");
     const [showImageUpload, setShowImageUpload] = useState(false);
+    const [showCodeBlock, setShowCodeBlock] = useState(false);
+    const [codeSnippet, setCodeSnippet] = useState("");
+    const [codeLanguage, setCodeLanguage] = useState("typescript");
     const [isExpanded, setIsExpanded] = useState(false);
     
     // Temporary state to conditionally disable button if empty, 
@@ -77,7 +80,9 @@ export default function CreatPost() {
             formRef.current?.reset();
             setContentVal("");
             setImageUrl("");
+            setCodeSnippet("");
             setShowImageUpload(false);
+            setShowCodeBlock(false);
             setIsExpanded(false);
             window.dispatchEvent(new CustomEvent('refreshTrending'));
         } else if (state?.error) {
@@ -110,8 +115,10 @@ export default function CreatPost() {
     const handleCancel = () => {
         setIsExpanded(false);
         setShowImageUpload(false);
+        setShowCodeBlock(false);
         setContentVal('');
         setImageUrl('');
+        setCodeSnippet('');
         formRef.current?.reset();
     };
 
@@ -183,6 +190,47 @@ export default function CreatPost() {
                                 />
                             </div>
                             
+                            {(showCodeBlock || codeSnippet) && (
+                                <div className="border border-border/60 rounded-xl p-3 bg-card/60 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <CodeIcon className="size-4 text-primary" />
+                                            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">Code Snippet</span>
+                                        </div>
+                                        <Select name="codeLanguage" value={codeLanguage} onValueChange={setCodeLanguage}>
+                                            <SelectTrigger className="w-[140px] h-7 text-xs bg-background border-border/50 font-mono rounded-lg">
+                                                <SelectValue placeholder="Language" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-background border-border/50 font-mono">
+                                                <SelectItem value="typescript">TypeScript</SelectItem>
+                                                <SelectItem value="javascript">JavaScript</SelectItem>
+                                                <SelectItem value="tsx">TSX</SelectItem>
+                                                <SelectItem value="jsx">JSX</SelectItem>
+                                                <SelectItem value="python">Python</SelectItem>
+                                                <SelectItem value="sql">SQL</SelectItem>
+                                                <SelectItem value="json">JSON</SelectItem>
+                                                <SelectItem value="bash">Bash / Shell</SelectItem>
+                                                <SelectItem value="html">HTML</SelectItem>
+                                                <SelectItem value="css">CSS</SelectItem>
+                                                <SelectItem value="java">Java</SelectItem>
+                                                <SelectItem value="go">Go</SelectItem>
+                                                <SelectItem value="csharp">C#</SelectItem>
+                                                <SelectItem value="cpp">C++</SelectItem>
+                                                <SelectItem value="php">PHP</SelectItem>
+                                                <SelectItem value="rust">Rust</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <Textarea
+                                        name="codeSnippet"
+                                        placeholder="// Paste your code snippet here..."
+                                        value={codeSnippet}
+                                        onChange={(e) => setCodeSnippet(e.target.value)}
+                                        className="min-h-[120px] font-mono text-xs bg-background/80 border border-border/40 rounded-lg p-3 resize-y focus-visible:ring-1 focus-visible:ring-primary/50"
+                                    />
+                                </div>
+                            )}
+
                             {(showImageUpload || imageUrl) && (
                                 <div className="border rounded-lg p-4">
                                     <ImageUpload endpoint="postImage" value={imageUrl} onChange={(url) => { setImageUrl(url); if (!url) setShowImageUpload(false); }} />
@@ -203,12 +251,18 @@ export default function CreatPost() {
                                         </div>
                                         Media
                                     </Button>
+                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-primary hover:bg-white/5 transition-all rounded-xl ${showCodeBlock ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                                        onClick={() => setShowCodeBlock(!showCodeBlock)}
+                                    >
+                                        <CodeIcon className="size-4 mr-1.5" />
+                                        Code
+                                    </Button>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Button type="button" variant="ghost" className="text-muted-foreground hover:bg-transparent hover:text-foreground" onClick={handleCancel}>
                                         Cancel
                                     </Button>
-                                    <SubmitButton disabled={!contentVal.trim() && !imageUrl} />
+                                    <SubmitButton disabled={!contentVal.trim() && !imageUrl && !codeSnippet.trim()} />
                                 </div>
                             </div>
                         </>
