@@ -31,6 +31,8 @@ export interface RealtimeState {
   onlineUsers: Set<string>;
   latestNotification: NotificationSignal | null;
   latestFeedSignal: FeedSignal | null;
+  unreadCount: number;
+  setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export function useRealtimeSocket() {
@@ -38,8 +40,30 @@ export function useRealtimeSocket() {
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [latestNotification, setLatestNotification] = useState<NotificationSignal | null>(null);
   const [latestFeedSignal, setLatestFeedSignal] = useState<FeedSignal | null>(null);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const processedNotificationIds = useRef<Set<string>>(new Set());
 
   const socketRef = useRef<Socket | null>(null);
+
+  // Fetch initial unread count on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    async function fetchUnread() {
+      try {
+        const res = await fetch('/api/notifications');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            const count = data.filter((n: any) => !n.read).length;
+            setUnreadCount(count);
+          }
+        }
+      } catch (e) {
+        // Silent catch
+      }
+    }
+    fetchUnread();
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -66,7 +90,19 @@ export function useRealtimeSocket() {
     });
 
     socket.on('notification:new', (data: NotificationSignal) => {
+      // Deduplicate by ID
+      if (data.id && processedNotificationIds.current.has(data.id)) {
+        return;
+      }
+      if (data.id) {
+        processedNotificationIds.current.add(data.id);
+      }
+
       setLatestNotification(data);
+      if (!data.isRead) {
+        setUnreadCount((prev) => prev + 1);
+      }
+
       if (data.type === 'FOLLOW') {
         toast.success(`🎉 User ${data.creatorId} started following you!`);
       } else if (data.type === 'LIKE') {
@@ -110,6 +146,8 @@ export function useRealtimeSocket() {
     onlineUsers,
     latestNotification,
     latestFeedSignal,
+    unreadCount,
+    setUnreadCount,
     socket: socketRef.current,
   };
 }

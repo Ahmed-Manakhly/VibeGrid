@@ -6,8 +6,11 @@ import { LogOut, User, Settings, Bookmark, Bell, MessageSquare, Compass, Shield 
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 
+import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
+
 export function UserNavDropdown() {
   const { user, logout } = useSession();
+  const { unreadCount } = useRealtime();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -61,9 +64,16 @@ export function UserNavDropdown() {
             <Link
               href="/notifications"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
+              className="flex items-center justify-between px-3 py-2 text-sm rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
             >
-              <Bell className="size-4" /> Notifications
+              <div className="flex items-center gap-2.5">
+                <Bell className="size-4" /> Notifications
+              </div>
+              {unreadCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </Link>
             <Link
               href="/messages"

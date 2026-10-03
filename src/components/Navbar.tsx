@@ -12,8 +12,11 @@ import { NavSearch, MobileNavSearch } from './NavSearch';
 
 import { usePathname } from 'next/navigation';
 
+import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
+
 function Navbar() {
   const { user, isAuthenticated, isLoading } = useSession();
+  const { unreadCount } = useRealtime();
   const pathname = usePathname();
 
   const isAuthRoute = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'].some(path => pathname.startsWith(path));
@@ -36,10 +39,15 @@ function Navbar() {
               <>
                 <Link 
                   href="/notifications" 
-                  className="icon-button hidden sm:flex" 
+                  className="icon-button hidden sm:flex relative" 
                   aria-label="Notifications"
                 >
                   <Bell className="size-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground animate-in zoom-in-50">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
                 <DesktopDropVibeButton />
                 <div className="pl-2 border-l border-border/50 ml-1">

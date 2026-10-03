@@ -38,18 +38,24 @@ const getNotificationIcon = (type: string) => { //to change the icon based on th
     }
 };
 
+import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
+
 function NotificationsPage() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    //-------------------------------------------
+    const { latestNotification, setUnreadCount } = useRealtime();
+
     useEffect(() => {
         const fetchNotifications = async () => {
             setIsLoading(true);
             try {
                 const data = await getNotifications();
                 setNotifications(data);
-                const unreadIds = data.filter((n) => !n.read).map((n) => n.id); // filter TO GET THE FALSE OF READ PROP THEN map TO GET THE ID'S ONLY IN THE ARRAY 
-                if (unreadIds.length > 0) await markNotificationsAsRead(unreadIds);
+                const unreadIds = data.filter((n) => !n.read).map((n) => n.id);
+                if (unreadIds.length > 0) {
+                  await markNotificationsAsRead(unreadIds);
+                  setUnreadCount(0);
+                }
             } catch (error) {
                 toast.error("Failed to fetch notifications");
             } finally {
@@ -57,7 +63,29 @@ function NotificationsPage() {
             }
         };
         fetchNotifications();
-    }, []); // WE GOT ALL NOTIFICATIONS | BUT NO REALTIME | AND MADE THEM ALL READ | so 2nd time we open the notifications it wil be unread
+    }, [setUnreadCount]);
+
+    // Live socket notification listener
+    useEffect(() => {
+        if (!latestNotification) return;
+
+        // Fetch full hydrated notifications list to preserve canonical DTO shape without duplication
+        const syncNotifications = async () => {
+            try {
+                const data = await getNotifications();
+                setNotifications(data);
+                const unreadIds = data.filter((n) => !n.read).map((n) => n.id);
+                if (unreadIds.length > 0) {
+                  await markNotificationsAsRead(unreadIds);
+                  setUnreadCount(0);
+                }
+            } catch (error) {
+                console.error("Failed to sync realtime notification", error);
+            }
+        };
+
+        syncNotifications();
+    }, [latestNotification, setUnreadCount]);
     //-------------------------------------------
     if (isLoading) return <NotificationsSkeleton />; // IF LOADING SHOW THE skeleton
     //-------------------------------------------
