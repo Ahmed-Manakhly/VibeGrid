@@ -324,7 +324,7 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                     )}
                 </div>
         </article>
-    )
+    );
 }
 
-export default PostCard
+export default PostCard;
