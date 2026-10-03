@@ -20,7 +20,12 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
     category: true,
     vibe: true,
     comments: { include: { author: true }, orderBy: { createdAt: "asc" } },
-    likes: { select: { userId: true } },
+    likes: {
+      select: {
+        userId: true,
+        user: { select: { id: true, name: true, username: true, image: true } },
+      },
+    },
     _count: { select: { likes: true, comments: true } },
   },
 };

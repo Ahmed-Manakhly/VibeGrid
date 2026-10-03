@@ -72,9 +72,9 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                 createdAt: new Date().toISOString(),
                 author: {
                     id: dbUserId,
-                    name: user?.name || user?.email.split('@')[0] || "You",
-                    username: user?.name || "",
-                    image: "/avatar.png"
+                    name: user?.name || user?.username || user?.email.split('@')[0] || "You",
+                    username: user?.username || user?.name || "",
+                    image: user?.image || null
                 }
             };
             
@@ -215,27 +215,59 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                             )}
                         </div>
                     )}
-                    <div className="flex items-center pt-2 space-x-4">
-                        {isAuthenticated ? (
-                            <Button
-                            className={`text-muted-foreground gap-2 hover:bg-transparent ${hasLiked ? "text-red-500 hover:text-red-600" : "hover:text-red-500" }`}
-                            variant="ghost" size="sm" onClick={handleLike}
-                            >
-                                {hasLiked ? (
-                                    <HeartIcon className="size-5 fill-current" />
-                                ) : (
-                                    <HeartIcon className="size-5" />
-                                )}
-                                <span>{optimisticLikes}</span>
-                            </Button>
-                        ) : (
-                            <Button variant="ghost" size="sm" className="text-muted-foreground gap-2 hover:bg-transparent hover:text-red-500" asChild>
-                                <Link href="/login">
-                                    <HeartIcon className="size-5" />
+                        <div className="relative group/like inline-flex items-center">
+                            {isAuthenticated ? (
+                                <Button
+                                    className={`text-muted-foreground gap-2 hover:bg-transparent ${hasLiked ? "text-red-500 hover:text-red-600" : "hover:text-red-500" }`}
+                                    variant="ghost" size="sm" onClick={handleLike}
+                                >
+                                    {hasLiked ? (
+                                        <HeartIcon className="size-5 fill-current" />
+                                    ) : (
+                                        <HeartIcon className="size-5" />
+                                    )}
                                     <span>{optimisticLikes}</span>
-                                </Link>
-                            </Button>
-                        )}
+                                </Button>
+                            ) : (
+                                <Button variant="ghost" size="sm" className="text-muted-foreground gap-2 hover:bg-transparent hover:text-red-500" asChild>
+                                    <Link href="/login">
+                                        <HeartIcon className="size-5" />
+                                        <span>{optimisticLikes}</span>
+                                    </Link>
+                                </Button>
+                            )}
+
+                            {post.likes && post.likes.length > 0 && (
+                                <div className="absolute bottom-full left-0 mb-2 hidden group-hover/like:block group-focus-within/like:block z-30 min-w-[180px] max-w-[240px] p-2.5 rounded-xl bg-card border border-border/80 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 pointer-events-auto">
+                                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 border-b border-border/40 pb-1">
+                                        Liked by ({optimisticLikes})
+                                    </p>
+                                    <div className="space-y-1 max-h-36 overflow-y-auto">
+                                        {post.likes.slice(0, 5).map((likeItem: any, idx: number) => {
+                                            const reactor = likeItem.user;
+                                            const reactorName = reactor?.name || reactor?.username || 'Anonymous';
+                                            const reactorHandle = reactor?.username ? `@${reactor.username}` : '';
+                                            return (
+                                                <Link
+                                                    key={idx}
+                                                    href={reactor?.username ? `/profile/${reactor.username}` : '#'}
+                                                    className="flex items-center gap-2 p-1 rounded-lg hover:bg-muted/60 transition-colors text-xs text-foreground truncate"
+                                                >
+                                                    <UserAvatar src={reactor?.image} name={reactorName} className="size-5 shrink-0" />
+                                                    <span className="truncate font-medium">{reactorName}</span>
+                                                    {reactorHandle && <span className="text-[10px] text-muted-foreground truncate">{reactorHandle}</span>}
+                                                </Link>
+                                            );
+                                        })}
+                                        {optimisticLikes > 5 && (
+                                            <p className="text-[10px] text-muted-foreground pt-1 italic">
+                                                and {optimisticLikes - 5} others...
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         
                         {!isTruncated && (
                             <Button variant="ghost" size="sm" onClick={() => setShowComments((prev) => !prev)}
