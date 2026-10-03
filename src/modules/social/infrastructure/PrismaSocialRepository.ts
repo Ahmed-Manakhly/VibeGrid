@@ -40,34 +40,80 @@ export class PrismaSocialRepository implements ISocialRepository {
   async searchUsers(query: string, limit: number = 6): Promise<any[]> {
     try {
       if (!query || !query.trim()) return [];
-      const searchTerm = query.trim();
-      return this.db.user.findMany({
-        where: {
-          OR: [
-            { username: { contains: searchTerm, mode: "insensitive" } },
-            { name: { contains: searchTerm, mode: "insensitive" } },
-            { bio: { contains: searchTerm, mode: "insensitive" } },
-            { location: { contains: searchTerm, mode: "insensitive" } },
-          ],
-        },
+      const formattedQuery = query.trim();
+
+      // PostgreSQL Native Full-Text Search with ts_rank ordering
+      const rawUsers: any[] = await this.db.$queryRaw`
+        SELECT 
+          u.id, 
+          u.name, 
+          u.username, 
+          u.image, 
+          u.bio, 
+          u.location, 
+          u.website,
+          ts_rank(
+            to_tsvector('english', 
+              coalesce(u.username, '') || ' ' || 
+              coalesce(u.name, '') || ' ' || 
+              coalesce(u.bio, '') || ' ' || 
+              coalesce(u.location, '')
+            ),
+            websearch_to_tsquery('english', ${formattedQuery})
+          ) as rank
+        FROM "User" u
+        WHERE to_tsvector('english', 
+          coalesce(u.username, '') || ' ' || 
+          coalesce(u.name, '') || ' ' || 
+          coalesce(u.bio, '') || ' ' || 
+          coalesce(u.location, '')
+        ) @@ websearch_to_tsquery('english', ${formattedQuery})
+        ORDER BY rank DESC, u.username ASC
+        LIMIT ${limit};
+      `;
+
+      if (!rawUsers || rawUsers.length === 0) {
+        // Fallback to prefix matching if FTS yields 0 exact token matches
+        return this.db.user.findMany({
+          where: {
+            OR: [
+              { username: { startsWith: formattedQuery, mode: "insensitive" } },
+              { name: { startsWith: formattedQuery, mode: "insensitive" } },
+            ],
+          },
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+            bio: true,
+            location: true,
+            website: true,
+            _count: { select: { followers: true, posts: true } },
+          },
+          orderBy: { username: "asc" },
+          take: limit,
+        });
+      }
+
+      // Fetch count relations for matched users
+      const userIds = rawUsers.map((u) => u.id);
+      const counts = await this.db.user.findMany({
+        where: { id: { in: userIds } },
         select: {
           id: true,
-          name: true,
-          username: true,
-          image: true,
-          bio: true,
-          location: true,
-          website: true,
           _count: { select: { followers: true, posts: true } },
         },
-        orderBy: [
-          { username: "asc" },
-        ],
-        take: limit,
       });
+      const countMap = new Map(counts.map((c) => [c.id, c._count]));
+
+      return rawUsers.map((u) => ({
+        ...u,
+        _count: countMap.get(u.id) || { followers: 0, posts: 0 },
+      }));
     } catch (err) {
       const { logger } = require("@/shared/infrastructure/di-container");
-      logger.error("Error searching users", err, { query });
+      logger.error("Error searching users with FTS", err, { query });
       return [];
     }
   }
@@ -103,5 +149,13 @@ export class PrismaSocialRepository implements ISocialRepository {
       select: { followerId: true },
     });
     return records.map((r) => r.followerId);
+  }
+
+  async getFollowingIds(followerId: string): Promise<string[]> {
+    const records = await this.db.follows.findMany({
+      where: { followerId },
+      select: { followingId: true },
+    });
+    return records.map((r) => r.followingId);
   }
 }

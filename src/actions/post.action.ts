@@ -68,7 +68,8 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
 //2//to get all posts
 export async function getPosts(params: ExplorePostsCriteria = {}) {
     try {
-        const result = await generateFeedUseCase.execute(params);
+        const userId = params.userId || (await getDbUserId()) || undefined;
+        const result = await generateFeedUseCase.execute({ ...params, userId });
         return result; 
     } catch (er){
         logger.error('failed to fetch posts!', er);

@@ -84,6 +84,43 @@ export class PrismaVibeRepository implements IVibeRepository {
   }
 
   async getFeed(params: ExplorePostsCriteria = {}): Promise<ExplorePostsResult<VibePost>> {
+    if (params.search && params.search.trim()) {
+      try {
+        const searchTerm = params.search.trim();
+        const limit = Math.min(params.limit || 12, 50);
+
+        // Native PostgreSQL Full-Text Search with ts_rank ordering for posts
+        const matchedPostIds: { id: string; rank: number }[] = await this.db.$queryRaw`
+          SELECT 
+            p.id,
+            ts_rank(
+              to_tsvector('english', coalesce(p.content, '')),
+              websearch_to_tsquery('english', ${searchTerm})
+            ) as rank
+          FROM "Post" p
+          WHERE to_tsvector('english', coalesce(p.content, '')) @@ websearch_to_tsquery('english', ${searchTerm})
+          ORDER BY rank DESC, p."createdAt" DESC
+          LIMIT ${limit + 1};
+        `;
+
+        if (matchedPostIds && matchedPostIds.length > 0) {
+          const hasMore = matchedPostIds.length > limit;
+          const targetIds = hasMore ? matchedPostIds.slice(0, limit) : matchedPostIds;
+          const ids = targetIds.map((p) => p.id);
+
+          const posts = await this.getPostsByIds(ids);
+          const nextCursor = hasMore && posts.length > 0 ? posts[posts.length - 1].id : null;
+
+          return {
+            data: posts,
+            nextCursor,
+          };
+        }
+      } catch (err) {
+        console.error("[PrismaVibeRepository] FTS error, falling back to FeedQueryBuilder", err);
+      }
+    }
+
     const queryBuilder = new FeedQueryBuilder<VibePost>(
       this.db.post,
       params,

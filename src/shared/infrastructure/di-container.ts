@@ -77,7 +77,12 @@ export const eventBus = new TransactionalOutboxEventBus(outboxRepository);
 // 2. Instantiate Use Cases (Inject Repositories & Cache)
 // Vibe
 export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus, cacheService);
-export const generateFeedUseCase = new GenerateFeedUseCase(vibeRepository, cacheService);
+export const generateFeedUseCase = new GenerateFeedUseCase(
+  vibeRepository, 
+  cacheService, 
+  socialRepository, 
+  userInterestRepository
+);
 export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository, eventBus, cacheService);
 export const getPostByIdUseCase = new (require('@/modules/vibe/application/GetPostById.usecase').GetPostByIdUseCase)(vibeRepository);
 

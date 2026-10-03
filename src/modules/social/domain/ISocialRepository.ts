@@ -5,4 +5,5 @@ export interface ISocialRepository {
   addFollow(followerId: string, followingId: string): Promise<void>;
   removeFollow(followerId: string, followingId: string): Promise<void>;
   getFollowerIds(followingId: string): Promise<string[]>;
+  getFollowingIds(followerId: string): Promise<string[]>;
 }

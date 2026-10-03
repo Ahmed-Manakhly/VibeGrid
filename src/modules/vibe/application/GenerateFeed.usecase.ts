@@ -1,15 +1,22 @@
 import { IVibeRepository, VibePost } from "../domain/IVibeRepository";
 import { ExplorePostsCriteria, ExplorePostsResult } from "../domain/ExplorePostsCriteria";
 import { ICacheService } from "@/shared/application/ports/ICacheService";
+import { FeedRecommendationScorer, FeedScoringContext } from "../domain/FeedRecommendationScorer";
+import { ISocialRepository } from "@/modules/social/domain/ISocialRepository";
+import { IUserInterestRepository } from "@/modules/social/domain/IUserInterestRepository";
 
 export class GenerateFeedUseCase {
+  private scorer = new FeedRecommendationScorer();
+
   constructor(
     private repo: IVibeRepository,
-    private cacheService?: ICacheService
+    private cacheService?: ICacheService,
+    private socialRepo?: ISocialRepository,
+    private userInterestRepo?: IUserInterestRepository
   ) {}
 
   async execute(params: ExplorePostsCriteria = {}): Promise<ExplorePostsResult<VibePost>> {
-    const { userId, tag, category, vibe, search, limit = 10, cursor } = params;
+    const { userId, tag, category, vibe, search, limit = 12, cursor } = params;
 
     // 1. Personalized Timeline Redis Hydration (if userId provided & no specific filters)
     if (userId && !tag && !category && !vibe && !search && this.cacheService) {
@@ -32,16 +39,50 @@ export class GenerateFeedUseCase {
       }
     }
 
-    // 2. Direct Query Fallback with Stampede-Protected Query Caching
-    if (this.cacheService && !cursor) {
+    // 2. Fetch raw candidates from repository
+    let rawResult: ExplorePostsResult<VibePost>;
+
+    if (this.cacheService && !cursor && !userId) {
       const cacheKey = `feed:query:${tag || 'all'}:${category || 'all'}:${vibe || 'all'}:${search || 'none'}:${limit}`;
-      return this.cacheService.getOrSet(
+      rawResult = await this.cacheService.getOrSet(
         cacheKey,
         () => this.repo.getFeed(params),
         { ttlSeconds: 60, enableJitter: true }
       );
+    } else {
+      rawResult = await this.repo.getFeed(params);
     }
 
-    return this.repo.getFeed(params);
+    if (!rawResult.data || rawResult.data.length === 0) {
+      return rawResult;
+    }
+
+    // 3. Build Recommendation Scoring Context if userId is provided
+    let scoringContext: FeedScoringContext = {};
+    if (userId) {
+      try {
+        const [followingIds, userInterests] = await Promise.all([
+          this.socialRepo ? this.socialRepo.getFollowingIds(userId) : Promise.resolve([]),
+          this.userInterestRepo ? this.userInterestRepo.getUserInterests(userId) : Promise.resolve([]),
+        ]);
+
+        scoringContext = {
+          userId,
+          followedAuthorIds: new Set(followingIds),
+          userInterestedCategoryIds: new Set(userInterests.map((cat: any) => cat.id)),
+        };
+      } catch (err) {
+        // Fallback to unpersonalized context on repository error
+        scoringContext = { userId };
+      }
+    }
+
+    // 4. Deterministically rank candidate posts using FeedRecommendationScorer
+    const rankedPosts = this.scorer.rankPosts(rawResult.data, scoringContext);
+
+    return {
+      data: rankedPosts,
+      nextCursor: rawResult.nextCursor,
+    };
   }
 }
