@@ -1,15 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { updateProfile } from '@/actions/profile.action';
-import { toast } from '@/components/ui/toast';
 import { UserAvatar } from '@/components/UserAvatar';
-import { useSession } from '@/components/auth/SessionProvider';
-import { useRouter } from 'next/navigation';
+import { Edit3, MapPin, Globe } from 'lucide-react';
 
 interface ProfileSettingsFormProps {
   user: {
@@ -25,116 +21,63 @@ interface ProfileSettingsFormProps {
 }
 
 export function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
-  const { refreshSession } = useSession();
-  const router = useRouter();
-
-  const [profileForm, setProfileForm] = useState({
-    name: user.name || '',
-    username: user.username || '',
-    bio: user.bio || '',
-    location: user.location || '',
-    website: user.website || '',
-  });
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
-
-  const handleProfileSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSavingProfile(true);
-
-    try {
-      const formData = new FormData();
-      Object.entries(profileForm).forEach(([key, val]) => {
-        formData.append(key, val);
-      });
-
-      const res = await updateProfile(formData);
-      if (res.success) {
-        await refreshSession();
-        router.refresh();
-        toast.success('Settings updated successfully!');
-      } else {
-        toast.error(res.error || 'Failed to update settings');
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'An error occurred');
-    } finally {
-      setIsSavingProfile(false);
-    }
-  };
+  const profileUrl = user.username ? `/profile/${user.username}?edit=true` : '/login';
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Public Profile</CardTitle>
-        <CardDescription>Update your personal info displayed on your public profile.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleProfileSubmit} className="space-y-4">
-          <div className="flex items-center gap-4 py-2">
-            <UserAvatar src={user.image} name={user.name} className="w-16 h-16" />
-            <div>
-              <p className="text-sm font-semibold">{user.name || user.username}</p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
-            </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Public Profile</CardTitle>
+            <CardDescription>Your public identity on VibeGrid.</CardDescription>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                value={profileForm.username}
-                onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Display Name</Label>
-              <Input
-                id="name"
-                value={profileForm.name}
-                onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Input
-              id="bio"
-              value={profileForm.bio}
-              onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-              placeholder="Tell us about yourself..."
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                value={profileForm.location}
-                onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
-                placeholder="e.g. San Francisco, CA"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                value={profileForm.website}
-                onChange={(e) => setProfileForm({ ...profileForm, website: e.target.value })}
-                placeholder="https://yourwebsite.com"
-              />
-            </div>
-          </div>
-
-          <div className="pt-4 flex justify-end">
-            <Button type="submit" disabled={isSavingProfile}>
-              {isSavingProfile ? 'Saving...' : 'Save Profile Settings'}
+          <Link href={profileUrl}>
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <Edit3 className="size-4" />
+              <span>Edit Public Profile</span>
             </Button>
+          </Link>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center gap-4 py-2 border-b border-border/40 pb-4">
+          <UserAvatar src={user.image} name={user.name || user.username} className="w-16 h-16" />
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold text-foreground truncate">
+              {user.name || user.username}
+            </h3>
+            <p className="text-xs text-muted-foreground font-mono">@{user.username}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{user.email}</p>
           </div>
-        </form>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-muted-foreground pt-1">
+          <div>
+            <span className="font-semibold text-foreground block mb-0.5">Bio</span>
+            <p className="line-clamp-2 italic">{user.bio || 'No bio set'}</p>
+          </div>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-1.5">
+              <MapPin className="size-3.5 text-muted-foreground shrink-0" />
+              <span>{user.location || 'No location set'}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Globe className="size-3.5 text-muted-foreground shrink-0" />
+              {user.website ? (
+                <a
+                  href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline truncate"
+                >
+                  {user.website}
+                </a>
+              ) : (
+                <span>No website set</span>
+              )}
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

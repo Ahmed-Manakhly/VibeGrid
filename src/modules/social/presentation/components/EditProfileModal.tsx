@@ -46,10 +46,51 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
     location: user.location || '',
     website: user.website || '',
   });
-  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{
+    username?: string;
+    name?: string;
+    website?: string;
+  }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const validateForm = () => {
+    const newErrors: { username?: string; name?: string; website?: string } = {};
+
+    const trimmedUsername = editForm.username.trim();
+    if (!trimmedUsername) {
+      newErrors.username = 'Username is required';
+    } else if (trimmedUsername.startsWith('user_')) {
+      newErrors.username = 'Temporary handles starting with "user_" are not allowed';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(trimmedUsername)) {
+      newErrors.username = 'Username can only contain letters, numbers, and underscores';
+    }
+
+    const trimmedName = editForm.name.trim();
+    if (!trimmedName) {
+      newErrors.name = 'Display name is required';
+    }
+
+    const trimmedWebsite = editForm.website.trim();
+    if (trimmedWebsite) {
+      try {
+        const urlToTest = /^https?:\/\//i.test(trimmedWebsite)
+          ? trimmedWebsite
+          : `https://${trimmedWebsite}`;
+        new URL(urlToTest);
+      } catch (_) {
+        newErrors.website = 'Please enter a valid website URL';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleEditSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       let finalMediaId: string | null = null;
@@ -58,9 +99,12 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
       }
 
       const formData = new FormData();
-      Object.entries(editForm).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
+      formData.append('username', editForm.username.trim());
+      formData.append('name', editForm.name.trim());
+      formData.append('bio', editForm.bio.trim());
+      formData.append('location', editForm.location.trim());
+      formData.append('website', editForm.website.trim());
+
       if (finalMediaId) {
         formData.append('avatarMediaId', finalMediaId);
       }
@@ -109,32 +153,41 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             />
           </div>
           <div className="space-y-2">
-            <Label>Username</Label>
+            <Label htmlFor="username">Username</Label>
             <Input
+              id="username"
               name="username"
               value={editForm.username}
               onChange={(e) => {
                 setEditForm({ ...editForm, username: e.target.value });
-                if (usernameError) setUsernameError(null);
+                if (errors.username) setErrors((prev) => ({ ...prev, username: undefined }));
               }}
               placeholder="Your unique handle"
             />
-            {usernameError && (
-              <p className="text-xs text-red-500 mt-1">{usernameError}</p>
+            {errors.username && (
+              <p className="text-xs text-destructive mt-1">{errors.username}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label>Name</Label>
+            <Label htmlFor="name">Display Name</Label>
             <Input
+              id="name"
               name="name"
               value={editForm.name}
-              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+              onChange={(e) => {
+                setEditForm({ ...editForm, name: e.target.value });
+                if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+              }}
               placeholder="Your name"
             />
+            {errors.name && (
+              <p className="text-xs text-destructive mt-1">{errors.name}</p>
+            )}
           </div>
           <div className="space-y-2">
-            <Label>Bio</Label>
+            <Label htmlFor="bio">Bio</Label>
             <Textarea
+              id="bio"
               name="bio"
               value={editForm.bio}
               onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
@@ -143,8 +196,9 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             />
           </div>
           <div className="space-y-2">
-            <Label>Location</Label>
+            <Label htmlFor="location">Location</Label>
             <Input
+              id="location"
               name="location"
               value={editForm.location}
               onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
@@ -152,13 +206,20 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             />
           </div>
           <div className="space-y-2">
-            <Label>Website</Label>
+            <Label htmlFor="website">Website</Label>
             <Input
+              id="website"
               name="website"
               value={editForm.website}
-              onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
-              placeholder="Your personal website"
+              onChange={(e) => {
+                setEditForm({ ...editForm, website: e.target.value });
+                if (errors.website) setErrors((prev) => ({ ...prev, website: undefined }));
+              }}
+              placeholder="https://yourwebsite.com"
             />
+            {errors.website && (
+              <p className="text-xs text-destructive mt-1">{errors.website}</p>
+            )}
           </div>
         </div>
         <div className="flex justify-end gap-3">
