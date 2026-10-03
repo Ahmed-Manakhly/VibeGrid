@@ -49,9 +49,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       if (data.success && data.isAuthenticated && data.user) {
         if (!initialCheckRef.current) {
           initialCheckRef.current = true;
-          toast.success('Session verified: Authenticated ⚡');
-        } else if (user && user.id === data.user.id) {
-          toast.info('Session refreshed 🔄');
         }
         setUser(data.user);
         setIsAuthenticated(true);

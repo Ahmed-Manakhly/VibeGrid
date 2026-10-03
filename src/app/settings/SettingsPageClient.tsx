@@ -4,6 +4,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, User, LogOut } from 'lucide-react';
 import { ProfileSettingsForm } from '@/modules/social/presentation/components/ProfileSettingsForm';
+import { FeedPreferencesSettingsForm } from '@/modules/social/presentation/components/FeedPreferencesSettingsForm';
 import { SecuritySettingsForm } from '@/modules/auth/presentation/components/SecuritySettingsForm';
 import { useSession } from '@/components/auth/SessionProvider';
 import { Button } from '@/components/ui/button';
@@ -50,6 +51,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
 
         <TabsContent value="profile" className="mt-6 space-y-6">
           <ProfileSettingsForm user={user} />
+          <FeedPreferencesSettingsForm />
         </TabsContent>
 
         <TabsContent value="security" className="mt-6 space-y-6">

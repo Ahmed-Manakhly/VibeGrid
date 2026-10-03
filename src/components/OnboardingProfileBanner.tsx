@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from '@/components/auth/SessionProvider';
-import { Sparkles, ArrowRight, X } from 'lucide-react';
+import { Sparkles, ArrowRight, X, Check } from 'lucide-react';
 
 import { ProfileRules } from '@/modules/social/domain/ProfileRules';
 
@@ -155,34 +155,56 @@ export function OnboardingProfileBanner() {
           <div className="pointer-events-none absolute -top-12 -left-12 size-36 rounded-full bg-accent/20 blur-2xl" />
           <div className="pointer-events-none absolute -bottom-12 -right-12 size-36 rounded-full bg-primary/20 blur-2xl" />
           <div className="relative z-10 flex flex-col gap-4">
-            <h2 className="text-lg font-semibold text-foreground">Select Your Interests</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => toggleCategory(cat.id)}
-                  className={`p-2 rounded-xl border ${selectedIds.includes(cat.id) ? 'bg-accent text-accent-foreground' : 'bg-muted'} transition-colors`}
-                >
-                  {cat.emoji ? <span className="mr-1">{cat.emoji}</span> : null}
-                  {cat.name}
-                </button>
-              ))}
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 rounded-xl bg-accent/15 border border-accent/30 text-accent shrink-0 mt-0.5">
+                <Sparkles className="size-5 animate-pulse" />
+              </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-foreground tracking-tight">
+                  Personalize Your Feed
+                </h2>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                  Choose the topics you want to see more of in your feed. You can change these anytime from your account settings.
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {categories.map((cat) => {
+                const isSelected = selectedIds.includes(cat.id);
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => toggleCategory(cat.id)}
+                    className={`p-2.5 rounded-xl border text-xs sm:text-sm font-medium transition-all text-left flex items-center justify-between ${
+                      isSelected
+                        ? 'bg-accent/20 border-accent text-accent'
+                        : 'bg-muted/50 border-border/60 hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <span className="truncate">
+                      {cat.emoji ? <span className="mr-1.5">{cat.emoji}</span> : null}
+                      {cat.name}
+                    </span>
+                    {isSelected && <Check className="size-3.5 text-accent shrink-0 ml-1" />}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
               <button
                 onClick={saveInterests}
                 disabled={loading}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-colors disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs sm:text-sm shadow-md shadow-accent/20 transition-all disabled:opacity-50"
               >
-                {loading ? 'Saving...' : 'Save Interests'}
+                {loading ? 'Saving...' : 'Save Preferences'}
               </button>
               <button
                 onClick={() => setDismissed(true)}
-                className="p-2 rounded-xl border border-border/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors"
-                title="Dismiss"
-                aria-label="Dismiss banner"
+                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/50"
               >
-                <X className="size-4" />
+                Skip for now
               </button>
             </div>
           </div>
