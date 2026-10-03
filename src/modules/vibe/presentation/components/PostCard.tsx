@@ -215,6 +215,7 @@ function PostCard({post , dbUserId, isTruncated = false, isDetailPage = false} :
                             )}
                         </div>
                     )}
+                    <div className="flex items-center pt-2 space-x-4">
                         <div className="relative group/like inline-flex items-center">
                             {isAuthenticated ? (
                                 <Button
