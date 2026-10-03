@@ -28,6 +28,8 @@ interface EditProfileModalProps {
     location: string | null;
     website: string | null;
     image: string | null;
+    techStack?: any;
+    developerLinks?: any;
   };
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -39,6 +41,18 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
   const router = useRouter();
   const pathname = usePathname();
 
+  const initialStack: string[] = Array.isArray(user.techStack)
+    ? user.techStack
+    : typeof user.techStack === 'string'
+    ? (JSON.parse(user.techStack || '[]') as string[])
+    : [];
+
+  const initialLinks: { type: string; url: string; label?: string }[] = Array.isArray(user.developerLinks)
+    ? user.developerLinks
+    : typeof user.developerLinks === 'string'
+    ? JSON.parse(user.developerLinks || '[]')
+    : [];
+
   const [editForm, setEditForm] = useState({
     name: user.name || '',
     username: user.username || '',
@@ -46,15 +60,57 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
     location: user.location || '',
     website: user.website || '',
   });
+
+  const [techStack, setTechStack] = useState<string[]>(initialStack);
+  const [newTechInput, setNewTechInput] = useState('');
+
+  const [developerLinks, setDeveloperLinks] = useState<{ type: string; url: string; label?: string }[]>(initialLinks);
+  const [newLinkUrl, setNewLinkUrl] = useState('');
+  const [newLinkType, setNewLinkType] = useState('github');
+
   const [errors, setErrors] = useState<{
     username?: string;
     name?: string;
     website?: string;
+    links?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleAddTech = () => {
+    const trimmed = newTechInput.trim();
+    if (!trimmed) return;
+    const exists = techStack.some(t => t.toLowerCase() === trimmed.toLowerCase());
+    if (exists) return;
+    setTechStack([...techStack, trimmed]);
+    setNewTechInput('');
+  };
+
+  const handleRemoveTech = (techToRemove: string) => {
+    setTechStack(techStack.filter(t => t !== techToRemove));
+  };
+
+  const handleAddLink = () => {
+    const trimmed = newLinkUrl.trim();
+    if (!trimmed) return;
+    
+    // Check dangerous URL schemes
+    const lower = trimmed.toLowerCase();
+    if (lower.startsWith('javascript:') || lower.startsWith('data:') || lower.startsWith('vbscript:')) {
+      setErrors(prev => ({ ...prev, links: 'Dangerous URL scheme rejected (javascript:, data:, vbscript:)' }));
+      return;
+    }
+
+    setDeveloperLinks([...developerLinks, { type: newLinkType, url: trimmed }]);
+    setNewLinkUrl('');
+    setErrors(prev => ({ ...prev, links: undefined }));
+  };
+
+  const handleRemoveLink = (index: number) => {
+    setDeveloperLinks(developerLinks.filter((_, i) => i !== index));
+  };
+
   const validateForm = () => {
-    const newErrors: { username?: string; name?: string; website?: string } = {};
+    const newErrors: { username?: string; name?: string; website?: string; links?: string } = {};
 
     const trimmedUsername = editForm.username.trim();
     if (!trimmedUsername) {
@@ -104,6 +160,8 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
       formData.append('bio', editForm.bio.trim());
       formData.append('location', editForm.location.trim());
       formData.append('website', editForm.website.trim());
+      formData.append('techStack', JSON.stringify(techStack));
+      formData.append('developerLinks', JSON.stringify(developerLinks));
 
       if (finalMediaId) {
         formData.append('avatarMediaId', finalMediaId);
@@ -220,6 +278,91 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             {errors.website && (
               <p className="text-xs text-destructive mt-1">{errors.website}</p>
             )}
+          </div>
+
+          {/* Tech Stack section */}
+          <div className="space-y-2 pt-2 border-t border-border/50">
+            <Label>Tech Stack</Label>
+            <div className="flex gap-2">
+              <Input
+                value={newTechInput}
+                onChange={(e) => setNewTechInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTech();
+                  }
+                }}
+                placeholder="e.g. TypeScript, React, Docker"
+                className="text-xs sm:text-sm"
+              />
+              <Button type="button" variant="secondary" size="sm" onClick={handleAddTech}>
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-1.5 pt-1.5">
+              {techStack.map((tech) => (
+                <span
+                  key={tech}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full bg-primary/10 text-primary border border-primary/20 font-medium"
+                >
+                  {tech}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTech(tech)}
+                    className="hover:text-destructive transition-colors text-xs font-bold"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Developer Links section */}
+          <div className="space-y-2 pt-2 border-t border-border/50">
+            <Label>Developer Links</Label>
+            <div className="flex gap-2">
+              <select
+                value={newLinkType}
+                onChange={(e) => setNewLinkType(e.target.value)}
+                className="px-2.5 py-1.5 rounded-md border border-input bg-background text-xs sm:text-sm"
+              >
+                <option value="github">GitHub</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="twitter">X / Twitter</option>
+                <option value="portfolio">Portfolio</option>
+                <option value="website">Website</option>
+                <option value="other">Other</option>
+              </select>
+              <Input
+                value={newLinkUrl}
+                onChange={(e) => setNewLinkUrl(e.target.value)}
+                placeholder="https://github.com/username"
+                className="text-xs sm:text-sm flex-1"
+              />
+              <Button type="button" variant="secondary" size="sm" onClick={handleAddLink}>
+                Add Link
+              </Button>
+            </div>
+            {errors.links && (
+              <p className="text-xs text-destructive mt-1">{errors.links}</p>
+            )}
+            <div className="space-y-1.5 pt-1.5">
+              {developerLinks.map((link, idx) => (
+                <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-muted/40 text-xs border border-border/40">
+                  <span className="font-semibold uppercase text-[10px] text-primary/80 shrink-0">{link.type}</span>
+                  <span className="truncate flex-1 text-muted-foreground">{link.url}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveLink(idx)}
+                    className="text-destructive hover:underline text-xs font-medium shrink-0"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <div className="flex justify-end gap-3">

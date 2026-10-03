@@ -31,9 +31,23 @@ export async function updateProfile(formData: FormData) {
         const website = formData.get("website") as string;
         const avatarMediaId = formData.get("avatarMediaId") as string | null;
 
+        const rawTechStack = formData.get("techStack") as string | null;
+        const rawDeveloperLinks = formData.get("developerLinks") as string | null;
+
+        const { TechStackValueObject } = await import("@/modules/social/domain/TechStackValueObject");
+        const { DeveloperLinksValueObject } = await import("@/modules/social/domain/DeveloperLinksValueObject");
+
         const updateData: any = { name, bio, location, website };
         if (username && username.trim() !== '') {
             updateData.username = username.toLowerCase().replace(/[^a-z0-9_]/g, '');
+        }
+
+        if (rawTechStack !== null) {
+            updateData.techStack = TechStackValueObject.parse(rawTechStack);
+        }
+
+        if (rawDeveloperLinks !== null) {
+            updateData.developerLinks = DeveloperLinksValueObject.parse(rawDeveloperLinks);
         }
 
         if (avatarMediaId && avatarMediaId.trim() !== '') {

@@ -23,6 +23,8 @@ model User {
   avatarMediaId        String?
   location             String?
   website              String?
+  techStack            Json?
+  developerLinks       Json?
   role                 UserRole        @default(USER)
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt

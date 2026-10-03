@@ -109,21 +109,21 @@ function ProfilePageClient({
                                         initialIsFollowing={initialIsFollowing}
                                     />
                                 )}
-                                <div className="w-full mt-6 space-y-2 text-sm">
+                                <div className="w-full mt-6 space-y-3 text-sm text-left">
                                     {user.location && (
                                         <div className="flex items-center text-muted-foreground">
-                                            <MapPinIcon className="size-4 mr-2" />
-                                            {user.location}
+                                            <MapPinIcon className="size-4 mr-2 shrink-0" />
+                                            <span className="truncate">{user.location}</span>
                                         </div>
                                     )}
                                     {user.website && (
                                         <div className="flex items-center text-muted-foreground">
-                                            <LinkIcon className="size-4 mr-2" />
+                                            <LinkIcon className="size-4 mr-2 shrink-0" />
                                             <a
                                                 href={
                                                 user.website.startsWith("http") ? user.website : `https://${user.website}`
                                                 }
-                                                className="hover:underline"
+                                                className="hover:underline truncate"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
@@ -132,9 +132,47 @@ function ProfilePageClient({
                                         </div>
                                     )}
                                     <div className="flex items-center text-muted-foreground">
-                                        <CalendarIcon className="size-4 mr-2" />
+                                        <CalendarIcon className="size-4 mr-2 shrink-0" />
                                         Joined {formattedDate}
                                     </div>
+
+                                    {/* Tech Stack Display */}
+                                    {user.techStack && (Array.isArray(user.techStack) ? user.techStack : JSON.parse(user.techStack || '[]')).length > 0 && (
+                                        <div className="pt-3 border-t border-border/60 space-y-1.5">
+                                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tech Stack</p>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {(Array.isArray(user.techStack) ? user.techStack : JSON.parse(user.techStack || '[]')).map((tech: string, idx: number) => (
+                                                    <span key={idx} className="px-2 py-0.5 text-[11px] rounded-md bg-primary/10 text-primary border border-primary/20 font-medium">
+                                                        {tech}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Developer Links Display */}
+                                    {user.developerLinks && (Array.isArray(user.developerLinks) ? user.developerLinks : JSON.parse(user.developerLinks || '[]')).length > 0 && (
+                                        <div className="pt-3 border-t border-border/60 space-y-1.5">
+                                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Developer Links</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {(Array.isArray(user.developerLinks) ? user.developerLinks : JSON.parse(user.developerLinks || '[]')).map((link: { type: string; url: string; label?: string }, idx: number) => {
+                                                    const safeUrl = link.url.startsWith('http') ? link.url : `https://${link.url}`;
+                                                    return (
+                                                        <a
+                                                            key={idx}
+                                                            href={safeUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors font-medium border border-border/50"
+                                                        >
+                                                            <LinkIcon className="size-3 text-primary" />
+                                                            <span className="capitalize">{link.label || link.type}</span>
+                                                        </a>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </CardContent>

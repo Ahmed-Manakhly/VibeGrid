@@ -20,6 +20,8 @@ export class PrismaProfileRepository implements IProfileRepository {
         image: true,
         location: true,
         website: true,
+        techStack: true,
+        developerLinks: true,
         createdAt: true,
         _count: {
           select: {
@@ -32,7 +34,20 @@ export class PrismaProfileRepository implements IProfileRepository {
     });
   }
 
-  async updateProfile(userId: string, data: { name?: string; username?: string; bio?: string; location?: string; website?: string; image?: string; avatarMediaId?: string }): Promise<any | null> {
+  async updateProfile(
+    userId: string,
+    data: {
+      name?: string;
+      username?: string;
+      bio?: string;
+      location?: string;
+      website?: string;
+      image?: string;
+      avatarMediaId?: string;
+      techStack?: any;
+      developerLinks?: any;
+    }
+  ): Promise<any | null> {
     return await this.prisma.user.update({
       where: { id: userId },
       data,

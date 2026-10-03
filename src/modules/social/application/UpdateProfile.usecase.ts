@@ -8,7 +8,20 @@ export class UpdateProfileUseCase {
     private readonly cacheService?: ICacheService
   ) {}
 
-  async execute(userId: string, data: { name?: string; username?: string; bio?: string; location?: string; website?: string; image?: string }) {
+  async execute(
+    userId: string,
+    data: {
+      name?: string;
+      username?: string;
+      bio?: string;
+      location?: string;
+      website?: string;
+      image?: string;
+      avatarMediaId?: string;
+      techStack?: any;
+      developerLinks?: any;
+    }
+  ) {
     if (!userId) {
       throw new Error("Unauthorized");
     }
