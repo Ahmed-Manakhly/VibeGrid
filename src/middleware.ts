@@ -6,7 +6,7 @@ import { ILogger } from '@/shared/application/ports/ILogger';
 
 const logger: ILogger = new EdgeLogger('vibegrid-middleware');
 
-const PROTECTED_ROUTES = ['/profile', '/settings', '/create-post'];
+const PROTECTED_ROUTES = ['/profile', '/settings', '/create-post', '/notifications', '/messages', '/bookmarks'];
 const AUTH_ONLY_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
 const EXEMPT_FROM_PROFILE_CHECK = [
   '/api',
