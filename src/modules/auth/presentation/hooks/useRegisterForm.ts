@@ -144,16 +144,33 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
         return
       }
 
-      toast.success('Email verified successfully! You can now log in.')
-      router.push('/login')
+      toast.success('Email verified successfully! Logging you in...');
+
+      // Auto-login after verification using saved credentials
+      const loginRes = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailInput.value,
+          password: passwordInput.value,
+        }),
+      });
+      const loginData = await loginRes.json();
+
+      if (loginRes.ok && loginData.success) {
+        toast.success(`Welcome to VibeGrid, ${nameInput.value || 'friend'}! 🚀`);
+        window.location.href = '/';
+      } else {
+        router.push('/login');
+      }
     } catch {
-      const msg = 'Verification failed'
-      setFormError(msg)
-      toast.error(msg)
+      const msg = 'Verification failed';
+      setFormError(msg);
+      toast.error(msg);
     } finally {
-      setIsVerifying(false)
+      setIsVerifying(false);
     }
-  }
+  };
 
   const handleResendCode = async () => {
     try {
