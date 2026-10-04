@@ -64,36 +64,70 @@ export function OnboardingProfileBanner() {
     return null;
   }
 
-  const isComplete = ProfileRules.isProfileComplete(user);
+  const isProfileComplete = ProfileRules.isProfileComplete(user);
+  const isPersonalizationComplete = !interestsLoaded || selectedIds.length > 0;
 
-  // Helper to toggle category selection
-  const toggleCategory = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+  // If both profile & personalization are complete, hide onboarding banner
+  if (isProfileComplete && isPersonalizationComplete) {
+    return null;
+  }
+
+  // Case A: Both Profile & Personalization are incomplete -> Combined "Complete your VibeGrid setup" surface
+  if (!isProfileComplete && !isPersonalizationComplete) {
+    return (
+      <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
+        <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-card/60 backdrop-blur-xl p-4 sm:p-5 shadow-xl shadow-accent/5 transition-all">
+          <div className="pointer-events-none absolute -top-12 -left-12 size-36 rounded-full bg-accent/20 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-12 -right-12 size-36 rounded-full bg-primary/20 blur-2xl" />
+          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start md:items-center gap-3 min-w-0">
+              <div className="p-2.5 rounded-xl bg-accent/15 border border-accent/30 text-accent shrink-0 mt-0.5 md:mt-0">
+                <Sparkles className="size-5 animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-sm sm:text-base text-foreground tracking-tight">
+                    Complete your VibeGrid setup
+                  </span>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/20 text-accent border border-accent/30">
+                    2 TASKS REMAINING
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                  Set up your custom handle & profile, and pick your favorite topics to personalize your recommendations.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
+              <Link
+                href={user?.username ? `/profile/${user.username}?edit=true` : '/login'}
+                className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs sm:text-sm shadow-md shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>1. Complete Profile</span>
+                <ArrowRight className="size-3.5" />
+              </Link>
+              <Link
+                href="/settings?tab=personalization"
+                className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-secondary hover:bg-secondary/80 text-secondary-foreground font-semibold text-xs sm:text-sm border border-border/60 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>2. Personalize Feed</span>
+                <ArrowRight className="size-3.5" />
+              </Link>
+              <button
+                onClick={() => setDismissed(true)}
+                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-muted/50"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     );
-  };
+  }
 
-  // Submit selected interests
-  const saveInterests = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/social/interests', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ categoryIds: selectedIds }),
-      });
-      if (!res.ok) {
-        throw new Error('Failed to save interests');
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Priority 1 — Profile Completion (if profile is incomplete)
-  if (!isComplete) {
+  // Case B: Only Profile is incomplete
+  if (!isProfileComplete) {
     return (
       <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
         <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-card/60 backdrop-blur-xl p-4 sm:p-5 shadow-xl shadow-accent/5 transition-all">
@@ -139,8 +173,8 @@ export function OnboardingProfileBanner() {
     );
   }
 
-  // Priority 2 — Interests (shown ONLY if profile is complete & interests are not yet set)
-  if (interestsLoaded && selectedIds.length === 0) {
+  // Case C: Only Personalization is incomplete
+  if (!isPersonalizationComplete) {
     return (
       <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
         <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-card/60 backdrop-blur-xl p-4 sm:p-5 shadow-xl shadow-accent/5 transition-all">
@@ -162,7 +196,7 @@ export function OnboardingProfileBanner() {
             </div>
             <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
               <Link
-                href="/settings"
+                href="/settings?tab=personalization"
                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs sm:text-sm shadow-md shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Choose Your Interests</span>
@@ -181,6 +215,5 @@ export function OnboardingProfileBanner() {
     );
   }
 
-  // Priority 3 — Complete (profile complete + interests set -> nothing to show)
   return null;
 }

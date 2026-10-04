@@ -31,15 +31,14 @@ export async function Sidebar() {
       <div className="mt-auto flex flex-col gap-2">
         <SidebarSettingsLink />
         
-        {authUser && (
-          <SidebarUserCard
-            profileHref={profileHref}
-            userImage={dbUser?.image}
-            userName={dbUser?.name || authUser.name}
-            userUsername={dbUser?.username}
-            userEmail={authUser.email}
-          />
-        )}
+        <SidebarUserCard
+          initialProfileHref={profileHref}
+          initialUserImage={dbUser?.image}
+          initialUserName={dbUser?.name || authUser?.name}
+          initialUserUsername={dbUser?.username}
+          initialUserEmail={authUser?.email}
+          initialAuthUser={authUser}
+        />
       </div>
     </>
   );

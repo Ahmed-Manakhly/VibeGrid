@@ -188,11 +188,11 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[540px] max-h-[90vh] flex flex-col p-6 overflow-hidden">
+        <DialogHeader className="shrink-0 pb-3 border-b border-border/40">
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="flex-1 overflow-y-auto space-y-4 py-4 pr-1 sm:pr-2 min-w-0">
           <div className="flex flex-col items-center gap-3">
             <UserAvatar src={previewUrl || user.image} name={user.name} className="w-20 h-20" />
             <Label htmlFor="avatar-file" className="cursor-pointer text-xs font-semibold text-primary hover:underline">
@@ -313,13 +313,13 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
           </div>
 
           {/* Developer Links section */}
-          <div className="space-y-2 pt-2 border-t border-border/50">
+          <div className="space-y-2 pt-2 border-t border-border/50 min-w-0">
             <Label>Developer Links</Label>
             <div className="flex gap-2">
               <select
                 value={newLinkType}
                 onChange={(e) => setNewLinkType(e.target.value)}
-                className="px-2.5 py-1.5 rounded-md border border-input bg-background text-xs sm:text-sm"
+                className="px-2.5 py-1.5 rounded-md border border-input bg-background text-xs sm:text-sm shrink-0"
               >
                 <option value="github">GitHub</option>
                 <option value="linkedin">LinkedIn</option>
@@ -332,20 +332,20 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
                 value={newLinkUrl}
                 onChange={(e) => setNewLinkUrl(e.target.value)}
                 placeholder="https://github.com/username"
-                className="text-xs sm:text-sm flex-1"
+                className="text-xs sm:text-sm flex-1 min-w-0"
               />
-              <Button type="button" variant="secondary" size="sm" onClick={handleAddLink}>
+              <Button type="button" variant="secondary" size="sm" onClick={handleAddLink} className="shrink-0">
                 Add Link
               </Button>
             </div>
             {linkError && (
               <p className="text-xs text-destructive mt-1">{linkError}</p>
             )}
-            <div className="space-y-1.5 pt-1.5">
+            <div className="space-y-1.5 pt-1.5 min-w-0">
               {developerLinks.map((link, idx) => (
-                <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-muted/40 text-xs border border-border/40">
+                <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-muted/40 text-xs border border-border/40 min-w-0 w-full overflow-hidden">
                   <span className="font-semibold uppercase text-[10px] text-primary/80 shrink-0">{link.type}</span>
-                  <span className="truncate flex-1 text-muted-foreground">{link.url}</span>
+                  <span className="truncate min-w-0 flex-1 text-muted-foreground">{link.url}</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveLink(idx)}
@@ -358,7 +358,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-3">
+        <div className="shrink-0 pt-3 border-t border-border/40 flex justify-end gap-3">
           <DialogClose asChild>
             <Button variant="outline" disabled={isUploading || isSubmitting}>
               Cancel

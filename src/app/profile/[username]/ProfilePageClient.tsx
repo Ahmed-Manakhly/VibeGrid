@@ -178,13 +178,13 @@ function ProfilePageClient({
                                         </div>
                                     )}
                                     {user.website && (
-                                        <div className="flex items-center text-muted-foreground">
+                                        <div className="flex items-center text-muted-foreground w-full min-w-0">
                                             <LinkIcon className="size-4 mr-2 shrink-0" />
                                             <a
                                                 href={
                                                 user.website.startsWith("http") ? user.website : `https://${user.website}`
                                                 }
-                                                className="hover:underline truncate"
+                                                className="hover:underline truncate min-w-0 flex-1"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
