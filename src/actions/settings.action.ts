@@ -45,6 +45,11 @@ export async function changePasswordAction(formData: FormData) {
     }
 
     revalidatePath('/settings');
+    
+    // Clear client session cookies so Next.js middleware and browser immediately reflect logged-out status
+    cookieStore.delete(COOKIE_CONFIG.accessToken.name);
+    cookieStore.delete(COOKIE_CONFIG.refreshToken.name);
+
     return { success: true, message: 'Password changed successfully' };
   } catch (err: any) {
     return { success: false, error: err.message || 'Network error proxying password change' };
