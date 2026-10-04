@@ -89,4 +89,10 @@ export class EnvConfigRepository {
 
     return rawUrl;
   }
+
+  public static getJwtPublicKey(): string {
+    const rawKey = process.env.JWT_PUBLIC_KEY || '';
+    if (!rawKey) return '';
+    return rawKey.replace(/\\n/g, '\n');
+  }
 }

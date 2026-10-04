@@ -2,9 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from '@/components/ui/toast';
-import { Loader2, LogOut } from 'lucide-react';
-
-import { useRouter } from 'next/navigation';
 
 export interface SafeUser {
   id: string;
@@ -35,11 +32,9 @@ const SessionContext = createContext<SessionContextType>({
 });
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const [user, setUser] = useState<SafeUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   const initialCheckRef = React.useRef(false);
 
   const fetchSession = async () => {
@@ -71,6 +66,55 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     fetchSession();
   }, []);
 
+  // Window Focus Auto-Revalidation & Interceptor for 401 Unauthorized API responses
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // 1. Silent re-check on tab focus / visibility change
+    const handleFocus = () => {
+      fetchSession();
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    // 2. Global fetch interceptor to handle 401 Unauthorized during active UI sessions
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+
+      if (response.status === 401) {
+        const urlStr = typeof args[0] === 'string' ? args[0] : (args[0] as Request)?.url || '';
+        // Skip auth endpoints to avoid loops
+        if (!urlStr.includes('/api/auth/')) {
+          // Attempt silent session refresh
+          const refreshRes = await originalFetch('/api/auth/me', { cache: 'no-store' });
+          const refreshData = await refreshRes.json();
+
+          if (refreshData.success && refreshData.isAuthenticated && refreshData.user) {
+            setUser(refreshData.user);
+            setIsAuthenticated(true);
+            // Retry the original request seamlessly!
+            return originalFetch(...args);
+          } else {
+            setUser(null);
+            setIsAuthenticated(false);
+            toast.error('Session expired. Please log in again 🔒');
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 1000);
+          }
+        }
+      }
+
+      return response;
+    };
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.fetch = originalFetch;
+    };
+  }, [isAuthenticated]);
+
   const logout = async () => {
     const userName = user?.name || user?.username || 'friend';
     toast.info(`See you soon, ${userName}! 👋`);
@@ -80,7 +124,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore network errors during logout flow
     } finally {
-      // Perform clean hard browser navigation to /login to guarantee full DOM container replacement
+      // Perform clean hard browser navigation to /login
       window.location.href = '/login';
     }
   };

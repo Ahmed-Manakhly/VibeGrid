@@ -1,12 +1,4 @@
-const PUBLIC_KEY_PEM = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtbGtIE/yX82dLxmg6kXl
-kmxCvSFzqcwi4ZH9R+a2UKd17hQ7weLDASrCPwJz9ZO3nkjTINvOAsTcHhxhfxpB
-3RN+CC7OqoyENbVDUjdp233+z9SvahyueKpLgUVz67bE7C/U9qR94LO8RmDLNr53
-CbcDfVNpm901FWnnuZkLZ27JqJlLzXFVjCSwQ579LUkd+3nQRaFg5GT1PbyU5HNq
-9out2VRwaAaqJCYrRq+HJVlNV5s5JquVAi0m9Z7jh53o7EWV/O3e53sfFmfRqgIG
-72lyEZHge7M+Obge05OWp9mglzdJJzcKevDvr1TTse+OVTvf5PjGGWlYR9npv0vY
-8wIDAQAB
------END PUBLIC KEY-----`;
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 
 export interface AuthJwtPayload {
   sub: string;
@@ -22,8 +14,12 @@ export interface AuthJwtPayload {
 
 export async function verifyAccessTokenRS256(token: string): Promise<AuthJwtPayload | null> {
   try {
+    const formattedPublicKey = EnvConfigRepository.getJwtPublicKey();
+    if (!formattedPublicKey) {
+      return null;
+    }
     const { importSPKI, jwtVerify } = await import('jose');
-    const publicKey = await importSPKI(process.env.JWT_PUBLIC_KEY || PUBLIC_KEY_PEM, 'RS256');
+    const publicKey = await importSPKI(formattedPublicKey, 'RS256');
     const { payload } = await jwtVerify(token, publicKey, {
       algorithms: ['RS256'],
     });
