@@ -112,6 +112,7 @@ export function CodeBlockViewer({ language, code }: CodeBlockViewerProps) {
         <button
           type="button"
           onClick={handleCopy}
+          aria-label="Copy code to clipboard"
           className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors text-[11px]"
         >
           {copied ? (
