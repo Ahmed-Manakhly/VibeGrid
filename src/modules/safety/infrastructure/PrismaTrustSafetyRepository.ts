@@ -44,7 +44,7 @@ export class PrismaTrustSafetyRepository implements ITrustSafetyRepository {
       where: { blockerId: userId },
       select: { blockedId: true },
     });
-    return blocks.map((b) => b.blockedId);
+    return blocks.map((b: any) => b.blockedId);
   }
 
   async createReport(data: {
@@ -81,7 +81,7 @@ export class PrismaTrustSafetyRepository implements ITrustSafetyRepository {
       orderBy: { createdAt: "desc" },
     });
 
-    return reports.map((r) => ({
+    return reports.map((r: any) => ({
       id: r.id,
       reporterId: r.reporterId,
       targetType: r.targetType as any,
