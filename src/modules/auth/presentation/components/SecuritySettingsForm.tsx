@@ -42,8 +42,11 @@ export function SecuritySettingsForm() {
 
       const res = await changePasswordAction(formData);
       if (res.success) {
-        toast.success(res.message || 'Password changed successfully!');
+        toast.success(res.message || 'Password changed successfully. Redirecting to login...');
         setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1200);
       } else {
         toast.error(res.error || 'Failed to change password');
       }
@@ -62,11 +65,14 @@ export function SecuritySettingsForm() {
           <span>Change Password</span>
         </CardTitle>
         <CardDescription>
-          Ensure your account is using a strong, random password to stay secure.
+          Ensure your account is using a strong password. Note: Changing your password will log you out of all active sessions.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-md">
+          <div className="rounded-md bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-amber-500 font-medium">
+            ⚠️ You will be automatically logged out and asked to log in again with your new password.
+          </div>
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
             <div className="relative">
