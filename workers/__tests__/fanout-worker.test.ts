@@ -14,6 +14,8 @@ describe("FanOutWorker Unit & Hybrid Strategy Tests", () => {
       addFollow: jest.fn(),
       removeFollow: jest.fn(),
       getFollowerIds: jest.fn(),
+      searchUsers: jest.fn(),
+      getFollowingIds: jest.fn(),
     };
 
     cacheService = {

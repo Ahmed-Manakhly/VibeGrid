@@ -35,7 +35,7 @@ class InMemoryCacheService implements ICacheService {
 
   async delByPattern(pattern: string): Promise<void> {
     const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
-    for (const key of this.store.keys()) {
+    for (const key of Array.from(this.store.keys())) {
       if (regex.test(key)) {
         this.store.delete(key);
       }
@@ -99,6 +99,7 @@ const mockLogger: ILogger = {
   warn: jest.fn(),
   error: jest.fn(),
   debug: jest.fn(),
+  child: jest.fn().mockImplementation(() => mockLogger),
 };
 
 describe('RefreshSessionCoordinator', () => {
