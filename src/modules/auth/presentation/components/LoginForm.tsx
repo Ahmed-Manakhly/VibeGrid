@@ -13,8 +13,16 @@ export function LoginForm({ callbackUrl = '/' }: LoginFormProps) {
   const {
     email,
     setEmail,
+    emailHasError,
+    emailError,
+    emailBlur,
+
     password,
     setPassword,
+    passwordHasError,
+    passwordError,
+    passwordBlur,
+
     showPassword,
     toggleShowPassword,
     isSubmitting,
@@ -26,26 +34,31 @@ export function LoginForm({ callbackUrl = '/' }: LoginFormProps) {
       <form onSubmit={handleSubmit} className="mt-9 flex flex-col gap-5">
         <label className="auth-label">
           Email address
-          <div className="auth-input-wrap">
+          <div className={`auth-input-wrap ${emailHasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
             <Mail />
             <input
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={emailBlur}
               required
             />
           </div>
+          {emailHasError && emailError && (
+            <span className="text-[11px] font-medium text-destructive mt-1 block">{emailError}</span>
+          )}
         </label>
         <label className="auth-label">
           Password
-          <div className="auth-input-wrap">
+          <div className={`auth-input-wrap ${passwordHasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
             <LockKeyhole />
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onBlur={passwordBlur}
               required
             />
             <button
@@ -56,6 +69,9 @@ export function LoginForm({ callbackUrl = '/' }: LoginFormProps) {
               {showPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
+          {passwordHasError && passwordError && (
+            <span className="text-[11px] font-medium text-destructive mt-1 block">{passwordError}</span>
+          )}
         </label>
         <div className="flex justify-end">
           <Link href="/forgot-password" className="text-xs text-accent hover:underline">

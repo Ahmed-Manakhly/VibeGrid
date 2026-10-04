@@ -18,6 +18,8 @@ import { useAvatarUpload } from '@/modules/media/presentation/hooks/useAvatarUpl
 import { toast } from '@/components/ui/toast';
 import { useSession } from '@/components/auth/SessionProvider';
 import { usePathname, useRouter } from 'next/navigation';
+import { useInput } from '@/shared/presentation/hooks/useInput';
+import { validateUsername, validateRequired, validateUrl } from '@/shared/utils/validation';
 
 interface EditProfileModalProps {
   user: {
@@ -53,13 +55,31 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
     ? JSON.parse(user.developerLinks || '[]')
     : [];
 
-  const [editForm, setEditForm] = useState({
-    name: user.name || '',
-    username: user.username || '',
-    bio: user.bio || '',
-    location: user.location || '',
-    website: user.website || '',
+  // useInput Hooks for profile form inputs
+  const usernameInput = useInput({
+    initialValue: user.username || '',
+    validators: [
+      (val) => {
+        if (val.trim().startsWith('user_')) {
+          return 'Temporary handles starting with "user_" are not allowed';
+        }
+        return validateUsername(val);
+      },
+    ],
   });
+
+  const nameInput = useInput({
+    initialValue: user.name || '',
+    validators: [(val) => validateRequired(val, 'Display Name')],
+  });
+
+  const websiteInput = useInput({
+    initialValue: user.website || '',
+    validators: [validateUrl],
+  });
+
+  const [bio, setBio] = useState(user.bio || '');
+  const [location, setLocation] = useState(user.location || '');
 
   const [techStack, setTechStack] = useState<string[]>(initialStack);
   const [newTechInput, setNewTechInput] = useState('');
@@ -68,12 +88,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
   const [newLinkUrl, setNewLinkUrl] = useState('');
   const [newLinkType, setNewLinkType] = useState('github');
 
-  const [errors, setErrors] = useState<{
-    username?: string;
-    name?: string;
-    website?: string;
-    links?: string;
-  }>({});
+  const [linkError, setLinkError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddTech = () => {
@@ -92,58 +107,39 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
   const handleAddLink = () => {
     const trimmed = newLinkUrl.trim();
     if (!trimmed) return;
-    
-    // Check dangerous URL schemes
-    const lower = trimmed.toLowerCase();
-    if (lower.startsWith('javascript:') || lower.startsWith('data:') || lower.startsWith('vbscript:')) {
-      setErrors(prev => ({ ...prev, links: 'Dangerous URL scheme rejected (javascript:, data:, vbscript:)' }));
+
+    const urlCheck = validateUrl(trimmed);
+    if (typeof urlCheck === 'string') {
+      setLinkError(urlCheck);
       return;
     }
 
     setDeveloperLinks([...developerLinks, { type: newLinkType, url: trimmed }]);
     setNewLinkUrl('');
-    setErrors(prev => ({ ...prev, links: undefined }));
+    setLinkError(null);
   };
 
   const handleRemoveLink = (index: number) => {
     setDeveloperLinks(developerLinks.filter((_, i) => i !== index));
   };
 
-  const validateForm = () => {
-    const newErrors: { username?: string; name?: string; website?: string; links?: string } = {};
-
-    const trimmedUsername = editForm.username.trim();
-    if (!trimmedUsername) {
-      newErrors.username = 'Username is required';
-    } else if (trimmedUsername.startsWith('user_')) {
-      newErrors.username = 'Temporary handles starting with "user_" are not allowed';
-    } else if (!/^[a-zA-Z0-9_]+$/.test(trimmedUsername)) {
-      newErrors.username = 'Username can only contain letters, numbers, and underscores';
-    }
-
-    const trimmedName = editForm.name.trim();
-    if (!trimmedName) {
-      newErrors.name = 'Display name is required';
-    }
-
-    const trimmedWebsite = editForm.website.trim();
-    if (trimmedWebsite) {
-      try {
-        const urlToTest = /^https?:\/\//i.test(trimmedWebsite)
-          ? trimmedWebsite
-          : `https://${trimmedWebsite}`;
-        new URL(urlToTest);
-      } catch (_) {
-        newErrors.website = 'Please enter a valid website URL';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleEditSubmit = async () => {
-    if (!validateForm()) {
+    usernameInput.inputBlurHandler();
+    nameInput.inputBlurHandler();
+    websiteInput.inputBlurHandler();
+
+    if (!usernameInput.valueIsValid) {
+      toast.error(usernameInput.errorMessage || 'Invalid username');
+      return;
+    }
+
+    if (!nameInput.valueIsValid) {
+      toast.error(nameInput.errorMessage || 'Display name is required');
+      return;
+    }
+
+    if (!websiteInput.valueIsValid) {
+      toast.error(websiteInput.errorMessage || 'Invalid website URL');
       return;
     }
 
@@ -155,11 +151,11 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
       }
 
       const formData = new FormData();
-      formData.append('username', editForm.username.trim());
-      formData.append('name', editForm.name.trim());
-      formData.append('bio', editForm.bio.trim());
-      formData.append('location', editForm.location.trim());
-      formData.append('website', editForm.website.trim());
+      formData.append('username', usernameInput.value.trim());
+      formData.append('name', nameInput.value.trim());
+      formData.append('bio', bio.trim());
+      formData.append('location', location.trim());
+      formData.append('website', websiteInput.value.trim());
       formData.append('techStack', JSON.stringify(techStack));
       formData.append('developerLinks', JSON.stringify(developerLinks));
 
@@ -215,15 +211,14 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             <Input
               id="username"
               name="username"
-              value={editForm.username}
-              onChange={(e) => {
-                setEditForm({ ...editForm, username: e.target.value });
-                if (errors.username) setErrors((prev) => ({ ...prev, username: undefined }));
-              }}
+              value={usernameInput.value}
+              onChange={(e) => usernameInput.setValue(e.target.value)}
+              onBlur={usernameInput.inputBlurHandler}
               placeholder="Your unique handle"
+              className={usernameInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}
             />
-            {errors.username && (
-              <p className="text-xs text-destructive mt-1">{errors.username}</p>
+            {usernameInput.hasError && usernameInput.errorMessage && (
+              <p className="text-xs text-destructive mt-1">{usernameInput.errorMessage}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -231,15 +226,14 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             <Input
               id="name"
               name="name"
-              value={editForm.name}
-              onChange={(e) => {
-                setEditForm({ ...editForm, name: e.target.value });
-                if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
-              }}
+              value={nameInput.value}
+              onChange={(e) => nameInput.setValue(e.target.value)}
+              onBlur={nameInput.inputBlurHandler}
               placeholder="Your name"
+              className={nameInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}
             />
-            {errors.name && (
-              <p className="text-xs text-destructive mt-1">{errors.name}</p>
+            {nameInput.hasError && nameInput.errorMessage && (
+              <p className="text-xs text-destructive mt-1">{nameInput.errorMessage}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -247,8 +241,8 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             <Textarea
               id="bio"
               name="bio"
-              value={editForm.bio}
-              onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
               className="min-h-[100px]"
               placeholder="Tell us about yourself"
             />
@@ -258,8 +252,8 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             <Input
               id="location"
               name="location"
-              value={editForm.location}
-              onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
               placeholder="Where are you based?"
             />
           </div>
@@ -268,15 +262,14 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             <Input
               id="website"
               name="website"
-              value={editForm.website}
-              onChange={(e) => {
-                setEditForm({ ...editForm, website: e.target.value });
-                if (errors.website) setErrors((prev) => ({ ...prev, website: undefined }));
-              }}
+              value={websiteInput.value}
+              onChange={(e) => websiteInput.setValue(e.target.value)}
+              onBlur={websiteInput.inputBlurHandler}
               placeholder="https://yourwebsite.com"
+              className={websiteInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}
             />
-            {errors.website && (
-              <p className="text-xs text-destructive mt-1">{errors.website}</p>
+            {websiteInput.hasError && websiteInput.errorMessage && (
+              <p className="text-xs text-destructive mt-1">{websiteInput.errorMessage}</p>
             )}
           </div>
 
@@ -345,8 +338,8 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
                 Add Link
               </Button>
             </div>
-            {errors.links && (
-              <p className="text-xs text-destructive mt-1">{errors.links}</p>
+            {linkError && (
+              <p className="text-xs text-destructive mt-1">{linkError}</p>
             )}
             <div className="space-y-1.5 pt-1.5">
               {developerLinks.map((link, idx) => (

@@ -5,28 +5,55 @@ import Link from 'next/link';
 import { Mail, KeyRound, LockKeyhole, Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useInput } from '@/shared/presentation/hooks/useInput';
+import { validateEmail, validatePassword, validateRequired } from '@/shared/utils/validation';
 
 export function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [email, setEmail] = useState(searchParams.get('email') || '');
-  const [otp, setOtp] = useState(searchParams.get('otp') || searchParams.get('code') || '');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const emailInput = useInput({
+    initialValue: searchParams.get('email') || '',
+    validators: [validateEmail],
+  });
+
+  const otpInput = useInput({
+    initialValue: searchParams.get('otp') || searchParams.get('code') || '',
+    validators: [(val) => validateRequired(val, 'OTP Reset Code')],
+  });
+
+  const newPasswordInput = useInput({
+    validators: [validatePassword],
+  });
+
+  const confirmPasswordInput = useInput({
+    validators: [(val) => validateRequired(val, 'Confirm New Password')],
+  });
+
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    emailInput.inputBlurHandler();
+    otpInput.inputBlurHandler();
+    newPasswordInput.inputBlurHandler();
+    confirmPasswordInput.inputBlurHandler();
 
-    if (!email.trim() || !otp.trim() || !newPassword) {
-      toast.error('Please fill in all fields');
+    if (!emailInput.valueIsValid) {
+      toast.error(emailInput.errorMessage || 'Please enter a valid email address');
       return;
     }
-
-    if (newPassword !== confirmPassword) {
+    if (!otpInput.valueIsValid) {
+      toast.error(otpInput.errorMessage || 'Please enter OTP reset code');
+      return;
+    }
+    if (!newPasswordInput.valueIsValid) {
+      toast.error(newPasswordInput.errorMessage || 'Invalid password complexity');
+      return;
+    }
+    if (newPasswordInput.value !== confirmPasswordInput.value) {
       toast.error('Passwords do not match');
       return;
     }
@@ -37,10 +64,10 @@ export function ResetPasswordForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: email.trim(),
-          otp: otp.trim(),
-          newPassword,
-          confirmPassword,
+          email: emailInput.value.trim(),
+          otp: otpInput.value.trim(),
+          newPassword: newPasswordInput.value,
+          confirmPassword: confirmPasswordInput.value,
         }),
       });
       const data = await res.json();
@@ -73,41 +100,50 @@ export function ResetPasswordForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="auth-label">
           Email address
-          <div className="auth-input-wrap">
+          <div className={`auth-input-wrap ${emailInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
             <Mail />
             <input
               type="email"
               placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={emailInput.value}
+              onChange={(e) => emailInput.setValue(e.target.value)}
+              onBlur={emailInput.inputBlurHandler}
               required
             />
           </div>
+          {emailInput.hasError && emailInput.errorMessage && (
+            <span className="text-[11px] font-medium text-destructive mt-1 block">{emailInput.errorMessage}</span>
+          )}
         </label>
 
         <label className="auth-label">
           OTP Reset Code
-          <div className="auth-input-wrap">
+          <div className={`auth-input-wrap ${otpInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
             <KeyRound />
             <input
               type="text"
               placeholder="123456"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              value={otpInput.value}
+              onChange={(e) => otpInput.setValue(e.target.value)}
+              onBlur={otpInput.inputBlurHandler}
               required
             />
           </div>
+          {otpInput.hasError && otpInput.errorMessage && (
+            <span className="text-[11px] font-medium text-destructive mt-1 block">{otpInput.errorMessage}</span>
+          )}
         </label>
 
         <label className="auth-label">
           New Password
-          <div className="auth-input-wrap">
+          <div className={`auth-input-wrap ${newPasswordInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
             <LockKeyhole />
             <input
               type={showNewPassword ? 'text' : 'password'}
               placeholder="Uppercase, lowercase, number & special char"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              value={newPasswordInput.value}
+              onChange={(e) => newPasswordInput.setValue(e.target.value)}
+              onBlur={newPasswordInput.inputBlurHandler}
               required
             />
             <button
@@ -118,17 +154,21 @@ export function ResetPasswordForm() {
               {showNewPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
+          {newPasswordInput.hasError && newPasswordInput.errorMessage && (
+            <span className="text-[11px] font-medium text-destructive mt-1 block">{newPasswordInput.errorMessage}</span>
+          )}
         </label>
 
         <label className="auth-label">
           Confirm New Password
-          <div className="auth-input-wrap">
+          <div className={`auth-input-wrap ${confirmPasswordInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
             <LockKeyhole />
             <input
               type={showConfirmPassword ? 'text' : 'password'}
               placeholder="Repeat your new password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={confirmPasswordInput.value}
+              onChange={(e) => confirmPasswordInput.setValue(e.target.value)}
+              onBlur={confirmPasswordInput.inputBlurHandler}
               required
             />
             <button
@@ -139,6 +179,9 @@ export function ResetPasswordForm() {
               {showConfirmPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
+          {confirmPasswordInput.hasError && confirmPasswordInput.errorMessage && (
+            <span className="text-[11px] font-medium text-destructive mt-1 block">{confirmPasswordInput.errorMessage}</span>
+          )}
         </label>
 
         <button

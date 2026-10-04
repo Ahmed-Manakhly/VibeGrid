@@ -1,8 +1,10 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from '@/components/ui/toast';
+import { useInput } from '@/shared/presentation/hooks/useInput';
+import { validateEmail, validatePassword, validateRequired } from '@/shared/utils/validation';
 
 interface UseRegisterFormProps {
   initialEmail?: string
@@ -12,11 +14,24 @@ interface UseRegisterFormProps {
 export function useRegisterForm({ initialEmail = '', initialVerify = false }: UseRegisterFormProps) {
   const router = useRouter()
 
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState(initialEmail)
-  const [password, setPassword] = useState('')
+  const nameInput = useInput({
+    validators: [(val) => validateRequired(val, 'Display name')],
+  });
+
+  const emailInput = useInput({
+    initialValue: initialEmail,
+    validators: [validateEmail],
+  });
+
+  const passwordInput = useInput({
+    validators: [validatePassword],
+  });
+
+  const passwordConfirmInput = useInput({
+    validators: [(val) => validateRequired(val, 'Confirm password')],
+  });
+
   const [showPassword, setShowPassword] = useState(false)
-  const [passwordConfirm, setPasswordConfirm] = useState('')
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -30,18 +45,37 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
     e.preventDefault()
     setFormError(null)
 
-    if (!name || !email || !password || !passwordConfirm) {
-      const err = 'Please fill in all fields'
-      setFormError(err)
-      toast.error(err)
-      return
+    nameInput.inputBlurHandler();
+    emailInput.inputBlurHandler();
+    passwordInput.inputBlurHandler();
+    passwordConfirmInput.inputBlurHandler();
+
+    if (!nameInput.valueIsValid) {
+      const err = nameInput.errorMessage || 'Please enter display name';
+      setFormError(err);
+      toast.error(err);
+      return;
     }
 
-    if (password.trim() !== passwordConfirm.trim()) {
-      const err = 'Passwords do not match'
-      setFormError(err)
-      toast.error(err)
-      return
+    if (!emailInput.valueIsValid) {
+      const err = emailInput.errorMessage || 'Please enter a valid email';
+      setFormError(err);
+      toast.error(err);
+      return;
+    }
+
+    if (!passwordInput.valueIsValid) {
+      const err = passwordInput.errorMessage || 'Invalid password';
+      setFormError(err);
+      toast.error(err);
+      return;
+    }
+
+    if (passwordInput.value !== passwordConfirmInput.value) {
+      const err = 'Passwords do not match';
+      setFormError(err);
+      toast.error(err);
+      return;
     }
 
     setIsSubmitting(true)
@@ -49,7 +83,12 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, passwordConfirm }),
+        body: JSON.stringify({
+          name: nameInput.value,
+          email: emailInput.value,
+          password: passwordInput.value,
+          passwordConfirm: passwordConfirmInput.value,
+        }),
       })
       const data = await res.json()
 
@@ -93,7 +132,7 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
       const res = await fetch('/api/auth/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code: verificationCode.trim() }),
+        body: JSON.stringify({ email: emailInput.value, code: verificationCode.trim() }),
       })
       const data = await res.json()
 
@@ -121,7 +160,7 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
       const res = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: emailInput.value }),
       })
       const data = await res.json()
       if (data.success) {
@@ -135,16 +174,32 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
   }
 
   return {
-    name,
-    setName,
-    email,
-    setEmail,
-    password,
-    setPassword,
+    name: nameInput.value,
+    setName: nameInput.setValue,
+    nameHasError: nameInput.hasError,
+    nameError: nameInput.errorMessage,
+    nameBlur: nameInput.inputBlurHandler,
+
+    email: emailInput.value,
+    setEmail: emailInput.setValue,
+    emailHasError: emailInput.hasError,
+    emailError: emailInput.errorMessage,
+    emailBlur: emailInput.inputBlurHandler,
+
+    password: passwordInput.value,
+    setPassword: passwordInput.setValue,
+    passwordHasError: passwordInput.hasError,
+    passwordError: passwordInput.errorMessage,
+    passwordBlur: passwordInput.inputBlurHandler,
+
+    passwordConfirm: passwordConfirmInput.value,
+    setPasswordConfirm: passwordConfirmInput.setValue,
+    passwordConfirmHasError: passwordConfirmInput.hasError,
+    passwordConfirmError: passwordConfirmInput.errorMessage,
+    passwordConfirmBlur: passwordConfirmInput.inputBlurHandler,
+
     showPassword,
     setShowPassword,
-    passwordConfirm,
-    setPasswordConfirm,
     showPasswordConfirm,
     setShowPasswordConfirm,
     isSubmitting,

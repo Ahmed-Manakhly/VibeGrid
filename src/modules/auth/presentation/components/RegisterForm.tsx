@@ -15,16 +15,33 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
   const {
     name,
     setName,
+    nameHasError,
+    nameError,
+    nameBlur,
+
     email,
     setEmail,
+    emailHasError,
+    emailError,
+    emailBlur,
+
     password,
     setPassword,
-    showPassword,
-    setShowPassword,
+    passwordHasError,
+    passwordError,
+    passwordBlur,
+
     passwordConfirm,
     setPasswordConfirm,
+    passwordConfirmHasError,
+    passwordConfirmError,
+    passwordConfirmBlur,
+
+    showPassword,
+    setShowPassword,
     showPasswordConfirm,
     setShowPasswordConfirm,
+
     isSubmitting,
     requiresVerification,
     verificationCode,
@@ -38,7 +55,9 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault()
-    if (name.trim() && email.trim()) {
+    nameBlur()
+    emailBlur()
+    if (!nameHasError && !emailHasError && name.trim() && email.trim()) {
       setStep(2)
     }
   }
@@ -79,29 +98,37 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
             <form onSubmit={handleNextStep} className="flex flex-col gap-4">
               <label className="auth-label">
                 Display name
-                <div className="auth-input-wrap">
+                <div className={`auth-input-wrap ${nameHasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
                   <UserRound />
                   <input
                     type="text"
                     placeholder="Alex Rivera"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onBlur={nameBlur}
                     required
                   />
                 </div>
+                {nameHasError && nameError && (
+                  <span className="text-[11px] font-medium text-destructive mt-1 block">{nameError}</span>
+                )}
               </label>
               <label className="auth-label">
                 Email address
-                <div className="auth-input-wrap">
+                <div className={`auth-input-wrap ${emailHasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
                   <Mail />
                   <input
                     type="email"
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onBlur={emailBlur}
                     required
                   />
                 </div>
+                {emailHasError && emailError && (
+                  <span className="text-[11px] font-medium text-destructive mt-1 block">{emailError}</span>
+                )}
               </label>
 
               <button
@@ -116,13 +143,14 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
             <form onSubmit={handleRegister} className="flex flex-col gap-4">
               <label className="auth-label">
                 Password
-                <div className="auth-input-wrap">
+                <div className={`auth-input-wrap ${passwordHasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
                   <LockKeyhole />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Uppercase, lowercase, number & special char"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onBlur={passwordBlur}
                     required
                   />
                   <button
@@ -133,19 +161,24 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
                 </div>
-                <span className="text-[10px] text-muted-foreground mt-0.5">
-                  Must include 1 uppercase, 1 lowercase, 1 number, and 1 special character (e.g. Vibe#2026!).
-                </span>
+                {passwordHasError && passwordError ? (
+                  <span className="text-[11px] font-medium text-destructive mt-1 block">{passwordError}</span>
+                ) : (
+                  <span className="text-[10px] text-muted-foreground mt-0.5">
+                    Must include 1 uppercase, 1 lowercase, 1 number, and 1 special character (e.g. Vibe#2026!).
+                  </span>
+                )}
               </label>
               <label className="auth-label">
                 Confirm Password
-                <div className="auth-input-wrap">
+                <div className={`auth-input-wrap ${passwordConfirmHasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
                   <LockKeyhole />
                   <input
                     type={showPasswordConfirm ? 'text' : 'password'}
                     placeholder="Repeat your password"
                     value={passwordConfirm}
                     onChange={(e) => setPasswordConfirm(e.target.value)}
+                    onBlur={passwordConfirmBlur}
                     required
                   />
                   <button
@@ -156,6 +189,9 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
                     {showPasswordConfirm ? <EyeOff /> : <Eye />}
                   </button>
                 </div>
+                {passwordConfirmHasError && passwordConfirmError && (
+                  <span className="text-[11px] font-medium text-destructive mt-1 block">{passwordConfirmError}</span>
+                )}
               </label>
 
               <div className="flex flex-col gap-3 mt-2">
@@ -211,49 +247,46 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
           </div>
         </>
       ) : (
-        <>
-          <div className="my-4 text-center">
-            <p className="text-sm leading-6 text-muted-foreground">
-              We sent a verification code to <span className="font-medium text-foreground">{email}</span>.
-            </p>
-          </div>
-          <form onSubmit={handleVerifyEmail} className="flex flex-col gap-4">
-            <label className="auth-label">
-              Verification Code
-              <div className="auth-input-wrap">
-                <KeyRound />
-                <input
-                  type="text"
-                  placeholder="Enter 6-digit code"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  required
-                />
-              </div>
-            </label>
-            <button
-              className="button-glow h-11 rounded-xl font-semibold flex items-center justify-center gap-2"
-              type="submit"
-              disabled={isVerifying}
-            >
-              {isVerifying ? <Loader2 className="animate-spin size-4" /> : 'Verify Email'}
-            </button>
-          </form>
-          <div className="mt-3 text-center">
-            <button
-              type="button"
-              onClick={handleResendCode}
-              className="text-xs text-primary hover:underline"
-            >
-              Didn&apos;t receive a code? Resend
-            </button>
-          </div>
-        </>
+        <form onSubmit={handleVerifyEmail} className="flex flex-col gap-4">
+          <label className="auth-label">
+            Verification Code
+            <div className="auth-input-wrap">
+              <KeyRound />
+              <input
+                type="text"
+                placeholder="123456"
+                maxLength={6}
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                required
+              />
+            </div>
+            <span className="text-[10px] text-muted-foreground mt-0.5">
+              Enter the 6-digit code sent to your email address.
+            </span>
+          </label>
+
+          <button
+            className="btn-gradient h-11 rounded-xl font-semibold flex items-center justify-center gap-2 mt-2"
+            type="submit"
+            disabled={isVerifying}
+          >
+            {isVerifying ? <Loader2 className="animate-spin size-4" /> : 'Verify & Continue'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleResendCode}
+            className="text-xs text-accent hover:underline text-center mt-1"
+          >
+            Didn't receive code? Resend
+          </button>
+        </form>
       )}
 
-      <p className="mt-5 text-center text-xs text-muted-foreground">
-        Already on the grid?{' '}
-        <Link href="/login" className="font-medium text-accent hover:underline">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        Already have an account?{' '}
+        <Link href="/login" className="font-medium text-primary hover:underline">
           Log in
         </Link>
       </p>

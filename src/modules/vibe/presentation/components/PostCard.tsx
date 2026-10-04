@@ -1,3 +1,5 @@
+'use client';
+
 import { createComment, deletePost, getPosts, toggleLike, toggleBookmark, toggleReGrid } from '@/actions/post.action';
 import { useSession } from '@/components/auth/SessionProvider';
 import { useState, useEffect } from 'react';

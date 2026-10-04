@@ -5,16 +5,23 @@ import Link from 'next/link';
 import { Mail, Loader2, KeyRound } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
 import { useRouter } from 'next/navigation';
+import { useInput } from '@/shared/presentation/hooks/useInput';
+import { validateEmail } from '@/shared/utils/validation';
 
 export function ForgotPasswordForm() {
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const emailInput = useInput({
+    validators: [validateEmail],
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) {
-      toast.error('Please enter your email address');
+    emailInput.inputBlurHandler();
+
+    if (!emailInput.valueIsValid) {
+      toast.error(emailInput.errorMessage || 'Please enter a valid email address');
       return;
     }
 
@@ -23,13 +30,13 @@ export function ForgotPasswordForm() {
       const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: emailInput.value.trim() }),
       });
       const data = await res.json();
 
       if (data.success) {
         toast.success(data.message || 'OTP reset code sent to your email!');
-        router.push(`/reset-password?email=${encodeURIComponent(email.trim())}`);
+        router.push(`/reset-password?email=${encodeURIComponent(emailInput.value.trim())}`);
       } else {
         toast.error(data.message || 'Failed to send password reset code');
       }
@@ -55,16 +62,20 @@ export function ForgotPasswordForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <label className="auth-label">
           Email address
-          <div className="auth-input-wrap">
+          <div className={`auth-input-wrap ${emailInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}`}>
             <Mail />
             <input
               type="email"
               placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={emailInput.value}
+              onChange={(e) => emailInput.setValue(e.target.value)}
+              onBlur={emailInput.inputBlurHandler}
               required
             />
           </div>
+          {emailInput.hasError && emailInput.errorMessage && (
+            <span className="text-[11px] font-medium text-destructive mt-1 block">{emailInput.errorMessage}</span>
+          )}
         </label>
 
         <button
