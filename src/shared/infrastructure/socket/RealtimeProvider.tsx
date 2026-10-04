@@ -8,6 +8,7 @@ const RealtimeContext = createContext<ReturnType<typeof useRealtimeSocket>>({
   onlineUsers: new Set(),
   latestNotification: null,
   latestFeedSignal: null,
+  latestDirectMessage: null,
   unreadCount: 0,
   setUnreadCount: () => {},
   socket: null,

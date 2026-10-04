@@ -106,7 +106,7 @@ export class PrismaMessagingRepository implements IMessagingRepository {
 
     if (!conv) return null;
 
-    const userParticipant = conv.participants.find((p) => p.userId === currentUserId);
+    const userParticipant = conv.participants.find((p: any) => p.userId === currentUserId);
     const lastRead = userParticipant ? userParticipant.lastReadAt : new Date(0);
 
     const unreadCount = await this.prisma.directMessage.count({
@@ -156,8 +156,8 @@ export class PrismaMessagingRepository implements IMessagingRepository {
     });
 
     return Promise.all(
-      conversations.map(async (conv) => {
-        const participant = conv.participants.find((p) => p.userId === userId);
+      conversations.map(async (conv: any) => {
+        const participant = conv.participants.find((p: any) => p.userId === userId);
         const lastRead = participant ? participant.lastReadAt : new Date(0);
 
         const unreadCount = await this.prisma.directMessage.count({
