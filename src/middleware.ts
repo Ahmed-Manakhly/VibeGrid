@@ -148,12 +148,18 @@ export default async function middleware(req: NextRequest) {
 
   // 4. Auth-only routes (/login, /register) -> Redirect to homepage if authenticated
   const isAuthOnlyRoute = AUTH_ONLY_ROUTES.includes(pathname);
-  if (isAuthOnlyRoute && payload) {
-    logger.info('[AUTH_FORENSIC_TRACE] Redirecting auth-only route to home', { requestId, pathname });
-    return applyRefreshedCookies(NextResponse.redirect(new URL('/', req.url)));
+  if (isAuthOnlyRoute) {
+    if (req.nextUrl.searchParams.get('clear') === 'true' || req.nextUrl.searchParams.get('logout') === 'true') {
+      const res = NextResponse.next({ request: { headers: requestHeaders } });
+      return clearAuthCookies(res);
+    }
+    if (payload) {
+      logger.info('[AUTH_FORENSIC_TRACE] Redirecting auth-only route to home', { requestId, pathname });
+      return applyRefreshedCookies(NextResponse.redirect(new URL('/', req.url)));
+    }
   }
 
-  // 5. Protected routes (/profile, /settings, /create-post)
+  // 5. Protected routes (/profile, /settings, /create-post, /notifications, /messages, /bookmarks)
   const isProtectedRoute = PROTECTED_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
@@ -162,6 +168,7 @@ export default async function middleware(req: NextRequest) {
     logger.info('[AUTH_FORENSIC_TRACE] Redirecting unauthenticated user from protected route to login', { requestId, pathname });
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
+    loginUrl.searchParams.set('clear', 'true');
     return clearAuthCookies(NextResponse.redirect(loginUrl));
   }
 
