@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from '@/components/auth/SessionProvider';
 import { toast } from '@/components/ui/toast';
 import { useInput } from '@/shared/presentation/hooks/useInput';
-import { validateEmail, validateRequired } from '@/shared/utils/validation';
+import { validateEmail, validateRequired, normalizeEmail } from '@/shared/utils/validation';
 
 interface UseLoginFormProps {
   callbackUrl?: string;
@@ -50,10 +50,11 @@ export function useLoginForm({ callbackUrl = '/' }: UseLoginFormProps) {
 
     setIsSubmitting(true);
     try {
+      const normalizedEmail = normalizeEmail(emailInput.value);
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailInput.value, password: passwordInput.value }),
+        body: JSON.stringify({ email: normalizedEmail, password: passwordInput.value }),
       });
       const data = await res.json();
 

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from '@/components/ui/toast';
 import { useInput } from '@/shared/presentation/hooks/useInput';
-import { validateEmail, validatePassword, validateRequired } from '@/shared/utils/validation';
+import { validateEmail, validatePassword, validateRequired, normalizeEmail } from '@/shared/utils/validation';
 
 interface UseRegisterFormProps {
   initialEmail?: string
@@ -19,7 +19,7 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
   });
 
   const emailInput = useInput({
-    initialValue: initialEmail,
+    initialValue: initialEmail ? normalizeEmail(initialEmail) : '',
     validators: [validateEmail],
   });
 
@@ -80,12 +80,13 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
 
     setIsSubmitting(true)
     try {
+      const normalizedEmail = normalizeEmail(emailInput.value);
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: nameInput.value,
-          email: emailInput.value,
+          email: normalizedEmail,
           password: passwordInput.value,
           passwordConfirm: passwordConfirmInput.value,
         }),
@@ -129,10 +130,11 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
 
     setIsVerifying(true)
     try {
+      const normalizedEmail = normalizeEmail(emailInput.value);
       const res = await fetch('/api/auth/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailInput.value, code: verificationCode.trim() }),
+        body: JSON.stringify({ email: normalizedEmail, code: verificationCode.trim() }),
       })
       const data = await res.json()
 
@@ -151,7 +153,7 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: emailInput.value,
+          email: normalizedEmail,
           password: passwordInput.value,
         }),
       });
@@ -174,10 +176,11 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
 
   const handleResendCode = async () => {
     try {
+      const normalizedEmail = normalizeEmail(emailInput.value);
       const res = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailInput.value }),
+        body: JSON.stringify({ email: normalizedEmail }),
       })
       const data = await res.json()
       if (data.success) {

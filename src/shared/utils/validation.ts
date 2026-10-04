@@ -12,6 +12,10 @@ export const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,30}$/;
 
 export const DANGEROUS_URL_SCHEMES = ['javascript:', 'data:', 'vbscript:'];
 
+export const normalizeEmail = (email: string): string => {
+  return email ? email.trim().toLowerCase() : '';
+};
+
 export const validateEmail = (email: string): boolean | string => {
   const trimmed = email.trim();
   if (!trimmed) return 'Email address is required';
