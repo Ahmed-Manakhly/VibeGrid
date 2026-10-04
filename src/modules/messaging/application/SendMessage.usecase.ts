@@ -1,11 +1,13 @@
 import { IMessagingRepository } from "../domain/IMessagingRepository";
 import { DirectMessageEntity } from "../domain/MessageEntities";
 import { ICacheService } from "@/shared/application/ports/ICacheService";
+import { ITrustSafetyRepository } from "@/modules/safety/domain/ITrustSafetyRepository";
 
 export class SendMessageUseCase {
   constructor(
     private readonly messagingRepo: IMessagingRepository,
-    private readonly cacheService?: ICacheService
+    private readonly cacheService?: ICacheService,
+    private readonly safetyRepo?: ITrustSafetyRepository
   ) {}
 
   async execute(params: {
@@ -24,6 +26,20 @@ export class SendMessageUseCase {
     const isMember = await this.messagingRepo.isParticipant(params.conversationId, params.senderId);
     if (!isMember) {
       throw new Error("Unauthorized: Sender is not a participant in this conversation");
+    }
+
+    if (this.safetyRepo) {
+      const conv = await this.messagingRepo.getConversationById(params.conversationId, params.senderId);
+      if (conv) {
+        for (const p of conv.participants) {
+          if (p.userId !== params.senderId) {
+            const blocked = await this.safetyRepo.isBlocked(params.senderId, p.userId);
+            if (blocked) {
+              throw new Error("Cannot send message to a blocked user");
+            }
+          }
+        }
+      }
     }
 
     const message = await this.messagingRepo.saveMessage({

@@ -18,6 +18,8 @@ import {
     LinkIcon,
     MapPinIcon,
     MailIcon,
+    BanIcon,
+    ShieldAlertIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -105,23 +107,67 @@ function ProfilePageClient({
                                         Edit Profile
                                     </Button>
                                 ) : (
-                                    <div className="flex w-full gap-2 mt-4">
-                                        <FollowButton
-                                            className="flex-1"
-                                            targetUserId={user.id}
-                                            initialIsFollowing={initialIsFollowing}
-                                        />
-                                        <Button
-                                            variant="outline"
-                                            onClick={async () => {
-                                                const res = await startConversationAction(user.id);
-                                                if (res.success && res.conversation) {
-                                                    router.push(`/messages?conversationId=${res.conversation.id}`);
-                                                }
-                                            }}
-                                        >
-                                            <MailIcon className="size-4" />
-                                        </Button>
+                                    <div className="flex flex-col w-full gap-2 mt-4">
+                                        <div className="flex w-full gap-2">
+                                            <FollowButton
+                                                className="flex-1"
+                                                targetUserId={user.id}
+                                                initialIsFollowing={initialIsFollowing}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                title="Direct Message"
+                                                onClick={async () => {
+                                                    const res = await startConversationAction(user.id);
+                                                    if (res.success && res.conversation) {
+                                                        router.push(`/messages?conversationId=${res.conversation.id}`);
+                                                    } else if (res.error) {
+                                                        alert(res.error);
+                                                    }
+                                                }}
+                                            >
+                                                <MailIcon className="size-4" />
+                                            </Button>
+                                        </div>
+                                        <div className="flex w-full gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="flex-1 text-xs text-muted-foreground hover:text-destructive"
+                                                onClick={async () => {
+                                                    if (confirm(`Are you sure you want to block @${user.username}?`)) {
+                                                        const { blockUserAction } = await import("@/actions/safety.action");
+                                                        const res = await blockUserAction(user.id);
+                                                        if (res.success) alert(`Blocked @${user.username}`);
+                                                        else alert(res.error || "Failed to block");
+                                                    }
+                                                }}
+                                            >
+                                                <BanIcon className="size-3 mr-1" />
+                                                Block
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="flex-1 text-xs text-muted-foreground hover:text-destructive"
+                                                onClick={async () => {
+                                                    const reason = prompt(`Report @${user.username}. Reason (harassment, spam, etc.):`);
+                                                    if (reason) {
+                                                        const { createReportAction } = await import("@/actions/safety.action");
+                                                        const res = await createReportAction({
+                                                            targetType: "USER",
+                                                            targetId: user.id,
+                                                            reason,
+                                                        });
+                                                        if (res.success) alert("Report submitted successfully");
+                                                        else alert(res.error || "Failed to submit report");
+                                                    }
+                                                }}
+                                            >
+                                                <ShieldAlertIcon className="size-3 mr-1" />
+                                                Report
+                                            </Button>
+                                        </div>
                                     </div>
                                 )}
                                 <div className="w-full mt-6 space-y-3 text-sm text-left">

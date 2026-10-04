@@ -40,6 +40,9 @@ model User {
   interests            UserInterest[]
   conversationParticipants ConversationParticipant[]
   sentMessages         DirectMessage[]
+  blockedUsers         UserBlock[]     @relation("blocker")
+  blockedBy            UserBlock[]     @relation("blocked")
+  reportsSent          UserReport[]    @relation("reporter")
 }
 
 enum MediaType {
@@ -262,4 +265,31 @@ model DirectMessage {
   @@index([conversationId, createdAt])
   @@index([senderId])
 }
+
+model UserBlock {
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+  blocker   User     @relation("blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@id([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+model UserReport {
+  id          String   @id @default(cuid())
+  reporterId  String
+  targetType  String   // USER | POST | COMMENT
+  targetId    String
+  reason      String
+  description String?
+  createdAt   DateTime @default(now())
+  reporter    User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@index([reporterId])
+  @@index([targetType, targetId])
+}
+
 

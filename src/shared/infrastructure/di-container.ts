@@ -63,6 +63,10 @@ import { StartConversationUseCase } from "@/modules/messaging/application/StartC
 import { SendMessageUseCase } from "@/modules/messaging/application/SendMessage.usecase";
 import { GetConversationsUseCase, GetMessagesUseCase } from "@/modules/messaging/application/GetMessages.usecase";
 
+// Trust & Safety Module
+import { PrismaTrustSafetyRepository } from "@/modules/safety/infrastructure/PrismaTrustSafetyRepository";
+import { BlockUserUseCase, UnblockUserUseCase, CreateReportUseCase } from "@/modules/safety/application/TrustSafetyUseCases";
+
 // 0. Cache Singleton
 export const cacheService = new RedisCacheService();
 
@@ -77,14 +81,20 @@ const userInterestRepository = new PrismaUserInterestRepository(prisma);
 const taxonomyRepository = new PrismaTaxonomyRepository(prisma);
 const profileRepository = new PrismaProfileRepository(prisma);
 export const messagingRepository = new PrismaMessagingRepository(prisma);
+export const trustSafetyRepository = new PrismaTrustSafetyRepository(prisma);
 
 export const authGateway = new BffAuthGateway(prisma);
 export const eventBus = new TransactionalOutboxEventBus(outboxRepository);
 
 // 2. Instantiate Use Cases (Inject Repositories & Cache)
+// Safety
+export const blockUserUseCase = new BlockUserUseCase(trustSafetyRepository);
+export const unblockUserUseCase = new UnblockUserUseCase(trustSafetyRepository);
+export const createReportUseCase = new CreateReportUseCase(trustSafetyRepository);
+
 // Messaging
-export const startConversationUseCase = new StartConversationUseCase(messagingRepository);
-export const sendMessageUseCase = new SendMessageUseCase(messagingRepository, cacheService);
+export const startConversationUseCase = new StartConversationUseCase(messagingRepository, trustSafetyRepository);
+export const sendMessageUseCase = new SendMessageUseCase(messagingRepository, cacheService, trustSafetyRepository);
 export const getConversationsUseCase = new GetConversationsUseCase(messagingRepository);
 export const getMessagesUseCase = new GetMessagesUseCase(messagingRepository);
 
