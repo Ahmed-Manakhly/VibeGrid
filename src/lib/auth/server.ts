@@ -119,14 +119,18 @@ export async function getCurrentSession(): Promise<SessionResult> {
     const { prisma } = await import('@/shared/infrastructure/prisma');
     const dbUser = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { name: true, username: true },
+      select: { id: true, name: true, username: true },
     }).catch(() => null);
-    if (dbUser) {
-      if (dbUser.name) name = dbUser.name;
-      if (dbUser.username) username = dbUser.username;
+
+    if (!dbUser) {
+      logger.warn('[AUTH_FORENSIC_TRACE] getCurrentSession payload valid but user deleted from DB', { reqId, userId: payload.userId });
+      return { isAuthenticated: false, user: null };
     }
-  } catch {
-    // fallback if DB fails
+
+    if (dbUser.name) name = dbUser.name;
+    if (dbUser.username) username = dbUser.username;
+  } catch (err: any) {
+    logger.error('[AUTH_FORENSIC_TRACE] getCurrentSession DB check error', { reqId, error: err?.message });
   }
 
   return {
