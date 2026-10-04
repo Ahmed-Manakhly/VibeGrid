@@ -11,6 +11,8 @@ export class PrismaSocialRepository implements ISocialRepository {
             AND: [
               { NOT: { id: currentUserId } },
               { NOT: { followers: { some: { followerId: currentUserId } } } },
+              { NOT: { blockedUsers: { some: { blockedId: currentUserId } } } },
+              { NOT: { blockedBy: { some: { blockerId: currentUserId } } } },
             ],
           }
         : {};
