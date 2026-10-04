@@ -17,12 +17,14 @@ import {
     HeartIcon,
     LinkIcon,
     MapPinIcon,
+    MailIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
 import { EditProfileModal } from "@/modules/social/presentation/components/EditProfileModal";
+import { startConversationAction } from "@/actions/messaging.action";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type PostsResult = Awaited<ReturnType<typeof getPosts>>;
@@ -103,11 +105,24 @@ function ProfilePageClient({
                                         Edit Profile
                                     </Button>
                                 ) : (
-                                    <FollowButton
-                                        className="w-full mt-4"
-                                        targetUserId={user.id}
-                                        initialIsFollowing={initialIsFollowing}
-                                    />
+                                    <div className="flex w-full gap-2 mt-4">
+                                        <FollowButton
+                                            className="flex-1"
+                                            targetUserId={user.id}
+                                            initialIsFollowing={initialIsFollowing}
+                                        />
+                                        <Button
+                                            variant="outline"
+                                            onClick={async () => {
+                                                const res = await startConversationAction(user.id);
+                                                if (res.success && res.conversation) {
+                                                    router.push(`/messages?conversationId=${res.conversation.id}`);
+                                                }
+                                            }}
+                                        >
+                                            <MailIcon className="size-4" />
+                                        </Button>
+                                    </div>
                                 )}
                                 <div className="w-full mt-6 space-y-3 text-sm text-left">
                                     {user.location && (

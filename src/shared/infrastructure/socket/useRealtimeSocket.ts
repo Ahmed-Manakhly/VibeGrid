@@ -26,13 +26,24 @@ export interface PresenceSignal {
   timestamp: number;
 }
 
+export interface DirectMessageSignal {
+  messageId: string;
+  conversationId: string;
+  senderId: string;
+  senderName?: string;
+  content: string;
+  createdAt: string;
+}
+
 export interface RealtimeState {
   isConnected: boolean;
   onlineUsers: Set<string>;
   latestNotification: NotificationSignal | null;
   latestFeedSignal: FeedSignal | null;
+  latestDirectMessage: DirectMessageSignal | null;
   unreadCount: number;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
+  socket: Socket | null;
 }
 
 export function useRealtimeSocket() {
@@ -40,8 +51,10 @@ export function useRealtimeSocket() {
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [latestNotification, setLatestNotification] = useState<NotificationSignal | null>(null);
   const [latestFeedSignal, setLatestFeedSignal] = useState<FeedSignal | null>(null);
+  const [latestDirectMessage, setLatestDirectMessage] = useState<DirectMessageSignal | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const processedNotificationIds = useRef<Set<string>>(new Set());
+  const processedMessageIds = useRef<Set<string>>(new Set());
 
   const socketRef = useRef<Socket | null>(null);
 
@@ -119,6 +132,17 @@ export function useRealtimeSocket() {
       toast.info('⚡ New vibes available in your feed');
     });
 
+    socket.on('message:new', (signal: DirectMessageSignal) => {
+      if (signal.messageId && processedMessageIds.current.has(signal.messageId)) {
+        return;
+      }
+      if (signal.messageId) {
+        processedMessageIds.current.add(signal.messageId);
+      }
+
+      setLatestDirectMessage(signal);
+    });
+
     socket.on('presence:online', (presence: PresenceSignal) => {
       setOnlineUsers((prev) => {
         const next = new Set(prev);
@@ -146,6 +170,7 @@ export function useRealtimeSocket() {
     onlineUsers,
     latestNotification,
     latestFeedSignal,
+    latestDirectMessage,
     unreadCount,
     setUnreadCount,
     socket: socketRef.current,

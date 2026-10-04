@@ -57,6 +57,12 @@ import { CreateVibeTaxonomyUseCase } from "@/modules/taxonomy/application/Create
 import { PrismaOutboxRepository } from "@/modules/outbox/infrastructure/PrismaOutboxRepository";
 import { TransactionalOutboxEventBus } from "@/modules/outbox/infrastructure/TransactionalOutboxEventBus";
 
+// Messaging Module
+import { PrismaMessagingRepository } from "@/modules/messaging/infrastructure/PrismaMessagingRepository";
+import { StartConversationUseCase } from "@/modules/messaging/application/StartConversation.usecase";
+import { SendMessageUseCase } from "@/modules/messaging/application/SendMessage.usecase";
+import { GetConversationsUseCase, GetMessagesUseCase } from "@/modules/messaging/application/GetMessages.usecase";
+
 // 0. Cache Singleton
 export const cacheService = new RedisCacheService();
 
@@ -70,11 +76,18 @@ const socialRepository = new PrismaSocialRepository(prisma);
 const userInterestRepository = new PrismaUserInterestRepository(prisma);
 const taxonomyRepository = new PrismaTaxonomyRepository(prisma);
 const profileRepository = new PrismaProfileRepository(prisma);
+export const messagingRepository = new PrismaMessagingRepository(prisma);
 
 export const authGateway = new BffAuthGateway(prisma);
 export const eventBus = new TransactionalOutboxEventBus(outboxRepository);
 
 // 2. Instantiate Use Cases (Inject Repositories & Cache)
+// Messaging
+export const startConversationUseCase = new StartConversationUseCase(messagingRepository);
+export const sendMessageUseCase = new SendMessageUseCase(messagingRepository, cacheService);
+export const getConversationsUseCase = new GetConversationsUseCase(messagingRepository);
+export const getMessagesUseCase = new GetMessagesUseCase(messagingRepository);
+
 // Vibe
 export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus, cacheService);
 export const generateFeedUseCase = new GenerateFeedUseCase(

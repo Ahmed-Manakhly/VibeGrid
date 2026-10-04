@@ -1,0 +1,349 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { useSession } from "@/components/auth/SessionProvider";
+import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
+import {
+  getConversationsAction,
+  getMessagesAction,
+  sendMessageAction,
+} from "@/actions/messaging.action";
+import { UserAvatar } from "@/components/UserAvatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+export function MessagesPageClient() {
+  const { user: currentUser, isAuthenticated } = useSession();
+  const searchParams = useSearchParams();
+  const initialConvId = searchParams.get("conversationId");
+
+  const { latestDirectMessage } = useRealtime();
+
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(initialConvId);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [content, setContent] = useState("");
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Load conversations list
+  const loadConversations = async () => {
+    setLoadingConversations(true);
+    const res = await getConversationsAction();
+    if (res.success && res.conversations) {
+      setConversations(res.conversations);
+      if (!activeConversationId && res.conversations.length > 0) {
+        setActiveConversationId(res.conversations[0].id);
+      }
+    }
+    setLoadingConversations(false);
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadConversations();
+    }
+  }, [isAuthenticated]);
+
+  // Load messages for active conversation
+  useEffect(() => {
+    if (!activeConversationId) return;
+
+    async function loadMessages() {
+      setLoadingMessages(true);
+      const res = await getMessagesAction(activeConversationId as string);
+      if (res.success) {
+        setMessages(res.messages || []);
+        setNextCursor(res.nextCursor || null);
+        // Clear unread indicator locally for active conversation
+        setConversations((prev) =>
+          prev.map((c) => (c.id === activeConversationId ? { ...c, unreadCount: 0 } : c))
+        );
+      }
+      setLoadingMessages(false);
+    }
+
+    loadMessages();
+  }, [activeConversationId]);
+
+  // Scroll to bottom on initial message load or new message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
+
+  // Handle incoming realtime direct messages
+  useEffect(() => {
+    if (!latestDirectMessage) return;
+
+    const { conversationId, messageId, senderId, senderName, content: msgContent, createdAt } = latestDirectMessage;
+
+    // If message is for currently open conversation, append to list
+    if (conversationId === activeConversationId) {
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === messageId)) return prev;
+        return [
+          ...prev,
+          {
+            id: messageId,
+            conversationId,
+            senderId,
+            content: msgContent,
+            createdAt: new Date(createdAt),
+            sender: { id: senderId, name: senderName, username: senderName, image: null },
+          },
+        ];
+      });
+    }
+
+    // Update conversation list item
+    setConversations((prev) => {
+      const idx = prev.findIndex((c) => c.id === conversationId);
+      if (idx !== -1) {
+        const updated = [...prev];
+        const conv = updated[idx];
+        const isCurrentActive = conversationId === activeConversationId;
+        updated[idx] = {
+          ...conv,
+          updatedAt: new Date(createdAt),
+          latestMessage: { id: messageId, content: msgContent, createdAt: new Date(createdAt), senderId },
+          unreadCount: isCurrentActive ? 0 : (conv.unreadCount || 0) + 1,
+        };
+        // Re-sort list by newest update
+        return updated.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      } else {
+        // Refresh full conversation list if new conversation appeared
+        loadConversations();
+        return prev;
+      }
+    });
+  }, [latestDirectMessage, activeConversationId]);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!content.trim() || !activeConversationId || sending) return;
+
+    const tempContent = content;
+    setContent("");
+    setSending(true);
+
+    const res = await sendMessageAction(activeConversationId, tempContent);
+    setSending(false);
+
+    if (res.success && res.message) {
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === res.message.id)) return prev;
+        return [...prev, res.message];
+      });
+
+      // Update conversations sidebar
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === activeConversationId
+            ? {
+                ...c,
+                updatedAt: new Date(),
+                latestMessage: res.message,
+              }
+            : c
+        )
+      );
+    }
+  };
+
+  const handleLoadOlder = async () => {
+    if (!activeConversationId || !nextCursor || loadingMore) return;
+    setLoadingMore(true);
+
+    const res = await getMessagesAction(activeConversationId, 20, nextCursor);
+    if (res.success) {
+      setMessages((prev) => [...(res.messages || []), ...prev]);
+      setNextCursor(res.nextCursor || null);
+    }
+    setLoadingMore(false);
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <MessageSquareIcon className="size-12 text-muted-foreground" />
+        <h2 className="text-xl font-bold">Sign in to view messages</h2>
+      </div>
+    );
+  }
+
+  const activeConversation = conversations.find((c) => c.id === activeConversationId);
+  const otherParticipant = activeConversation?.participants.find(
+    (p: any) => p.userId !== currentUser?.id
+  )?.user;
+
+  return (
+    <div className="w-full h-[calc(100vh-80px)] p-2 sm:p-4 flex gap-4 overflow-hidden">
+      {/* Conversations List Sidebar */}
+      <div
+        className={`w-full md:w-80 shrink-0 flex flex-col border rounded-xl bg-card overflow-hidden ${
+          activeConversationId ? "hidden md:flex" : "flex"
+        }`}
+      >
+        <div className="p-4 border-b font-bold text-lg flex items-center justify-between">
+          <span>Messages</span>
+        </div>
+
+        <div className="flex-1 overflow-y-auto divide-y">
+          {loadingConversations ? (
+            <div className="flex justify-center p-8">
+              <Loader2Icon className="animate-spin text-muted-foreground" />
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground text-sm">
+              No conversations yet. Start messaging developers from their profiles!
+            </div>
+          ) : (
+            conversations.map((conv) => {
+              const other = conv.participants.find((p: any) => p.userId !== currentUser?.id)?.user;
+              const isActive = conv.id === activeConversationId;
+              const hasUnread = conv.unreadCount && conv.unreadCount > 0;
+
+              return (
+                <button
+                  key={conv.id}
+                  onClick={() => setActiveConversationId(conv.id)}
+                  className={`w-full p-3 flex items-center gap-3 text-left transition hover:bg-accent/50 ${
+                    isActive ? "bg-accent" : ""
+                  }`}
+                >
+                  <UserAvatar src={other?.image} name={other?.name} className="size-10 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex justify-between items-baseline">
+                      <span className="font-semibold text-sm truncate">{other?.name || other?.username || "Developer"}</span>
+                      {conv.latestMessage && (
+                        <span className="text-[10px] text-muted-foreground shrink-0 ml-1">
+                          {formatDistanceToNow(new Date(conv.latestMessage.createdAt), { addSuffix: false })}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex justify-between items-center mt-1">
+                      <p className={`text-xs truncate ${hasUnread ? "font-bold text-foreground" : "text-muted-foreground"}`}>
+                        {conv.latestMessage?.content || "Started a conversation"}
+                      </p>
+                      {hasUnread && (
+                        <span className="size-2 rounded-full bg-primary shrink-0 ml-2" />
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Active Conversation View */}
+      <div
+        className={`flex-1 flex flex-col border rounded-xl bg-card overflow-hidden ${
+          !activeConversationId ? "hidden md:flex" : "flex"
+        }`}
+      >
+        {activeConversationId ? (
+          <>
+            {/* Header */}
+            <div className="p-3 sm:p-4 border-b flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden size-8"
+                onClick={() => setActiveConversationId(null)}
+              >
+                <ArrowLeftIcon className="size-4" />
+              </Button>
+              <UserAvatar src={otherParticipant?.image} name={otherParticipant?.name} className="size-9" />
+              <div>
+                <h3 className="font-semibold text-sm">{otherParticipant?.name || otherParticipant?.username || "Developer"}</h3>
+                <p className="text-xs text-muted-foreground">@{otherParticipant?.username}</p>
+              </div>
+            </div>
+
+            {/* Messages Body */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {nextCursor && (
+                <div className="flex justify-center my-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadOlder}
+                    disabled={loadingMore}
+                    className="text-xs"
+                  >
+                    {loadingMore ? <Loader2Icon className="animate-spin size-3 mr-1" /> : null}
+                    Load older messages
+                  </Button>
+                </div>
+              )}
+
+              {loadingMessages ? (
+                <div className="flex justify-center p-8">
+                  <Loader2Icon className="animate-spin text-muted-foreground" />
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="text-center text-muted-foreground text-sm my-12">
+                  Say hello to {otherParticipant?.name || "this developer"}! 👋
+                </div>
+              ) : (
+                messages.map((msg) => {
+                  const isMe = msg.senderId === currentUser?.id;
+                  return (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                    >
+                      <div
+                        className={`max-w-[75%] sm:max-w-[65%] rounded-2xl px-4 py-2 text-sm break-words ${
+                          isMe
+                            ? "bg-primary text-primary-foreground rounded-br-none"
+                            : "bg-muted text-foreground rounded-bl-none"
+                        }`}
+                      >
+                        {msg.content}
+                      </div>
+                      <span className="text-[10px] text-muted-foreground mt-1 px-1">
+                        {formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input Composer */}
+            <form onSubmit={handleSend} className="p-3 border-t flex gap-2 items-center">
+              <Input
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Write a message..."
+                maxLength={2000}
+                className="flex-1 text-sm focus-visible:ring-1"
+              />
+              <Button type="submit" size="icon" disabled={!content.trim() || sending}>
+                {sending ? <Loader2Icon className="animate-spin size-4" /> : <SendIcon className="size-4" />}
+              </Button>
+            </form>
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
+            <MessageSquareIcon className="size-12 stroke-[1.5]" />
+            <p className="text-sm">Select a conversation or start a new message</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
