@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Link from 'next/link';
 import { deleteComment, createComment } from '@/actions/post.action';
 import { toast } from '@/components/ui/toast';
 import { UserAvatar } from '@/components/UserAvatar';
@@ -99,11 +100,17 @@ export function CommentCard({
     return (
         <div className={`space-y-3 ${isReply ? 'ml-6 sm:ml-8 pt-2 border-l-2 border-border/40 pl-3 sm:pl-4' : ''}`}>
             <div className="flex space-x-3 group relative">
-                <UserAvatar src={comment.author.image} name={comment.author.name} className={`${isReply ? 'size-7' : 'size-8'} flex-shrink-0`} />
+                <Link href={`/profile/${comment.author.username || comment.author.id}`}>
+                    <UserAvatar src={comment.author.image} name={comment.author.name} className={`${isReply ? 'size-7' : 'size-8'} flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity`} />
+                </Link>
                 <div className="flex-1 min-w-0 pr-12">
                     <div className="flex items-center gap-x-1 sm:gap-x-2 text-[11px] sm:text-xs text-muted-foreground truncate min-w-0">
-                        <span className="font-medium text-[13px] sm:text-sm text-foreground truncate">{comment.author.name}</span>
-                        <span className="truncate">@{comment.author.username}</span>
+                        <Link href={`/profile/${comment.author.username || comment.author.id}`} className="font-medium text-[13px] sm:text-sm text-foreground truncate hover:underline">
+                            {comment.author.name || comment.author.username}
+                        </Link>
+                        <Link href={`/profile/${comment.author.username || comment.author.id}`} className="truncate hover:underline">
+                            @{comment.author.username}
+                        </Link>
                         <span className="shrink-0">•</span>
                         <span className="shrink-0 hidden sm:inline" suppressHydrationWarning>{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
                         <span className="shrink-0 sm:hidden" suppressHydrationWarning>{formatRelativeTime(new Date(comment.createdAt))}</span>

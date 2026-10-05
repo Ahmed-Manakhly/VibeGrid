@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "@/components/auth/SessionProvider";
@@ -264,11 +265,15 @@ export function MessagesPageClient() {
               >
                 <ArrowLeftIcon className="size-4" />
               </Button>
-              <UserAvatar src={otherParticipant?.image} name={otherParticipant?.name} className="size-9" />
-              <div>
-                <h3 className="font-semibold text-sm">{otherParticipant?.name || otherParticipant?.username || "Developer"}</h3>
-                <p className="text-xs text-muted-foreground">@{otherParticipant?.username}</p>
-              </div>
+              {otherParticipant && (
+                <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`} className="flex items-center gap-3 group">
+                  <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-9 group-hover:opacity-80 transition-opacity" />
+                  <div>
+                    <h3 className="font-semibold text-sm group-hover:underline">{otherParticipant.name || otherParticipant.username || "Developer"}</h3>
+                    <p className="text-xs text-muted-foreground">@{otherParticipant.username}</p>
+                  </div>
+                </Link>
+              )}
             </div>
 
             {/* Messages Body */}
