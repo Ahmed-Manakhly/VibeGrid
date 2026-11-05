@@ -44,6 +44,7 @@ model User {
   blockedBy            UserBlock[]     @relation("blocked")
   reportsSent          UserReport[]    @relation("reporter")
   followedTags         TagFollow[]
+  solutionsCount       Int             @default(0)
 }
 
 enum MediaType {
@@ -61,24 +62,28 @@ model Post {
   vibeId        String?
   postType      PostType        @default(STANDARD)
   techContext   Json?
-  quotedPostId  String?
-  quotedPost    Post?           @relation("QuoteReferences", fields: [quotedPostId], references: [id], onDelete: SetNull)
-  quotes        Post[]          @relation("QuoteReferences")
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  author        User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  category      Category?       @relation(fields: [categoryId], references: [id])
-  vibe          Vibe?           @relation(fields: [vibeId], references: [id])
-  tags          PostTag[]
-  comments      Comment[]
-  likes         Like[]
-  bookmarks     Bookmark[]
-  notifications Notifications[]
-  regrids       ReGrid[]
+  quotedPostId      String?
+  quotedPost        Post?           @relation("QuoteReferences", fields: [quotedPostId], references: [id], onDelete: SetNull)
+  quotes            Post[]          @relation("QuoteReferences")
+  solvedAt          DateTime?
+  acceptedAnswerId  String?
+  acceptedAnswer    Comment?        @relation("AcceptedAnswer", fields: [acceptedAnswerId], references: [id], onDelete: SetNull)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  author            User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category          Category?       @relation(fields: [categoryId], references: [id])
+  vibe              Vibe?           @relation(fields: [vibeId], references: [id])
+  tags              PostTag[]
+  comments          Comment[]
+  likes             Like[]
+  bookmarks         Bookmark[]
+  notifications     Notifications[]
+  regrids           ReGrid[]
 
   @@index([authorId, createdAt(sort: Desc)])
   @@index([createdAt(sort: Desc), id(sort: Desc)])
   @@index([quotedPostId])
+  @@index([postType, solvedAt])
 }
 
 enum PostType {
@@ -91,20 +96,23 @@ enum PostType {
 }
 
 model Comment {
-  id            String          @id @default(cuid())
-  content       String
-  authorId      String
-  postId        String
-  parentId      String?
-  createdAt     DateTime        @default(now())
-  author        User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  post          Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
-  parent        Comment?        @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies       Comment[]       @relation("CommentReplies")
-  notifications Notifications[]
+  id               String          @id @default(cuid())
+  content          String
+  authorId         String
+  postId           String
+  parentId         String?
+  isSolution       Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  author           User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post             Post            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent           Comment?        @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies          Comment[]       @relation("CommentReplies")
+  acceptedForPosts Post[]          @relation("AcceptedAnswer")
+  notifications    Notifications[]
 
   @@index([authorId, postId])
   @@index([parentId])
+  @@index([postId, isSolution])
 }
 
 model Like {

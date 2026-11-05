@@ -55,6 +55,10 @@ import { CreateVibeTaxonomyUseCase } from "@/modules/taxonomy/application/Create
 import { PrismaTagFollowRepository } from "@/modules/taxonomy/infrastructure/PrismaTagFollowRepository";
 import { ToggleFollowTagUseCase } from "@/modules/taxonomy/application/ToggleFollowTag.usecase";
 
+// QA Module
+import { PrismaQARepository } from "@/modules/qa/infrastructure/PrismaQARepository";
+import { AcceptSolutionUseCase, UnacceptSolutionUseCase } from "@/modules/qa/application/AcceptSolution.usecase";
+
 // Outbox Module
 import { PrismaOutboxRepository } from "@/modules/outbox/infrastructure/PrismaOutboxRepository";
 import { TransactionalOutboxEventBus } from "@/modules/outbox/infrastructure/TransactionalOutboxEventBus";
@@ -147,6 +151,11 @@ export const getTaxonomyUseCase = new GetTaxonomyUseCase(taxonomyRepository, cac
 export const getTrendingTagsUseCase = new GetTrendingTagsUseCase(taxonomyRepository);
 export const createCategoryUseCase = new CreateCategoryUseCase(taxonomyRepository);
 export const createVibeTaxonomyUseCase = new CreateVibeTaxonomyUseCase(taxonomyRepository);
+
+// QA Module
+export const qaRepository = new PrismaQARepository(prisma);
+export const acceptSolutionUseCase = new AcceptSolutionUseCase(qaRepository);
+export const unacceptSolutionUseCase = new UnacceptSolutionUseCase(qaRepository);
 
 // Initialize Event Handlers
 export const notificationEventHandler = new NotificationEventHandler(notificationRepository, eventBus);
