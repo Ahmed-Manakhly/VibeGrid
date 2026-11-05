@@ -5,6 +5,7 @@ import { Zap, UserRound, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { UserAvatar } from '@/components/UserAvatar';
 import FollowButton from '@/components/FollowButton';
+import { FollowTagButton } from '@/components/FollowTagButton';
 
 type TrendingTag = {
   tag: {
@@ -91,15 +92,18 @@ export function TrendingSidebar() {
                 No trending topics yet.
               </div>
             ) : (
-              <div className="mt-5 flex flex-col gap-5">
+              <div className="mt-5 flex flex-col gap-4">
                   {trending.map((item, index) => (
-                      <Link href={`/explore?tag=${item.tag.slug}`} key={item.tag.id} className="group flex gap-4">
-                          <span className="font-mono text-xs text-primary">{(index + 1).toString().padStart(2, '0')}</span>
-                          <span>
-                              <span className="block text-sm font-medium transition group-hover:text-primary">#{item.tag.name}</span>
-                              <span className="mt-1 block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{item.recentCount} posts</span>
-                          </span>
-                      </Link>
+                      <div key={item.tag.id} className="flex items-center justify-between gap-3 group">
+                          <Link href={`/explore?tag=${item.tag.slug}`} className="flex items-center gap-3 min-w-0 flex-1">
+                              <span className="font-mono text-xs text-primary">{(index + 1).toString().padStart(2, '0')}</span>
+                              <div className="min-w-0">
+                                  <span className="block text-sm font-medium transition group-hover:text-primary truncate">#{item.tag.name}</span>
+                                  <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{item.recentCount} posts</span>
+                              </div>
+                          </Link>
+                          <FollowTagButton tagId={item.tag.id} tagName={item.tag.name} variant="compact" />
+                      </div>
                   ))}
               </div>
             )}

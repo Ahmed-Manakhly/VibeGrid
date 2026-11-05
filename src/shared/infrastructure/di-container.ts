@@ -52,6 +52,8 @@ import { GetTaxonomyUseCase } from "@/modules/taxonomy/application/GetTaxonomy.u
 import { GetTrendingTagsUseCase } from "@/modules/taxonomy/application/GetTrendingTags.usecase";
 import { CreateCategoryUseCase } from "@/modules/taxonomy/application/CreateCategory.usecase";
 import { CreateVibeTaxonomyUseCase } from "@/modules/taxonomy/application/CreateVibeTaxonomy.usecase";
+import { PrismaTagFollowRepository } from "@/modules/taxonomy/infrastructure/PrismaTagFollowRepository";
+import { ToggleFollowTagUseCase } from "@/modules/taxonomy/application/ToggleFollowTag.usecase";
 
 // Outbox Module
 import { PrismaOutboxRepository } from "@/modules/outbox/infrastructure/PrismaOutboxRepository";
@@ -82,6 +84,7 @@ const taxonomyRepository = new PrismaTaxonomyRepository(prisma);
 const profileRepository = new PrismaProfileRepository(prisma);
 export const messagingRepository = new PrismaMessagingRepository(prisma);
 export const trustSafetyRepository = new PrismaTrustSafetyRepository(prisma);
+export const tagFollowRepository = new PrismaTagFollowRepository(prisma);
 
 export const authGateway = new BffAuthGateway(prisma);
 export const eventBus = new TransactionalOutboxEventBus(outboxRepository);
@@ -104,10 +107,14 @@ export const generateFeedUseCase = new GenerateFeedUseCase(
   vibeRepository, 
   cacheService, 
   socialRepository, 
-  userInterestRepository
+  userInterestRepository,
+  tagFollowRepository
 );
 export const deleteVibeUseCase = new DeleteVibeUseCase(vibeRepository, eventBus, cacheService);
 export const getPostByIdUseCase = new (require('@/modules/vibe/application/GetPostById.usecase').GetPostByIdUseCase)(vibeRepository);
+
+// Taxonomy
+export const toggleFollowTagUseCase = new ToggleFollowTagUseCase(tagFollowRepository, cacheService);
 
 // Engagement
 export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository, eventBus);

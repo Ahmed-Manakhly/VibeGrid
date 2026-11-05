@@ -4,6 +4,7 @@ import { ICacheService } from "@/shared/application/ports/ICacheService";
 import { FeedRecommendationScorer, FeedScoringContext } from "../domain/FeedRecommendationScorer";
 import { ISocialRepository } from "@/modules/social/domain/ISocialRepository";
 import { IUserInterestRepository } from "@/modules/social/domain/IUserInterestRepository";
+import { ITagFollowRepository } from "@/modules/taxonomy/domain/ITagFollowRepository";
 
 export class GenerateFeedUseCase {
   private scorer = new FeedRecommendationScorer();
@@ -12,7 +13,8 @@ export class GenerateFeedUseCase {
     private repo: IVibeRepository,
     private cacheService?: ICacheService,
     private socialRepo?: ISocialRepository,
-    private userInterestRepo?: IUserInterestRepository
+    private userInterestRepo?: IUserInterestRepository,
+    private tagFollowRepo?: ITagFollowRepository
   ) {}
 
   async execute(params: ExplorePostsCriteria = {}): Promise<ExplorePostsResult<VibePost>> {
@@ -61,15 +63,17 @@ export class GenerateFeedUseCase {
     let scoringContext: FeedScoringContext = {};
     if (userId) {
       try {
-        const [followingIds, userInterests] = await Promise.all([
+        const [followingIds, userInterests, followedTagIds] = await Promise.all([
           this.socialRepo ? this.socialRepo.getFollowingIds(userId) : Promise.resolve([]),
           this.userInterestRepo ? this.userInterestRepo.getUserInterests(userId) : Promise.resolve([]),
+          this.tagFollowRepo ? this.tagFollowRepo.getFollowedTagIds(userId) : Promise.resolve([]),
         ]);
 
         scoringContext = {
           userId,
           followedAuthorIds: new Set(followingIds),
           userInterestedCategoryIds: new Set(userInterests.map((cat: any) => cat.id)),
+          followedTagIds: new Set(followedTagIds),
         };
       } catch (err) {
         // Fallback to unpersonalized context on repository error

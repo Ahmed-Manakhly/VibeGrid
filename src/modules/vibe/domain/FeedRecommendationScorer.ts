@@ -4,6 +4,7 @@ export interface FeedScoringContext {
   userId?: string;
   userInterestedCategoryIds?: Set<string>;
   followedAuthorIds?: Set<string>;
+  followedTagIds?: Set<string>;
 }
 
 export class FeedRecommendationScorer {
@@ -21,13 +22,21 @@ export class FeedRecommendationScorer {
       score += 35;
     }
 
-    // 2. User Interest Relevance Signal (+25 points if post category matches user interest)
+    // 2. User Interest & Followed Tech Tags Relevance Signal (+25 points each)
     if (
       context.userInterestedCategoryIds &&
       post.category?.id &&
       context.userInterestedCategoryIds.has(post.category.id)
     ) {
       score += 25;
+    }
+
+    // Followed Technology Tag Boost (+25 points if post has a tag the user follows)
+    if (context.followedTagIds && post.tags && post.tags.length > 0) {
+      const hasFollowedTag = post.tags.some(t => context.followedTagIds!.has(t.tag.id) || context.followedTagIds!.has(t.tag.slug));
+      if (hasFollowedTag) {
+        score += 25;
+      }
     }
 
     // 3. Normalized & Bounded Engagement Signal (Max 30 points)

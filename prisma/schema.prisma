@@ -43,6 +43,7 @@ model User {
   blockedUsers         UserBlock[]     @relation("blocker")
   blockedBy            UserBlock[]     @relation("blocked")
   reportsSent          UserReport[]    @relation("reporter")
+  followedTags         TagFollow[]
 }
 
 enum MediaType {
@@ -181,11 +182,30 @@ model Vibe {
 }
 
 model Tag {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  slug      String    @unique
-  createdAt DateTime  @default(now())
-  posts     PostTag[]
+  id             String      @id @default(cuid())
+  name           String      @unique
+  slug           String      @unique
+  followersCount Int         @default(0)
+  createdAt      DateTime    @default(now())
+  posts          PostTag[]
+  followers      TagFollow[]
+
+  @@index([slug])
+  @@index([followersCount(sort: Desc)])
+}
+
+model TagFollow {
+  id        String   @id @default(cuid())
+  userId    String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tagId])
+  @@index([userId])
+  @@index([tagId])
 }
 
 model PostTag {
