@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, FilmIcon, Loader2Icon, SendIcon, CodeIcon } from "lucide-react";
+import { ImageIcon, FilmIcon, Loader2Icon, SendIcon, CodeIcon, RocketIcon } from "lucide-react";
 import { createPostFormAction } from "@/actions/post.action";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
@@ -57,6 +57,11 @@ export default function CreatPost() {
     const [imageUrl, setImageUrl] = useState("");
     const [showImageUpload, setShowImageUpload] = useState(false);
     const [showCodeBlock, setShowCodeBlock] = useState(false);
+    const [showShipMode, setShowShipMode] = useState(false);
+    const [projectName, setProjectName] = useState("");
+    const [demoUrl, setDemoUrl] = useState("");
+    const [repoUrl, setRepoUrl] = useState("");
+    const [techStack, setTechStack] = useState("");
     const [codeSnippet, setCodeSnippet] = useState("");
     const [codeLanguage, setCodeLanguage] = useState("typescript");
     const [isExpanded, setIsExpanded] = useState(false);
@@ -81,6 +86,11 @@ export default function CreatPost() {
             setContentVal("");
             setImageUrl("");
             setCodeSnippet("");
+            setShowShipMode(false);
+            setProjectName("");
+            setDemoUrl("");
+            setRepoUrl("");
+            setTechStack("");
             setShowImageUpload(false);
             setShowCodeBlock(false);
             setIsExpanded(false);
@@ -116,9 +126,14 @@ export default function CreatPost() {
         setIsExpanded(false);
         setShowImageUpload(false);
         setShowCodeBlock(false);
+        setShowShipMode(false);
         setContentVal('');
         setImageUrl('');
         setCodeSnippet('');
+        setProjectName('');
+        setDemoUrl('');
+        setRepoUrl('');
+        setTechStack('');
         formRef.current?.reset();
     };
 
@@ -231,6 +246,56 @@ export default function CreatPost() {
                                 </div>
                             )}
 
+                            {showShipMode && (
+                                <div className="border border-violet-500/40 rounded-2xl p-4 bg-gradient-to-br from-violet-950/20 via-background/80 to-purple-950/10 space-y-3.5 backdrop-blur-sm shadow-md">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <RocketIcon className="size-4 text-violet-400 animate-pulse" />
+                                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-violet-300">Show & Ship Mode</span>
+                                        </div>
+                                        <span className="text-[11px] text-muted-foreground font-mono">Project Launch</span>
+                                    </div>
+
+                                    <input type="hidden" name="isShip" value="true" />
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <Input
+                                            name="projectName"
+                                            placeholder="Project Name (e.g. VibeGrid)"
+                                            value={projectName}
+                                            onChange={(e) => setProjectName(e.target.value)}
+                                            className="h-9 text-xs sm:text-sm bg-background/80 border-violet-500/30 rounded-xl"
+                                        />
+                                        <Input
+                                            name="techStack"
+                                            placeholder="Tech Stack (comma separated: Next.js, Prisma, Tailwind)"
+                                            value={techStack}
+                                            onChange={(e) => setTechStack(e.target.value)}
+                                            className="h-9 text-xs sm:text-sm bg-background/80 border-violet-500/30 rounded-xl"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <Input
+                                            name="demoUrl"
+                                            type="url"
+                                            placeholder="Live Demo URL (https://...)"
+                                            value={demoUrl}
+                                            onChange={(e) => setDemoUrl(e.target.value)}
+                                            className="h-9 text-xs sm:text-sm bg-background/80 border-violet-500/30 rounded-xl"
+                                        />
+                                        <Input
+                                            name="repoUrl"
+                                            type="url"
+                                            placeholder="Repository URL (https://github.com/...)"
+                                            value={repoUrl}
+                                            onChange={(e) => setRepoUrl(e.target.value)}
+                                            className="h-9 text-xs sm:text-sm bg-background/80 border-violet-500/30 rounded-xl"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
                             {(showImageUpload || imageUrl) && (
                                 <div className="border rounded-lg p-4">
                                     <ImageUpload endpoint="postImage" value={imageUrl} onChange={(url) => { setImageUrl(url); if (!url) setShowImageUpload(false); }} />
@@ -257,12 +322,18 @@ export default function CreatPost() {
                                         <CodeIcon className="size-4 mr-1.5" />
                                         Code
                                     </Button>
+                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-violet-400 hover:bg-violet-500/10 transition-all rounded-xl ${showShipMode ? "text-violet-400 bg-violet-500/15 border border-violet-500/30" : "text-muted-foreground"}`}
+                                        onClick={() => setShowShipMode(!showShipMode)}
+                                    >
+                                        <RocketIcon className="size-4 mr-1.5" />
+                                        Ship
+                                    </Button>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Button type="button" variant="ghost" className="text-muted-foreground hover:bg-transparent hover:text-foreground" onClick={handleCancel}>
                                         Cancel
                                     </Button>
-                                    <SubmitButton disabled={!contentVal.trim() && !imageUrl && !codeSnippet.trim()} />
+                                    <SubmitButton disabled={!contentVal.trim() && !imageUrl && !codeSnippet.trim() && !projectName.trim()} />
                                 </div>
                             </div>
                         </>

@@ -9,6 +9,7 @@ import { CodeBlockViewer } from './CodeBlockViewer';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PostDeleteAction } from './PostDeleteAction';
 import { PostInteractiveContainer } from './PostInteractiveContainer';
+import { ProjectShipCard } from './ProjectShipCard';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>;
 type post = FeedResponse['data'][number] & {
@@ -19,6 +20,8 @@ type post = FeedResponse['data'][number] & {
   mediaType?: any;
   bookmarks?: any[];
   regrids?: any[];
+  techContext?: any;
+  postType?: string;
 };
 
 interface PostCardProps {
@@ -119,6 +122,18 @@ export function PostCard({
                 language={structuredContent.codeBlock.language}
                 code={structuredContent.codeBlock.code}
               />
+            )}
+
+            {post.techContext && (post.postType === 'ship' || post.techContext.isShip) && (
+              <div className="pt-1">
+                <ProjectShipCard
+                  projectName={post.techContext.projectName}
+                  tagline={post.techContext.tagline}
+                  demoUrl={post.techContext.demoUrl}
+                  repoUrl={post.techContext.repoUrl}
+                  techStack={post.techContext.techStack}
+                />
+              </div>
             )}
 
             {shouldTruncate && (
