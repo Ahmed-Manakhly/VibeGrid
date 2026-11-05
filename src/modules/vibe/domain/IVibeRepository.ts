@@ -30,7 +30,7 @@ export interface VibePost {
 }
 
 export interface IVibeRepository {
-    create(data: { content: string, mediaUrl?: string, mediaType?: MediaType, authorId: string, categoryId?: string, vibeId?: string, tags?: string[] }, tx?: any): Promise<Result<any>>;
+    create(data: { content: string, mediaUrl?: string, mediaType?: MediaType, authorId: string, categoryId?: string, vibeId?: string, tags?: string[], techContext?: any, postType?: any }, tx?: any): Promise<Result<any>>;
     getFeed(params?: ExplorePostsCriteria): Promise<ExplorePostsResult<VibePost>>;
     getPostById(postId: string): Promise<any | null>;
     getPostsByIds(postIds: string[]): Promise<VibePost[]>;

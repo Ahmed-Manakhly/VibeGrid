@@ -18,12 +18,20 @@ export class CreateVibeUseCase {
     tags?: string[],
     mood?: string,
     categoryId?: string,
-    vibeId?: string
+    vibeId?: string,
+    techContext?: any,
+    postType?: any
   ) {
     if (!authorId) return { success: false as const, error: "No user found!" };
     
+    // Combine explicit tags and techStack tags if ship context is provided
+    let combinedTags = tags ? [...tags] : [];
+    if (techContext?.techStack && Array.isArray(techContext.techStack)) {
+      combinedTags.push(...techContext.techStack);
+    }
+
     // Extract hashtags from content if tags aren't explicitly provided
-    const rawTags = tags && tags.length > 0 ? tags : (content.match(/#[\w\-]+/g) || []);
+    const rawTags = combinedTags.length > 0 ? combinedTags : (content.match(/#[\w\-]+/g) || []);
 
     const normalizedTags = Array.from(new Set(
       rawTags
@@ -48,7 +56,9 @@ export class CreateVibeUseCase {
       authorId,
       tags: normalizedTags,
       categoryId,
-      vibeId
+      vibeId,
+      techContext,
+      postType
     });
     if (result.success) {
       if (this.cacheService?.delByPattern) {

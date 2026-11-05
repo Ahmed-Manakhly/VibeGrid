@@ -18,12 +18,21 @@ import {
 import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
 
 //1//to create the post
-export async function creatPost(content: string, mediaUrl?: string, mediaType?: any, tags?: string[], categoryId?: string, vibeId?: string) {
+export async function creatPost(
+    content: string,
+    mediaUrl?: string,
+    mediaType?: any,
+    tags?: string[],
+    categoryId?: string,
+    vibeId?: string,
+    techContext?: any,
+    postType?: any
+) {
     try {
         const userId = await getDbUserId() ;
         if(!userId) return ; 
         
-        const result = await createVibeUseCase.execute(content, mediaUrl, mediaType, userId, tags, undefined, categoryId, vibeId);
+        const result = await createVibeUseCase.execute(content, mediaUrl, mediaType, userId, tags, undefined, categoryId, vibeId, techContext, postType);
         
         if (!result.success) {
             return {success: false, error: 'failed to create a post!'}
@@ -38,6 +47,7 @@ export async function creatPost(content: string, mediaUrl?: string, mediaType?: 
 }
 
 import { PostContentValueObject, SupportedLanguage } from "@/modules/vibe/domain/PostContentValueObject";
+import { ShipTechContextValueObject } from "@/modules/vibe/domain/ShipTechContext";
 
 // 1.5 wrapper for react 19 form actions
 export async function createPostFormAction(prevState: any, formData: FormData) {
@@ -52,26 +62,50 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
     const categoryId = formData.get('categoryId') as string;
     const vibeId = formData.get('vibeId') as string;
 
+    // Ship Mode Inputs
+    const isShip = formData.get('isShip') === 'true' || formData.get('isShip') === 'on';
+    const projectName = formData.get('projectName') as string;
+    const tagline = formData.get('tagline') as string;
+    const demoUrl = formData.get('demoUrl') as string;
+    const repoUrl = formData.get('repoUrl') as string;
+    const techStackRaw = formData.get('techStack') as string;
+
+    let techContext: any = null;
+    let postType: any = undefined;
+
+    if (isShip && projectName?.trim()) {
+        const techStack = techStackRaw ? techStackRaw.split(',').map((t) => t.trim()).filter(Boolean) : [];
+        techContext = ShipTechContextValueObject.validate({
+            isShip: true,
+            projectName,
+            tagline,
+            demoUrl,
+            repoUrl,
+            techStack,
+        });
+        postType = "SHIP";
+    }
+
     const finalContent = PostContentValueObject.format(
         rawContent,
         codeSnippet?.trim() ? { language: codeLanguage, code: codeSnippet } : undefined
     );
 
-    if (!finalContent?.trim() && !mediaUrl) {
+    if (!finalContent?.trim() && !mediaUrl && !techContext) {
         return { success: false, error: 'Post cannot be empty.' };
     }
 
     const tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()).filter(Boolean) : undefined;
 
     try {
-        const result = await creatPost(finalContent, mediaUrl, mediaType, tags, categoryId || undefined, vibeId || undefined);
+        const result = await creatPost(finalContent, mediaUrl, mediaType, tags, categoryId || undefined, vibeId || undefined, techContext, postType);
         if (result?.success) {
             return { success: true };
         }
         return { success: false, error: 'Failed to drop vibe.' };
-    } catch (err) {
+    } catch (err: any) {
         logger.error('Error in createPostFormAction', err);
-        return { success: false, error: 'Something went wrong.' };
+        return { success: false, error: err.message || 'Something went wrong.' };
     }
 }
 

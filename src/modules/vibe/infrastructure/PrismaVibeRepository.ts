@@ -8,7 +8,7 @@ import { vibeFeedQueryConfig } from "./VibeFeedQueryConfig";
 export class PrismaVibeRepository implements IVibeRepository {
   constructor(private db: PrismaClient) {}
 
-  async create(data: { content: string; mediaUrl?: string; mediaType?: any; authorId: string; categoryId?: string; vibeId?: string; tags?: string[] }, tx?: any): Promise<Result<any>> {
+  async create(data: { content: string; mediaUrl?: string; mediaType?: any; authorId: string; categoryId?: string; vibeId?: string; tags?: string[]; techContext?: any; postType?: any }, tx?: any): Promise<Result<any>> {
     try {
       const db = tx || this.db;
       const postData: any = {
@@ -21,6 +21,8 @@ export class PrismaVibeRepository implements IVibeRepository {
 
     if (data.categoryId) postData.categoryId = data.categoryId;
     if (data.vibeId) postData.vibeId = data.vibeId;
+    if (data.techContext) postData.techContext = data.techContext;
+    if (data.postType) postData.postType = data.postType;
 
     if (data.tags && data.tags.length > 0) {
       postData.tags = {
