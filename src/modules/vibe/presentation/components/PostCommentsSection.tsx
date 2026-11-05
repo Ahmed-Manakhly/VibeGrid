@@ -13,6 +13,7 @@ import { toast } from '@/components/ui/toast';
 
 interface PostCommentsSectionProps {
   postId: string;
+  postAuthorId?: string;
   dbUserId: string | null;
   initialComments: any[];
   isDetailPage?: boolean;
@@ -20,6 +21,7 @@ interface PostCommentsSectionProps {
 
 export function PostCommentsSection({
   postId,
+  postAuthorId,
   dbUserId,
   initialComments,
   isDetailPage = false,
@@ -79,7 +81,13 @@ export function PostCommentsSection({
     <div className="space-y-4 pt-4 border-t border-white/10">
       <div className="space-y-4">
         {localComments.slice(0, isDetailPage ? 5 : 2).map((comment: any) => (
-          <CommentCard key={comment.id} comment={comment} dbUserId={dbUserId} postId={postId} />
+          <CommentCard
+            key={comment.id}
+            comment={comment}
+            dbUserId={dbUserId}
+            postId={postId}
+            postAuthorId={postAuthorId}
+          />
         ))}
         {localComments.length > (isDetailPage ? 5 : 2) && (
           <Link

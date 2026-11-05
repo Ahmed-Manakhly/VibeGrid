@@ -6,20 +6,23 @@ import { toast } from '@/components/ui/toast';
 import { UserAvatar } from '@/components/UserAvatar';
 import { formatDistanceToNow } from 'date-fns';
 import { formatRelativeTime } from "@/lib/utils";
-import { Trash2Icon, ReplyIcon, SendIcon } from 'lucide-react';
+import { Trash2Icon, ReplyIcon, SendIcon, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/components/auth/SessionProvider';
+import { acceptSolutionAction, unacceptSolutionAction } from '@/actions/qa.action';
 
 export function CommentCard({ 
     comment, 
     dbUserId, 
     postId,
+    postAuthorId,
     isReply = false
 }: { 
     comment: any, 
     dbUserId: string | null, 
     postId: string,
+    postAuthorId?: string,
     isReply?: boolean
 }) {
     const { user, isAuthenticated } = useSession();
@@ -30,6 +33,38 @@ export function CommentCard({
     const [replyContent, setReplyContent] = useState('');
     const [isSubmittingReply, setIsSubmittingReply] = useState(false);
     const [localReplies, setLocalReplies] = useState<any[]>(comment.replies || []);
+    const [isSolution, setIsSolution] = useState(Boolean(comment.isSolution));
+    const [isTogglingSolution, setIsTogglingSolution] = useState(false);
+
+    const isQuestionAuthor = Boolean(dbUserId && postAuthorId && dbUserId === postAuthorId);
+
+    const handleToggleSolution = async () => {
+        if (isTogglingSolution) return;
+        try {
+            setIsTogglingSolution(true);
+            if (isSolution) {
+                const res = await unacceptSolutionAction(postId);
+                if (res.success) {
+                    setIsSolution(false);
+                    toast.success("Solution unmarked");
+                } else {
+                    toast.error(res.error || "Failed to unmark solution");
+                }
+            } else {
+                const res = await acceptSolutionAction(postId, comment.id);
+                if (res.success) {
+                    setIsSolution(true);
+                    toast.success("Accepted as verified solution! 🎉");
+                } else {
+                    toast.error(res.error || "Failed to accept solution");
+                }
+            }
+        } catch {
+            toast.error("Failed to update solution");
+        } finally {
+            setIsTogglingSolution(false);
+        }
+    };
 
     const handleDelete = async () => {
         if (isDeleting) return;
@@ -117,15 +152,45 @@ export function CommentCard({
                     </div>
                     <p className="text-sm break-words mt-0.5">{comment.content}</p>
                     
-                    {!isReply && isAuthenticated && (
-                        <button
-                            onClick={() => setShowReplyForm((prev) => !prev)}
-                            className="inline-flex items-center gap-1.5 mt-1 text-xs text-muted-foreground hover:text-primary transition-colors"
-                        >
-                            <ReplyIcon className="size-3.5" />
-                            <span>Reply</span>
-                        </button>
-                    )}
+                    <div className="flex items-center gap-3 mt-1.5">
+                        {isSolution && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                <CheckCircle2 className="size-3 text-emerald-400" />
+                                <span>Accepted Solution</span>
+                            </span>
+                        )}
+
+                        {!isReply && isAuthenticated && (
+                            <button
+                                onClick={() => setShowReplyForm((prev) => !prev)}
+                                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                            >
+                                <ReplyIcon className="size-3.5" />
+                                <span>Reply</span>
+                            </button>
+                        )}
+
+                        {!isReply && isQuestionAuthor && (
+                            <button
+                                onClick={handleToggleSolution}
+                                disabled={isTogglingSolution}
+                                className={`inline-flex items-center gap-1 text-xs transition-colors ${
+                                    isSolution
+                                        ? "text-emerald-400 hover:text-red-400"
+                                        : "text-muted-foreground hover:text-emerald-400"
+                                }`}
+                            >
+                                <CheckCircle2 className="size-3.5" />
+                                <span>
+                                    {isTogglingSolution
+                                        ? "Updating..."
+                                        : isSolution
+                                        ? "Unmark Solution"
+                                        : "Accept Solution"}
+                                </span>
+                            </button>
+                        )}
+                    </div>
                 </div>
                 
                 {dbUserId === comment.authorId && (

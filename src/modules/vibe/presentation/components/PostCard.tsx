@@ -197,6 +197,7 @@ export function PostCard({
 
         <PostInteractiveContainer
           postId={post.id}
+          postAuthorId={post.author.id}
           dbUserId={dbUserId}
           initialLikes={initialLikes}
           initialLiked={hasLiked}

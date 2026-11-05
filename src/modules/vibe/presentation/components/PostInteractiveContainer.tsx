@@ -6,6 +6,7 @@ import { PostCommentsSection } from './PostCommentsSection';
 
 interface PostInteractiveContainerProps {
   postId: string;
+  postAuthorId?: string;
   dbUserId: string | null;
   initialLikes: number;
   initialLiked: boolean;
@@ -21,6 +22,7 @@ interface PostInteractiveContainerProps {
 
 export function PostInteractiveContainer({
   postId,
+  postAuthorId,
   dbUserId,
   initialLikes,
   initialLiked,
@@ -56,6 +58,7 @@ export function PostInteractiveContainer({
       {!isTruncated && showComments && (
         <PostCommentsSection
           postId={postId}
+          postAuthorId={postAuthorId}
           dbUserId={dbUserId}
           initialComments={initialComments}
           isDetailPage={isDetailPage}
