@@ -6,6 +6,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  staticPageGenerationTimeout: 180,
+  experimental: {
+    cpus: 1,
+    serverComponentsExternalPackages: [
+      'pino',
+      'pino-roll',
+      'thread-stream',
+    ],
+  },
   images: {
       remotePatterns: [
         {

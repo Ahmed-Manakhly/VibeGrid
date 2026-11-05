@@ -49,33 +49,28 @@ export class PinoLogger implements ILogger {
       timestamp: pino.stdTimeFunctions.isoTime,
     };
 
-    if (isProduction) {
+    const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build" || process.argv.some(a => a.includes("build"));
+
+    if (isProduction && !isBuildPhase) {
       const logDir = process.env.LOG_DIR || path.join(process.cwd(), "logs");
       if (!fs.existsSync(logDir)) {
-        fs.mkdirSync(logDir, { recursive: true });
+        try { fs.mkdirSync(logDir, { recursive: true }); } catch (_) {}
       }
 
-      const transport = pino.transport({
-        targets: [
-          {
-            target: "pino/file",
-            options: { destination: 1 }, // JSON stdout for container logs
-            level: logLevel,
-          },
-          {
-            target: "pino-roll",
-            options: {
-              file: path.join(logDir, `${this.serviceName}`),
-              frequency: "daily",
-              mkdir: true,
-              size: "20m",
+      try {
+        const transport = pino.transport({
+          targets: [
+            {
+              target: "pino/file",
+              options: { destination: 1 }, // JSON stdout for container logs
+              level: logLevel,
             },
-            level: logLevel,
-          },
-        ],
-      });
-
-      this.logger = pino(pinoOptions, transport);
+          ],
+        });
+        this.logger = pino(pinoOptions, transport);
+      } catch (err) {
+        this.logger = pino(pinoOptions);
+      }
     } else {
       this.logger = pino(pinoOptions);
     }
