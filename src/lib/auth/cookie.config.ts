@@ -1,6 +1,6 @@
 import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 
-const isProduction = EnvConfigRepository.isProduction();
+const isCookieSecure = EnvConfigRepository.isCookieSecure();
 const { accessTokenMaxAge, refreshTokenMaxAge } = EnvConfigRepository.getCookieConfig();
 
 export const COOKIE_CONFIG = {
@@ -8,7 +8,7 @@ export const COOKIE_CONFIG = {
     name: 'access_token',
     options: {
       httpOnly: true,
-      secure: isProduction,
+      secure: isCookieSecure,
       sameSite: 'lax' as const,
       path: '/',
       maxAge: accessTokenMaxAge,
@@ -18,7 +18,7 @@ export const COOKIE_CONFIG = {
     name: 'refresh_token',
     options: {
       httpOnly: true,
-      secure: isProduction,
+      secure: isCookieSecure,
       sameSite: 'lax' as const,
       path: '/',
       maxAge: refreshTokenMaxAge,

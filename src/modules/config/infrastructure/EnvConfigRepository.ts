@@ -63,6 +63,13 @@ export class EnvConfigRepository {
     return this.getEnvMode() === 'production';
   }
 
+  public static isCookieSecure(): boolean {
+    if (process.env.COOKIE_SECURE === 'false') return false;
+    if (process.env.COOKIE_SECURE === 'true') return true;
+    // In local dev or local docker over http://, cookies must NOT have secure: true or browsers drop them
+    return this.isProduction() && process.env.BASE_API_URL_PROD?.startsWith('https') === true;
+  }
+
   public static getCookieConfig() {
     const accessTokenMaxAge = parseInt(process.env.COOKIE_ACCESS_TOKEN_MAX_AGE_SEC || '900', 10);
     const refreshTokenMaxAge = parseInt(process.env.COOKIE_REFRESH_TOKEN_MAX_AGE_SEC || '604800', 10);
