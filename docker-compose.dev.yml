@@ -1,9 +1,9 @@
 services:
-  vibegrid_ui_dev:
+  vibegrid_bff:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: vibegrid_ui_dev
+    container_name: vibegrid_bff
     restart: unless-stopped
     environment:
       - PORT=3000
@@ -16,9 +16,12 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - vibegrid_net
+      vibegrid_net:
+        aliases:
+          - vibegrid_bff
+          - vibegrid_ui
     volumes:
-      - vibegrid_ui_dev_logs:/logs
+      - vibegrid_bff_logs:/logs
 
 networks:
   vibegrid_net:
@@ -26,4 +29,4 @@ networks:
     external: true
 
 volumes:
-  vibegrid_ui_dev_logs:
+  vibegrid_bff_logs:

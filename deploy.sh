@@ -10,7 +10,7 @@ else
   echo "✅ Docker network 'vibegrid_net' already exists."
 fi
 
-echo "🚀 Starting VibeGrid UI Production Deployment..."
+echo "🚀 Starting VibeGrid BFF Production Deployment..."
 MAX_RETRIES=3
 RETRY_COUNT=0
 SUCCESS=false
@@ -30,4 +30,4 @@ if [ "$SUCCESS" = false ]; then
   echo "❌ Docker Compose failed after $MAX_RETRIES attempts. Stopping deployment."
   exit 1
 fi
-echo "✅ VibeGrid UI Production Deployment running!"
+echo "✅ VibeGrid BFF Production Deployment running! (container: vibegrid_bff)"
