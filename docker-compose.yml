@@ -9,6 +9,7 @@ services:
       - PORT=3000
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://vibegrid_redis:6379}
       - AUTH_SERVICE_URL=http://vibegrid_api_gateway:8000/api/auth
       - NEXT_PUBLIC_API_GATEWAY_URL=https://vibegrid.manakhly.tech
       - INTERNAL_API_GATEWAY_URL=http://vibegrid_api_gateway:8000
