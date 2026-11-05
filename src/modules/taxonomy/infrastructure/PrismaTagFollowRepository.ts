@@ -5,7 +5,7 @@ export class PrismaTagFollowRepository implements ITagFollowRepository {
   constructor(private prisma: PrismaClient) {}
 
   async toggleFollow(userId: string, tagId: string): Promise<{ isFollowing: boolean; followersCount: number }> {
-    return await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx: any) => {
       const existing = await tx.tagFollow.findUnique({
         where: {
           userId_tagId: {
