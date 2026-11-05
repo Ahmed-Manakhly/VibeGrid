@@ -8,6 +8,7 @@
 
 export interface AppEndpoints {
   apiBaseUrl: string;
+  publicApiBaseUrl: string;
   imgOriginSsr: string;
   imgOriginCsr: string;
   imgOrigin: string; // Dynamically returns imgOriginSsr on server, imgOriginCsr on client
@@ -19,20 +20,24 @@ export class EnvConfigRepository {
     const envMode: string = process.env.NODE_ENV || 'development';
 
     let apiBaseUrl: string;
+    let publicApiBaseUrl: string;
     let imgOriginSsr: string;
     let imgOriginCsr: string;
 
     if (envMode === 'docker_development') {
       apiBaseUrl = process.env.BASE_API_URL_DOCKER_DEV || '';
+      publicApiBaseUrl = process.env.PUBLIC_API_URL_DOCKER_DEV || process.env.BASE_API_URL_DEV || 'http://localhost:8000';
       imgOriginSsr = process.env.IMG_BASE_SSR_DOCKER_DEV || '';
       imgOriginCsr = process.env.IMG_BASE_CSR_DOCKER_DEV || '';
     } else if (envMode === 'production') {
       apiBaseUrl = process.env.BASE_API_URL_PROD || '';
+      publicApiBaseUrl = process.env.PUBLIC_API_URL_PROD || 'https://vibegrid.manakhly.tech';
       imgOriginSsr = process.env.IMG_BASE_SSR_PROD || '';
       imgOriginCsr = process.env.IMG_BASE_CSR_PROD || '';
     } else {
       // Default: Host native dev (NODE_ENV = development)
       apiBaseUrl = process.env.BASE_API_URL_DEV || '';
+      publicApiBaseUrl = process.env.BASE_API_URL_DEV || 'http://localhost:8000';
       imgOriginSsr = process.env.IMG_BASE_SSR_DEV || '';
       imgOriginCsr = process.env.IMG_BASE_CSR_DEV || '';
     }
@@ -43,6 +48,7 @@ export class EnvConfigRepository {
 
     return {
       apiBaseUrl,
+      publicApiBaseUrl,
       imgOriginSsr: cleanSsr,
       imgOriginCsr: cleanCsr,
       imgOrigin,

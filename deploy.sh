@@ -16,7 +16,7 @@ RETRY_COUNT=0
 SUCCESS=false
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-  if docker compose -f docker-compose.yml up -d --build; then
+  if docker compose -f docker-compose.dev.yml up -d --build; then
     SUCCESS=true
     break
   else

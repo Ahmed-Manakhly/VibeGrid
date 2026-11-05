@@ -14,6 +14,7 @@ services:
       - REDIS_URL=${REDIS_URL_DOCKER_DEV:-redis://:VgRedis_R2026%23m4%24ZpQ%219wKx@vibegrid_redis:6379}
       - AUTH_SERVICE_URL=http://vibegrid_api_gateway:8000/api/auth
       - NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:8000
+      - PUBLIC_API_URL_PROD=http://localhost:8000
       - INTERNAL_API_GATEWAY_URL=http://vibegrid_api_gateway:8000
       - LOG_DIR=/logs
     ports:
