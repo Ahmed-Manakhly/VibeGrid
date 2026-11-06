@@ -7,8 +7,12 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
 
+  const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:3000';
+  const proto = req.headers.get('x-forwarded-proto') || 'http';
+  const clientBaseUrl = `${proto}://${host}`;
+
   if (!code) {
-    return NextResponse.redirect(new URL('/login?error=missing_code', req.url));
+    return NextResponse.redirect(new URL('/login?error=missing_code', clientBaseUrl));
   }
 
   try {
@@ -22,7 +26,7 @@ export async function GET(req: NextRequest) {
 
     const isSuccess = authRes.ok && (data?.status === 'success' || data?.success === true);
     if (!isSuccess) {
-      return NextResponse.redirect(new URL('/login?error=oauth_failed', req.url));
+      return NextResponse.redirect(new URL('/login?error=oauth_failed', clientBaseUrl));
     }
 
     const { user, accessToken, refreshToken } = data.data || {};
@@ -39,7 +43,7 @@ export async function GET(req: NextRequest) {
       }).catch((err) => logger.warn('[GitHub OAuth Profile Bootstrap Warning]', { error: err }));
     }
 
-    const response = NextResponse.redirect(new URL('/', req.url));
+    const response = NextResponse.redirect(new URL('/', clientBaseUrl));
 
     let accToken = accessToken;
     let refToken = refreshToken;
@@ -76,7 +80,7 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (err) {
     logger.error('[GitHub OAuth BFF Callback Error]', err);
-    return NextResponse.redirect(new URL('/login?error=oauth_server_error', req.url));
+    return NextResponse.redirect(new URL('/login?error=oauth_server_error', clientBaseUrl));
   }
 }
 

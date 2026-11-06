@@ -7,8 +7,12 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
 
+  const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:3000';
+  const proto = req.headers.get('x-forwarded-proto') || 'http';
+  const clientBaseUrl = `${proto}://${host}`;
+
   if (!code) {
-    return NextResponse.redirect(new URL('/login?error=missing_code', req.url));
+    return NextResponse.redirect(new URL('/login?error=missing_code', clientBaseUrl));
   }
 
   try {
@@ -22,7 +26,7 @@ export async function GET(req: NextRequest) {
 
     const isSuccess = authRes.ok && (data?.status === 'success' || data?.success === true);
     if (!isSuccess) {
-      return NextResponse.redirect(new URL('/login?error=oauth_failed', req.url));
+      return NextResponse.redirect(new URL('/login?error=oauth_failed', clientBaseUrl));
     }
 
     const { user, accessToken, refreshToken } = data.data || {};
@@ -40,7 +44,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Response redirecting to homepage after setting BFF HttpOnly cookies
-    const response = NextResponse.redirect(new URL('/', req.url));
+    const response = NextResponse.redirect(new URL('/', clientBaseUrl));
 
     // Extract cookies from Auth Microservice headers or payload
     let accToken = accessToken;
@@ -78,7 +82,7 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (err) {
     logger.error('[Google OAuth BFF Callback Error]', err);
-    return NextResponse.redirect(new URL('/login?error=oauth_server_error', req.url));
+    return NextResponse.redirect(new URL('/login?error=oauth_server_error', clientBaseUrl));
   }
 }
 
