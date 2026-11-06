@@ -25,13 +25,13 @@ export class EnvConfigRepository {
     let imgOriginCsr: string;
 
     if (envMode === 'docker_development') {
-      apiBaseUrl = process.env.BASE_API_URL_DOCKER_DEV || process.env.INTERNAL_API_GATEWAY_URL || 'http://vibegrid_api_gateway:8000';
-      publicApiBaseUrl = process.env.PUBLIC_API_URL_DOCKER_DEV || process.env.BASE_API_URL_DEV || 'http://localhost:8000';
+      apiBaseUrl = process.env.BASE_API_URL_DOCKER_DEV || 'http://vibegrid_api_gateway:8000';
+      publicApiBaseUrl = process.env.BASE_API_URL_DEV || 'http://localhost:8000';
       imgOriginSsr = process.env.IMG_BASE_SSR_DOCKER_DEV || '';
       imgOriginCsr = process.env.IMG_BASE_CSR_DOCKER_DEV || '';
     } else if (envMode === 'production') {
-      apiBaseUrl = process.env.BASE_API_URL_PROD || process.env.INTERNAL_API_GATEWAY_URL || 'http://vibegrid_api_gateway:8000';
-      publicApiBaseUrl = process.env.PUBLIC_API_URL_PROD || 'https://vibegrid.manakhly.tech';
+      apiBaseUrl = process.env.BASE_API_URL_PROD || 'http://vibegrid_api_gateway:8000';
+      publicApiBaseUrl = process.env.BASE_API_URL_DEV || 'http://localhost:8000';
       imgOriginSsr = process.env.IMG_BASE_SSR_PROD || '';
       imgOriginCsr = process.env.IMG_BASE_CSR_PROD || '';
     } else {
@@ -64,9 +64,7 @@ export class EnvConfigRepository {
   }
 
   public static isCookieSecure(): boolean {
-    if (process.env.COOKIE_SECURE === 'false') return false;
-    if (process.env.COOKIE_SECURE === 'true') return true;
-    // In local dev or local docker over http://, cookies must NOT have secure: true or browsers drop them
+    // Only require HTTPS cookies if production API is actually using HTTPS
     return this.isProduction() && process.env.BASE_API_URL_PROD?.startsWith('https') === true;
   }
 
