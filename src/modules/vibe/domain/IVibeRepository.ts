@@ -35,4 +35,5 @@ export interface IVibeRepository {
     getPostById(postId: string): Promise<any | null>;
     getPostsByIds(postIds: string[]): Promise<VibePost[]>;
     deletePost(postId: string, userId: string, tx?: any): Promise<Result<void>>;
+    getTrendingShips(limit?: number): Promise<any[]>;
 }

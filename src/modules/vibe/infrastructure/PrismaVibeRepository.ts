@@ -161,4 +161,34 @@ export class PrismaVibeRepository implements IVibeRepository {
     );
     return queryBuilder.execute();
   }
+
+  async getTrendingShips(limit: number = 10): Promise<any[]> {
+    try {
+      const posts = await this.db.post.findMany({
+        where: {
+          OR: [
+            { postType: 'PROJECT_SHIP' },
+            { techContext: { path: ['isShip'], equals: true } },
+          ],
+        },
+        include: {
+          author: {
+            select: { id: true, name: true, username: true, image: true },
+          },
+          likes: { select: { userId: true } },
+          bookmarks: { select: { userId: true } },
+          _count: {
+            select: { likes: true, bookmarks: true, comments: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50, // Candidate pool
+      });
+
+      return posts;
+    } catch (err) {
+      console.error("[PrismaVibeRepository] Error fetching trending ships", err);
+      return [];
+    }
+  }
 }

@@ -318,4 +318,25 @@ export async function getPollTalliesAction(pollId: string) {
         return null;
     }
 }
+
+export async function getTrendingShipsAction(limit: number = 6) {
+    try {
+        const { vibeRepository, cacheService } = await import("@/shared/infrastructure/di-container");
+        const cacheKey = `leaderboard:ships:daily:${limit}`;
+
+        const cached = await cacheService.get<any[]>(cacheKey);
+        if (cached) return cached;
+
+        const rawPosts = await vibeRepository.getTrendingShips(limit * 3);
+        const { TrendingShipsScorer } = await import("@/modules/vibe/domain/TrendingShipsScorer");
+        const ranked = TrendingShipsScorer.rankShipPosts(rawPosts).slice(0, limit);
+
+        await cacheService.set(cacheKey, ranked, 300); // 5 min TTL
+        return ranked;
+    } catch (error) {
+        logger.error('Error fetching trending ships leaderboard', error);
+        return [];
+    }
+}
+
 
