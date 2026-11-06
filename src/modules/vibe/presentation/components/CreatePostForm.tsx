@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, FilmIcon, Loader2Icon, SendIcon, CodeIcon, RocketIcon } from "lucide-react";
+import { ImageIcon, FilmIcon, Loader2Icon, SendIcon, CodeIcon, RocketIcon, BarChart3, Plus, Trash2 } from "lucide-react";
 import { createPostFormAction } from "@/actions/post.action";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
@@ -62,6 +62,10 @@ export default function CreatPost() {
     const [demoUrl, setDemoUrl] = useState("");
     const [repoUrl, setRepoUrl] = useState("");
     const [techStack, setTechStack] = useState("");
+    const [showPoll, setShowPoll] = useState(false);
+    const [pollQuestion, setPollQuestion] = useState("");
+    const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
+    const [pollDuration, setPollDuration] = useState("24");
     const [codeSnippet, setCodeSnippet] = useState("");
     const [codeLanguage, setCodeLanguage] = useState("typescript");
     const [isExpanded, setIsExpanded] = useState(false);
@@ -91,6 +95,10 @@ export default function CreatPost() {
             setDemoUrl("");
             setRepoUrl("");
             setTechStack("");
+            setShowPoll(false);
+            setPollQuestion("");
+            setPollOptions(["", ""]);
+            setPollDuration("24");
             setShowImageUpload(false);
             setShowCodeBlock(false);
             setIsExpanded(false);
@@ -127,6 +135,7 @@ export default function CreatPost() {
         setShowImageUpload(false);
         setShowCodeBlock(false);
         setShowShipMode(false);
+        setShowPoll(false);
         setContentVal('');
         setImageUrl('');
         setCodeSnippet('');
@@ -134,6 +143,9 @@ export default function CreatPost() {
         setDemoUrl('');
         setRepoUrl('');
         setTechStack('');
+        setPollQuestion('');
+        setPollOptions(["", ""]);
+        setPollDuration("24");
         formRef.current?.reset();
     };
 
@@ -296,6 +308,80 @@ export default function CreatPost() {
                                 </div>
                             )}
 
+                            {showPoll && (
+                                <div className="border border-primary/40 rounded-2xl p-4 bg-gradient-to-br from-primary/10 via-background/80 to-muted/20 space-y-3.5 backdrop-blur-sm shadow-md">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <BarChart3 className="size-4 text-primary" />
+                                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">Tech Dilemma Poll</span>
+                                        </div>
+                                        <Select name="pollDurationHours" value={pollDuration} onValueChange={setPollDuration}>
+                                            <SelectTrigger className="w-[110px] h-7 text-xs bg-background/80 border-border/50 font-mono rounded-lg">
+                                                <SelectValue placeholder="Duration" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-background border-border/50 font-mono">
+                                                <SelectItem value="24">24 Hours</SelectItem>
+                                                <SelectItem value="72">3 Days</SelectItem>
+                                                <SelectItem value="168">7 Days</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <input type="hidden" name="isPoll" value="true" />
+
+                                    <Input
+                                        name="pollQuestion"
+                                        placeholder="What's the dilemma? (e.g. Postgres vs SQLite for embedded local dev?)"
+                                        value={pollQuestion}
+                                        onChange={(e) => setPollQuestion(e.target.value)}
+                                        maxLength={200}
+                                        className="h-9 text-xs sm:text-sm bg-background/80 border-primary/30 rounded-xl"
+                                    />
+
+                                    <div className="space-y-2">
+                                        {pollOptions.map((opt, idx) => (
+                                            <div key={idx} className="flex items-center gap-2">
+                                                <Input
+                                                    name="pollOption"
+                                                    placeholder={`Option ${idx + 1}`}
+                                                    value={opt}
+                                                    onChange={(e) => {
+                                                        const copy = [...pollOptions];
+                                                        copy[idx] = e.target.value;
+                                                        setPollOptions(copy);
+                                                    }}
+                                                    className="h-8 text-xs bg-background/80 border-border/50 rounded-lg flex-1"
+                                                />
+                                                {pollOptions.length > 2 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setPollOptions(pollOptions.filter((_, i) => i !== idx));
+                                                        }}
+                                                        className="p-1.5 text-muted-foreground hover:text-destructive transition"
+                                                    >
+                                                        <Trash2 className="size-3.5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+
+                                        {pollOptions.length < 4 && (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setPollOptions([...pollOptions, ""])}
+                                                className="text-xs h-7 gap-1 border-dashed"
+                                            >
+                                                <Plus className="size-3" />
+                                                Add Option ({pollOptions.length}/4)
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                             {(showImageUpload || imageUrl) && (
                                 <div className="border rounded-lg p-4">
                                     <ImageUpload endpoint="postImage" value={imageUrl} onChange={(url) => { setImageUrl(url); if (!url) setShowImageUpload(false); }} />
@@ -328,12 +414,18 @@ export default function CreatPost() {
                                         <RocketIcon className="size-4 mr-1.5" />
                                         Ship
                                     </Button>
+                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-primary hover:bg-primary/10 transition-all rounded-xl ${showPoll ? "text-primary bg-primary/15 border border-primary/30" : "text-muted-foreground"}`}
+                                        onClick={() => setShowPoll(!showPoll)}
+                                    >
+                                        <BarChart3 className="size-4 mr-1.5" />
+                                        Poll
+                                    </Button>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Button type="button" variant="ghost" className="text-muted-foreground hover:bg-transparent hover:text-foreground" onClick={handleCancel}>
                                         Cancel
                                     </Button>
-                                    <SubmitButton disabled={!contentVal.trim() && !imageUrl && !codeSnippet.trim() && !projectName.trim()} />
+                                    <SubmitButton disabled={!contentVal.trim() && !imageUrl && !codeSnippet.trim() && !projectName.trim() && (!pollQuestion.trim() || pollOptions.filter(Boolean).length < 2)} />
                                 </div>
                             </div>
                         </>

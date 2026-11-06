@@ -11,6 +11,7 @@ import { PostDeleteAction } from './PostDeleteAction';
 import { PostInteractiveContainer } from './PostInteractiveContainer';
 import { ProjectShipCard } from './ProjectShipCard';
 import { PostGitHubUnfold } from '@/modules/github/presentation/components/PostGitHubUnfold';
+import { TechDilemmaPollCard } from './TechDilemmaPollCard';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>;
 type post = FeedResponse['data'][number] & {
@@ -23,6 +24,7 @@ type post = FeedResponse['data'][number] & {
   regrids?: any[];
   techContext?: any;
   postType?: string;
+  poll?: any;
 };
 
 interface PostCardProps {
@@ -134,6 +136,12 @@ export function PostCard({
                   repoUrl={post.techContext.repoUrl}
                   techStack={post.techContext.techStack}
                 />
+              </div>
+            )}
+
+            {post.poll && (
+              <div className="pt-1">
+                <TechDilemmaPollCard poll={post.poll} />
               </div>
             )}
 
