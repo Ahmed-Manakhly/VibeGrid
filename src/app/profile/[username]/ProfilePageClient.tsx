@@ -27,6 +27,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
 import { EditProfileModal } from "@/modules/social/presentation/components/EditProfileModal";
 import { startConversationAction } from "@/actions/messaging.action";
+import {
+    DeveloperMilestoneTimeline,
+    SerializedMilestone,
+} from "@/modules/social/presentation/components/DeveloperMilestoneTimeline";
+import { DeveloperBadgeList } from "@/modules/social/presentation/components/DeveloperBadgeList";
+import { Milestone } from "lucide-react";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type PostsResult = Awaited<ReturnType<typeof getPosts>>;
@@ -36,6 +42,7 @@ interface ProfilePageClientProps {
     postsResult: PostsResult;
     likedPostsResult: PostsResult;
     isFollowing: boolean;
+    initialMilestones?: SerializedMilestone[];
 }
 
 function ProfilePageClient({
@@ -43,6 +50,7 @@ function ProfilePageClient({
     likedPostsResult,
     postsResult,
     user,
+    initialMilestones = [],
 }: ProfilePageClientProps) {
     const { user: currentUser, isAuthenticated } = useSession();
     const searchParams = useSearchParams();
@@ -234,6 +242,21 @@ function ProfilePageClient({
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Badges & Recognitions Display */}
+                                    <DeveloperBadgeList
+                                        solutionsCount={(user as any).solutionsCount || 0}
+                                        isStaffOrAdmin={(user as any).role === "ADMIN"}
+                                        hasMilestones={initialMilestones.length > 0}
+                                        techStackCount={
+                                            user.techStack
+                                                ? (Array.isArray(user.techStack)
+                                                      ? user.techStack
+                                                      : JSON.parse(user.techStack || '[]')
+                                                  ).length
+                                                : 0
+                                        }
+                                    />
                                 </div>
                             </div>
                         </CardContent>
@@ -250,6 +273,14 @@ function ProfilePageClient({
                             >
                                 <FileTextIcon className="size-4" />
                                 Posts
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="timeline"
+                                className="flex items-center gap-2 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary
+                                data-[state=active]:bg-transparent px-6 font-semibold"
+                            >
+                                <Milestone className="size-4" />
+                                Timeline
                             </TabsTrigger>
                             <TabsTrigger
                                 value="likes"
@@ -269,6 +300,13 @@ function ProfilePageClient({
                                     dbUserId={currentUser ? user.id : null}
                                 />
                             </div>
+                        </TabsContent>
+                        <TabsContent value="timeline" className="mt-6">
+                            <DeveloperMilestoneTimeline
+                                milestones={initialMilestones}
+                                isOwner={currentUser?.id === user.id}
+                                username={user.username}
+                            />
                         </TabsContent>
                         <TabsContent value="likes" className="mt-6">
                             <div className="space-y-6">

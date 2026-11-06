@@ -30,10 +30,14 @@ async function ProfilePageServer({ params }: { params: Promise<{ username: strin
     if (!user) notFound();  // notFound is a next fun to navigate to the notfound page | it should be the global one we have created 
                             //but as we got a new one created specifically for this route it will use the nearest one
                             //check the not-found page 
-    const [postsResult, likedPostsResult, isCurrentUserFollowing] = await Promise.all([
+    const [postsResult, likedPostsResult, isCurrentUserFollowing, initialMilestones] = await Promise.all([
         getPosts({ authorId: user.id }),
         getPosts({ likedByUserId: user.id }),
         isFollowing(user.id),
+        (async () => {
+            const { getMilestonesAction } = await import("@/actions/profile.action");
+            return await getMilestonesAction(user.id);
+        })(),
     ]); // using an array of Promises to get all the needed data and destructure all of the results
 
     return (
@@ -42,6 +46,7 @@ async function ProfilePageServer({ params }: { params: Promise<{ username: strin
         postsResult={postsResult}
         likedPostsResult={likedPostsResult}
         isFollowing={isCurrentUserFollowing}
+        initialMilestones={initialMilestones}
         />
     );
 }
