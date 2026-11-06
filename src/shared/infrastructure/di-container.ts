@@ -157,6 +157,10 @@ export const qaRepository = new PrismaQARepository(prisma);
 export const acceptSolutionUseCase = new AcceptSolutionUseCase(qaRepository);
 export const unacceptSolutionUseCase = new UnacceptSolutionUseCase(qaRepository);
 
+// GitHub Module
+import { CachedGitHubRepoRepository } from "@/modules/github/infrastructure/CachedGitHubRepoRepository";
+export const gitHubRepoRepository = new CachedGitHubRepoRepository(cacheService, logger);
+
 // Initialize Event Handlers
 export const notificationEventHandler = new NotificationEventHandler(notificationRepository, eventBus);
 
