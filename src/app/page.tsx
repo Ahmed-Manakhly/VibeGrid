@@ -9,6 +9,7 @@ import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { getCurrentSession } from "@/lib/auth/server";
 import { InfiniteScroll } from "@/components/InfiniteScroll";
 import { CategoryPills } from "@/components/CategoryPills";
+import { TrendingShipsLeaderboard } from "@/modules/vibe/presentation/components/TrendingShipsLeaderboard";
 import { Suspense } from "react";
 import Loading from "./loading";
 
@@ -66,6 +67,7 @@ export default async function Home({ searchParams }: PageProps) {
         discovery={
           <div className="flex flex-col gap-6 xl:sticky xl:top-[88px] xl:max-h-[calc(100vh-88px)] xl:overflow-y-auto z-10 pb-10 px-4 -mx-4 scrollbar-hide">
               <CategoryPills />
+              <TrendingShipsLeaderboard limit={4} />
               <TrendingSidebar />
               <WhoToFollow/>
           </div>
