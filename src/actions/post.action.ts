@@ -26,13 +26,14 @@ export async function creatPost(
     categoryId?: string,
     vibeId?: string,
     techContext?: any,
-    postType?: any
+    postType?: any,
+    poll?: { question: string; options: string[]; durationHours: number }
 ) {
     try {
         const userId = await getDbUserId() ;
         if(!userId) return ; 
         
-        const result = await createVibeUseCase.execute(content, mediaUrl, mediaType, userId, tags, undefined, categoryId, vibeId, techContext, postType);
+        const result = await createVibeUseCase.execute(content, mediaUrl, mediaType, userId, tags, undefined, categoryId, vibeId, techContext, postType, poll);
         
         if (!result.success) {
             return {success: false, error: 'failed to create a post!'}
@@ -86,19 +87,38 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
         postType = "SHIP";
     }
 
+    // Dilemma Poll Inputs
+    const isPoll = formData.get('isPoll') === 'true' || formData.get('isPoll') === 'on';
+    const pollQuestion = formData.get('pollQuestion') as string;
+    const pollOptionsRaw = formData.getAll('pollOption') as string[];
+    const pollDurationHours = parseInt(formData.get('pollDurationHours') as string || '24', 10);
+
+    let pollData: any = undefined;
+    if (isPoll && pollQuestion?.trim()) {
+        const validOptions = pollOptionsRaw.map(o => o.trim()).filter(Boolean);
+        if (validOptions.length >= 2) {
+            pollData = {
+                question: pollQuestion.trim(),
+                options: validOptions.slice(0, 4),
+                durationHours: isNaN(pollDurationHours) ? 24 : pollDurationHours,
+            };
+            postType = "DILEMMA_POLL";
+        }
+    }
+
     const finalContent = PostContentValueObject.format(
         rawContent,
         codeSnippet?.trim() ? { language: codeLanguage, code: codeSnippet } : undefined
     );
 
-    if (!finalContent?.trim() && !mediaUrl && !techContext) {
+    if (!finalContent?.trim() && !mediaUrl && !techContext && !pollData) {
         return { success: false, error: 'Post cannot be empty.' };
     }
 
     const tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()).filter(Boolean) : undefined;
 
     try {
-        const result = await creatPost(finalContent, mediaUrl, mediaType, tags, categoryId || undefined, vibeId || undefined, techContext, postType);
+        const result = await creatPost(finalContent, mediaUrl, mediaType, tags, categoryId || undefined, vibeId || undefined, techContext, postType, pollData);
         if (result?.success) {
             return { success: true };
         }
@@ -243,4 +263,59 @@ export async function deletePost(postId : string){
         logger.error('failed to delete a post!', er, { postId });
         return {success : false, error : er.message || 'failed to delete a post!'}
     }
-}
+}
+
+export async function votePollAction(pollId: string, optionId: string) {
+    try {
+        const userId = await getDbUserId();
+        if (!userId) {
+            return { success: false, error: 'You must be logged in to vote.' };
+        }
+
+        const { pollRepository, cacheService } = await import("@/shared/infrastructure/di-container");
+        const result = await pollRepository.castVote({ pollId, optionId, userId });
+
+        // Invalidate cached tallies
+        await cacheService.delete(`poll:${pollId}:tallies`);
+        revalidatePath('/');
+
+        return { success: true, tallies: result.tallies };
+    } catch (error: any) {
+        logger.error('Error casting poll vote', error, { pollId, optionId });
+        if (error.code === 'P2002' || error.message?.includes('Unique constraint')) {
+            return { success: false, error: 'You have already voted in this poll.' };
+        }
+        return { success: false, error: error.message || 'Failed to record vote' };
+    }
+}
+
+export async function getPollTalliesAction(pollId: string) {
+    try {
+        const userId = await getDbUserId();
+        const { pollRepository, cacheService } = await import("@/shared/infrastructure/di-container");
+
+        const cacheKey = `poll:${pollId}:tallies`;
+        let cached = await cacheService.get<any>(cacheKey);
+
+        if (!cached) {
+            cached = await pollRepository.getTallies(pollId, null);
+            if (cached) {
+                await cacheService.set(cacheKey, cached, 60); // 1 min TTL
+            }
+        }
+
+        if (cached && userId) {
+            const userPoll = await pollRepository.findById(pollId, userId);
+            return {
+                ...cached,
+                userVotedOptionId: userPoll?.userVotedOptionId || null,
+            };
+        }
+
+        return cached;
+    } catch (error) {
+        logger.error('Error fetching poll tallies', error, { pollId });
+        return null;
+    }
+}
+

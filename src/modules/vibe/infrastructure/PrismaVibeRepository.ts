@@ -8,7 +8,7 @@ import { vibeFeedQueryConfig } from "./VibeFeedQueryConfig";
 export class PrismaVibeRepository implements IVibeRepository {
   constructor(private db: PrismaClient) {}
 
-  async create(data: { content: string; mediaUrl?: string; mediaType?: any; authorId: string; categoryId?: string; vibeId?: string; tags?: string[]; techContext?: any; postType?: any }, tx?: any): Promise<Result<any>> {
+  async create(data: { content: string; mediaUrl?: string; mediaType?: any; authorId: string; categoryId?: string; vibeId?: string; tags?: string[]; techContext?: any; postType?: any; poll?: { question: string; options: string[]; durationHours: number } }, tx?: any): Promise<Result<any>> {
     try {
       const db = tx || this.db;
       const postData: any = {
@@ -23,6 +23,23 @@ export class PrismaVibeRepository implements IVibeRepository {
     if (data.vibeId) postData.vibeId = data.vibeId;
     if (data.techContext) postData.techContext = data.techContext;
     if (data.postType) postData.postType = data.postType;
+
+    if (data.poll && data.poll.options && data.poll.options.length >= 2) {
+      const expiresAt = new Date(Date.now() + (data.poll.durationHours || 24) * 60 * 60 * 1000);
+      postData.postType = "DILEMMA_POLL";
+      postData.poll = {
+        create: {
+          question: data.poll.question,
+          expiresAt,
+          options: {
+            create: data.poll.options.map((opt, idx) => ({
+              text: opt.trim(),
+              index: idx,
+            })),
+          },
+        },
+      };
+    }
 
     if (data.tags && data.tags.length > 0) {
       postData.tags = {

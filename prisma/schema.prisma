@@ -46,6 +46,7 @@ model User {
   followedTags         TagFollow[]
   solutionsCount       Int             @default(0)
   milestones           DeveloperMilestone[]
+  pollVotes            PollVote[]
 }
 
 enum MediaType {
@@ -80,6 +81,7 @@ model Post {
   bookmarks         Bookmark[]
   notifications     Notifications[]
   regrids           ReGrid[]
+  poll              Poll?
 
   @@index([authorId, createdAt(sort: Desc)])
   @@index([createdAt(sort: Desc), id(sort: Desc)])
@@ -94,6 +96,7 @@ enum PostType {
   THREAD_REPLY
   QUESTION
   PROJECT_SHIP
+  DILEMMA_POLL
 }
 
 model Comment {
@@ -353,6 +356,48 @@ model DeveloperMilestone {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, achievedAt(sort: Desc)])
+}
+
+model Poll {
+  id          String       @id @default(cuid())
+  postId      String       @unique
+  question    String
+  expiresAt   DateTime
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  post        Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  options     PollOption[]
+  votes       PollVote[]
+
+  @@index([expiresAt])
+}
+
+model PollOption {
+  id        String     @id @default(cuid())
+  pollId    String
+  text      String
+  index     Int
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes     PollVote[]
+
+  @@unique([pollId, index])
+  @@index([pollId])
+}
+
+model PollVote {
+  id        String     @id @default(cuid())
+  pollId    String
+  optionId  String
+  userId    String
+  createdAt DateTime   @default(now())
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId])
+  @@index([pollId])
+  @@index([optionId])
+  @@index([userId])
 }
 
 

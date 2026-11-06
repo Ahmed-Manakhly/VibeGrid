@@ -8,6 +8,7 @@ export const logger = new PinoLogger("vibegrid-bff");
 
 // Vibe Module
 import { PrismaVibeRepository } from "@/modules/vibe/infrastructure/PrismaVibeRepository";
+import { PrismaPollRepository } from "@/modules/vibe/infrastructure/PrismaPollRepository";
 import { CreateVibeUseCase } from "@/modules/vibe/application/CreateVibe.usecase";
 import { GenerateFeedUseCase } from "@/modules/vibe/application/GenerateFeed.usecase";
 import { DeleteVibeUseCase } from "@/modules/vibe/application/DeleteVibe.usecase";
@@ -80,6 +81,7 @@ export const cacheService = new RedisCacheService();
 // 1. Instantiate Repositories (Inject DB)
 export const outboxRepository = new PrismaOutboxRepository(prisma);
 export const vibeRepository = new PrismaVibeRepository(prisma);
+export const pollRepository = new PrismaPollRepository(prisma);
 const engagementRepository = new PrismaEngagementRepository(prisma);
 const notificationRepository = new PrismaNotificationRepository(prisma);
 const authRepository = new PrismaAuthRepository(prisma);

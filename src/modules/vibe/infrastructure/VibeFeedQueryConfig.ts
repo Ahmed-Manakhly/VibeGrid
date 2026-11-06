@@ -46,6 +46,19 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
         userId: true
       }
     },
+    poll: {
+      include: {
+        options: {
+          orderBy: { index: "asc" },
+          include: {
+            _count: {
+              select: { votes: true }
+            }
+          }
+        },
+        votes: true
+      }
+    },
     _count: { select: { likes: true, comments: true, bookmarks: true, regrids: true } },
   },
 };
