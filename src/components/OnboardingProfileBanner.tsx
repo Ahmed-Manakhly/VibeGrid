@@ -4,18 +4,15 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from '@/components/auth/SessionProvider';
-import { Sparkles, ArrowRight, X, Check } from 'lucide-react';
-
+import { Sparkles, ArrowRight, CheckCircle2, Circle, X } from 'lucide-react';
 import { ProfileRules } from '@/modules/social/domain/ProfileRules';
 
 export function OnboardingProfileBanner() {
   const { user, isAuthenticated, isLoading } = useSession();
-  const [categories, setCategories] = useState<Array<{ id: string; name: string; slug: string; emoji: string | null }>>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [interestsLoaded, setInterestsLoaded] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const pathname = usePathname();
+  const [selectedInterestsCount, setSelectedInterestsCount] = useState<number | null>(null);
+  const [dbProfile, setDbProfile] = useState<{ bio?: string | null; username?: string | null } | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const pathname = usePathname();
 
   const isExcludedRoute = [
     '/login',
@@ -27,193 +24,212 @@ export function OnboardingProfileBanner() {
 
   const shouldFetch = !isLoading && isAuthenticated && Boolean(user) && !isExcludedRoute && !dismissed;
 
-  // Load user's interests and taxonomy categories on mount
   useEffect(() => {
     if (!shouldFetch) return;
 
-    async function loadData() {
+    let isMounted = true;
+    async function loadOnboardingState() {
       try {
-        const [interestRes, filterRes] = await Promise.all([
+        const [interestRes, profileRes] = await Promise.all([
           fetch('/api/social/interests'),
-          fetch('/api/feed/filters'),
+          user?.username ? fetch(`/api/profile?username=${encodeURIComponent(user.username)}`) : Promise.resolve(null),
         ]);
+
         if (interestRes.ok) {
-          const data = await interestRes.json();
-          if (data.success && Array.isArray(data.interests)) {
-            setSelectedIds(data.interests.map((i: any) => i.id));
+          const interestData = await interestRes.json();
+          if (interestData.success && Array.isArray(interestData.interests) && isMounted) {
+            setSelectedInterestsCount(interestData.interests.length);
           }
         }
-        if (filterRes.ok) {
-          const filterData = await filterRes.json();
-          if (filterData.success && Array.isArray(filterData.categories)) {
-            setCategories(filterData.categories);
-          } else if (Array.isArray(filterData.categories)) {
-            setCategories(filterData.categories);
+
+        if (profileRes && profileRes.ok) {
+          const profileData = await profileRes.json();
+          if (profileData.user && isMounted) {
+            setDbProfile(profileData.user);
           }
         }
       } catch (e) {
-        console.error('Failed to load onboarding data', e);
-      } finally {
-        setInterestsLoaded(true);
+        console.error('Failed to load onboarding checklist state', e);
       }
     }
-    loadData();
-  }, [shouldFetch]);
+
+    loadOnboardingState();
+    return () => {
+      isMounted = false;
+    };
+  }, [shouldFetch, user?.username]);
 
   if (!shouldFetch) {
     return null;
   }
 
-  const isProfileComplete = ProfileRules.isProfileComplete(user);
-  const isPersonalizationComplete = !interestsLoaded || selectedIds.length > 0;
+  // Evaluate the 3 Setup Tasks
+  const task1AccountCreated = true; // Registered & authenticated
+  const mergedUser = {
+    ...user,
+    bio: dbProfile?.bio ?? (user as any)?.bio,
+    username: dbProfile?.username ?? user?.username,
+  };
 
-  // If both profile & personalization are complete, hide onboarding banner
+  const isProfileComplete = ProfileRules.isProfileComplete(mergedUser);
+  const isPersonalizationComplete = selectedInterestsCount !== null && selectedInterestsCount > 0;
+
+  // Once both remaining steps are complete, completely dismiss checklist
   if (isProfileComplete && isPersonalizationComplete) {
     return null;
   }
 
-  // Case A: Both Profile & Personalization are incomplete -> Combined "Complete your VibeGrid setup" surface
-  if (!isProfileComplete && !isPersonalizationComplete) {
-    return (
-      <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
-        <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-card/60 backdrop-blur-xl p-4 sm:p-5 shadow-xl shadow-accent/5 transition-all">
-          <div className="pointer-events-none absolute -top-12 -left-12 size-36 rounded-full bg-accent/20 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-12 -right-12 size-36 rounded-full bg-primary/20 blur-2xl" />
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-start md:items-center gap-3 min-w-0">
-              <div className="p-2.5 rounded-xl bg-accent/15 border border-accent/30 text-accent shrink-0 mt-0.5 md:mt-0">
+  // Calculate completion percentage
+  let completedCount = 1; // Step 1 is complete
+  if (isProfileComplete) completedCount += 1;
+  if (isPersonalizationComplete) completedCount += 1;
+  const progressPercent = Math.round((completedCount / 3) * 100);
+
+  const profileEditHref = user?.username ? `/profile/${user.username}?edit=true` : '/settings?tab=profile';
+
+  return (
+    <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
+      <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-card/75 backdrop-blur-xl p-5 shadow-xl shadow-accent/5 transition-all">
+        {/* Ambient background glows */}
+        <div className="pointer-events-none absolute -top-12 -left-12 size-40 rounded-full bg-accent/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-12 -right-12 size-40 rounded-full bg-primary/20 blur-3xl" />
+
+        <div className="relative z-10 flex flex-col gap-4">
+          {/* Header Row */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-accent/15 border border-accent/30 text-accent shrink-0">
                 <Sparkles className="size-5 animate-pulse" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm sm:text-base text-foreground tracking-tight">
-                    Complete your VibeGrid setup
-                  </span>
+                <div className="flex items-center gap-2.5">
+                  <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight">
+                    Welcome to VibeGrid! Complete your setup
+                  </h3>
                   <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/20 text-accent border border-accent/30">
-                    2 TASKS REMAINING
+                    {completedCount} OF 3 COMPLETED
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                  Set up your custom handle & profile, and pick your favorite topics to personalize your recommendations.
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Follow these essential steps to tune your recommendations and establish your developer presence.
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
-              <Link
-                href={user?.username ? `/profile/${user.username}?edit=true` : '/login'}
-                className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs sm:text-sm shadow-md shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <span>1. Complete Profile</span>
-                <ArrowRight className="size-3.5" />
-              </Link>
-              <Link
-                href="/settings?tab=personalization"
-                className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-secondary hover:bg-secondary/80 text-secondary-foreground font-semibold text-xs sm:text-sm border border-border/60 transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <span>2. Personalize Feed</span>
-                <ArrowRight className="size-3.5" />
-              </Link>
-              <button
-                onClick={() => setDismissed(true)}
-                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 rounded-lg hover:bg-muted/50"
-              >
-                Skip
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
-  // Case B: Only Profile is incomplete
-  if (!isProfileComplete) {
-    return (
-      <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
-        <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-card/60 backdrop-blur-xl p-4 sm:p-5 shadow-xl shadow-accent/5 transition-all">
-          <div className="pointer-events-none absolute -top-12 -left-12 size-36 rounded-full bg-accent/20 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-12 -right-12 size-36 rounded-full bg-primary/20 blur-2xl" />
-          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start sm:items-center gap-3 min-w-0">
-              <div className="p-2.5 rounded-xl bg-accent/15 border border-accent/30 text-accent shrink-0 mt-0.5 sm:mt-0">
-                <Sparkles className="size-5 animate-pulse" />
+            <button
+              onClick={() => setDismissed(true)}
+              className="text-xs text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted/60 transition-colors"
+              aria-label="Dismiss checklist"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-secondary/80 rounded-full h-1.5 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-accent to-primary h-full rounded-full transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+
+          {/* 3 Step Action Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+            {/* Step 1: Account Created */}
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-border/40 bg-background/40">
+              <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-foreground line-through opacity-75">
+                  1. Account Verified
+                </p>
+                <p className="text-[11px] text-muted-foreground truncate font-mono">
+                  Authentication active
+                </p>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm sm:text-base text-foreground tracking-tight">
-                    Complete your VibeGrid Profile
-                  </span>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/20 text-accent border border-accent/30">
-                    ACTION REQUIRED
-                  </span>
+            </div>
+
+            {/* Step 2: Complete Profile Bio & Links */}
+            <div
+              className={`flex items-center justify-between gap-3 p-3 rounded-xl border transition-all ${
+                isProfileComplete
+                  ? 'border-border/40 bg-background/40'
+                  : 'border-accent/40 bg-accent/5 hover:border-accent/60 shadow-sm'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                {isProfileComplete ? (
+                  <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
+                ) : (
+                  <Circle className="size-5 text-accent animate-pulse shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p
+                    className={`text-xs font-semibold ${
+                      isProfileComplete ? 'line-through opacity-75 text-foreground' : 'text-foreground'
+                    }`}
+                  >
+                    2. Complete Profile
+                  </p>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {isProfileComplete ? 'Bio & handle configured' : 'Add bio, handle & links'}
+                  </p>
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                  You are using a temporary handle. Set up your custom handle and display name to unlock creator features.
-                </p>
               </div>
+
+              {!isProfileComplete && (
+                <Link
+                  href={profileEditHref}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-accent text-accent-foreground font-medium text-xs hover:bg-accent/90 transition-all shrink-0"
+                >
+                  <span>Edit</span>
+                  <ArrowRight className="size-3" />
+                </Link>
+              )}
             </div>
-            <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
-              <Link
-                href={user?.username ? `/profile/${user.username}?edit=true` : '/login'}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs sm:text-sm shadow-md shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <span>Complete Profile</span>
-                <ArrowRight className="size-4" />
-              </Link>
-              <button
-                onClick={() => setDismissed(true)}
-                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted/50"
-              >
-                Skip for now
-              </button>
+
+            {/* Step 3: Personalize Feed Interests */}
+            <div
+              className={`flex items-center justify-between gap-3 p-3 rounded-xl border transition-all ${
+                isPersonalizationComplete
+                  ? 'border-border/40 bg-background/40'
+                  : 'border-accent/40 bg-accent/5 hover:border-accent/60 shadow-sm'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                {isPersonalizationComplete ? (
+                  <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
+                ) : (
+                  <Circle className="size-5 text-accent animate-pulse shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p
+                    className={`text-xs font-semibold ${
+                      isPersonalizationComplete ? 'line-through opacity-75 text-foreground' : 'text-foreground'
+                    }`}
+                  >
+                    3. Personalize Feed
+                  </p>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {isPersonalizationComplete
+                      ? `${selectedInterestsCount} topics selected`
+                      : 'Pick 3+ technologies'}
+                  </p>
+                </div>
+              </div>
+
+              {!isPersonalizationComplete && (
+                <Link
+                  href="/settings?tab=personalization"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-secondary text-secondary-foreground border border-border/60 font-medium text-xs hover:bg-secondary/80 transition-all shrink-0"
+                >
+                  <span>Pick</span>
+                  <ArrowRight className="size-3" />
+                </Link>
+              )}
             </div>
           </div>
         </div>
       </div>
-    );
-  }
-
-  // Case C: Only Personalization is incomplete
-  if (!isPersonalizationComplete) {
-    return (
-      <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
-        <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-card/60 backdrop-blur-xl p-4 sm:p-5 shadow-xl shadow-accent/5 transition-all">
-          <div className="pointer-events-none absolute -top-12 -left-12 size-36 rounded-full bg-accent/20 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-12 -right-12 size-36 rounded-full bg-primary/20 blur-2xl" />
-          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start sm:items-center gap-3 min-w-0">
-              <div className="p-2.5 rounded-xl bg-accent/15 border border-accent/30 text-accent shrink-0 mt-0.5 sm:mt-0">
-                <Sparkles className="size-5 animate-pulse" />
-              </div>
-              <div>
-                <h2 className="font-semibold text-sm sm:text-base text-foreground tracking-tight">
-                  Personalize Your Feed
-                </h2>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                  Choose the topics you are interested in to personalize your VibeGrid feed. You can change these anytime in Settings.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
-              <Link
-                href="/settings?tab=personalization"
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs sm:text-sm shadow-md shadow-accent/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <span>Choose Your Interests</span>
-                <ArrowRight className="size-4" />
-              </Link>
-              <button
-                onClick={() => setDismissed(true)}
-                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted/50"
-              >
-                Skip for now
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+    </div>
+  );
 }
