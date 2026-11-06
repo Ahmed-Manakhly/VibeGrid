@@ -91,4 +91,115 @@ export async function isFollowing(userId: string) {
         return false;
     }
 }
+
+export async function getMilestonesAction(userId: string) {
+    try {
+        const { milestoneRepository, cacheService } = await import("@/shared/infrastructure/di-container");
+        const cacheKey = `user:${userId}:milestones`;
+        const cached = await cacheService.get<any[]>(cacheKey);
+        if (cached) return cached;
+
+        const milestones = await milestoneRepository.findByUserId(userId);
+        const serialized = milestones.map(m => ({
+            id: m.id,
+            userId: m.userId,
+            title: m.title,
+            description: m.description,
+            category: m.category,
+            icon: m.icon,
+            linkUrl: m.linkUrl,
+            achievedAt: m.achievedAt.toISOString(),
+            createdAt: m.createdAt.toISOString(),
+            updatedAt: m.updatedAt.toISOString(),
+        }));
+
+        await cacheService.set(cacheKey, serialized, 300); // 5 min TTL
+        return serialized;
+    } catch (error) {
+        logger.error("Error fetching milestones", error, { userId });
+        return [];
+    }
+}
+
+export async function createMilestoneAction(formData: FormData) {
+    try {
+        const session = await getCurrentSession();
+        if (!session.isAuthenticated || !session.user) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        const title = formData.get("title") as string;
+        const description = (formData.get("description") as string) || null;
+        const category = (formData.get("category") as any) || "RELEASE";
+        const icon = (formData.get("icon") as string) || null;
+        const linkUrl = (formData.get("linkUrl") as string) || null;
+        const achievedAtStr = formData.get("achievedAt") as string;
+
+        if (!title || !title.trim()) {
+            return { success: false, error: "Milestone title is required." };
+        }
+
+        const achievedAt = achievedAtStr ? new Date(achievedAtStr) : new Date();
+
+        const { milestoneRepository, cacheService } = await import("@/shared/infrastructure/di-container");
+        const milestone = await milestoneRepository.create({
+            userId: session.user.id,
+            title,
+            description,
+            category,
+            icon,
+            linkUrl,
+            achievedAt,
+        });
+
+        // Invalidate cache
+        await cacheService.delete(`user:${session.user.id}:milestones`);
+        if (session.user.username) {
+            revalidatePath(`/profile/${session.user.username}`);
+        }
+
+        return {
+            success: true,
+            milestone: {
+                id: milestone.id,
+                userId: milestone.userId,
+                title: milestone.title,
+                description: milestone.description,
+                category: milestone.category,
+                icon: milestone.icon,
+                linkUrl: milestone.linkUrl,
+                achievedAt: milestone.achievedAt.toISOString(),
+            },
+        };
+    } catch (error: any) {
+        logger.error("Error creating milestone", error);
+        return { success: false, error: error.message || "Failed to create milestone" };
+    }
+}
+
+export async function deleteMilestoneAction(id: string) {
+    try {
+        const session = await getCurrentSession();
+        if (!session.isAuthenticated || !session.user) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        const { milestoneRepository, cacheService } = await import("@/shared/infrastructure/di-container");
+        const deleted = await milestoneRepository.delete(id, session.user.id);
+        if (!deleted) {
+            return { success: false, error: "Milestone not found or unauthorized to delete." };
+        }
+
+        await cacheService.delete(`user:${session.user.id}:milestones`);
+        if (session.user.username) {
+            revalidatePath(`/profile/${session.user.username}`);
+        }
+
+        return { success: true };
+    } catch (error: any) {
+        logger.error("Error deleting milestone", error);
+        return { success: false, error: error.message || "Failed to delete milestone" };
+    }
+}
+
 

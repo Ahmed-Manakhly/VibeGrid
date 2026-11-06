@@ -45,6 +45,7 @@ import { UpdateProfileUseCase } from "@/modules/social/application/UpdateProfile
 import { IsFollowingUseCase } from "@/modules/social/application/IsFollowing.usecase";
 import { GetUserInterestsUseCase } from "@/modules/social/application/GetUserInterests.usecase";
 import { SetUserInterestsUseCase } from "@/modules/social/application/SetUserInterests.usecase";
+import { PrismaMilestoneRepository } from "@/modules/social/infrastructure/PrismaMilestoneRepository";
 
 // Taxonomy Module
 import { PrismaTaxonomyRepository } from "@/modules/taxonomy/infrastructure/PrismaTaxonomyRepository";
@@ -85,7 +86,8 @@ const authRepository = new PrismaAuthRepository(prisma);
 const socialRepository = new PrismaSocialRepository(prisma);
 const userInterestRepository = new PrismaUserInterestRepository(prisma);
 const taxonomyRepository = new PrismaTaxonomyRepository(prisma);
-const profileRepository = new PrismaProfileRepository(prisma);
+export const profileRepository = new PrismaProfileRepository(prisma);
+export const milestoneRepository = new PrismaMilestoneRepository(prisma);
 export const messagingRepository = new PrismaMessagingRepository(prisma);
 export const trustSafetyRepository = new PrismaTrustSafetyRepository(prisma);
 export const tagFollowRepository = new PrismaTagFollowRepository(prisma);
