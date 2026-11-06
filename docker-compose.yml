@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: vibegrid_bff
     restart: always
+    env_file:
+      - .env
     environment:
       - PORT=3000
       - NODE_ENV=production
