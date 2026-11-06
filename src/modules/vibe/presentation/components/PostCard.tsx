@@ -10,6 +10,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from 
 import { PostDeleteAction } from './PostDeleteAction';
 import { PostInteractiveContainer } from './PostInteractiveContainer';
 import { ProjectShipCard } from './ProjectShipCard';
+import { PostGitHubUnfold } from '@/modules/github/presentation/components/PostGitHubUnfold';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>;
 type post = FeedResponse['data'][number] & {
@@ -135,6 +136,8 @@ export function PostCard({
                 />
               </div>
             )}
+
+            {contentText && <PostGitHubUnfold content={contentText} />}
 
             {shouldTruncate && (
               <Link
