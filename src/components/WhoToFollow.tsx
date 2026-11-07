@@ -26,11 +26,15 @@ async function WhoToFollow() {
                     <UserAvatar src={user.image} name={user.name} className="size-8 transition-all" />
                   </Link>
                   <div className="text-xs">
-                    <Link href={`/profile/${user.username}`} className="font-medium cursor-pointer">
+                    <Link href={`/profile/${user.username}`} className="font-medium cursor-pointer hover:underline">
                       {user.name}
                     </Link>
                     <p className="text-muted-foreground">@{user.username}</p>
-                    <p className="text-muted-foreground">{user._count.followers} followers</p>
+                    {user.matchRationale && (
+                      <span className="inline-block mt-0.5 text-[10px] font-medium text-primary/80 bg-primary/10 px-1.5 py-0.5 rounded">
+                        {user.matchRationale}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <FollowButton userId={user.id} />
