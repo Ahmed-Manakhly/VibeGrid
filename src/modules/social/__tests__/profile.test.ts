@@ -64,8 +64,8 @@ describe('Developer Profile Domain Value Objects & Rules', () => {
 
   describe('ProfileRules', () => {
     it('should check profile completion status', () => {
-      expect(ProfileRules.isProfileComplete({ username: 'dev', name: 'Developer' })).toBe(true);
-      expect(ProfileRules.isProfileComplete({ username: 'user_123', name: '' })).toBe(false);
+      expect(ProfileRules.isProfileComplete({ username: 'dev', name: 'Developer', bio: 'Full-stack builder' })).toBe(true);
+      expect(ProfileRules.isProfileComplete({ username: 'user_123', name: '', bio: null })).toBe(false);
       expect(ProfileRules.isProfileComplete(null)).toBe(false);
     });
   });
