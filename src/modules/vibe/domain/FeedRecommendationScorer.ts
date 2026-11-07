@@ -65,6 +65,14 @@ export class FeedRecommendationScorer {
     const freshnessScore = Math.max(0, 20 * (1 - ageHours / 48));
     score += freshnessScore;
 
+    // 5. Developer Technical Content Signal (+15 points for interactive polls or shipped projects)
+    if (post.poll || post.postType === 'DILEMMA_POLL') {
+      score += 15;
+    }
+    if (post.techContext?.isShip || post.postType === 'PROJECT_SHIP' || post.postType === 'ship') {
+      score += 15;
+    }
+
     return Number(score.toFixed(4));
   }
 

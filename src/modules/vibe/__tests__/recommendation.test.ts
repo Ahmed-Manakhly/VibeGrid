@@ -87,6 +87,28 @@ describe('Recommendation Engine V1 — Domain & Application Scoring Tests', () =
       expect(ranked[2].id).toBe('post_old_unrelated');           // Decayed engagement + old + no relationship
     });
 
+    it('should boost dilemma polls and project ships with technical bonus of +15 points', () => {
+      const pollPost: VibePost = {
+        ...samplePosts[0],
+        id: 'post_poll',
+        poll: { question: 'Tabs vs Spaces?', options: [] } as any,
+        postType: 'DILEMMA_POLL',
+      };
+      const shipPost: VibePost = {
+        ...samplePosts[0],
+        id: 'post_ship',
+        techContext: { isShip: true, projectName: 'NextForge' } as any,
+        postType: 'PROJECT_SHIP',
+      };
+
+      const baseScore = scorer.scorePost(samplePosts[0], {});
+      const pollScore = scorer.scorePost(pollPost, {});
+      const shipScore = scorer.scorePost(shipPost, {});
+
+      expect(pollScore - baseScore).toBeCloseTo(15, 1);
+      expect(shipScore - baseScore).toBeCloseTo(15, 1);
+    });
+
     it('should fallback gracefully to fresh/engagement ranking for unauthenticated users', () => {
       const ranked = scorer.rankPosts([...samplePosts], {});
 
