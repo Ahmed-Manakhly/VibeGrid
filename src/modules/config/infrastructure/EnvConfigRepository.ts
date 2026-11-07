@@ -17,14 +17,18 @@ export interface AppEndpoints {
 export class EnvConfigRepository {
   public static getEndpoints(): AppEndpoints {
     const isServer = typeof window === 'undefined';
-    const envMode: string = process.env.NODE_ENV || 'development';
+    const envMode: string = 
+      process.env.APP_ENV || 
+      process.env.NEXT_PUBLIC_APP_ENV || 
+      (process.env.NODE_ENV === 'production' && !process.env.IMG_BASE_CSR_DOCKER_DEV ? 'production' : process.env.NODE_ENV) || 
+      'development';
 
     let apiBaseUrl: string;
     let publicApiBaseUrl: string;
     let imgOriginSsr: string;
     let imgOriginCsr: string;
 
-    if (envMode === 'docker_development') {
+    if (envMode === 'docker_development' || (process.env.IMG_BASE_CSR_DOCKER_DEV && !process.env.APP_ENV)) {
       apiBaseUrl = process.env.BASE_API_URL_DOCKER_DEV || 'http://vibegrid_api_gateway:8000';
       publicApiBaseUrl = process.env.BASE_API_URL_DEV || 'http://localhost:8000';
       imgOriginSsr = process.env.IMG_BASE_SSR_DOCKER_DEV || '';

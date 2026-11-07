@@ -88,6 +88,8 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
             techStack,
         });
         postType = "PROJECT_SHIP";
+    } else if (isShip && !projectName?.trim()) {
+        return { success: false, error: 'Please enter a project name for Show & Ship mode.' };
     }
 
     // Dilemma Poll Inputs
@@ -97,16 +99,20 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
     const pollDurationHours = parseInt(formData.get('pollDurationHours') as string || '24', 10);
 
     let pollData: any = undefined;
-    if (isPoll && pollQuestion?.trim()) {
-        const validOptions = pollOptionsRaw.map(o => o.trim()).filter(Boolean);
-        if (validOptions.length >= 2) {
-            pollData = {
-                question: pollQuestion.trim(),
-                options: validOptions.slice(0, 4),
-                durationHours: isNaN(pollDurationHours) ? 24 : pollDurationHours,
-            };
-            postType = "DILEMMA_POLL";
+    if (isPoll) {
+        if (!pollQuestion?.trim()) {
+            return { success: false, error: 'Please enter a question for your Tech Dilemma Poll.' };
         }
+        const validOptions = pollOptionsRaw.map(o => o.trim()).filter(Boolean);
+        if (validOptions.length < 2) {
+            return { success: false, error: 'A poll must have at least 2 non-empty options.' };
+        }
+        pollData = {
+            question: pollQuestion.trim(),
+            options: validOptions.slice(0, 4),
+            durationHours: isNaN(pollDurationHours) ? 24 : pollDurationHours,
+        };
+        postType = "DILEMMA_POLL";
     }
 
     const finalContent = PostContentValueObject.format(
@@ -115,7 +121,7 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
     );
 
     if (!finalContent?.trim() && !mediaUrl && !techContext && !pollData) {
-        return { success: false, error: 'Post cannot be empty.' };
+        return { success: false, error: 'Post cannot be empty. Please enter some text, upload media, or add a poll.' };
     }
 
     const tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()).filter(Boolean) : undefined;
