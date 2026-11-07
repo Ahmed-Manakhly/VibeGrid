@@ -87,7 +87,7 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
             repoUrl,
             techStack,
         });
-        postType = "SHIP";
+        postType = "PROJECT_SHIP";
     }
 
     // Dilemma Poll Inputs
@@ -128,7 +128,11 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
         return { success: false, error: result?.error || 'Failed to drop vibe.' };
     } catch (err: any) {
         logger.error('Error in createPostFormAction', err);
-        return { success: false, error: err.message || 'Something went wrong.' };
+        const rawMsg = err.message || '';
+        if (rawMsg.includes('Invalid `prisma.post.create()`') || rawMsg.includes('PrismaClientValidationError')) {
+            return { success: false, error: 'Could not create post. Please check the post details and try again.' };
+        }
+        return { success: false, error: rawMsg || 'Something went wrong.' };
     }
 }
 

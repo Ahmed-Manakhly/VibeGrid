@@ -105,10 +105,10 @@ export function PostCard({
           )}
         </div>
 
-        {post.content && (
+        {(contentText || post.poll || post.techContext || structuredContent.codeBlock) && (
           <div className="space-y-3">
-            {contentText &&
-              (isDetailPage ? (
+            {contentText ? (
+              isDetailPage ? (
                 <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
                   {displayContent}
                 </p>
@@ -118,7 +118,8 @@ export function PostCard({
                     {displayContent}
                   </p>
                 </Link>
-              ))}
+              )
+            ) : null}
 
             {structuredContent.codeBlock && (
               <CodeBlockViewer
@@ -127,7 +128,7 @@ export function PostCard({
               />
             )}
 
-            {post.techContext && (post.postType === 'ship' || post.techContext.isShip) && (
+            {post.techContext && (post.postType === 'PROJECT_SHIP' || post.postType === 'ship' || post.techContext.isShip) && (
               <div className="pt-1">
                 <ProjectShipCard
                   projectName={post.techContext.projectName}
