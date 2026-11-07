@@ -6,6 +6,7 @@ import {
   LogOutIcon,
   MenuIcon,
   UserIcon,
+  BookmarkIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -58,6 +59,12 @@ function MobileNavbar() {
                   <Link href="/profile">
                     <UserIcon className="w-4 h-4" />
                     Profile
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+                  <Link href="/bookmarks">
+                    <BookmarkIcon className="w-4 h-4" />
+                    Bookmarks
                   </Link>
                 </Button>
                 <Button variant="ghost" onClick={logout} className="flex items-center gap-3 justify-start w-full text-destructive">
