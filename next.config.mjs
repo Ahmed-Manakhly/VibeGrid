@@ -19,6 +19,12 @@ const nextConfig = {
       remotePatterns: [
         {
           protocol: 'http',
+          hostname: 'vibegrid_minio',
+          port: '9000',
+          pathname: '/**',
+        },
+        {
+          protocol: 'http',
           hostname: 'localhost',
           port: '9000',
           pathname: '/**',

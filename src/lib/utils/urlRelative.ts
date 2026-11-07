@@ -15,6 +15,20 @@ const urlRelative = (
   }
 
   const trimmed = url.trim();
+
+  // If the URL is already absolute and imgOrigin is explicitly passed,
+  // ensure media storage endpoints (MinIO/localhost/bucket) align with the target imgOrigin
+  if (imgOrigin && isAbsoluteUrl(trimmed)) {
+    for (const prefix of serverFiles) {
+      const idx = trimmed.indexOf(`/${prefix}/`);
+      if (idx !== -1) {
+        const pathPart = trimmed.substring(idx + 1);
+        const origin = imgOrigin.endsWith('/') ? imgOrigin : `${imgOrigin}/`;
+        return encodeURI(`${origin}${pathPart.startsWith('/') ? pathPart.slice(1) : pathPart}`);
+      }
+    }
+  }
+
   if (isAbsoluteUrl(trimmed) || trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
     return encodeURI(trimmed);
   }

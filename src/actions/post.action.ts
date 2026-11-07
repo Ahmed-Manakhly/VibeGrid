@@ -31,19 +31,22 @@ export async function creatPost(
 ) {
     try {
         const userId = await getDbUserId() ;
-        if(!userId) return ; 
+        if(!userId) return { success: false, error: 'User is not authenticated. Please log in.' }; 
         
         const result = await createVibeUseCase.execute(content, mediaUrl, mediaType, userId, tags, undefined, categoryId, vibeId, techContext, postType, poll);
         
         if (!result.success) {
-            return {success: false, error: 'failed to create a post!'}
+            const errorMsg = typeof result.error === 'object' && result.error && 'message' in result.error 
+                ? (result.error as any).message 
+                : (typeof result.error === 'string' ? result.error : 'Failed to create a post!');
+            return { success: false, error: errorMsg };
         }
 
         revalidatePath('/') ; 
         return {success : true , post: result.value} ; 
-    }catch (er){
+    }catch (er: any){
         logger.error('failed to create a post!', er);
-        return {success : false, error : 'failed to create a post!'}
+        return {success : false, error : er?.message || 'Failed to create a post!'}
     }
 }
 
@@ -122,7 +125,7 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
         if (result?.success) {
             return { success: true };
         }
-        return { success: false, error: 'Failed to drop vibe.' };
+        return { success: false, error: result?.error || 'Failed to drop vibe.' };
     } catch (err: any) {
         logger.error('Error in createPostFormAction', err);
         return { success: false, error: err.message || 'Something went wrong.' };

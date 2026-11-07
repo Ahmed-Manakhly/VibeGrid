@@ -58,10 +58,11 @@ export class PrismaVibeRepository implements IVibeRepository {
         data: postData,
       });
       return success(post);
-    } catch (error) {
+    } catch (error: any) {
       const { logger } = require("@/shared/infrastructure/di-container");
       logger.error("[PrismaVibeRepository] Error creating vibe", error);
-      return failure(new Error("Failed to create vibe"));
+      const message = error?.message || (error?.code ? `Database error (${error.code})` : "Failed to create vibe");
+      return failure(new Error(message));
     }
   }
 

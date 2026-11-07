@@ -14,15 +14,17 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon } from "lucide-react";
+import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { CodeBlockViewer } from "@/modules/vibe/presentation/components/CodeBlockViewer";
+import { PostContentValueObject } from "@/modules/vibe/domain/PostContentValueObject";
 
 export function MessagesPageClient() {
   const { user: currentUser, isAuthenticated } = useSession();
   const searchParams = useSearchParams();
   const initialConvId = searchParams.get("conversationId");
 
-  const { latestDirectMessage } = useRealtime();
+  const { latestDirectMessage, latestTypingSignal, socket } = useRealtime();
 
   const [conversations, setConversations] = useState<any[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(initialConvId);
@@ -33,8 +35,11 @@ export function MessagesPageClient() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [isRecipientTyping, setIsRecipientTyping] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load conversations list
   const loadConversations = async () => {
@@ -128,9 +133,69 @@ export function MessagesPageClient() {
     });
   }, [latestDirectMessage, activeConversationId]);
 
+  // Handle typing signal from socket
+  useEffect(() => {
+    if (!latestTypingSignal || !activeConversationId) return;
+
+    if (
+      latestTypingSignal.conversationId === activeConversationId &&
+      latestTypingSignal.userId !== currentUser?.id
+    ) {
+      setIsRecipientTyping(latestTypingSignal.isTyping);
+
+      if (latestTypingSignal.isTyping) {
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsRecipientTyping(false);
+        }, 3500);
+      }
+    }
+  }, [latestTypingSignal, activeConversationId, currentUser?.id]);
+
+  // Clean up typing timeout
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      if (typingDebounceRef.current) clearTimeout(typingDebounceRef.current);
+    };
+  }, []);
+
+  // Emit typing event to socket
+  const handleTypingChange = (newVal: string) => {
+    setContent(newVal);
+
+    if (!socket || !activeConversationId || !otherParticipant?.id) return;
+
+    // Emit typing true immediately on first keystroke
+    socket.emit("chat:typing", {
+      conversationId: activeConversationId,
+      recipientUserId: otherParticipant.id,
+      isTyping: true,
+    });
+
+    // Debounce stop typing after 2.5 seconds of inactivity
+    if (typingDebounceRef.current) clearTimeout(typingDebounceRef.current);
+    typingDebounceRef.current = setTimeout(() => {
+      socket.emit("chat:typing", {
+        conversationId: activeConversationId,
+        recipientUserId: otherParticipant.id,
+        isTyping: false,
+      });
+    }, 2500);
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() || !activeConversationId || sending) return;
+
+    // Immediately stop typing signal when sending
+    if (socket && otherParticipant?.id) {
+      socket.emit("chat:typing", {
+        conversationId: activeConversationId,
+        recipientUserId: otherParticipant.id,
+        isTyping: false,
+      });
+    }
 
     const tempContent = content;
     setContent("");
@@ -304,19 +369,30 @@ export function MessagesPageClient() {
               ) : (
                 messages.map((msg) => {
                   const isMe = msg.senderId === currentUser?.id;
+                  const parsed = PostContentValueObject.parse(msg.content);
                   return (
                     <div
                       key={msg.id}
                       className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
                     >
                       <div
-                        className={`max-w-[75%] sm:max-w-[65%] rounded-2xl px-4 py-2 text-sm break-words ${
+                        className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2 text-sm break-words ${
                           isMe
                             ? "bg-primary text-primary-foreground rounded-br-none"
                             : "bg-muted text-foreground rounded-bl-none"
                         }`}
                       >
-                        {msg.content}
+                        {parsed.text && (
+                          <div className="whitespace-pre-wrap">{parsed.text}</div>
+                        )}
+                        {parsed.codeBlock && (
+                          <div className="my-2 rounded-lg overflow-hidden text-left not-prose">
+                            <CodeBlockViewer
+                              language={parsed.codeBlock.language}
+                              code={parsed.codeBlock.code}
+                            />
+                          </div>
+                        )}
                       </div>
                       <span className="text-[10px] text-muted-foreground mt-1 px-1">
                         {formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}
@@ -325,6 +401,22 @@ export function MessagesPageClient() {
                   );
                 })
               )}
+
+              {/* Typing Indicator Pill */}
+              {isRecipientTyping && otherParticipant && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground px-2 py-1 animate-pulse">
+                  <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-5 shrink-0" />
+                  <div className="flex items-center gap-1 bg-muted/60 px-3 py-1.5 rounded-full border border-border/40">
+                    <span className="italic font-medium">{otherParticipant.name || "Developer"} is typing</span>
+                    <span className="flex gap-0.5 ml-1">
+                      <span className="size-1 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+                      <span className="size-1 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+                      <span className="size-1 rounded-full bg-primary animate-bounce" />
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
 
@@ -332,8 +424,8 @@ export function MessagesPageClient() {
             <form onSubmit={handleSend} className="p-3 border-t flex gap-2 items-center">
               <Input
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write a message..."
+                onChange={(e) => handleTypingChange(e.target.value)}
+                placeholder="Write a message... (supports ```lang code blocks)"
                 maxLength={2000}
                 className="flex-1 text-sm focus-visible:ring-1"
               />

@@ -29,14 +29,23 @@ export function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Public Profile</CardTitle>
-            <CardDescription>Your public identity on VibeGrid.</CardDescription>
+            <CardDescription>Your public developer profile, bio, tech stack, and social links.</CardDescription>
           </div>
-          <Link href={profileUrl}>
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
-              <Edit3 className="size-4" />
-              <span>Edit Public Profile</span>
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {user.username && (
+              <Link href={`/profile/${user.username}`}>
+                <Button variant="ghost" size="sm" className="text-xs">
+                  View Profile
+                </Button>
+              </Link>
+            )}
+            <Link href={profileUrl}>
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Edit3 className="size-4" />
+                <span>Edit Profile</span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

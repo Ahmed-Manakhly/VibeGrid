@@ -18,34 +18,36 @@ export function PostMediaContainer({
   alt = "Post media content",
   className = "w-full h-auto object-contain max-h-[650px] mx-auto bg-black/20",
 }: PostMediaContainerProps) {
-  const { imgOrigin } = EnvConfigRepository.getEndpoints();
-  const resolvedUrl = urlRelative(mediaUrl, imgOrigin, null);
+  const { imgOriginSsr, imgOriginCsr } = EnvConfigRepository.getEndpoints();
+  const resolvedSsrUrl = urlRelative(mediaUrl, imgOriginSsr, null);
+  const resolvedCsrUrl = urlRelative(mediaUrl, imgOriginCsr, null);
 
-  if (!resolvedUrl) return null;
+  if (!resolvedSsrUrl && !resolvedCsrUrl) return null;
 
   // Determine if content is video
   const isVideo =
     String(mediaType).toUpperCase() === "VIDEO" ||
-    resolvedUrl.endsWith(".mp4") ||
-    resolvedUrl.endsWith(".webm") ||
-    resolvedUrl.endsWith(".mov") ||
-    resolvedUrl.includes("video/");
+    resolvedCsrUrl?.endsWith(".mp4") ||
+    resolvedCsrUrl?.endsWith(".webm") ||
+    resolvedCsrUrl?.endsWith(".mov") ||
+    resolvedCsrUrl?.includes("video/");
 
   return (
     <div className="w-full bg-muted/30 border-y border-border/50 overflow-hidden">
       {isVideo ? (
         <video
-          src={resolvedUrl}
+          src={resolvedCsrUrl || undefined}
           controls
           className={`${className} rounded-none`}
         />
       ) : (
         <Image
-          src={resolvedUrl}
+          src={resolvedCsrUrl || resolvedSsrUrl!}
           alt={alt}
           className={className}
           width={800}
           height={600}
+          unoptimized
         />
       )}
     </div>

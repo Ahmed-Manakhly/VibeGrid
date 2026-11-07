@@ -35,12 +35,19 @@ export interface DirectMessageSignal {
   createdAt: string;
 }
 
+export interface TypingSignal {
+  conversationId: string;
+  userId: string;
+  isTyping: boolean;
+}
+
 export interface RealtimeState {
   isConnected: boolean;
   onlineUsers: Set<string>;
   latestNotification: NotificationSignal | null;
   latestFeedSignal: FeedSignal | null;
   latestDirectMessage: DirectMessageSignal | null;
+  latestTypingSignal: TypingSignal | null;
   unreadCount: number;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   socket: Socket | null;
@@ -52,6 +59,7 @@ export function useRealtimeSocket() {
   const [latestNotification, setLatestNotification] = useState<NotificationSignal | null>(null);
   const [latestFeedSignal, setLatestFeedSignal] = useState<FeedSignal | null>(null);
   const [latestDirectMessage, setLatestDirectMessage] = useState<DirectMessageSignal | null>(null);
+  const [latestTypingSignal, setLatestTypingSignal] = useState<TypingSignal | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const processedNotificationIds = useRef<Set<string>>(new Set());
   const processedMessageIds = useRef<Set<string>>(new Set());
@@ -143,6 +151,10 @@ export function useRealtimeSocket() {
       setLatestDirectMessage(signal);
     });
 
+    socket.on('chat:typing', (typing: TypingSignal) => {
+      setLatestTypingSignal(typing);
+    });
+
     socket.on('presence:online', (presence: PresenceSignal) => {
       setOnlineUsers((prev) => {
         const next = new Set(prev);
@@ -171,6 +183,7 @@ export function useRealtimeSocket() {
     latestNotification,
     latestFeedSignal,
     latestDirectMessage,
+    latestTypingSignal,
     unreadCount,
     setUnreadCount,
     socket: socketRef.current,
