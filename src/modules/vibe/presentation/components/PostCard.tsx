@@ -8,6 +8,7 @@ import { PostContentValueObject } from '@/modules/vibe/domain/PostContentValueOb
 import { CodeBlockViewer } from './CodeBlockViewer';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PostDeleteAction } from './PostDeleteAction';
+import { PostSafetyMenu } from './PostSafetyMenu';
 import { PostInteractiveContainer } from './PostInteractiveContainer';
 import { ProjectShipCard } from './ProjectShipCard';
 import { PostGitHubUnfold } from '@/modules/github/presentation/components/PostGitHubUnfold';
@@ -98,9 +99,17 @@ export function PostCard({
               </div>
             </div>
           </div>
-          {dbUserId === post.author.id && (
+          {dbUserId === post.author.id ? (
             <div className="shrink-0">
               <PostDeleteAction postId={post.id} />
+            </div>
+          ) : (
+            <div className="shrink-0">
+              <PostSafetyMenu
+                postId={post.id}
+                authorId={post.author.id}
+                authorUsername={post.author.username || ''}
+              />
             </div>
           )}
         </div>
