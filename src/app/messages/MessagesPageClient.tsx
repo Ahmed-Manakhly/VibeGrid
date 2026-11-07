@@ -422,6 +422,16 @@ export function MessagesPageClient() {
 
             {/* Input Composer */}
             <form onSubmit={handleSend} className="p-3 border-t flex gap-2 items-center">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setContent((prev) => prev ? `${prev}\n\`\`\`typescript\n// your code snippet here\n\`\`\`\n` : "```typescript\n// your code snippet here\n```\n")}
+                className="text-muted-foreground hover:text-primary size-9 shrink-0"
+                title="Insert code snippet"
+              >
+                <Code2Icon className="size-4" />
+              </Button>
               <Input
                 value={content}
                 onChange={(e) => handleTypingChange(e.target.value)}
@@ -429,7 +439,7 @@ export function MessagesPageClient() {
                 maxLength={2000}
                 className="flex-1 text-sm focus-visible:ring-1"
               />
-              <Button type="submit" size="icon" disabled={!content.trim() || sending}>
+              <Button type="submit" size="icon" disabled={!content.trim() || sending} className="size-9 shrink-0">
                 {sending ? <Loader2Icon className="animate-spin size-4" /> : <SendIcon className="size-4" />}
               </Button>
             </form>
