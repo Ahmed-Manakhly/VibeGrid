@@ -20,6 +20,9 @@ export interface VibePost {
     bookmarks?: { userId: string }[];
     regrids?: { userId: string }[];
     comments: any[];
+    techContext?: any;
+    postType?: string;
+    poll?: any;
     _count: {
         likes: number;
         comments: number;
