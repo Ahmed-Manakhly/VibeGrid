@@ -33,6 +33,7 @@ export function CommentCard({
     const [replyContent, setReplyContent] = useState('');
     const [isSubmittingReply, setIsSubmittingReply] = useState(false);
     const [localReplies, setLocalReplies] = useState<any[]>(comment.replies || []);
+    const [showReplies, setShowReplies] = useState(false);
     const [isSolution, setIsSolution] = useState(Boolean(comment.isSolution));
     const [isTogglingSolution, setIsTogglingSolution] = useState(false);
 
@@ -110,6 +111,7 @@ export function CommentCard({
             };
 
             setLocalReplies((prev) => [...prev, optimisticReply]);
+            setShowReplies(true);
 
             const result = await createComment(postId, text, comment.id);
             if (result?.success) {
@@ -167,6 +169,15 @@ export function CommentCard({
                             >
                                 <ReplyIcon className="size-3.5" />
                                 <span>Reply</span>
+                            </button>
+                        )}
+
+                        {!isReply && localReplies.length > 0 && (
+                            <button
+                                onClick={() => setShowReplies((prev) => !prev)}
+                                className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline transition-colors"
+                            >
+                                <span>{showReplies ? "Hide replies" : `View ${localReplies.length} ${localReplies.length === 1 ? "reply" : "replies"}`}</span>
                             </button>
                         )}
 
@@ -240,7 +251,7 @@ export function CommentCard({
             )}
 
             {/* Nested Replies Rendering */}
-            {!isReply && localReplies.length > 0 && (
+            {!isReply && localReplies.length > 0 && showReplies && (
                 <div className="space-y-3">
                     {localReplies.map((reply: any) => (
                         <CommentCard
