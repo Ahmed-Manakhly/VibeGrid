@@ -17,6 +17,7 @@ interface InfiniteScrollProps {
 
 export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUserId, mode = "infinite", isTruncated = false }: InfiniteScrollProps) {
   const [posts, setPosts] = useState(initialPosts);
+  const [pendingFreshPosts, setPendingFreshPosts] = useState<any[]>([]);
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"thread" | "grid">("grid");
@@ -71,12 +72,26 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
           const data = await res.json();
 
           if (data.data && Array.isArray(data.data)) {
-            setPosts((prev) => {
-              const existingIds = new Set(prev.map((p) => p.id));
-              const freshPosts = data.data.filter((p: any) => !existingIds.has(p.id));
-              if (freshPosts.length === 0) return prev;
-              return [...freshPosts, ...prev];
-            });
+            const existingIds = new Set(posts.map((p) => p.id));
+            const freshPosts = data.data.filter((p: any) => !existingIds.has(p.id));
+            
+            if (freshPosts.length > 0) {
+              // If user is at the top of the feed (scrollY < 100), auto-prepend smoothly
+              if (window.scrollY < 100) {
+                setPosts((prev) => {
+                  const currentIds = new Set(prev.map((p) => p.id));
+                  const unadded = freshPosts.filter((p: any) => !currentIds.has(p.id));
+                  return [...unadded, ...prev];
+                });
+              } else {
+                // Otherwise queue them in a floating banner to avoid disruptive layout jumps
+                setPendingFreshPosts((prev) => {
+                  const currentPendingIds = new Set(prev.map((p) => p.id));
+                  const newPending = freshPosts.filter((p: any) => !currentPendingIds.has(p.id));
+                  return [...newPending, ...prev];
+                });
+              }
+            }
           }
         } catch (error) {
           console.error("Failed to reconcile realtime feed update", error);
@@ -85,7 +100,7 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
 
       fetchLatest();
     }
-  }, [latestFeedSignal, apiUrl, searchParams]);
+  }, [latestFeedSignal, apiUrl, searchParams, posts]);
 
   const loadMore = async () => {
     if (loading || !nextCursor) return;
@@ -124,8 +139,30 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
     }
   }, [inView, mode]);
 
+  const handleShowPendingPosts = () => {
+    if (pendingFreshPosts.length === 0) return;
+    setPosts((prev) => [...pendingFreshPosts, ...prev]);
+    setPendingFreshPosts([]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      {/* Floating Fresh Posts Notification Pill */}
+      {pendingFreshPosts.length > 0 && (
+        <div className="sticky top-20 z-20 flex justify-center mb-4 animate-in fade-in slide-in-from-top duration-300">
+          <button
+            onClick={handleShowPendingPosts}
+            className="btn-gradient px-4 py-1.5 rounded-full text-xs font-semibold shadow-lg hover:scale-105 transition-transform flex items-center gap-2 text-white"
+          >
+            <span className="size-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>
+              {pendingFreshPosts.length} new {pendingFreshPosts.length === 1 ? "vibe" : "vibes"} available &uarr;
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* Thread / Grid Toggle */}
       {posts.length > 0 && (
         <div className="hidden sm:flex items-center gap-2 mb-6">
