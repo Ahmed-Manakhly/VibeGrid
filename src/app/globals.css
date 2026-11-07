@@ -432,3 +432,15 @@
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--accent)) transparent;
 }
+
+/* Universal Accessibility Focus Visible Rings */
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Mobile Viewport Horizontal Overflow Protection */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
