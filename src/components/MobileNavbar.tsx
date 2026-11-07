@@ -13,10 +13,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { ModeToggle } from "./ModeToggle";
 import { useSession } from "@/components/auth/SessionProvider";
+import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 
 function MobileNavbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { isAuthenticated, logout } = useSession();
+  const { unreadCount } = useRealtime();
 
   return (
     <div className="flex md:hidden items-center space-x-2">
@@ -41,10 +43,15 @@ function MobileNavbar() {
 
             {isAuthenticated ? (
               <>
-                <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
+                <Button variant="ghost" className="flex items-center gap-3 justify-start relative" asChild>
                   <Link href="/notifications">
                     <BellIcon className="w-4 h-4" />
-                    Notifications
+                    <span>Notifications</span>
+                    {unreadCount > 0 && (
+                      <span className="ml-auto px-1.5 py-0.5 rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
                   </Link>
                 </Button>
                 <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
