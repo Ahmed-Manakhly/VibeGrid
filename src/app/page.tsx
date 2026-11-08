@@ -65,12 +65,12 @@ export default async function Home({ searchParams }: PageProps) {
           </>
         }
         discovery={
-          <div className="flex flex-col gap-6 xl:sticky xl:top-24 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto z-10 pb-10 px-4 -mx-4 scrollbar-hide">
-              <CategoryPills />
-              <TrendingShipsLeaderboard limit={4} />
-              <TrendingSidebar />
-              <WhoToFollow/>
-          </div>
+          <>
+            <CategoryPills />
+            <TrendingShipsLeaderboard limit={4} />
+            <TrendingSidebar />
+            <WhoToFollow />
+          </>
         }
       />
   );

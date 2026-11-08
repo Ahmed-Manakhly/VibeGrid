@@ -39,11 +39,7 @@ export default async function PostPage({ params }: { params: any }) {
           <PostCard post={post} dbUserId={dbUserId} isDetailPage={true} />
         </div>
       }
-      discovery={
-        <div className="flex flex-col gap-6 xl:sticky xl:top-24 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto z-10 pb-10 px-4 -mx-4 scrollbar-hide">
-          <RelatedPostsSidebar tags={post.tags} currentPostId={post.id} />
-        </div>
-      }
+      discovery={<RelatedPostsSidebar tags={post.tags} currentPostId={post.id} />}
     />
   );
 }
