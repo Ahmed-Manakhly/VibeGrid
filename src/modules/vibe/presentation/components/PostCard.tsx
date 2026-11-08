@@ -13,6 +13,7 @@ import { PostInteractiveContainer } from './PostInteractiveContainer';
 import { ProjectShipCard } from './ProjectShipCard';
 import { PostGitHubUnfold } from '@/modules/github/presentation/components/PostGitHubUnfold';
 import { TechDilemmaPollCard } from './TechDilemmaPollCard';
+import { RepeatIcon } from 'lucide-react';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>;
 type post = FeedResponse['data'][number] & {
@@ -60,8 +61,23 @@ export function PostCard({
   const hasReGridded = post.regrids?.some((r) => r.userId === dbUserId) || false;
   const initialReGrids = post._count?.regrids || (post.regrids?.length || 0);
 
+  // Check if this card represents a regridded post in the feed
+  const firstReposter = post.regrids && post.regrids.length > 0 ? post.regrids[0].user : null;
+
   return (
     <article className="feed-card overflow-hidden pb-3 sm:pb-5">
+      {firstReposter && (
+        <div className="px-3 sm:px-5 pt-2.5 pb-1 flex items-center gap-1.5 text-xs text-muted-foreground border-b border-border/30 bg-muted/20">
+          <RepeatIcon className="size-3 text-green-500 shrink-0" />
+          <span className="font-mono text-[11px]">Re-gridded by</span>
+          <Link
+            href={`/profile/${firstReposter.username || firstReposter.id}`}
+            className="font-semibold text-foreground hover:underline truncate"
+          >
+            {firstReposter.name || firstReposter.username || 'Developer'}
+          </Link>
+        </div>
+      )}
       <div className="p-3 sm:p-5 space-y-3 sm:space-y-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center space-x-3 min-w-0 flex-1">

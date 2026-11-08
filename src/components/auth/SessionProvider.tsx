@@ -64,6 +64,25 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchSession();
+
+    // Firefox/Safari instant session synchronization across tabs and OAuth redirects
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'vibegrid_auth_sync') {
+        fetchSession();
+      }
+    };
+
+    const handleCustomSync = () => {
+      fetchSession();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('session_updated', handleCustomSync);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('session_updated', handleCustomSync);
+    };
   }, []);
 
   // Window Focus Auto-Revalidation & Interceptor for 401 Unauthorized API responses
