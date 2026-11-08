@@ -188,11 +188,11 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[540px] max-h-[90vh] flex flex-col p-6 overflow-hidden">
+      <DialogContent className="w-[95vw] sm:max-w-[540px] max-h-[85vh] flex flex-col p-4 sm:p-6 overflow-hidden rounded-2xl">
         <DialogHeader className="shrink-0 pb-3 border-b border-border/40">
-          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">Edit Profile</DialogTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto space-y-4 py-4 pr-1 sm:pr-2 min-w-0">
+        <div className="flex-1 overflow-y-auto space-y-4 py-3 sm:py-4 pr-1 sm:pr-2 min-w-0 [overflow-wrap:anywhere]">
           <div className="flex flex-col items-center gap-3">
             <UserAvatar src={previewUrl || user.image} name={user.name} className="w-20 h-20" />
             <Label htmlFor="avatar-file" className="cursor-pointer text-xs font-semibold text-primary hover:underline">
@@ -266,7 +266,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
               onChange={(e) => websiteInput.setValue(e.target.value)}
               onBlur={websiteInput.inputBlurHandler}
               placeholder="https://yourwebsite.com"
-              className={websiteInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}
+              className={`break-all [overflow-wrap:anywhere] ${websiteInput.hasError ? 'border-destructive ring-1 ring-destructive' : ''}`}
             />
             {websiteInput.hasError && websiteInput.errorMessage && (
               <p className="text-xs text-destructive mt-1">{websiteInput.errorMessage}</p>
