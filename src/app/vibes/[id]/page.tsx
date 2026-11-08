@@ -40,7 +40,7 @@ export default async function PostPage({ params }: { params: any }) {
         </div>
       }
       discovery={
-        <div className="flex flex-col gap-6 xl:sticky xl:top-20 xl:h-[calc(100vh-80px)] xl:overflow-y-auto z-10 pb-10 px-4 -mx-4 scrollbar-hide">
+        <div className="flex flex-col gap-6 xl:sticky xl:top-24 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto z-10 pb-10 px-4 -mx-4 scrollbar-hide">
           <RelatedPostsSidebar tags={post.tags} currentPostId={post.id} />
         </div>
       }
