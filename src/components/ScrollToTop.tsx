@@ -10,8 +10,8 @@ export function ScrollToTop() {
 
   useEffect(() => {
     const toggleVisibility = () => {
-      // Show if scrolled down more than 1 viewport height
-      if (window.scrollY > window.innerHeight) {
+      // Show if scrolled down past the composer / 350px
+      if (window.scrollY > 350) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
