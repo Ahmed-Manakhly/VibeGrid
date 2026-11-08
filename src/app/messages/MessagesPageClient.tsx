@@ -14,7 +14,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon } from "lucide-react";
+import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon, SmileIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { CodeBlockViewer } from "@/modules/vibe/presentation/components/CodeBlockViewer";
 import { PostContentValueObject } from "@/modules/vibe/domain/PostContentValueObject";
@@ -24,7 +24,7 @@ export function MessagesPageClient() {
   const searchParams = useSearchParams();
   const initialConvId = searchParams.get("conversationId");
 
-  const { latestDirectMessage, latestTypingSignal, socket } = useRealtime();
+  const { latestDirectMessage, latestTypingSignal, onlineUsers, socket } = useRealtime();
 
   const [conversations, setConversations] = useState<any[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(initialConvId);
@@ -36,10 +36,27 @@ export function MessagesPageClient() {
   const [sending, setSending] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [isRecipientTyping, setIsRecipientTyping] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const typingDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Close emoji picker on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    }
+    if (showEmojiPicker) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   // Load conversations list
   const loadConversations = async () => {
@@ -286,7 +303,12 @@ export function MessagesPageClient() {
                     isActive ? "bg-accent" : ""
                   }`}
                 >
-                  <UserAvatar src={other?.image} name={other?.name} className="size-10 shrink-0" />
+                  <div className="relative shrink-0">
+                    <UserAvatar src={other?.image} name={other?.name} className="size-10" />
+                    {other?.id && onlineUsers.has(other.id) && (
+                      <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-500 ring-2 ring-background animate-pulse" />
+                    )}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex justify-between items-baseline">
                       <span className="font-semibold text-sm truncate">{other?.name || other?.username || "Developer"}</span>
@@ -332,9 +354,19 @@ export function MessagesPageClient() {
               </Button>
               {otherParticipant && (
                 <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`} className="flex items-center gap-3 group">
-                  <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-9 group-hover:opacity-80 transition-opacity" />
+                  <div className="relative shrink-0">
+                    <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-9 group-hover:opacity-80 transition-opacity" />
+                    {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
+                      <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-500 ring-2 ring-background animate-pulse" />
+                    )}
+                  </div>
                   <div>
-                    <h3 className="font-semibold text-sm group-hover:underline">{otherParticipant.name || otherParticipant.username || "Developer"}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-sm group-hover:underline">{otherParticipant.name || otherParticipant.username || "Developer"}</h3>
+                      {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
+                        <span className="text-[10px] font-mono text-emerald-500 font-medium">● online</span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">@{otherParticipant.username}</p>
                   </div>
                 </Link>
@@ -432,6 +464,43 @@ export function MessagesPageClient() {
               >
                 <Code2Icon className="size-4" />
               </Button>
+
+              {/* Emoji Picker Dropdown */}
+              <div className="relative" ref={emojiPickerRef}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowEmojiPicker((prev) => !prev)}
+                  className="text-muted-foreground hover:text-primary size-9 shrink-0"
+                  title="Insert emoji"
+                >
+                  <SmileIcon className="size-4" />
+                </Button>
+                {showEmojiPicker && (
+                  <div className="absolute bottom-full left-0 mb-2 z-50 w-64 p-2 rounded-xl bg-card border border-border/80 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95">
+                    <div className="text-[11px] font-mono font-semibold text-muted-foreground mb-1.5 px-1">
+                      Quick Reactions & Emojis
+                    </div>
+                    <div className="grid grid-cols-6 gap-1 text-lg">
+                      {["😀", "🔥", "🚀", "💻", "🎉", "👍", "❤️", "⚡", "✨", "🙌", "🐛", "💯", "👀", "🫡", "🤝", "💡", "☕", "✅"].map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => {
+                            setContent((prev) => prev + emoji);
+                            setShowEmojiPicker(false);
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-muted text-center transition-colors"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <Input
                 value={content}
                 onChange={(e) => handleTypingChange(e.target.value)}
