@@ -50,6 +50,8 @@ export interface RealtimeState {
   latestTypingSignal: TypingSignal | null;
   unreadCount: number;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
+  unreadMessagesCount: number;
+  setUnreadMessagesCount: React.Dispatch<React.SetStateAction<number>>;
   socket: Socket | null;
 }
 
@@ -61,22 +63,38 @@ export function useRealtimeSocket() {
   const [latestDirectMessage, setLatestDirectMessage] = useState<DirectMessageSignal | null>(null);
   const [latestTypingSignal, setLatestTypingSignal] = useState<TypingSignal | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
   const processedNotificationIds = useRef<Set<string>>(new Set());
   const processedMessageIds = useRef<Set<string>>(new Set());
 
   const socketRef = useRef<Socket | null>(null);
 
-  // Fetch initial unread count on mount
+  // Fetch initial unread notification & messages count on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
     async function fetchUnread() {
       try {
-        const res = await fetch('/api/notifications');
-        if (res.ok) {
-          const data = await res.json();
+        const [notifRes, convRes] = await Promise.all([
+          fetch('/api/notifications'),
+          fetch('/api/messages/conversations'),
+        ]);
+
+        if (notifRes.ok) {
+          const data = await notifRes.json();
           if (Array.isArray(data)) {
             const count = data.filter((n: any) => !n.read).length;
             setUnreadCount(count);
+          }
+        }
+
+        if (convRes.ok) {
+          const convData = await convRes.json();
+          if (convData.success && Array.isArray(convData.conversations)) {
+            const totalUnread = convData.conversations.reduce(
+              (acc: number, c: any) => acc + (c.unreadCount || 0),
+              0
+            );
+            setUnreadMessagesCount(totalUnread);
           }
         }
       } catch (e) {
@@ -149,6 +167,8 @@ export function useRealtimeSocket() {
       }
 
       setLatestDirectMessage(signal);
+      setUnreadMessagesCount((prev) => prev + 1);
+      toast.info(`✉️ Message from ${signal.senderName || 'someone'}`);
     });
 
     socket.on('chat:typing', (typing: TypingSignal) => {
@@ -186,6 +206,8 @@ export function useRealtimeSocket() {
     latestTypingSignal,
     unreadCount,
     setUnreadCount,
+    unreadMessagesCount,
+    setUnreadMessagesCount,
     socket: socketRef.current,
   };
 }
