@@ -12,11 +12,11 @@ export function RootMainWrapper({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <div className="relative min-h-[calc(100vh-64px)] w-full bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)]">
       <OnboardingProfileBanner />
-      <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-24 sm:pb-8">
+      <main className="px-4 py-6 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-28 lg:pb-12">
         {children}
       </main>
-    </>
+    </div>
   );
 }
