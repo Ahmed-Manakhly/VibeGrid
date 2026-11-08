@@ -148,12 +148,12 @@ export function PostActions({
         )}
 
         {likesList && likesList.length > 0 && (
-          <div className="absolute bottom-full left-0 mb-2 hidden group-hover/like:block group-focus-within/like:block z-30 min-w-[180px] max-w-[240px] p-2.5 rounded-xl bg-card border border-border/80 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 pointer-events-auto">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 border-b border-border/40 pb-1">
+          <div className="absolute bottom-full left-0 mb-2 hidden group-hover/like:block group-focus-within/like:block z-30 min-w-[200px] max-w-[260px] p-2.5 rounded-xl bg-card border border-border/80 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 pointer-events-auto">
+            <p className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 border-b border-border/40 pb-1">
               Liked by ({optimisticLikes})
             </p>
-            <div className="space-y-1 max-h-36 overflow-y-auto">
-              {likesList.slice(0, 5).map((likeItem: any, idx: number) => {
+            <div className="space-y-1 max-h-40 overflow-y-auto">
+              {likesList.slice(0, 10).map((likeItem: any, idx: number) => {
                 const reactor = likeItem.user;
                 const reactorName = reactor?.name || reactor?.username || 'Anonymous';
                 const reactorHandle = reactor?.username ? `@${reactor.username}` : '';
@@ -161,17 +161,19 @@ export function PostActions({
                   <Link
                     key={idx}
                     href={reactor?.username ? `/profile/${reactor.username}` : '#'}
-                    className="flex items-center gap-2 p-1 rounded-lg hover:bg-muted/60 transition-colors text-xs text-foreground truncate"
+                    className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted transition-colors text-xs text-foreground truncate group/user"
                   >
-                    <UserAvatar src={reactor?.image} name={reactorName} className="size-5 shrink-0" />
-                    <span className="truncate font-medium">{reactorName}</span>
-                    {reactorHandle && <span className="text-[10px] text-muted-foreground truncate">{reactorHandle}</span>}
+                    <UserAvatar src={reactor?.image} name={reactorName} className="size-6 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium group-hover/user:underline">{reactorName}</p>
+                      {reactorHandle && <p className="text-[10px] font-mono text-muted-foreground truncate">{reactorHandle}</p>}
+                    </div>
                   </Link>
                 );
               })}
-              {optimisticLikes > 5 && (
-                <p className="text-[10px] text-muted-foreground pt-1 italic">
-                  and {optimisticLikes - 5} others...
+              {optimisticLikes > 10 && (
+                <p className="text-[10px] text-muted-foreground pt-1 italic text-center">
+                  and {optimisticLikes - 10} others...
                 </p>
               )}
             </div>

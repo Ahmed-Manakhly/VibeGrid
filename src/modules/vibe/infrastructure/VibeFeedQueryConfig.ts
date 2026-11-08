@@ -43,7 +43,8 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
     },
     regrids: {
       select: {
-        userId: true
+        userId: true,
+        user: { select: { id: true, name: true, username: true, image: true } },
       }
     },
     poll: {
