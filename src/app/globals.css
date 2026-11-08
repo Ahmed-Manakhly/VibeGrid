@@ -44,39 +44,39 @@
     --gradient-core: 0 0% 100%;
   }
   .dark {
-    --background: 220 15% 6%;   /* Very dark obsidian — main bg, the darkest layer */
-    --foreground: 0 0% 98%;
-    --card: 220 14% 10%;         /* Slightly lighter — for cards/panels */
-    --card-foreground: 0 0% 98%;
-    --popover: 220 18% 9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 158 83% 32%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 220 16% 14%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 220 16% 14%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 285 55% 45%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 224 71% 4%;     /* Cyber-Onyx Deep Void background */
+    --foreground: 210 40% 98%;
+    --card: 224 45% 8%;           /* Elevated Slate Glass card base */
+    --card-foreground: 210 40% 98%;
+    --popover: 224 45% 7%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 158 64% 52%;       /* Terminal Emerald */
+    --primary-foreground: 224 71% 4%;
+    --secondary: 222 35% 12%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 30% 12%;
+    --muted-foreground: 217 20% 65%;
+    --accent: 190 95% 48%;        /* Electric Cyan */
+    --accent-foreground: 224 71% 4%;
+    --destructive: 0 62.8% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 16% 16%;
-    --input: 220 16% 14%;
-    --ring: 198 100% 50%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --shadow-color: 255, 255, 255;
-    --shadow-opacity: 0.03;
+    --border: 222 28% 16%;
+    --input: 222 28% 14%;
+    --ring: 158 64% 52%;
+    --chart-1: 158 64% 52%;
+    --chart-2: 190 95% 48%;
+    --chart-3: 270 75% 60%;
+    --chart-4: 43 96% 56%;
+    --chart-5: 25 95% 53%;
+    --radius: 0.75rem;
+    --shadow-color: 0, 0, 0;
+    --shadow-opacity: 0.4;
     --inner-highlight: rgba(255, 255, 255, 0.05);
-    --border-glass: rgba(255, 255, 255, 0.06);
-    --gradient-opacity: 0.15;
-    --card-opacity: 0.6;
-    --gradient-core: 222 50% 4%;
-    --nav-surface: 220 20% 8%;  /* Nav/sidebar — between bg and card */
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --gradient-opacity: 0.2;
+    --card-opacity: 0.75;
+    --gradient-core: 224 71% 4%;
+    --nav-surface: 224 50% 6%;
   }
 }
 
@@ -236,8 +236,8 @@
   }
   
   .dark .feed-card:hover {
-    border-color: hsl(var(--border));
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    border-color: hsl(var(--primary) / 0.4);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 15px hsl(var(--primary) / 0.1);
   }
 
   .feed-card {
@@ -247,6 +247,13 @@
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     position: relative;
     border-radius: 1rem;
+  }
+
+  .dark .feed-card {
+    background: linear-gradient(180deg, hsl(224 45% 9% / 0.85) 0%, hsl(224 50% 6% / 0.85) 100%);
+    border: 1px solid hsl(222 28% 18% / 0.8);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
   }
 
   .dark .feed-card {
@@ -437,10 +444,4 @@
 :focus-visible {
   outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
-}
-
-/* Mobile Viewport Horizontal Overflow Protection */
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
 }
