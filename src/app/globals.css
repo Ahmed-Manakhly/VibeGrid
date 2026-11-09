@@ -100,7 +100,7 @@
 
   .grid-mark { display: grid; grid-template-columns: repeat(2, 7px); grid-template-rows: repeat(2, 7px); gap: 3px; transform: rotate(-12deg); }
   .grid-mark span { display: block; border-radius: 2px; background: hsl(var(--primary)); box-shadow: 0 0 10px hsla(var(--primary), 0.7); }
-  .grid-mark span:nth-child(2), .grid-mark span:nth-child(3) { background: hsl(var(--accent)); box-shadow: 0 0 10px hsla(var(--accent), 0.7); }
+  .grid-mark span:nth-child(2), .grid-mark span:nth-child(3) { background: #d8b65c; box-shadow: 0 0 10px rgba(216, 182, 92, 0.7); }
   
   .nav-item { @apply flex items-center gap-3 rounded-none px-3 py-3 text-sm font-bold text-muted-foreground transition border-none group-[.is-collapsed]:justify-center group-[.is-collapsed]:px-0; }
   .nav-item svg { @apply size-4; }
