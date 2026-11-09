@@ -14,7 +14,8 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon, SmileIcon } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon, SmileIcon, Users, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { CodeBlockViewer } from "@/modules/vibe/presentation/components/CodeBlockViewer";
 import { PostContentValueObject } from "@/modules/vibe/domain/PostContentValueObject";
@@ -27,7 +28,15 @@ export function MessagesPageClient() {
   const { latestDirectMessage, latestTypingSignal, onlineUsers, socket } = useRealtime();
 
   const [conversations, setConversations] = useState<any[]>([]);
+  const [mobileTab, setMobileTab] = useState<"conversations" | "chat">("conversations");
   const [activeConversationId, setActiveConversationId] = useState<string | null>(initialConvId);
+
+  // Sync mobile tab if an initial conversation ID was passed in query params
+  useEffect(() => {
+    if (initialConvId) {
+      setMobileTab("chat");
+    }
+  }, [initialConvId]);
   const [messages, setMessages] = useState<any[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [content, setContent] = useState("");
@@ -269,11 +278,37 @@ export function MessagesPageClient() {
   )?.user;
 
   return (
-    <div className="w-full h-[calc(100vh-80px)] p-2 sm:p-4 flex gap-4 overflow-hidden">
+    <div className="w-full h-[calc(100vh-80px)] p-2 sm:p-4 flex flex-col lg:flex-row gap-4 overflow-hidden">
+      {/* Mobile/Tablet View Toggle Tabs (< lg) */}
+      <div className="lg:hidden w-full shrink-0">
+        <Tabs
+          value={mobileTab}
+          onValueChange={(val) => setMobileTab(val as "conversations" | "chat")}
+          className="w-full"
+        >
+          <TabsList className="w-full flex items-center justify-start flex-wrap border-b border-border/50 bg-transparent p-0 rounded-none h-auto gap-x-4 sm:gap-x-6 gap-y-1">
+            <TabsTrigger
+              value="conversations"
+              className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+            >
+              <Users className="size-3.5 sm:size-4 shrink-0" />
+              <span>Conversations</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="chat"
+              className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+            >
+              <MessageCircle className="size-3.5 sm:size-4 shrink-0" />
+              <span>Chat</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       {/* Conversations List Sidebar */}
       <div
-        className={`w-full md:w-80 shrink-0 flex flex-col border rounded-xl bg-card overflow-hidden ${
-          activeConversationId ? "hidden md:flex" : "flex"
+        className={`w-full lg:w-80 shrink-0 flex flex-col border rounded-xl bg-card overflow-hidden ${
+          mobileTab === "conversations" ? "flex flex-1 lg:flex-initial" : "hidden lg:flex"
         }`}
       >
         <div className="p-4 border-b font-bold text-lg flex items-center justify-between">
@@ -298,7 +333,10 @@ export function MessagesPageClient() {
               return (
                 <button
                   key={conv.id}
-                  onClick={() => setActiveConversationId(conv.id)}
+                  onClick={() => {
+                    setActiveConversationId(conv.id);
+                    setMobileTab("chat");
+                  }}
                   className={`w-full p-3 flex items-center gap-3 text-left transition hover:bg-accent/50 ${
                     isActive ? "bg-accent" : ""
                   }`}
@@ -337,7 +375,7 @@ export function MessagesPageClient() {
       {/* Active Conversation View */}
       <div
         className={`flex-1 flex flex-col border rounded-xl bg-card overflow-hidden ${
-          !activeConversationId ? "hidden md:flex" : "flex"
+          mobileTab === "chat" ? "flex" : "hidden lg:flex"
         }`}
       >
         {activeConversationId ? (
@@ -347,8 +385,8 @@ export function MessagesPageClient() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden size-8"
-                onClick={() => setActiveConversationId(null)}
+                className="lg:hidden size-8"
+                onClick={() => setMobileTab("conversations")}
               >
                 <ArrowLeftIcon className="size-4" />
               </Button>
