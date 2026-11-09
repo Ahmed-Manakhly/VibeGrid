@@ -98,7 +98,7 @@ export function OnboardingProfileBanner() {
           {/* Header Row */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-[#d8b65c]/15 border border-[#d8b65c]/30 text-[#d8b65c] shadow-[0_0_15px_rgba(216,182,92,0.2)] shrink-0">
+              <div className="p-2.5 rounded-2xl bg-primary/15 border border-primary/30 text-primary shadow-[0_0_15px_rgba(16,185,129,0.2)] shrink-0">
                 <Sparkles className="size-5 animate-pulse" />
               </div>
               <div>
@@ -106,7 +106,7 @@ export function OnboardingProfileBanner() {
                   <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight">
                     Welcome to VibeGrid! Complete your setup
                   </h3>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#d8b65c]/15 text-[#d8b65c] border border-[#d8b65c]/30 shadow-sm">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 shadow-sm">
                     {completedCount} OF 3 COMPLETED
                   </span>
                 </div>
