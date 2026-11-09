@@ -29,6 +29,7 @@ const FLOWS = [
   { id: '03', name: 'Social Graph (Follows)',       bot: '03_social_graph_flow/bot.js',   reset: '03_social_graph_flow/reset.js',   independent: false },
   { id: '04', name: 'Engagement (Likes, Comments)', bot: '04_engagement_flow/bot.js',    reset: '04_engagement_flow/reset.js',    independent: false },
   { id: '05', name: 'Notifications Verification',   bot: '05_notifications_flow/bot.js',   reset: '05_notifications_flow/reset.js',   independent: false },
+  { id: '06', name: 'Developer Communities Hub',    bot: '06_communities_flow/bot.js',     reset: '06_communities_flow/reset.js',     independent: false },
 ];
 
 const args = process.argv.slice(2);
