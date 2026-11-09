@@ -79,8 +79,8 @@ function ProfilePageClient({
     return (
         <div className="w-full">
             <div className="flex flex-col lg:flex-row gap-6 items-start">
-                <div className="w-full lg:w-[350px] shrink-0 sticky top-24 lg:mt-[56px]">
-                    <Card className="bg-card">
+                <div className="w-full lg:w-[350px] shrink-0 relative lg:sticky lg:top-24 lg:mt-[56px] z-10">
+                    <Card className="bg-card/90 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-lg">
                         <CardContent className="pt-6">
                             <div className="flex flex-col items-center text-center">
                                 <UserAvatar src={user.image} name={user.name} className="w-24 h-24" />
@@ -265,32 +265,31 @@ function ProfilePageClient({
 
                 <div className="w-full min-w-0 flex-1">
                     <Tabs defaultValue="posts" className="w-full">
-                        <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
-                            <TabsTrigger
-                                value="posts"
-                                className="flex items-center gap-2 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary
-                                data-[state=active]:bg-transparent px-6 font-semibold"
-                            >
-                                <FileTextIcon className="size-4" />
-                                Posts
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="timeline"
-                                className="flex items-center gap-2 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary
-                                data-[state=active]:bg-transparent px-6 font-semibold"
-                            >
-                                <Milestone className="size-4" />
-                                Timeline
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="likes"
-                                className="flex items-center gap-2 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary
-                                data-[state=active]:bg-transparent px-6 font-semibold"
-                            >
-                                <HeartIcon className="size-4" />
-                                Likes
-                            </TabsTrigger>
-                        </TabsList>
+                        <div className="sticky top-16 z-20 bg-background/80 backdrop-blur-xl border-b border-border/60 py-1">
+                            <TabsList className="w-full grid grid-cols-3 h-auto p-1 bg-muted/40 rounded-xl max-w-md">
+                                <TabsTrigger
+                                    value="posts"
+                                    className="flex items-center justify-center gap-1.5 py-2 rounded-lg font-semibold text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
+                                >
+                                    <FileTextIcon className="size-3.5 sm:size-4" />
+                                    <span>Posts</span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="timeline"
+                                    className="flex items-center justify-center gap-1.5 py-2 rounded-lg font-semibold text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
+                                >
+                                    <Milestone className="size-3.5 sm:size-4" />
+                                    <span>Timeline</span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="likes"
+                                    className="flex items-center justify-center gap-1.5 py-2 rounded-lg font-semibold text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
+                                >
+                                    <HeartIcon className="size-3.5 sm:size-4" />
+                                    <span>Likes</span>
+                                </TabsTrigger>
+                            </TabsList>
+                        </div>
                         <TabsContent value="posts" className="mt-6">
                             <div className="space-y-6">
                                 <InfiniteScroll 
