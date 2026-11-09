@@ -259,11 +259,11 @@ export default function CreatPost() {
                             )}
 
                             {showShipMode && (
-                                <div className="border border-violet-500/40 rounded-2xl p-4 bg-gradient-to-br from-violet-950/20 via-background/80 to-purple-950/10 space-y-3.5 backdrop-blur-sm shadow-md">
+                                <div className="border border-[#d8b65c]/40 rounded-2xl p-4 bg-gradient-to-br from-[#d8b65c]/10 via-background/80 to-[#b89539]/10 space-y-3.5 backdrop-blur-sm shadow-md">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <RocketIcon className="size-4 text-violet-400 animate-pulse" />
-                                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-violet-300">Show & Ship Mode</span>
+                                            <RocketIcon className="size-4 text-[#d8b65c] animate-pulse" />
+                                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#d8b65c]">Show & Ship Mode</span>
                                         </div>
                                         <span className="text-[11px] text-muted-foreground font-mono">Project Launch</span>
                                     </div>
@@ -276,14 +276,14 @@ export default function CreatPost() {
                                             placeholder="Project Name (e.g. VibeGrid)"
                                             value={projectName}
                                             onChange={(e) => setProjectName(e.target.value)}
-                                            className="h-9 text-xs sm:text-sm bg-background/80 border-violet-500/30 rounded-xl"
+                                            className="h-9 text-xs sm:text-sm bg-background/80 border-[#d8b65c]/30 focus-visible:border-[#d8b65c]/60 rounded-xl"
                                         />
                                         <Input
                                             name="techStack"
                                             placeholder="Tech Stack (comma separated: Next.js, Prisma, Tailwind)"
                                             value={techStack}
                                             onChange={(e) => setTechStack(e.target.value)}
-                                            className="h-9 text-xs sm:text-sm bg-background/80 border-violet-500/30 rounded-xl"
+                                            className="h-9 text-xs sm:text-sm bg-background/80 border-[#d8b65c]/30 focus-visible:border-[#d8b65c]/60 rounded-xl"
                                         />
                                     </div>
 
@@ -294,7 +294,7 @@ export default function CreatPost() {
                                             placeholder="Live Demo URL (https://...)"
                                             value={demoUrl}
                                             onChange={(e) => setDemoUrl(e.target.value)}
-                                            className="h-9 text-xs sm:text-sm bg-background/80 border-violet-500/30 rounded-xl"
+                                            className="h-9 text-xs sm:text-sm bg-background/80 border-[#d8b65c]/30 focus-visible:border-[#d8b65c]/60 rounded-xl"
                                         />
                                         <Input
                                             name="repoUrl"
@@ -302,7 +302,7 @@ export default function CreatPost() {
                                             placeholder="Repository URL (https://github.com/...)"
                                             value={repoUrl}
                                             onChange={(e) => setRepoUrl(e.target.value)}
-                                            className="h-9 text-xs sm:text-sm bg-background/80 border-violet-500/30 rounded-xl"
+                                            className="h-9 text-xs sm:text-sm bg-background/80 border-[#d8b65c]/30 focus-visible:border-[#d8b65c]/60 rounded-xl"
                                         />
                                     </div>
                                 </div>
@@ -408,7 +408,7 @@ export default function CreatPost() {
                                         <CodeIcon className="size-4 mr-1.5" />
                                         Code
                                     </Button>
-                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-violet-400 hover:bg-violet-500/10 transition-all rounded-xl ${showShipMode ? "text-violet-400 bg-violet-500/15 border border-violet-500/30" : "text-muted-foreground"}`}
+                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-[#d8b65c] hover:bg-[#d8b65c]/10 transition-all rounded-xl ${showShipMode ? "text-[#d8b65c] bg-[#d8b65c]/15 border border-[#d8b65c]/30" : "text-muted-foreground"}`}
                                         onClick={() => setShowShipMode(!showShipMode)}
                                     >
                                         <RocketIcon className="size-4 mr-1.5" />
