@@ -24,8 +24,8 @@ export default function Icon() {
         }}
       >
         <div style={{ width: '13px', height: '13px', background: '#10b981', borderRadius: '3px' }} />
-        <div style={{ width: '13px', height: '13px', background: '#f59e0b', borderRadius: '3px' }} />
-        <div style={{ width: '13px', height: '13px', background: '#f59e0b', borderRadius: '3px' }} />
+        <div style={{ width: '13px', height: '13px', background: '#fbbf24', borderRadius: '3px' }} />
+        <div style={{ width: '13px', height: '13px', background: '#fbbf24', borderRadius: '3px' }} />
         <div style={{ width: '13px', height: '13px', background: '#10b981', borderRadius: '3px' }} />
       </div>
     ),
