@@ -280,7 +280,7 @@ export function MessagesPageClient() {
   return (
     <div className="w-full h-[calc(100vh-80px)] p-2 sm:p-4 flex flex-col lg:flex-row gap-4 overflow-hidden">
       {/* Mobile/Tablet View Toggle Tabs (< lg) */}
-      <div className="lg:hidden w-full shrink-0">
+      <div className="lg:hidden w-full shrink-0 sticky top-[118px] z-30 py-1 bg-transparent backdrop-blur-md mb-2">
         <Tabs
           value={mobileTab}
           onValueChange={(val) => setMobileTab(val as "conversations" | "chat")}
