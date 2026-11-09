@@ -96,21 +96,21 @@ export function OnboardingProfileBanner() {
 
         <div className="relative z-10 flex flex-col gap-4">
           {/* Header Row */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-primary/15 border border-primary/30 text-primary shadow-[0_0_15px_rgba(16,185,129,0.2)] shrink-0">
-                <Sparkles className="size-5 animate-pulse" />
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              <div className="p-2 sm:p-2.5 rounded-2xl bg-primary/15 border border-primary/30 text-primary shadow-[0_0_15px_rgba(16,185,129,0.2)] shrink-0 mt-0.5">
+                <Sparkles className="size-4 sm:size-5 animate-pulse" />
               </div>
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight">
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5">
+                  <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight leading-snug">
                     Welcome to VibeGrid! Complete your setup
                   </h3>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 shadow-sm">
+                  <span className="self-start text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 shadow-sm shrink-0">
                     {completedCount} OF 3 COMPLETED
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   Follow these essential steps to tune your recommendations and establish your developer presence.
                 </p>
               </div>
@@ -118,7 +118,7 @@ export function OnboardingProfileBanner() {
 
             <button
               onClick={() => setDismissed(true)}
-              className="text-xs text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted/60 transition-colors"
+              className="text-xs text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted/60 transition-colors shrink-0"
               aria-label="Dismiss checklist"
             >
               <X className="size-4" />
@@ -150,7 +150,7 @@ export function OnboardingProfileBanner() {
 
             {/* Step 2: Complete Profile Bio & Links */}
             <div
-              className={`flex items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
+              className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
                 isProfileComplete
                   ? 'border-primary/20 bg-background/50 backdrop-blur-md'
                   : 'border-[#d8b65c]/40 bg-[#d8b65c]/5 hover:border-[#d8b65c]/70 shadow-sm backdrop-blur-md'
@@ -177,19 +177,21 @@ export function OnboardingProfileBanner() {
               </div>
 
               {!isProfileComplete && (
-                <Link
-                  href={profileEditHref}
-                  className="btn-gradient inline-flex items-center gap-1 px-3 py-1 rounded-xl font-semibold text-xs transition-all shrink-0 shadow-sm"
-                >
-                  <span>Edit</span>
-                  <ArrowRight className="size-3" />
-                </Link>
+                <div className="flex justify-end pt-1 sm:pt-0">
+                  <Link
+                    href={profileEditHref}
+                    className="btn-gradient inline-flex items-center justify-center gap-1 px-3 py-1 rounded-xl font-semibold text-xs transition-all w-full sm:w-auto shadow-sm"
+                  >
+                    <span>Edit</span>
+                    <ArrowRight className="size-3" />
+                  </Link>
+                </div>
               )}
             </div>
 
             {/* Step 3: Personalize Feed Interests */}
             <div
-              className={`flex items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
+              className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
                 isPersonalizationComplete
                   ? 'border-primary/20 bg-background/50 backdrop-blur-md'
                   : 'border-[#d8b65c]/40 bg-[#d8b65c]/5 hover:border-[#d8b65c]/70 shadow-sm backdrop-blur-md'
@@ -218,13 +220,15 @@ export function OnboardingProfileBanner() {
               </div>
 
               {!isPersonalizationComplete && (
-                <Link
-                  href="/settings?tab=personalization"
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-secondary text-secondary-foreground border border-border/60 font-medium text-xs hover:bg-secondary/80 transition-all shrink-0"
-                >
-                  <span>Pick</span>
-                  <ArrowRight className="size-3" />
-                </Link>
+                <div className="flex justify-end pt-1 sm:pt-0">
+                  <Link
+                    href="/settings?tab=personalization"
+                    className="inline-flex items-center justify-center gap-1 px-3 py-1 rounded-xl bg-secondary text-secondary-foreground border border-border/60 font-medium text-xs hover:bg-secondary/80 transition-all w-full sm:w-auto shrink-0"
+                  >
+                    <span>Pick</span>
+                    <ArrowRight className="size-3" />
+                  </Link>
+                </div>
               )}
             </div>
           </div>
