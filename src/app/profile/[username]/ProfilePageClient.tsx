@@ -265,25 +265,25 @@ function ProfilePageClient({
 
                 <div className="w-full min-w-0 flex-1">
                     <Tabs defaultValue="posts" className="w-full">
-                        <div className="sticky top-[118px] lg:top-16 z-30 py-1 bg-background/95 backdrop-blur-2xl mb-4">
-                            <TabsList className="w-full flex items-center border-b border-border/60 bg-transparent p-0 rounded-none h-auto gap-4 sm:gap-6">
+                        <div className="sticky top-[118px] lg:top-16 z-30 py-1 bg-transparent backdrop-blur-md mb-4">
+                            <TabsList className="w-full flex items-center justify-start flex-wrap border-b border-border/50 bg-transparent p-0 rounded-none h-auto gap-x-4 sm:gap-x-6 gap-y-1">
                                 <TabsTrigger
                                     value="posts"
-                                    className="flex items-center gap-1.5 sm:gap-2 py-3 px-1 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
+                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
                                 >
                                     <FileTextIcon className="size-3.5 sm:size-4 shrink-0" />
                                     <span>Posts</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="timeline"
-                                    className="flex items-center gap-1.5 sm:gap-2 py-3 px-1 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
+                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
                                 >
                                     <Milestone className="size-3.5 sm:size-4 shrink-0" />
                                     <span>Timeline</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="likes"
-                                    className="flex items-center gap-1.5 sm:gap-2 py-3 px-1 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
+                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
                                 >
                                     <HeartIcon className="size-3.5 sm:size-4 shrink-0" />
                                     <span>Likes</span>
