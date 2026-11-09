@@ -24,9 +24,9 @@ export function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
   const profileUrl = user.username ? `/profile/${user.username}?edit=true` : '/login';
 
   return (
-    <Card>
+    <Card className="feed-card overflow-hidden">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <CardTitle>Public Profile</CardTitle>
             <CardDescription>Your public developer profile, bio, tech stack, and social links.</CardDescription>
