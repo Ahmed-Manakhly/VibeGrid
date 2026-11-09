@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, User, Sparkles } from 'lucide-react';
+import { Shield, User, Sparkles, Settings } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader';
 import { ProfileSettingsForm } from '@/modules/social/presentation/components/ProfileSettingsForm';
 import { FeedPreferencesSettingsForm } from '@/modules/social/presentation/components/FeedPreferencesSettingsForm';
 import { SecuritySettingsForm } from '@/modules/auth/presentation/components/SecuritySettingsForm';
@@ -29,11 +30,13 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
   const defaultTab = requestedTab === 'personalization' || requestedTab === 'security' ? requestedTab : 'personalization';
 
   return (
-    <div className="max-w-4xl mx-auto py-6 px-4 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Account Settings</h1>
-        <p className="text-muted-foreground text-sm">Manage your feed personalization, profile identity, and security preferences.</p>
-      </div>
+    <div className="w-full max-w-4xl py-2 px-0 space-y-6">
+      <PageHeader
+        eyebrow="PREFERENCES & CONFIG"
+        title="Account Settings"
+        subtitle="Manage your feed personalization, profile identity, and security preferences."
+        icon={Settings}
+      />
 
       <Tabs defaultValue={defaultTab} className="w-full">
         <div className="sticky top-[118px] lg:top-16 z-30 py-1 bg-transparent backdrop-blur-md mb-6">

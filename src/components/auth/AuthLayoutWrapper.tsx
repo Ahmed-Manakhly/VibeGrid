@@ -50,14 +50,14 @@ export function AuthLayoutWrapper({
         
         {/* Crisp Cyberpunk Grid Dots Pattern: Gold + Green Dual Matrix */}
         <div 
-          className="absolute inset-0 opacity-45 dark:opacity-50"
+          className="absolute inset-0 opacity-45 dark:opacity-20"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, #d8b65c 1.2px, transparent 0)`,
             backgroundSize: '36px 36px'
           }}
         />
         <div 
-          className="absolute inset-0 opacity-30 dark:opacity-35"
+          className="absolute inset-0 opacity-30 dark:opacity-15"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--primary)) 1px, transparent 0)`,
             backgroundSize: '72px 72px'
