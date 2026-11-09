@@ -15,20 +15,20 @@ export function MobileTabsLayout({
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 xl:gap-12 xl:items-start w-full">
-      {/* Mobile Sticky Tabs Bar (Unified with Profile & Settings style) */}
-      <div className="xl:hidden w-full sticky top-[118px] lg:top-16 z-30 py-2.5 bg-transparent mb-3 flex justify-center sm:justify-start">
-        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'feed' | 'discovery')} className="w-auto">
-          <TabsList className="inline-flex w-auto p-1 rounded-2xl bg-card/70 dark:bg-card/45 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-sm gap-1 shrink-0">
+      {/* Mobile Sticky Tabs Bar (Unified Clean Underline Style) */}
+      <div className="xl:hidden w-full sticky top-[118px] lg:top-16 z-30 py-1 bg-background/95 backdrop-blur-2xl mb-3">
+        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'feed' | 'discovery')} className="w-full">
+          <TabsList className="w-full flex items-center border-b border-border/60 bg-transparent p-0 rounded-none h-auto gap-4 sm:gap-6">
             <TabsTrigger
               value="feed"
-              className="flex items-center justify-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 rounded-xl font-medium text-[11px] sm:text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 py-3 px-1 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
             >
               <Newspaper className="size-3.5 sm:size-4 shrink-0" />
               <span>Feed</span>
             </TabsTrigger>
             <TabsTrigger
               value="discovery"
-              className="flex items-center justify-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 rounded-xl font-medium text-[11px] sm:text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 py-3 px-1 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
             >
               <Compass className="size-3.5 sm:size-4 shrink-0" />
               <span>Discovery</span>
