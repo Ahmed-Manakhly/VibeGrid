@@ -16,13 +16,13 @@
     --card-foreground: 222 50% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 50% 10%;
-    --primary: 158 83% 32%; /* Terminal Emerald #06402B baseline in light mode */
+    --primary: 158 75% 28%; /* Deeper British Racing Pine in light mode for rich contrast */
     --primary-foreground: 0 0% 98%;
     --secondary: 220 14% 90%;
     --secondary-foreground: 222 50% 10%;
     --muted: 220 14% 92%;
     --muted-foreground: 215 16% 47%;
-    --accent: 158 75% 38%; /* Unified Emerald tone for light mode */
+    --accent: 158 70% 32%; /* Deep Forest accent */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -50,14 +50,14 @@
     --card-foreground: 0 0% 98%;
     --popover: 220 18% 9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 158 83% 38%; /* Signature Terminal Emerald #10b981 */
+    --primary: 158 75% 34%; /* Deep British Racing Pine with obsidian glow */
     --primary-foreground: 0 0% 98%;
     --secondary: 220 16% 14%;
     --secondary-foreground: 0 0% 98%;
     --muted: 220 16% 14%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 158 83% 45%; /* High-vibe Emerald accent for dark mode */
-    --accent-foreground: 220 25% 6%;
+    --accent: 158 75% 38%; /* Sophisticated pine accent in dark mode */
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 220 16% 16%;
