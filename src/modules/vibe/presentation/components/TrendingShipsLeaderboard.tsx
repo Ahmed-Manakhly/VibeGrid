@@ -41,10 +41,10 @@ export function TrendingShipsLeaderboard({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="font-mono tracking-widest text-muted-foreground uppercase text-xs flex items-center gap-1.5">
-            <Trophy className="size-3.5 text-amber-500" />
+            <Trophy className="size-3.5 text-[#d8b65c]" />
             <span>{title}</span>
           </CardTitle>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-bold border border-amber-500/20 flex items-center gap-1">
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[#d8b65c]/10 text-[#d8b65c] font-bold border border-[#d8b65c]/25 flex items-center gap-1">
             <Flame className="size-3" />
             Daily Top
           </span>
@@ -60,11 +60,11 @@ export function TrendingShipsLeaderboard({
             const rank = String(idx + 1).padStart(2, "0");
             const rankColor =
               idx === 0
-                ? "text-amber-500 font-bold"
+                ? "text-[#d8b65c] font-bold"
                 : idx === 1
                 ? "text-slate-400 font-semibold"
                 : idx === 2
-                ? "text-amber-700 font-semibold"
+                ? "text-[#b89539] font-semibold"
                 : "text-muted-foreground";
 
             return (
