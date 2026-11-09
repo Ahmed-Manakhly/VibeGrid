@@ -25,22 +25,22 @@ export function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
 
   return (
     <Card className="feed-card overflow-hidden">
-      <CardHeader>
+      <CardHeader className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <CardTitle>Public Profile</CardTitle>
-            <CardDescription>Your public developer profile, bio, tech stack, and social links.</CardDescription>
+          <div className="min-w-0">
+            <CardTitle className="text-base sm:text-lg">Public Profile</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Your public developer profile, bio, tech stack, and social links.</CardDescription>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto shrink-0">
             {user.username && (
-              <Link href={`/profile/${user.username}`}>
-                <Button variant="ghost" size="sm" className="text-xs">
+              <Link href={`/profile/${user.username}`} className="w-full sm:w-auto">
+                <Button variant="ghost" size="sm" className="text-xs w-full sm:w-auto">
                   View Profile
                 </Button>
               </Link>
             )}
-            <Link href={profileUrl}>
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Link href={profileUrl} className="w-full sm:w-auto">
+              <Button variant="outline" size="sm" className="flex items-center justify-center gap-2 w-full sm:w-auto">
                 <Edit3 className="size-4" />
                 <span>Edit Profile</span>
               </Button>
@@ -48,41 +48,41 @@ export function ProfileSettingsForm({ user }: ProfileSettingsFormProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-4 py-2 border-b border-border/40 pb-4">
-          <UserAvatar src={user.image} name={user.name || user.username} className="w-16 h-16" />
-          <div className="min-w-0">
-            <h3 className="text-base font-semibold text-foreground truncate">
+      <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 py-2 border-b border-border/40 pb-4 min-w-0">
+          <UserAvatar src={user.image} name={user.name || user.username} className="w-14 h-14 sm:w-16 sm:h-16 shrink-0" />
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <h3 className="text-sm sm:text-base font-semibold text-foreground truncate">
               {user.name || user.username}
             </h3>
-            <p className="text-xs text-muted-foreground font-mono">@{user.username}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{user.email}</p>
+            <p className="text-xs text-muted-foreground font-mono truncate">@{user.username}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate break-all">{user.email}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-muted-foreground pt-1">
-          <div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-muted-foreground pt-1 min-w-0">
+          <div className="min-w-0">
             <span className="font-semibold text-foreground block mb-0.5">Bio</span>
-            <p className="line-clamp-2 italic">{user.bio || 'No bio set'}</p>
+            <p className="line-clamp-2 italic break-words">{user.bio || 'No bio set'}</p>
           </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1.5">
+          <div className="space-y-1.5 min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
               <MapPin className="size-3.5 text-muted-foreground shrink-0" />
-              <span>{user.location || 'No location set'}</span>
+              <span className="truncate min-w-0">{user.location || 'No location set'}</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 min-w-0">
               <Globe className="size-3.5 text-muted-foreground shrink-0" />
               {user.website ? (
                 <a
                   href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline truncate"
+                  className="text-primary hover:underline truncate min-w-0 flex-1"
                 >
                   {user.website}
                 </a>
               ) : (
-                <span>No website set</span>
+                <span className="truncate min-w-0">No website set</span>
               )}
             </div>
           </div>

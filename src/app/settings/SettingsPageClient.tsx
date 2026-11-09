@@ -36,20 +36,22 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
       </div>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="flex w-full sm:w-fit overflow-x-auto p-1 bg-transparent border-0 gap-1.5 sm:gap-2">
-          <TabsTrigger value="personalization" className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 rounded-xl font-medium text-xs sm:text-sm border border-transparent data-[state=active]:bg-card/85 data-[state=active]:backdrop-blur-xl data-[state=active]:border-border/60 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
-            <Sparkles className="size-3.5 sm:size-4 shrink-0" />
-            <span>Personalization</span>
-          </TabsTrigger>
-          <TabsTrigger value="profile" className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 rounded-xl font-medium text-xs sm:text-sm border border-transparent data-[state=active]:bg-card/85 data-[state=active]:backdrop-blur-xl data-[state=active]:border-border/60 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
-            <User className="size-3.5 sm:size-4 shrink-0" />
-            <span>Profile</span>
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 rounded-xl font-medium text-xs sm:text-sm border border-transparent data-[state=active]:bg-card/85 data-[state=active]:backdrop-blur-xl data-[state=active]:border-border/60 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
-            <Shield className="size-3.5 sm:size-4 shrink-0" />
-            <span>Security</span>
-          </TabsTrigger>
-        </TabsList>
+        <div className="w-full flex justify-center sm:justify-start">
+          <TabsList className="inline-flex w-auto p-1.5 rounded-2xl bg-card/60 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-sm gap-1.5 shrink-0">
+            <TabsTrigger value="personalization" className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
+              <Sparkles className="size-3.5 sm:size-4 shrink-0" />
+              <span>Personalization</span>
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
+              <User className="size-3.5 sm:size-4 shrink-0" />
+              <span>Profile</span>
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
+              <Shield className="size-3.5 sm:size-4 shrink-0" />
+              <span>Security</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="personalization" className="mt-6 space-y-6">
           <FeedPreferencesSettingsForm />
