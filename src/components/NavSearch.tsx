@@ -17,7 +17,7 @@ export function NavSearch() {
   };
 
   return (
-    <form onSubmit={handleSearch} className="relative w-full max-w-sm hidden sm:block">
+    <form onSubmit={handleSearch} className="relative w-full max-w-sm hidden lg:block">
       <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-1">
         <Search className="size-4 text-muted-foreground cursor-pointer hover:text-accent transition-colors" />
       </button>
@@ -46,7 +46,7 @@ export function MobileNavSearch() {
   };
 
   return (
-    <form onSubmit={handleSearch} className="nav-glass sm:hidden px-4 sm:px-6 pb-3 pt-1 border-t-0 shadow-none rounded-none !bg-background/95">
+    <form onSubmit={handleSearch} className="nav-glass lg:hidden px-4 sm:px-6 pb-3 pt-1 border-t-0 shadow-none rounded-none !bg-background/95">
       <div className="relative w-full">
         <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-1">
           <Search className="size-4 text-muted-foreground cursor-pointer hover:text-accent transition-colors" />
