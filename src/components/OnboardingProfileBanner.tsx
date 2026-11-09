@@ -89,16 +89,16 @@ export function OnboardingProfileBanner() {
 
   return (
     <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
-      <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-card/75 backdrop-blur-xl p-5 shadow-xl shadow-accent/5 transition-all">
+      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/60 backdrop-blur-xl p-5 shadow-lg shadow-black/5 dark:shadow-black/20 transition-all">
         {/* Ambient background glows */}
-        <div className="pointer-events-none absolute -top-12 -left-12 size-40 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-12 -right-12 size-40 rounded-full bg-primary/20 blur-3xl" />
+        <div className="pointer-events-none absolute -top-12 -left-12 size-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-12 -right-12 size-40 rounded-full bg-accent/15 blur-3xl" />
 
         <div className="relative z-10 flex flex-col gap-4">
           {/* Header Row */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-accent/15 border border-accent/30 text-accent shrink-0">
+              <div className="p-2.5 rounded-xl bg-accent/10 border border-accent/20 text-accent shrink-0">
                 <Sparkles className="size-5 animate-pulse" />
               </div>
               <div>
@@ -106,7 +106,7 @@ export function OnboardingProfileBanner() {
                   <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight">
                     Welcome to VibeGrid! Complete your setup
                   </h3>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/20 text-accent border border-accent/30">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/30">
                     {completedCount} OF 3 COMPLETED
                   </span>
                 </div>
