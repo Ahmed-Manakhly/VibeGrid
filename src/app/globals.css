@@ -294,33 +294,33 @@
 
   .view-switcher button:hover { @apply text-primary; }
   
-  /* Global Button Style (Rich Emerald Signature Gradient) */
+  /* Global Button Style (Rich Emerald Signature Gradient with Champagne Gold Ingot Accent) */
   .btn-gradient {
     @apply rounded-xl transition-all duration-300 font-semibold;
-    background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: linear-gradient(135deg, #059669 0%, #047857 55%, #b89539 100%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: #ffffff !important;
-    box-shadow: 0 4px 16px rgba(4, 120, 87, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 16px rgba(4, 120, 87, 0.28), 0 2px 8px rgba(216, 182, 92, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.45);
     z-index: 1;
   }
 
   .dark .btn-gradient {
-    background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
-    border: 1px solid rgba(52, 211, 153, 0.4);
+    background: linear-gradient(135deg, #34d399 0%, #10b981 60%, #d8b65c 100%);
+    border: 1px solid rgba(52, 211, 153, 0.45);
     color: #042f2e !important;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35), 0 2px 10px rgba(216, 182, 92, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.45);
   }
   
   .btn-gradient:hover {
-    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%) !important;
-    box-shadow: 0 6px 24px rgba(4, 120, 87, 0.4), 0 0 15px rgba(16, 185, 129, 0.25) !important;
+    background: linear-gradient(135deg, #10b981 0%, #059669 55%, #d8b65c 100%) !important;
+    box-shadow: 0 6px 24px rgba(4, 120, 87, 0.4), 0 0 16px rgba(216, 182, 92, 0.3) !important;
     transform: translateY(-1px);
     color: #ffffff !important;
   }
 
   .dark .btn-gradient:hover {
-    background: linear-gradient(135deg, #6ee7b7 0%, #34d399 50%, #10b981 100%) !important;
-    box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5), 0 0 20px rgba(52, 211, 153, 0.35) !important;
+    background: linear-gradient(135deg, #6ee7b7 0%, #34d399 55%, #e3c46e 100%) !important;
+    box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5), 0 0 20px rgba(216, 182, 92, 0.35) !important;
     transform: translateY(-1px);
     color: #022c22 !important;
   }
@@ -427,35 +427,30 @@
 
 /* Custom Sleek Scrollbar Styling across the site */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
   background: transparent;
-  margin-top: 12px;
-  margin-bottom: 12px;
+  margin-block: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
+  background: hsl(var(--primary) / 0.35);
   border-radius: 9999px;
-  border-top: 16px solid transparent;
-  border-bottom: 16px solid transparent;
-  background-clip: padding-box;
+  transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, hsl(var(--accent) / 0.8), hsl(var(--primary) / 0.8));
-  border-top: 16px solid transparent;
-  border-bottom: 16px solid transparent;
-  background-clip: padding-box;
+  background: linear-gradient(180deg, hsl(var(--primary)), #d8b65c);
+  box-shadow: 0 0 10px hsl(var(--primary) / 0.5);
 }
 
 /* Firefox scrollbar support */
 * {
   scrollbar-width: thin;
-  scrollbar-color: hsl(var(--accent)) transparent;
+  scrollbar-color: hsl(var(--primary) / 0.35) transparent;
 }
 
 /* Universal Accessibility Focus Visible Rings */
