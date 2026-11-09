@@ -17,6 +17,12 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon, SmileIcon, Users, MessageCircle, MessagesSquare } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
+
+const MESSAGES_MOBILE_TABS = [
+  { value: "conversations", label: "Conversations", icon: Users },
+  { value: "chat", label: "Chat", icon: MessageCircle },
+];
 import { formatDistanceToNow } from "date-fns";
 import { CodeBlockViewer } from "@/modules/vibe/presentation/components/CodeBlockViewer";
 import { PostContentValueObject } from "@/modules/vibe/domain/PostContentValueObject";
@@ -285,44 +291,28 @@ export function MessagesPageClient() {
         title="Messages"
         subtitle="Real-time end-to-end encrypted direct messaging and code pairing."
         icon={MessagesSquare}
-        className="px-2 sm:px-0 mb-2"
       />
-      <div className="w-full h-[calc(100vh-160px)] p-2 sm:p-0 flex flex-col lg:flex-row gap-4 overflow-hidden">
-        {/* Mobile/Tablet View Toggle Tabs (< lg) */}
-      <div className="lg:hidden w-full shrink-0 sticky top-[118px] z-30 py-1 bg-transparent backdrop-blur-md mb-2">
-        <Tabs
+
+      {/* Mobile/Tablet View Toggle Tabs (< lg) — Full width above columns */}
+      <div className="lg:hidden w-full">
+        <UnifiedTabsBar
           value={mobileTab}
           onValueChange={(val) => setMobileTab(val as "conversations" | "chat")}
-          className="w-full"
-        >
-          <TabsList className="w-full flex items-center justify-start flex-wrap border-b border-border/50 bg-transparent p-0 rounded-none h-auto gap-x-4 sm:gap-x-6 gap-y-1">
-            <TabsTrigger
-              value="conversations"
-              className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
-            >
-              <Users className="size-4 shrink-0" />
-              <span>Conversations</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="chat"
-              className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
-            >
-              <MessageCircle className="size-4 shrink-0" />
-              <span>Chat</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+          tabs={MESSAGES_MOBILE_TABS}
+          className="mb-2"
+        />
       </div>
 
-      {/* Conversations List Sidebar */}
-      <div
-        className={`w-full lg:w-80 shrink-0 flex flex-col border rounded-xl bg-card overflow-hidden ${
-          mobileTab === "conversations" ? "flex flex-1 lg:flex-initial" : "hidden lg:flex"
-        }`}
-      >
-        <div className="p-4 border-b font-bold text-lg flex items-center justify-between">
-          <span>Messages</span>
-        </div>
+      <div className="w-full h-[calc(100vh-220px)] flex flex-col lg:flex-row gap-4 overflow-hidden">
+        {/* Conversations List Sidebar */}
+        <div
+          className={`w-full lg:w-80 shrink-0 flex flex-col border border-border/50 rounded-2xl bg-card/60 backdrop-blur-xl overflow-hidden ${
+            mobileTab === "conversations" ? "flex flex-1 lg:flex-initial" : "hidden lg:flex"
+          }`}
+        >
+          <div className="p-4 border-b font-bold text-lg flex items-center justify-between">
+            <span>Conversations</span>
+          </div>
 
         <div className="flex-1 overflow-y-auto divide-y">
           {loadingConversations ? (
@@ -383,7 +373,7 @@ export function MessagesPageClient() {
 
       {/* Active Conversation View */}
       <div
-        className={`flex-1 flex flex-col border rounded-xl bg-card overflow-hidden ${
+        className={`flex-1 flex flex-col border border-border/50 rounded-2xl bg-card/60 backdrop-blur-xl overflow-hidden ${
           mobileTab === "chat" ? "flex" : "hidden lg:flex"
         }`}
       >
