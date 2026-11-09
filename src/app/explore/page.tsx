@@ -60,32 +60,32 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
   const suspenseKey = JSON.stringify(params);
 
   return (
-    <MobileTabsLayout
-      feed={
-        <>
-          <div className="mb-8">
-            <PageHeader
-              eyebrow="DISCOVER THE GRID"
-              title="Explore"
-              subtitle="Search developer pulses, topics, and code dilemmas across VibeGrid."
-              icon={Compass}
-              className="mb-4"
-            />
-            <SearchInput />
-          </div>
+    <>
+      <div className="mb-6">
+        <PageHeader
+          eyebrow="DISCOVER THE GRID"
+          title="Explore"
+          subtitle="Search developer pulses, topics, and code dilemmas across VibeGrid."
+          icon={Compass}
+          className="mb-4"
+        />
+        <SearchInput />
+      </div>
 
+      <MobileTabsLayout
+        feed={
           <Suspense key={suspenseKey} fallback={<Loading />}>
             <ExploreFeed params={params} dbUserId={dbUserId} />
           </Suspense>
-        </>
-      }
-      discovery={
-        <>
-          <ExploreFilters />
-          <div className="border-t border-white/10 my-4" />
-          <TrendingSidebar />
-        </>
-      }
-    />
+        }
+        discovery={
+          <>
+            <ExploreFilters />
+            <div className="border-t border-white/10 my-4" />
+            <TrendingSidebar />
+          </>
+        }
+      />
+    </>
   );
 }

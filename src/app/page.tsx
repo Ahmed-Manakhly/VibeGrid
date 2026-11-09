@@ -45,17 +45,16 @@ export default async function Home({ searchParams }: PageProps) {
   const suspenseKey = JSON.stringify(params || {});
 
   return (
+    <>
+      <PageHeader
+        eyebrow="LIVE COMMUNITY"
+        title="Your feed"
+        subtitle="Real-time developer pulses, ships, and tech discoveries from across the grid."
+        icon={Radio}
+      />
       <MobileTabsLayout
         feed={
           <>
-            <PageHeader
-              eyebrow="LIVE COMMUNITY"
-              title="Your feed"
-              subtitle="Real-time developer pulses, ships, and tech discoveries from across the grid."
-              icon={Radio}
-            />
-            
-
             <div className="mt-4 flex flex-col gap-6">
                {session.isAuthenticated ? <CreatPost/> : null}
             </div>
@@ -74,6 +73,7 @@ export default async function Home({ searchParams }: PageProps) {
           </>
         }
       />
+    </>
   );
 }
 

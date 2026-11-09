@@ -67,22 +67,21 @@ export default async function BookmarksPage() {
   }
 
   return (
-    <MobileTabsLayout
-      feed={
-        <>
-          <PageHeader
-            eyebrow="SAVED VIBES"
-            title="Bookmarks"
-            subtitle="Your curated collection of saved vibes, code snippets, and discussions."
-            icon={BookmarkIcon}
-          />
-
+    <>
+      <PageHeader
+        eyebrow="SAVED VIBES"
+        title="Bookmarks"
+        subtitle="Your curated collection of saved vibes, code snippets, and discussions."
+        icon={BookmarkIcon}
+      />
+      <MobileTabsLayout
+        feed={
           <Suspense fallback={<Loading />}>
             <BookmarksFeed dbUserId={dbUserId} />
           </Suspense>
-        </>
-      }
-      discovery={<TrendingSidebar />}
-    />
+        }
+        discovery={<TrendingSidebar />}
+      />
+    </>
   );
 }
