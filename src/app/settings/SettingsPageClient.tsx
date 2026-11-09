@@ -36,22 +36,29 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
       </div>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <div className="w-full flex justify-center sm:justify-start">
-          <TabsList className="inline-flex w-auto p-1 rounded-2xl bg-card/70 dark:bg-card/45 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-sm gap-1 shrink-0">
-            <TabsTrigger value="personalization" className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl font-medium text-[11px] sm:text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
-              <Sparkles className="size-3.5 sm:size-4 shrink-0" />
-              <span>Personalization</span>
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl font-medium text-[11px] sm:text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
-              <User className="size-3.5 sm:size-4 shrink-0" />
-              <span>Profile</span>
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl font-medium text-[11px] sm:text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
-              <Shield className="size-3.5 sm:size-4 shrink-0" />
-              <span>Security</span>
-            </TabsTrigger>
-          </TabsList>
-        </div>
+        <TabsList className="w-full flex items-center border-b border-border/60 bg-transparent p-0 rounded-none h-auto gap-4 sm:gap-6">
+          <TabsTrigger
+            value="personalization"
+            className="flex items-center gap-1.5 sm:gap-2 py-3 px-1 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
+          >
+            <Sparkles className="size-3.5 sm:size-4 shrink-0" />
+            <span>Personalization</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="profile"
+            className="flex items-center gap-1.5 sm:gap-2 py-3 px-1 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
+          >
+            <User className="size-3.5 sm:size-4 shrink-0" />
+            <span>Profile</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="security"
+            className="flex items-center gap-1.5 sm:gap-2 py-3 px-1 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
+          >
+            <Shield className="size-3.5 sm:size-4 shrink-0" />
+            <span>Security</span>
+          </TabsTrigger>
+        </TabsList>
 
         <TabsContent value="personalization" className="mt-6 space-y-6">
           <FeedPreferencesSettingsForm />
