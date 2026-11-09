@@ -294,28 +294,35 @@
 
   .view-switcher button:hover { @apply text-primary; }
   
-  /* Global Button Style (Champagne Gold Signature Action CTA) */
+  /* Global Button Style (Rich Emerald Signature Gradient) */
   .btn-gradient {
     @apply rounded-xl transition-all duration-300 font-semibold;
-    background: linear-gradient(135deg, #e3c46e 0%, #d8b65c 50%, #b89539 100%);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: #0f172a !important;
-    box-shadow: 0 4px 16px rgba(216, 182, 92, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(4, 120, 87, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.4);
     z-index: 1;
   }
 
   .dark .btn-gradient {
-    background: linear-gradient(135deg, #e3c46e 0%, #d8b65c 60%, #b89539 100%);
-    border: 1px solid rgba(216, 182, 92, 0.4);
-    color: #0a0e17 !important;
-    box-shadow: 0 4px 20px rgba(216, 182, 92, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    color: #042f2e !important;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
   }
   
   .btn-gradient:hover {
-    background: linear-gradient(135deg, #ecd385 0%, #e0c06a 50%, #c4a142 100%) !important;
-    box-shadow: 0 6px 24px rgba(216, 182, 92, 0.45), 0 0 15px rgba(216, 182, 92, 0.25) !important;
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%) !important;
+    box-shadow: 0 6px 24px rgba(4, 120, 87, 0.4), 0 0 15px rgba(16, 185, 129, 0.25) !important;
     transform: translateY(-1px);
-    color: #0a0e17 !important;
+    color: #ffffff !important;
+  }
+
+  .dark .btn-gradient:hover {
+    background: linear-gradient(135deg, #6ee7b7 0%, #34d399 50%, #10b981 100%) !important;
+    box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5), 0 0 20px rgba(52, 211, 153, 0.35) !important;
+    transform: translateY(-1px);
+    color: #022c22 !important;
   }
 
   /* Secondary Outline Button Style */

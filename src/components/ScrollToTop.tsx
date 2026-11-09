@@ -34,8 +34,8 @@ export function ScrollToTop() {
       onClick={scrollToTop}
       size="icon"
       className={cn(
-        "fixed bottom-[90px] sm:bottom-8 right-4 sm:right-8 xl:right-[330px] 2xl:right-[calc((100vw-1600px)/2+330px)] z-50 rounded-full shadow-lg transition-all duration-300 transform",
-        "bg-accent text-accent-foreground hover:bg-accent/90 hover:scale-110 active:scale-95",
+        "btn-gradient fixed bottom-[90px] sm:bottom-8 right-4 sm:right-8 xl:right-[330px] 2xl:right-[calc((100vw-1600px)/2+330px)] z-50 rounded-full shadow-lg transition-all duration-300 transform",
+        "hover:scale-110 active:scale-95 border-none",
         isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none"
       )}
       aria-label="Scroll to top"
