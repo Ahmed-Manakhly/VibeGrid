@@ -265,8 +265,8 @@ function ProfilePageClient({
 
                 <div className="w-full min-w-0 flex-1">
                     <Tabs defaultValue="posts" className="w-full">
-                        <div className="sticky top-16 z-20 bg-background/80 backdrop-blur-xl border-b border-border/60 py-1">
-                            <TabsList className="w-full grid grid-cols-3 h-auto p-1 bg-muted/40 rounded-xl max-w-md">
+                        <div className="sticky top-16 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-2.5 bg-background/95 backdrop-blur-2xl border-b border-border/70 shadow-sm transition-all">
+                            <TabsList className="w-full grid grid-cols-3 h-auto p-1 bg-muted/60 dark:bg-muted/40 rounded-xl sm:max-w-md">
                                 <TabsTrigger
                                     value="posts"
                                     className="flex items-center justify-center gap-1.5 py-2 rounded-lg font-semibold text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
