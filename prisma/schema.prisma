@@ -47,6 +47,8 @@ model User {
   solutionsCount       Int             @default(0)
   milestones           DeveloperMilestone[]
   pollVotes            PollVote[]
+  createdCommunities   Community[]     @relation("CommunityCreator")
+  communityMemberships CommunityMember[]
 }
 
 enum MediaType {
@@ -62,6 +64,7 @@ model Post {
   mediaType     MediaType?
   categoryId    String?
   vibeId        String?
+  communityId   String?
   postType      PostType        @default(STANDARD)
   techContext   Json?
   quotedPostId      String?
@@ -75,6 +78,7 @@ model Post {
   author            User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
   category          Category?       @relation(fields: [categoryId], references: [id])
   vibe              Vibe?           @relation(fields: [vibeId], references: [id])
+  community         Community?      @relation(fields: [communityId], references: [id], onDelete: SetNull)
   tags              PostTag[]
   comments          Comment[]
   likes             Like[]
@@ -87,6 +91,7 @@ model Post {
   @@index([createdAt(sort: Desc), id(sort: Desc)])
   @@index([quotedPostId])
   @@index([postType, solvedAt])
+  @@index([communityId, createdAt(sort: Desc)])
 }
 
 enum PostType {
@@ -399,5 +404,48 @@ model PollVote {
   @@index([optionId])
   @@index([userId])
 }
+
+enum CommunityRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+model Community {
+  id          String            @id @default(cuid())
+  slug        String            @unique
+  name        String
+  description String?
+  avatarUrl   String?
+  bannerUrl   String?
+  techTags    Json?
+  rules       Json?
+  isPrivate   Boolean           @default(false)
+  creatorId   String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  creator     User              @relation("CommunityCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members     CommunityMember[]
+  posts       Post[]
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model CommunityMember {
+  id          String        @id @default(cuid())
+  userId      String
+  communityId String
+  role        CommunityRole @default(MEMBER)
+  joinedAt    DateTime      @default(now())
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  community   Community     @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, communityId])
+  @@index([userId])
+  @@index([communityId])
+}
+
 
 
