@@ -50,7 +50,7 @@ export function SidebarUserCard({
 
   return (
     <div className="mt-4 relative group">
-      <div className="flex flex-col gap-4 backdrop-blur-2xl bg-[#d8b65c]/25 dark:bg-[#d8b65c]/15 border-2 border-[#b89539] dark:border-[#d8b65c]/60 text-foreground transition-all duration-300 p-3 lg:group-[.is-collapsed]:p-0 lg:group-[.is-collapsed]:bg-transparent lg:group-[.is-collapsed]:border-transparent lg:group-[.is-collapsed]:items-center rounded-2xl lg:group-[.is-collapsed]:rounded-full cursor-pointer shadow-[0_4px_24px_rgba(184,149,57,0.22)] hover:shadow-[0_8px_32px_rgba(184,149,57,0.35)] hover:border-[#967520] dark:hover:border-[#d8b65c]">
+      <div className="flex flex-col gap-4 backdrop-blur-2xl bg-primary/10 border border-primary/50 text-foreground transition-all duration-300 p-3 lg:group-[.is-collapsed]:p-0 lg:group-[.is-collapsed]:bg-transparent lg:group-[.is-collapsed]:border-transparent lg:group-[.is-collapsed]:items-center rounded-2xl lg:group-[.is-collapsed]:rounded-full cursor-pointer shadow-[0_4px_20px_rgba(4,120,87,0.12)] hover:shadow-[0_8px_30px_rgba(4,120,87,0.22)] hover:border-primary">
         <div className="flex items-center gap-3">
           <Link
             href={targetHref}
