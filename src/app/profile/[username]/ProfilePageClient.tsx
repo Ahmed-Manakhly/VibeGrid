@@ -32,7 +32,8 @@ import {
     SerializedMilestone,
 } from "@/modules/social/presentation/components/DeveloperMilestoneTimeline";
 import { DeveloperBadgeList } from "@/modules/social/presentation/components/DeveloperBadgeList";
-import { Milestone } from "lucide-react";
+import { Milestone, UserCheck } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type PostsResult = Awaited<ReturnType<typeof getPosts>>;
@@ -78,8 +79,15 @@ function ProfilePageClient({
 
     return (
         <div className="w-full">
+            <PageHeader
+                eyebrow="DEVELOPER IDENTITY"
+                title={user.name ?? user.username}
+                subtitle={`@${user.username} • Developer profile, milestones, and contributions.`}
+                icon={UserCheck}
+                className="mb-6"
+            />
             <div className="flex flex-col lg:flex-row gap-6 items-start">
-                <div className="w-full lg:w-[350px] shrink-0 relative lg:sticky lg:top-24 lg:mt-[56px] z-10">
+                <div className="w-full lg:w-[350px] shrink-0 relative lg:sticky lg:top-24 z-10">
                     <Card className="bg-card/90 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-lg">
                         <CardContent className="pt-6">
                             <div className="flex flex-col items-center text-center">
@@ -269,23 +277,23 @@ function ProfilePageClient({
                             <TabsList className="w-full flex items-center justify-start flex-wrap border-b border-border/50 bg-transparent p-0 rounded-none h-auto gap-x-4 sm:gap-x-6 gap-y-1">
                                 <TabsTrigger
                                     value="posts"
-                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
                                 >
-                                    <FileTextIcon className="size-3.5 sm:size-4 shrink-0" />
+                                    <FileTextIcon className="size-4 shrink-0" />
                                     <span>Posts</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="timeline"
-                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
                                 >
-                                    <Milestone className="size-3.5 sm:size-4 shrink-0" />
+                                    <Milestone className="size-4 shrink-0" />
                                     <span>Timeline</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="likes"
-                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
                                 >
-                                    <HeartIcon className="size-3.5 sm:size-4 shrink-0" />
+                                    <HeartIcon className="size-4 shrink-0" />
                                     <span>Likes</span>
                                 </TabsTrigger>
                             </TabsList>

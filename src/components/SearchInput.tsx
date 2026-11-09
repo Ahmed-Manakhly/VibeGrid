@@ -20,8 +20,8 @@ export function SearchInput() {
   };
 
   return (
-    <form onSubmit={handleSearch} className="relative w-full max-w-md mx-auto mb-6">
-      <div className="relative flex items-center">
+    <form onSubmit={handleSearch} className="relative w-full mb-6">
+      <div className="relative flex items-center w-full">
         <Search className="absolute left-3.5 w-5 h-5 text-muted-foreground hover:text-accent transition-colors cursor-pointer" />
         <input
           type="text"
