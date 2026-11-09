@@ -188,11 +188,11 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[92vw] max-w-[620px] max-h-[88vh] flex flex-col p-5 sm:p-7 overflow-hidden rounded-3xl border border-white/60 dark:border-white/10 bg-card/95 backdrop-blur-2xl shadow-2xl">
+      <DialogContent className="w-[95vw] sm:w-[92vw] max-w-[620px] max-h-[90vh] sm:max-h-[88vh] flex flex-col p-4 sm:p-7 overflow-hidden rounded-3xl border border-white/60 dark:border-white/10 bg-card/95 backdrop-blur-2xl shadow-2xl">
         <DialogHeader className="shrink-0 pb-3 border-b border-border/40">
           <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">Edit Profile</DialogTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto space-y-4 py-3 sm:py-4 px-1 pr-2 sm:pr-3 min-w-0">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 py-3 sm:py-4 px-1 pr-2 sm:pr-3 min-w-0">
           <div className="flex flex-col items-center gap-3">
             <UserAvatar src={previewUrl || user.image} name={user.name} className="w-20 h-20" />
             <Label htmlFor="avatar-file" className="cursor-pointer text-xs font-semibold text-primary hover:underline">
@@ -276,7 +276,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
           {/* Tech Stack section */}
           <div className="space-y-2 pt-2 border-t border-border/50">
             <Label>Tech Stack</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Input
                 value={newTechInput}
                 onChange={(e) => setNewTechInput(e.target.value)}
@@ -287,9 +287,9 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
                   }
                 }}
                 placeholder="e.g. TypeScript, React, Docker"
-                className="text-xs sm:text-sm"
+                className="text-xs sm:text-sm flex-1 min-w-0"
               />
-              <Button type="button" variant="secondary" size="sm" onClick={handleAddTech}>
+              <Button type="button" variant="secondary" size="sm" onClick={handleAddTech} className="w-full sm:w-auto shrink-0">
                 Add
               </Button>
             </div>
@@ -315,26 +315,28 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
           {/* Developer Links section */}
           <div className="space-y-2 pt-2 border-t border-border/50 min-w-0">
             <Label>Developer Links</Label>
-            <div className="flex gap-2">
-              <select
-                value={newLinkType}
-                onChange={(e) => setNewLinkType(e.target.value)}
-                className="px-2.5 py-1.5 rounded-md border border-input bg-background text-xs sm:text-sm shrink-0"
-              >
-                <option value="github">GitHub</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="twitter">X / Twitter</option>
-                <option value="portfolio">Portfolio</option>
-                <option value="website">Website</option>
-                <option value="other">Other</option>
-              </select>
-              <Input
-                value={newLinkUrl}
-                onChange={(e) => setNewLinkUrl(e.target.value)}
-                placeholder="https://github.com/username"
-                className="text-xs sm:text-sm flex-1 min-w-0"
-              />
-              <Button type="button" variant="secondary" size="sm" onClick={handleAddLink} className="shrink-0">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex gap-2 flex-1 min-w-0">
+                <select
+                  value={newLinkType}
+                  onChange={(e) => setNewLinkType(e.target.value)}
+                  className="px-2.5 py-1.5 rounded-md border border-input bg-background text-xs sm:text-sm shrink-0"
+                >
+                  <option value="github">GitHub</option>
+                  <option value="linkedin">LinkedIn</option>
+                  <option value="twitter">X / Twitter</option>
+                  <option value="portfolio">Portfolio</option>
+                  <option value="website">Website</option>
+                  <option value="other">Other</option>
+                </select>
+                <Input
+                  value={newLinkUrl}
+                  onChange={(e) => setNewLinkUrl(e.target.value)}
+                  placeholder="https://github.com/username"
+                  className="text-xs sm:text-sm flex-1 min-w-0"
+                />
+              </div>
+              <Button type="button" variant="secondary" size="sm" onClick={handleAddLink} className="w-full sm:w-auto shrink-0">
                 Add Link
               </Button>
             </div>
@@ -358,13 +360,13 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             </div>
           </div>
         </div>
-        <div className="shrink-0 pt-3 border-t border-border/40 flex justify-end gap-3">
+        <div className="shrink-0 pt-3 border-t border-border/40 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3">
           <DialogClose asChild>
-            <Button variant="outline" disabled={isUploading || isSubmitting}>
+            <Button variant="outline" disabled={isUploading || isSubmitting} className="w-full sm:w-auto">
               Cancel
             </Button>
           </DialogClose>
-          <Button onClick={handleEditSubmit} disabled={isUploading || isSubmitting}>
+          <Button onClick={handleEditSubmit} disabled={isUploading || isSubmitting} className="w-full sm:w-auto">
             {isUploading || isSubmitting ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
