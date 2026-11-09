@@ -139,8 +139,8 @@ export function SecuritySettingsForm() {
             </div>
           </div>
 
-          <div className="pt-2">
-            <Button type="submit" disabled={isChangingPassword} className="btn-gradient flex items-center gap-2">
+          <div className="pt-2 flex justify-center sm:justify-start">
+            <Button type="submit" disabled={isChangingPassword} className="btn-gradient flex items-center justify-center gap-2 w-full sm:w-auto">
               {isChangingPassword ? (
                 <>
                   <Loader2 className="size-4 animate-spin" /> Updating...
