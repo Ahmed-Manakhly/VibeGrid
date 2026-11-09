@@ -16,13 +16,13 @@
     --card-foreground: 222 50% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 50% 10%;
-    --primary: 158 75% 28%; /* Deeper British Racing Pine in light mode for rich contrast */
+    --primary: 158 80% 30%; /* Rich British Racing Pine Emerald */
     --primary-foreground: 0 0% 98%;
     --secondary: 220 14% 90%;
     --secondary-foreground: 222 50% 10%;
     --muted: 220 14% 92%;
     --muted-foreground: 215 16% 47%;
-    --accent: 158 70% 32%; /* Deep Forest accent */
+    --accent: 158 75% 34%; /* Vibrant Emerald accent */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -50,13 +50,13 @@
     --card-foreground: 0 0% 98%;
     --popover: 220 18% 9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 158 75% 34%; /* Deep British Racing Pine with obsidian glow */
+    --primary: 158 83% 38%; /* Glowing Terminal Emerald #10b981 */
     --primary-foreground: 0 0% 98%;
     --secondary: 220 16% 14%;
     --secondary-foreground: 0 0% 98%;
     --muted: 220 16% 14%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 158 75% 38%; /* Sophisticated pine accent in dark mode */
+    --accent: 158 83% 45%; /* High-neon Emerald glow */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -294,29 +294,28 @@
 
   .view-switcher button:hover { @apply text-primary; }
   
-  /* Global Button Style (Accent Gradient) */
+  /* Global Button Style (Champagne Gold Signature Action CTA) */
   .btn-gradient {
-    @apply rounded-xl transition-all duration-300 font-medium;
-    background-color: hsl(var(--accent));
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%);
-    border: 1px solid hsl(var(--accent) / 0.6);
-    color: white !important;
-    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+    @apply rounded-xl transition-all duration-300 font-semibold;
+    background: linear-gradient(135deg, #e3c46e 0%, #d8b65c 50%, #b89539 100%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #0f172a !important;
+    box-shadow: 0 4px 16px rgba(216, 182, 92, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.6);
     z-index: 1;
   }
 
   .dark .btn-gradient {
-    background-color: hsl(var(--accent));
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.4) 100%);
-    border: 1px solid hsl(var(--accent) / 0.6);
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, #e3c46e 0%, #d8b65c 60%, #b89539 100%);
+    border: 1px solid rgba(216, 182, 92, 0.4);
+    color: #0a0e17 !important;
+    box-shadow: 0 4px 20px rgba(216, 182, 92, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
   }
   
   .btn-gradient:hover {
-    background: transparent !important;
-    border-color: hsl(var(--accent)) !important;
-    color: hsl(var(--accent)) !important;
-    box-shadow: none !important;
+    background: linear-gradient(135deg, #ecd385 0%, #e0c06a 50%, #c4a142 100%) !important;
+    box-shadow: 0 6px 24px rgba(216, 182, 92, 0.45), 0 0 15px rgba(216, 182, 92, 0.25) !important;
+    transform: translateY(-1px);
+    color: #0a0e17 !important;
   }
 
   /* Secondary Outline Button Style */
