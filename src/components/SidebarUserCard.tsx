@@ -50,7 +50,7 @@ export function SidebarUserCard({
 
   return (
     <div className="mt-4 relative group">
-      <div className="flex flex-col gap-4 bg-primary/10 border border-primary/50 text-primary transition-colors p-3 lg:group-[.is-collapsed]:p-0 lg:group-[.is-collapsed]:bg-transparent lg:group-[.is-collapsed]:border-transparent lg:group-[.is-collapsed]:items-center rounded-2xl lg:group-[.is-collapsed]:rounded-full cursor-pointer">
+      <div className="flex flex-col gap-4 backdrop-blur-2xl bg-white/70 dark:bg-[#d8b65c]/10 border border-[#d8b65c]/40 text-foreground transition-all duration-300 p-3 lg:group-[.is-collapsed]:p-0 lg:group-[.is-collapsed]:bg-transparent lg:group-[.is-collapsed]:border-transparent lg:group-[.is-collapsed]:items-center rounded-2xl lg:group-[.is-collapsed]:rounded-full cursor-pointer shadow-[0_4px_20px_-2px_rgba(216,182,92,0.15)] hover:shadow-[0_8px_30px_rgba(216,182,92,0.25)] hover:border-[#d8b65c]/70">
         <div className="flex items-center gap-3">
           <Link
             href={targetHref}
