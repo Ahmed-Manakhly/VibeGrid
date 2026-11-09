@@ -89,16 +89,16 @@ export function OnboardingProfileBanner() {
 
   return (
     <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
-      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/60 backdrop-blur-xl p-5 shadow-lg shadow-black/5 dark:shadow-black/20 transition-all">
-        {/* Ambient background glows */}
-        <div className="pointer-events-none absolute -top-12 -left-12 size-40 rounded-full bg-primary/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-12 -right-12 size-40 rounded-full bg-accent/15 blur-3xl" />
+      <div className="relative overflow-hidden rounded-3xl border border-white/60 dark:border-white/10 bg-white/70 dark:bg-card/45 backdrop-blur-3xl p-6 shadow-[0_20px_60px_-15px_rgba(4,120,87,0.08),0_10px_30px_-10px_rgba(216,182,92,0.14)] dark:shadow-[0_0_50px_rgba(4,120,87,0.15)] transition-all">
+        {/* Ambient background glows matching login hero card */}
+        <div className="pointer-events-none absolute -top-16 -left-16 size-48 rounded-full bg-[#d8b65c]/25 dark:bg-[#d8b65c]/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -right-16 size-48 rounded-full bg-primary/25 dark:bg-primary/20 blur-3xl" />
 
         <div className="relative z-10 flex flex-col gap-4">
           {/* Header Row */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-accent/10 border border-accent/20 text-accent shrink-0">
+              <div className="p-2.5 rounded-2xl bg-[#d8b65c]/15 border border-[#d8b65c]/30 text-[#d8b65c] shadow-[0_0_15px_rgba(216,182,92,0.2)] shrink-0">
                 <Sparkles className="size-5 animate-pulse" />
               </div>
               <div>
@@ -106,7 +106,7 @@ export function OnboardingProfileBanner() {
                   <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight">
                     Welcome to VibeGrid! Complete your setup
                   </h3>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/30">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#d8b65c]/15 text-[#d8b65c] border border-[#d8b65c]/30 shadow-sm">
                     {completedCount} OF 3 COMPLETED
                   </span>
                 </div>
@@ -126,9 +126,9 @@ export function OnboardingProfileBanner() {
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-secondary/80 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-secondary/80 dark:bg-muted/40 rounded-full h-1.5 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-accent to-primary h-full rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-[#d8b65c] via-emerald-400 to-primary h-full rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(216,182,92,0.5)]"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -136,7 +136,7 @@ export function OnboardingProfileBanner() {
           {/* 3 Step Action Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
             {/* Step 1: Account Created */}
-            <div className="flex items-center gap-3 p-3 rounded-xl border border-border/40 bg-background/40">
+            <div className="flex items-center gap-3 p-3 rounded-2xl border border-primary/20 bg-background/50 backdrop-blur-md">
               <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-foreground line-through opacity-75">
@@ -150,17 +150,17 @@ export function OnboardingProfileBanner() {
 
             {/* Step 2: Complete Profile Bio & Links */}
             <div
-              className={`flex items-center justify-between gap-3 p-3 rounded-xl border transition-all ${
+              className={`flex items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
                 isProfileComplete
-                  ? 'border-border/40 bg-background/40'
-                  : 'border-accent/40 bg-accent/5 hover:border-accent/60 shadow-sm'
+                  ? 'border-primary/20 bg-background/50 backdrop-blur-md'
+                  : 'border-[#d8b65c]/40 bg-[#d8b65c]/5 hover:border-[#d8b65c]/70 shadow-sm backdrop-blur-md'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 {isProfileComplete ? (
                   <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
                 ) : (
-                  <Circle className="size-5 text-accent animate-pulse shrink-0" />
+                  <Circle className="size-5 text-[#d8b65c] animate-pulse shrink-0" />
                 )}
                 <div className="min-w-0">
                   <p
@@ -179,7 +179,7 @@ export function OnboardingProfileBanner() {
               {!isProfileComplete && (
                 <Link
                   href={profileEditHref}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-accent text-accent-foreground font-medium text-xs hover:bg-accent/90 transition-all shrink-0"
+                  className="btn-gradient inline-flex items-center gap-1 px-3 py-1 rounded-xl font-semibold text-xs transition-all shrink-0 shadow-sm"
                 >
                   <span>Edit</span>
                   <ArrowRight className="size-3" />
@@ -189,17 +189,17 @@ export function OnboardingProfileBanner() {
 
             {/* Step 3: Personalize Feed Interests */}
             <div
-              className={`flex items-center justify-between gap-3 p-3 rounded-xl border transition-all ${
+              className={`flex items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
                 isPersonalizationComplete
-                  ? 'border-border/40 bg-background/40'
-                  : 'border-accent/40 bg-accent/5 hover:border-accent/60 shadow-sm'
+                  ? 'border-primary/20 bg-background/50 backdrop-blur-md'
+                  : 'border-[#d8b65c]/40 bg-[#d8b65c]/5 hover:border-[#d8b65c]/70 shadow-sm backdrop-blur-md'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 {isPersonalizationComplete ? (
                   <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
                 ) : (
-                  <Circle className="size-5 text-accent animate-pulse shrink-0" />
+                  <Circle className="size-5 text-[#d8b65c] animate-pulse shrink-0" />
                 )}
                 <div className="min-w-0">
                   <p
@@ -220,7 +220,7 @@ export function OnboardingProfileBanner() {
               {!isPersonalizationComplete && (
                 <Link
                   href="/settings?tab=personalization"
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-secondary text-secondary-foreground border border-border/60 font-medium text-xs hover:bg-secondary/80 transition-all shrink-0"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-secondary text-secondary-foreground border border-border/60 font-medium text-xs hover:bg-secondary/80 transition-all shrink-0"
                 >
                   <span>Pick</span>
                   <ArrowRight className="size-3" />
