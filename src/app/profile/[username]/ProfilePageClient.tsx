@@ -278,7 +278,7 @@ function ProfilePageClient({
                                     value="timeline"
                                     className="flex items-center justify-center gap-1.5 py-2 rounded-xl font-semibold text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
                                 >
-                                    <Milestone className="size-3.5 sm:size-4" />
+                                    <Milestone className="size-3.5 sm:size-4 shrink-0" />
                                     <span>Timeline</span>
                                 </TabsTrigger>
                                 <TabsTrigger

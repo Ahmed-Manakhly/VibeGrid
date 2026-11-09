@@ -26,7 +26,7 @@ function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 flex flex-col w-full">
-      <div className="nav-glass flex h-16 items-center gap-4 px-5 lg:px-9">
+      <div className="nav-glass flex h-16 items-center gap-4 px-4 sm:px-6 lg:px-9">
         <MobileMenuButton />
         <div className="lg:hidden"><VibeLogo /></div>
         
@@ -50,7 +50,7 @@ function Navbar() {
                   )}
                 </Link>
                 <DesktopDropVibeButton />
-                <div className="pl-2 border-l border-border/50 ml-1">
+                <div className="hidden sm:block pl-2 border-l border-border/50 ml-1">
                   <UserNavDropdown />
                 </div>
               </>
