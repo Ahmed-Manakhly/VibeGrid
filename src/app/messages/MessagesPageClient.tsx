@@ -318,8 +318,11 @@ export function MessagesPageClient() {
               <Loader2Icon className="animate-spin text-muted-foreground" />
             </div>
           ) : conversations.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground text-sm">
-              No conversations yet. Start messaging developers from their profiles!
+            <div className="p-8 text-center text-muted-foreground flex flex-col items-center justify-center gap-3">
+              <MessageSquareIcon className="size-10 stroke-[1.5] text-muted-foreground/60" />
+              <p className="text-sm max-w-xs leading-relaxed">
+                No conversations yet. Start messaging developers from their profiles!
+              </p>
             </div>
           ) : (
             conversations.map((conv) => {
@@ -549,9 +552,11 @@ export function MessagesPageClient() {
             </form>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
-            <MessageSquareIcon className="size-12 stroke-[1.5]" />
-            <p className="text-sm">Select a conversation or start a new message</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-6 sm:p-8 text-center gap-3">
+            <MessageSquareIcon className="size-12 stroke-[1.5] text-muted-foreground/60" />
+            <p className="text-sm max-w-xs leading-relaxed">
+              Select a conversation or start a new message
+            </p>
           </div>
         )}
       </div>

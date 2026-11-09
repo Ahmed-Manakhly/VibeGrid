@@ -125,8 +125,8 @@ export function FeedPreferencesSettingsForm() {
             })}
           </div>
 
-          <div className="pt-2 flex justify-end">
-            <Button type="submit" disabled={isSaving}>
+          <div className="pt-2 flex justify-center sm:justify-end">
+            <Button type="submit" disabled={isSaving} className="w-full sm:w-auto">
               {isSaving ? 'Saving...' : 'Save Preferences'}
             </Button>
           </div>
