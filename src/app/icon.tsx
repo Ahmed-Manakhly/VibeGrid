@@ -23,10 +23,10 @@ export default function Icon() {
           justifyContent: 'center',
         }}
       >
-        <div style={{ width: '13px', height: '13px', background: '#10b981', borderRadius: '2px' }} />
-        <div style={{ width: '13px', height: '13px', background: '#9234B2', borderRadius: '2px' }} />
-        <div style={{ width: '13px', height: '13px', background: '#9234B2', borderRadius: '2px' }} />
-        <div style={{ width: '13px', height: '13px', background: '#10b981', borderRadius: '2px' }} />
+        <div style={{ width: '13px', height: '13px', background: '#10b981', borderRadius: '3px' }} />
+        <div style={{ width: '13px', height: '13px', background: '#f59e0b', borderRadius: '3px' }} />
+        <div style={{ width: '13px', height: '13px', background: '#f59e0b', borderRadius: '3px' }} />
+        <div style={{ width: '13px', height: '13px', background: '#10b981', borderRadius: '3px' }} />
       </div>
     ),
     {
