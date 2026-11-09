@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Newspaper, Compass } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function MobileTabsLayout({ 
   feed, 
@@ -12,29 +14,27 @@ export function MobileTabsLayout({
   const [activeTab, setActiveTab] = useState<'feed' | 'discovery'>('feed');
 
   return (
-    <div className="flex flex-col xl:flex-row gap-12 xl:items-start w-full">
-      {/* Mobile Tabs */}
-      <div className="xl:hidden flex gap-2 border-b border-border/50 pb-0">
-        <button 
-          onClick={() => setActiveTab('feed')} 
-          className={`flex-1 text-center py-3 text-sm font-semibold transition-all ${
-            activeTab === 'feed' 
-              ? 'text-primary border-b-2 border-primary shadow-[0_4px_10px_-4px_hsl(var(--primary)/0.5)]' 
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Feed
-        </button>
-        <button 
-          onClick={() => setActiveTab('discovery')} 
-          className={`flex-1 text-center py-3 text-sm font-semibold transition-all ${
-            activeTab === 'discovery' 
-              ? 'text-primary border-b-2 border-primary shadow-[0_4px_10px_-4px_hsl(var(--primary)/0.5)]' 
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Discovery
-        </button>
+    <div className="flex flex-col xl:flex-row gap-8 xl:gap-12 xl:items-start w-full">
+      {/* Mobile Sticky Tabs Bar (Unified with Profile & Settings style) */}
+      <div className="xl:hidden w-full sticky top-[118px] lg:top-16 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-2.5 bg-background/95 backdrop-blur-2xl border-b border-border/70 shadow-sm transition-all mb-4">
+        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'feed' | 'discovery')} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-muted/60 dark:bg-muted/40 rounded-xl sm:max-w-md">
+            <TabsTrigger
+              value="feed"
+              className="flex items-center justify-center gap-2 py-2 rounded-lg font-semibold text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+            >
+              <Newspaper className="size-4 shrink-0" />
+              <span>Feed</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="discovery"
+              className="flex items-center justify-center gap-2 py-2 rounded-lg font-semibold text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+            >
+              <Compass className="size-4 shrink-0" />
+              <span>Discovery</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
       
       {/* Feed Column */}
