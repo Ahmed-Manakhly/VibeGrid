@@ -34,7 +34,7 @@ export function ScrollToTop() {
       onClick={scrollToTop}
       size="icon"
       className={cn(
-        "btn-gradient fixed bottom-[90px] sm:bottom-8 right-4 sm:right-8 xl:right-[330px] 2xl:right-[calc((100vw-1600px)/2+330px)] z-50 rounded-full shadow-lg transition-all duration-300 transform",
+        "btn-gradient fixed bottom-[90px] sm:bottom-8 right-6 sm:right-8 z-50 rounded-full shadow-2xl transition-all duration-300 transform",
         "hover:scale-110 active:scale-95 border-none",
         isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0 pointer-events-none"
       )}
