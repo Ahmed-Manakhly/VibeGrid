@@ -10,6 +10,8 @@ import { getCurrentSession } from "@/lib/auth/server";
 import { InfiniteScroll } from "@/components/InfiniteScroll";
 import { CategoryPills } from "@/components/CategoryPills";
 import { TrendingShipsLeaderboard } from "@/modules/vibe/presentation/components/TrendingShipsLeaderboard";
+import { PageHeader } from "@/components/PageHeader";
+import { Radio } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "./loading";
 
@@ -46,13 +48,13 @@ export default async function Home({ searchParams }: PageProps) {
       <MobileTabsLayout
         feed={
           <>
-            <div className="mb-8 hidden xl:block">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="size-2 rounded-full bg-primary animate-pulse"></span>
-                <p className="eyebrow eyebrow-live">LIVE COMMUNITY</p>
-              </div>
-              <h1 className="text-3xl font-bold font-sans">Your feed</h1>
-            </div>
+            <PageHeader
+              eyebrow="LIVE COMMUNITY"
+              title="Your feed"
+              subtitle="Real-time developer pulses, ships, and tech discoveries from across the grid."
+              icon={Radio}
+              hideOnMobile={true}
+            />
             
 
             <div className="mt-4 flex flex-col gap-6">

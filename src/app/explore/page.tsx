@@ -8,6 +8,8 @@ import { ExploreFilters } from "@/components/ExploreFilters";
 import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { TrendingSidebar } from "@/components/TrendingSidebar";
 import { DeveloperSearchResults } from "@/components/DeveloperSearchResults";
+import { PageHeader } from "@/components/PageHeader";
+import { Compass } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "../loading";
 
@@ -62,11 +64,13 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
       feed={
         <>
           <div className="mb-8">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="size-2 rounded-full bg-primary animate-pulse"></span>
-              <p className="eyebrow eyebrow-live">DISCOVER THE GRID</p>
-            </div>
-            <h1 className="text-3xl font-bold font-sans mb-6">Explore</h1>
+            <PageHeader
+              eyebrow="DISCOVER THE GRID"
+              title="Explore"
+              subtitle="Search developer pulses, topics, and code dilemmas across VibeGrid."
+              icon={Compass}
+              className="mb-4"
+            />
             <SearchInput />
           </div>
 

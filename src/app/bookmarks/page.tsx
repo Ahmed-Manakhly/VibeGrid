@@ -10,6 +10,7 @@ import Loading from "../loading";
 import { BookmarkIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/PageHeader";
 
 async function BookmarksFeed({ dbUserId }: { dbUserId: string }) {
   const result = await getPosts({
@@ -69,19 +70,12 @@ export default async function BookmarksPage() {
     <MobileTabsLayout
       feed={
         <>
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="size-2 rounded-full bg-primary animate-pulse"></span>
-              <p className="eyebrow eyebrow-live">SAVED VIBES</p>
-            </div>
-            <h1 className="text-3xl font-bold font-sans mb-2 flex items-center gap-3">
-              <BookmarkIcon className="size-7 text-primary fill-primary/20" />
-              Bookmarks
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              Your collection of saved vibes and posts.
-            </p>
-          </div>
+          <PageHeader
+            eyebrow="SAVED VIBES"
+            title="Bookmarks"
+            subtitle="Your curated collection of saved vibes, code snippets, and discussions."
+            icon={BookmarkIcon}
+          />
 
           <Suspense fallback={<Loading />}>
             <BookmarksFeed dbUserId={dbUserId} />

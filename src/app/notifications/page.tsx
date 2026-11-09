@@ -17,7 +17,8 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
-import { HeartIcon, MessageCircleIcon, UserPlusIcon } from "lucide-react";
+import { HeartIcon, MessageCircleIcon, UserPlusIcon, Bell } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/toast";
@@ -89,9 +90,25 @@ function NotificationsPage() {
     //-------------------------------------------
     if (isLoading) return <NotificationsSkeleton />; // IF LOADING SHOW THE skeleton
     //-------------------------------------------
+    const unreadCount = notifications.filter((n) => !n.read).length;
+
     return (
-        <div className="space-y-4">
-            <Card>
+        <div className="space-y-6 max-w-4xl">
+            <PageHeader
+                eyebrow="ACTIVITY LOG"
+                title="Notifications"
+                subtitle="Stay updated on likes, comments, and mentions from fellow developers."
+                icon={Bell}
+                action={
+                    unreadCount > 0 ? (
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 font-mono font-medium">
+                            {unreadCount} unread
+                        </span>
+                    ) : undefined
+                }
+            />
+
+            <Card className="border border-border/60 bg-card/80 backdrop-blur-xl">
                 <CardHeader className="border-b">
                     <div className="flex items-center justify-between">
                         <CardTitle>Notifications</CardTitle>
