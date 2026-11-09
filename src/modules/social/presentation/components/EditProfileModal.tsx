@@ -188,11 +188,11 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] sm:max-w-[540px] max-h-[85vh] flex flex-col p-4 sm:p-6 overflow-hidden rounded-2xl">
+      <DialogContent className="w-[92vw] max-w-[620px] max-h-[88vh] flex flex-col p-5 sm:p-7 overflow-hidden rounded-3xl border border-white/60 dark:border-white/10 bg-card/95 backdrop-blur-2xl shadow-2xl">
         <DialogHeader className="shrink-0 pb-3 border-b border-border/40">
-          <DialogTitle className="text-base sm:text-lg">Edit Profile</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">Edit Profile</DialogTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto space-y-4 py-3 sm:py-4 pr-1 sm:pr-2 min-w-0 [overflow-wrap:anywhere]">
+        <div className="flex-1 overflow-y-auto space-y-4 py-3 sm:py-4 px-1 pr-2 sm:pr-3 min-w-0">
           <div className="flex flex-col items-center gap-3">
             <UserAvatar src={previewUrl || user.image} name={user.name} className="w-20 h-20" />
             <Label htmlFor="avatar-file" className="cursor-pointer text-xs font-semibold text-primary hover:underline">

@@ -28,7 +28,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 210 15% 87%;
     --input: 210 15% 90%;
-    --ring: 198 100% 45%;
+    --ring: 158 80% 30%; /* Emerald ring matching brand */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -62,7 +62,7 @@
     --destructive-foreground: 0 0% 98%;
     --border: 220 16% 16%;
     --input: 220 16% 14%;
-    --ring: 198 100% 50%;
+    --ring: 158 83% 38%; /* Emerald ring matching brand */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
