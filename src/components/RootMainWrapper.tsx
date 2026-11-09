@@ -13,10 +13,35 @@ export function RootMainWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <OnboardingProfileBanner />
-      <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-24 sm:pb-8">
-        {children}
-      </main>
+      {/* Background Ambient Glow & Cyberpunk Dual-Tone Dot Grid for Main App */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute -top-40 -left-40 size-[650px] rounded-full bg-[#d8b65c]/15 dark:bg-[#d8b65c]/10 blur-[150px] animate-pulse" />
+        <div className="absolute top-1/3 -right-40 size-[700px] rounded-full bg-primary/20 dark:bg-primary/15 blur-[160px]" />
+        <div className="absolute -bottom-40 left-1/4 size-[600px] rounded-full bg-[#d8b65c]/10 dark:bg-[#d8b65c]/08 blur-[150px]" />
+        
+        {/* Crisp Cyberpunk Grid Dots: Gold (36px) + Green (72px) Matrix */}
+        <div 
+          className="absolute inset-0 opacity-40 dark:opacity-40"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, #d8b65c 1.1px, transparent 0)`,
+            backgroundSize: '36px 36px'
+          }}
+        />
+        <div 
+          className="absolute inset-0 opacity-25 dark:opacity-25"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--primary)) 1px, transparent 0)`,
+            backgroundSize: '72px 72px'
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 w-full">
+        <OnboardingProfileBanner />
+        <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-24 sm:pb-8">
+          {children}
+        </main>
+      </div>
     </>
   );
 }
