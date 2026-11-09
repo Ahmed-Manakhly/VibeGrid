@@ -37,16 +37,16 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
 
       <Tabs defaultValue={defaultTab} className="w-full">
         <div className="w-full flex justify-center sm:justify-start">
-          <TabsList className="inline-flex w-auto p-1.5 rounded-2xl bg-card/60 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-sm gap-1.5 shrink-0">
-            <TabsTrigger value="personalization" className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
+          <TabsList className="inline-flex w-auto p-1 rounded-2xl bg-card/70 dark:bg-card/45 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-sm gap-1 shrink-0">
+            <TabsTrigger value="personalization" className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl font-medium text-[11px] sm:text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
               <Sparkles className="size-3.5 sm:size-4 shrink-0" />
               <span>Personalization</span>
             </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
+            <TabsTrigger value="profile" className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl font-medium text-[11px] sm:text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
               <User className="size-3.5 sm:size-4 shrink-0" />
               <span>Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
+            <TabsTrigger value="security" className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl font-medium text-[11px] sm:text-xs data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0">
               <Shield className="size-3.5 sm:size-4 shrink-0" />
               <span>Security</span>
             </TabsTrigger>
