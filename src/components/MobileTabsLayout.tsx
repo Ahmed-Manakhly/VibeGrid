@@ -21,14 +21,12 @@ export function MobileTabsLayout({
   return (
     <div className="flex flex-col xl:flex-row gap-8 xl:gap-12 xl:items-start w-full">
       {/* Mobile Sticky Tabs Bar (Unified Clean Underline Style) */}
-      <div className="xl:hidden w-full">
-        <UnifiedTabsBar
-          value={activeTab}
-          onValueChange={(val) => setActiveTab(val as 'feed' | 'discovery')}
-          tabs={MOBILE_FEED_TABS}
-          className="mb-3"
-        />
-      </div>
+      <UnifiedTabsBar
+        value={activeTab}
+        onValueChange={(val) => setActiveTab(val as 'feed' | 'discovery')}
+        tabs={MOBILE_FEED_TABS}
+        className="xl:hidden mb-3"
+      />
       
       {/* Feed Column */}
       <div className={`w-full xl:w-auto xl:flex-1 min-w-0 ${activeTab === 'feed' ? 'block' : 'hidden xl:block'}`}>

@@ -294,14 +294,12 @@ export function MessagesPageClient() {
       />
 
       {/* Mobile/Tablet View Toggle Tabs (< lg) — Full width above columns */}
-      <div className="lg:hidden w-full">
-        <UnifiedTabsBar
-          value={mobileTab}
-          onValueChange={(val) => setMobileTab(val as "conversations" | "chat")}
-          tabs={MESSAGES_MOBILE_TABS}
-          className="mb-2"
-        />
-      </div>
+      <UnifiedTabsBar
+        value={mobileTab}
+        onValueChange={(val) => setMobileTab(val as "conversations" | "chat")}
+        tabs={MESSAGES_MOBILE_TABS}
+        className="lg:hidden mb-2"
+      />
 
       <div className="w-full h-[calc(100vh-220px)] flex flex-col lg:flex-row gap-4 overflow-hidden">
         {/* Conversations List Sidebar */}

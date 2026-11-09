@@ -32,7 +32,7 @@ export default function CommunitiesPage() {
         <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
           We are building dedicated developer guilds, framework circles, and open-source tribes. Stay tuned as we launch in the next iteration.
         </p>
-        <Button asChild className="btn-gradient">
+        <Button asChild className="btn-gradient max-w-full h-auto py-2.5 px-4 whitespace-normal text-center leading-snug">
           <Link href="/explore">Explore Vibes Across the Grid</Link>
         </Button>
       </div>
