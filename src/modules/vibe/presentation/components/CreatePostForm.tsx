@@ -391,37 +391,37 @@ export default function CreatPost() {
                             {/* Hidden input for imageUrl so it submits with form */}
                             <input type="hidden" name="imageUrl" value={imageUrl} />
 
-                            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-                                <div className="flex space-x-2">
-                                    <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-white/5 transition-all rounded-xl"
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-white/10 pt-4">
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                    <Button type="button" variant="ghost" size="sm" className="text-muted-foreground hover:text-primary hover:bg-white/5 transition-all rounded-xl px-2.5 sm:px-3"
                                         onClick={() => setShowImageUpload(!showImageUpload)}
                                     >
-                                        <div className="flex items-center gap-1.5 mr-2">
+                                        <div className="flex items-center gap-1.5 mr-1.5">
                                             <ImageIcon className="size-4" />
                                             <FilmIcon className="size-4" />
                                         </div>
                                         Media
                                     </Button>
-                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-primary hover:bg-white/5 transition-all rounded-xl ${showCodeBlock ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
+                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-primary hover:bg-white/5 transition-all rounded-xl px-2.5 sm:px-3 ${showCodeBlock ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
                                         onClick={() => setShowCodeBlock(!showCodeBlock)}
                                     >
                                         <CodeIcon className="size-4 mr-1.5" />
                                         Code
                                     </Button>
-                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-[#d8b65c] hover:bg-[#d8b65c]/10 transition-all rounded-xl ${showShipMode ? "text-[#d8b65c] bg-[#d8b65c]/15 border border-[#d8b65c]/30" : "text-muted-foreground"}`}
+                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-[#d8b65c] hover:bg-[#d8b65c]/10 transition-all rounded-xl px-2.5 sm:px-3 ${showShipMode ? "text-[#d8b65c] bg-[#d8b65c]/15 border border-[#d8b65c]/30" : "text-muted-foreground"}`}
                                         onClick={() => setShowShipMode(!showShipMode)}
                                     >
                                         <RocketIcon className="size-4 mr-1.5" />
                                         Ship
                                     </Button>
-                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-primary hover:bg-primary/10 transition-all rounded-xl ${showPoll ? "text-primary bg-primary/15 border border-primary/30" : "text-muted-foreground"}`}
+                                    <Button type="button" variant="ghost" size="sm" className={`hover:text-primary hover:bg-primary/10 transition-all rounded-xl px-2.5 sm:px-3 ${showPoll ? "text-primary bg-primary/15 border border-primary/30" : "text-muted-foreground"}`}
                                         onClick={() => setShowPoll(!showPoll)}
                                     >
                                         <BarChart3 className="size-4 mr-1.5" />
                                         Poll
                                     </Button>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center justify-end gap-2 pt-2 sm:pt-0 border-t border-white/5 sm:border-0 w-full sm:w-auto">
                                     <Button type="button" variant="ghost" className="text-muted-foreground hover:bg-transparent hover:text-foreground" onClick={handleCancel}>
                                         Cancel
                                     </Button>
