@@ -15,24 +15,24 @@ export function RootMainWrapper({ children }: { children: React.ReactNode }) {
     <>
       {/* Background Ambient Glow & Cyberpunk Dual-Tone Dot Grid for Main App */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-        {/* Soft, Balanced Gold Aurora Bloom from Top-Left */}
-        <div className="absolute -top-40 -left-40 size-[650px] rounded-full bg-[#d8b65c]/18 dark:bg-[#d8b65c]/14 blur-[160px] animate-pulse" />
-        <div className="absolute top-0 left-0 size-[400px] rounded-full bg-[#d8b65c]/12 dark:bg-[#d8b65c]/10 blur-[120px]" />
+        {/* Balanced Golden Aurora Bloom from Top-Left (Visible warm aura in Light, sleek neon in Dark) */}
+        <div className="absolute -top-36 -left-36 size-[680px] rounded-full bg-[#d8b65c]/26 dark:bg-[#d8b65c]/16 blur-[150px] animate-pulse" />
+        <div className="absolute top-0 left-0 size-[420px] rounded-full bg-[#d8b65c]/18 dark:bg-[#d8b65c]/12 blur-[110px]" />
         
         {/* Emerald Ambient Depth Blooms */}
         <div className="absolute top-1/3 -right-40 size-[700px] rounded-full bg-primary/22 dark:bg-primary/18 blur-[160px]" />
-        <div className="absolute -bottom-40 left-1/4 size-[600px] rounded-full bg-[#d8b65c]/12 dark:bg-[#d8b65c]/10 blur-[150px]" />
+        <div className="absolute -bottom-40 left-1/4 size-[600px] rounded-full bg-[#d8b65c]/15 dark:bg-[#d8b65c]/10 blur-[150px]" />
         
-        {/* Crisp Cyberpunk Grid Dots: Gold (36px) + Green (72px) Matrix */}
+        {/* Crisp Cyberpunk Grid Dots: Gold (36px) + Green (72px) Matrix with Lighter/More Transparent Dark Dots */}
         <div 
-          className="absolute inset-0 opacity-40 dark:opacity-45"
+          className="absolute inset-0 opacity-40 dark:opacity-20"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, #d8b65c 1.1px, transparent 0)`,
             backgroundSize: '36px 36px'
           }}
         />
         <div 
-          className="absolute inset-0 opacity-25 dark:opacity-30"
+          className="absolute inset-0 opacity-25 dark:opacity-15"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--primary)) 1px, transparent 0)`,
             backgroundSize: '72px 72px'
