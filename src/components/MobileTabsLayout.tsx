@@ -17,18 +17,18 @@ export function MobileTabsLayout({
     <div className="flex flex-col xl:flex-row gap-8 xl:gap-12 xl:items-start w-full">
       {/* Mobile Sticky Tabs Bar (Unified with Profile & Settings style) */}
       <div className="xl:hidden w-full sticky top-[118px] lg:top-16 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-2.5 bg-background/95 backdrop-blur-2xl border-b border-border/70 shadow-sm transition-all mb-4 flex justify-center sm:justify-start">
-        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'feed' | 'discovery')} className="w-full sm:w-auto">
-          <TabsList className="flex w-full sm:w-fit p-1 bg-transparent border-0 gap-1.5 sm:gap-2 justify-center sm:justify-start">
+        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'feed' | 'discovery')} className="w-auto">
+          <TabsList className="inline-flex w-auto p-1.5 rounded-2xl bg-card/60 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-sm gap-1.5 shrink-0">
             <TabsTrigger
               value="feed"
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-4 py-2 rounded-xl font-medium text-xs sm:text-sm border border-transparent data-[state=active]:bg-card/85 data-[state=active]:backdrop-blur-xl data-[state=active]:border-border/60 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0"
+              className="flex items-center justify-center gap-1.5 sm:gap-2 px-4 py-2 rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0"
             >
               <Newspaper className="size-3.5 sm:size-4 shrink-0" />
               <span>Feed</span>
             </TabsTrigger>
             <TabsTrigger
               value="discovery"
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-4 py-2 rounded-xl font-medium text-xs sm:text-sm border border-transparent data-[state=active]:bg-card/85 data-[state=active]:backdrop-blur-xl data-[state=active]:border-border/60 data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0"
+              className="flex items-center justify-center gap-1.5 sm:gap-2 px-4 py-2 rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all shrink-0"
             >
               <Compass className="size-3.5 sm:size-4 shrink-0" />
               <span>Discovery</span>

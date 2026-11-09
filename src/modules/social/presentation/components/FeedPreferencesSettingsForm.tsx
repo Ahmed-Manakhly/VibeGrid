@@ -90,18 +90,18 @@ export function FeedPreferencesSettingsForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="feed-card overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
           <Sparkles className="size-5 text-accent" /> Feed Preferences & Interests
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs sm:text-sm">
           Select the topics you want to prioritize in your feed and recommendations.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6 pt-0">
         <form onSubmit={handleSave} className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-2.5">
             {categories.map((cat) => {
               const isSelected = selectedIds.includes(cat.id);
               return (
