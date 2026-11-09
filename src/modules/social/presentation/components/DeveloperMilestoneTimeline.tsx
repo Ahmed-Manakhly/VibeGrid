@@ -101,10 +101,10 @@ export function DeveloperMilestoneTimeline({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h3 className="text-base font-semibold tracking-tight">Developer Journey</h3>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Key releases, open source contributions, and career achievements.
           </p>
         </div>
@@ -112,7 +112,7 @@ export function DeveloperMilestoneTimeline({
           <Button
             size="sm"
             onClick={() => setShowAddDialog(true)}
-            className="gap-1.5 text-xs font-medium"
+            className="gap-1.5 text-xs font-medium self-start sm:self-auto shrink-0"
           >
             <Plus className="size-3.5" />
             Add Milestone

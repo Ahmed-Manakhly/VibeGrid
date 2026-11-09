@@ -93,7 +93,7 @@ function NotificationsPage() {
     const unreadCount = notifications.filter((n) => !n.read).length;
 
     return (
-        <div className="space-y-6 max-w-4xl">
+        <div className="space-y-6 w-full">
             <PageHeader
                 eyebrow="ACTIVITY LOG"
                 title="Notifications"
@@ -108,7 +108,7 @@ function NotificationsPage() {
                 }
             />
 
-            <Card className="border border-border/60 bg-card/80 backdrop-blur-xl">
+            <Card className="border border-border/60 bg-card/80 backdrop-blur-xl w-full">
                 <CardHeader className="border-b">
                     <div className="flex items-center justify-between">
                         <CardTitle>Notifications</CardTitle>

@@ -21,9 +21,9 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <div className={cn("mb-6 sm:mb-8", className)}>
+    <div className={cn("pt-2 sm:pt-3 mb-8 sm:mb-10", className)}>
       {eyebrow && (
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-3">
           <span className="size-2 rounded-full bg-primary animate-pulse" />
           <p className="eyebrow eyebrow-live uppercase tracking-wider font-mono text-[11px] font-semibold text-primary">
             {eyebrow}
@@ -38,7 +38,7 @@ export function PageHeader({
         {action && <div className="shrink-0">{action}</div>}
       </div>
       {subtitle && (
-        <p className="text-muted-foreground text-xs sm:text-sm mt-1.5 max-w-2xl">
+        <p className="text-muted-foreground text-xs sm:text-sm mt-2.5 max-w-2xl leading-relaxed">
           {subtitle}
         </p>
       )}
