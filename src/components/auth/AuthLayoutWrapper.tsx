@@ -68,9 +68,9 @@ export function AuthLayoutWrapper({
       {/* Auth Dedicated Fixed Topbar Header */}
       <AuthHeader />
 
-      {/* Main Content Area: Doubled top padding for fixed header (pt-24 sm:pt-48), Edge-to-Edge Responsive Grid */}
-      <main className="flex-1 w-full flex items-start justify-center pt-24 sm:pt-48 px-6 sm:px-24 lg:px-44 xl:px-64 pb-12 z-10">
-        <div className="w-full flex flex-col-reverse lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
+      {/* Main Content Area: Edge-to-Edge Responsive Grid */}
+      <main className="flex-1 w-full flex items-start justify-center pt-24 lg:pt-36 px-4 sm:px-8 lg:px-16 xl:px-32 pb-12 z-10">
+        <div className="w-full max-w-5xl flex flex-col-reverse lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
           
           {/* Left Column: Visual Hero Panel (Desktop left, Mobile bottom order) */}
           <div className="w-full lg:col-span-5 flex flex-col justify-between p-6 sm:p-8 rounded-3xl backdrop-blur-3xl bg-white/70 dark:bg-card/25 border border-white/60 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(4,120,87,0.12),0_10px_30px_-10px_rgba(216,182,92,0.18)] dark:shadow-[0_0_50px_rgba(216,182,92,0.08)] relative overflow-hidden shrink-0">

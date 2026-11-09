@@ -39,7 +39,7 @@ function Navbar() {
               <>
                 <Link 
                   href="/notifications" 
-                  className="icon-button hidden sm:flex relative" 
+                  className="icon-button hidden lg:flex relative" 
                   aria-label="Notifications"
                 >
                   <Bell className="size-4" />
@@ -50,16 +50,16 @@ function Navbar() {
                   )}
                 </Link>
                 <DesktopDropVibeButton />
-                <div className="hidden sm:block pl-2 border-l border-border/50 ml-1">
+                <div className="hidden lg:block pl-2 border-l border-border/50 ml-1">
                   <UserNavDropdown />
                 </div>
               </>
             ) : (
               <>
-                <Link href="/register" className="btn-secondary hidden items-center justify-center px-4 py-2 text-sm sm:flex">
+                <Link href="/register" className="btn-secondary hidden items-center justify-center px-4 py-2 text-sm lg:flex">
                   Sign up
                 </Link>
-                <Link href="/login" className="btn-gradient hidden items-center gap-2 px-4 py-2 text-sm sm:flex">
+                <Link href="/login" className="btn-gradient hidden items-center gap-2 px-4 py-2 text-sm lg:flex">
                   Log in
                 </Link>
               </>

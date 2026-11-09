@@ -33,7 +33,7 @@ export function UserNavDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="hidden sm:flex items-center justify-center rounded-full outline-none"
+        className="hidden lg:flex items-center justify-center rounded-full outline-none"
         aria-label="User menu"
       >
         <UserAvatar src={user.image} name={displayName} className="size-9" />

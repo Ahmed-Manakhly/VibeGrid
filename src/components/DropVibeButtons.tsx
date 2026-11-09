@@ -8,7 +8,7 @@ export function DesktopDropVibeButton() {
         <Link 
             href="/#create-post" 
             onClick={() => { if (typeof window !== 'undefined') window.dispatchEvent(new Event('focusCreatePost')); }} 
-            className="btn-gradient hidden items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold sm:flex"
+            className="btn-gradient hidden items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold lg:flex"
         >
             <Plus className="size-4" /> Drop Vibe
         </Link>

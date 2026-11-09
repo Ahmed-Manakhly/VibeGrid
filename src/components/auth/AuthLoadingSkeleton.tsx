@@ -12,7 +12,7 @@ export default function AuthLoading() {
 
       <AuthHeader />
 
-      <main className="flex-1 w-full flex items-start justify-center pt-24 sm:pt-48 px-6 sm:px-24 lg:px-44 xl:px-64 pb-12 z-10">
+      <main className="flex-1 w-full flex items-start justify-center pt-24 lg:pt-36 px-4 sm:px-8 lg:px-16 xl:px-32 pb-12 z-10">
         <div className="w-full max-w-6xl flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
           
           {/* Left Hero Skeleton (Desktop) */}
