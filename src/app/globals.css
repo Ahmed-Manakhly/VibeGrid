@@ -103,17 +103,20 @@
   .grid-mark span:nth-child(2), .grid-mark span:nth-child(3) { background: #d8b65c; box-shadow: 0 0 10px rgba(216, 182, 92, 0.7); }
   
   .nav-item { 
-    @apply flex items-center gap-3 rounded-none px-3 py-3 text-sm font-bold text-muted-foreground transition group-[.is-collapsed]:justify-center group-[.is-collapsed]:px-0; 
+    @apply flex items-center gap-3 px-3 py-3 text-sm font-bold text-muted-foreground group-[.is-collapsed]:justify-center group-[.is-collapsed]:px-0; 
+    border-radius: 0 9999px 9999px 0;
     border-top: 1px solid transparent !important;
     border-bottom: 1px solid transparent !important;
     border-left: none !important;
     border-right: 3px solid transparent !important;
     box-sizing: border-box;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   }
   .nav-item svg { @apply size-4; }
   
   .nav-item:hover, .nav-item-active { 
-    @apply text-foreground rounded-none rounded-r-full backdrop-blur-xl transition-all duration-300;
+    @apply text-foreground backdrop-blur-xl;
+    border-radius: 0 9999px 9999px 0;
     background: linear-gradient(135deg, hsl(var(--primary) / 0.25) 0%, rgba(255, 255, 255, 0.85) 100%);
     border-top: 1px solid rgba(255, 255, 255, 0.7) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.7) !important;
@@ -134,10 +137,12 @@
   
   /* When sidebar is collapsed, make nav items circular like topbar icons */
   .group.is-collapsed .nav-item {
-    @apply size-10 mx-auto rounded-xl p-0 justify-center;
+    @apply size-10 mx-auto rounded-full p-0 justify-center;
+    border-radius: 9999px !important;
+    border: 1px solid transparent !important;
   }
   .group.is-collapsed .nav-item:hover, .group.is-collapsed .nav-item-active {
-    @apply rounded-full;
+    border-radius: 9999px !important;
     background-color: hsl(var(--accent)) !important;
     background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.25) 100%) !important;
     border: 1px solid hsl(var(--accent) / 0.6) !important;
@@ -152,9 +157,12 @@
   
 
   
-  .icon-button { @apply flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-all duration-300 border border-transparent; }
+  .icon-button { 
+    @apply flex size-10 items-center justify-center rounded-full text-muted-foreground border border-transparent; 
+    transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
   .icon-button:hover { 
-    @apply rounded-full border-accent text-accent;
+    @apply border-accent text-accent;
     background: transparent !important;
     box-shadow: 0 0 8px hsl(var(--accent) / 0.25);
   }
