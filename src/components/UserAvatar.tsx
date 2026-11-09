@@ -35,10 +35,10 @@ export function UserAvatar({ src, name, className }: UserAvatarProps) {
     : null;
 
   return (
-    <Avatar className={cn("size-10 border-[3px] border-accent shrink-0", className)}>
+    <Avatar className={cn("size-10 border-[2px] border-primary/60 shrink-0", className)}>
       <AvatarImage src={avatarSrc} alt={name || "User avatar"} />
-      <AvatarFallback className="bg-accent/15 text-accent font-semibold text-xs">
-        {initials || <User className="size-4 text-accent fill-accent/40" />}
+      <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+        {initials || <User className="size-4 text-primary fill-primary/30" />}
       </AvatarFallback>
     </Avatar>
   );
