@@ -161,6 +161,27 @@ export const qaRepository = new PrismaQARepository(prisma);
 export const acceptSolutionUseCase = new AcceptSolutionUseCase(qaRepository);
 export const unacceptSolutionUseCase = new UnacceptSolutionUseCase(qaRepository);
 
+// Community Module
+import { PrismaCommunityRepository } from "@/modules/community/infrastructure/PrismaCommunityRepository";
+import {
+  ListCommunitiesUseCase,
+  GetCommunityBySlugUseCase,
+  CreateCommunityUseCase,
+  JoinCommunityUseCase,
+  LeaveCommunityUseCase,
+  GetCommunityFeedUseCase,
+  GetCommunityMembersUseCase,
+} from "@/modules/community/application/CommunityUseCases";
+
+export const communityRepository = new PrismaCommunityRepository(prisma);
+export const listCommunitiesUseCase = new ListCommunitiesUseCase(communityRepository);
+export const getCommunityBySlugUseCase = new GetCommunityBySlugUseCase(communityRepository);
+export const createCommunityUseCase = new CreateCommunityUseCase(communityRepository);
+export const joinCommunityUseCase = new JoinCommunityUseCase(communityRepository);
+export const leaveCommunityUseCase = new LeaveCommunityUseCase(communityRepository);
+export const getCommunityFeedUseCase = new GetCommunityFeedUseCase(communityRepository);
+export const getCommunityMembersUseCase = new GetCommunityMembersUseCase(communityRepository);
+
 // GitHub Module
 import { CachedGitHubRepoRepository } from "@/modules/github/infrastructure/CachedGitHubRepoRepository";
 export const gitHubRepoRepository = new CachedGitHubRepoRepository(cacheService, logger);
