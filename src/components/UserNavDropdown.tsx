@@ -2,7 +2,7 @@
 
 import { useSession } from '@/components/auth/SessionProvider';
 import { UserAvatar } from '@/components/UserAvatar';
-import { LogOut, User, Settings, Bookmark, Bell, MessageSquare, Compass, Shield } from 'lucide-react';
+import { LogOut, User, Settings, Bookmark, Bell, MessageSquare, Compass, Shield, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 
@@ -81,6 +81,13 @@ export function UserNavDropdown() {
               className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
             >
               <MessageSquare className="size-4" /> Messages
+            </Link>
+            <Link
+              href="/communities"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
+            >
+              <Users className="size-4" /> Communities
             </Link>
             <Link
               href="/bookmarks"

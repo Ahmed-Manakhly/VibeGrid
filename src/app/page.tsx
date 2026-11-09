@@ -53,7 +53,6 @@ export default async function Home({ searchParams }: PageProps) {
               title="Your feed"
               subtitle="Real-time developer pulses, ships, and tech discoveries from across the grid."
               icon={Radio}
-              hideOnMobile={true}
             />
             
 

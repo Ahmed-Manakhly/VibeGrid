@@ -19,16 +19,9 @@ export function PageHeader({
   icon: Icon,
   action,
   className,
-  hideOnMobile = false,
 }: PageHeaderProps) {
   return (
-    <div
-      className={cn(
-        "mb-6 sm:mb-8",
-        hideOnMobile ? "hidden xl:block" : "block",
-        className
-      )}
-    >
+    <div className={cn("mb-6 sm:mb-8", className)}>
       {eyebrow && (
         <div className="flex items-center gap-2 mb-2">
           <span className="size-2 rounded-full bg-primary animate-pulse" />

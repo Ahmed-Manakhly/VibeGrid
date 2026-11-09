@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon, SmileIcon, Users, MessageCircle } from "lucide-react";
+import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon, SmileIcon, Users, MessageCircle, MessagesSquare } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 import { formatDistanceToNow } from "date-fns";
 import { CodeBlockViewer } from "@/modules/vibe/presentation/components/CodeBlockViewer";
 import { PostContentValueObject } from "@/modules/vibe/domain/PostContentValueObject";
@@ -278,8 +279,16 @@ export function MessagesPageClient() {
   )?.user;
 
   return (
-    <div className="w-full h-[calc(100vh-80px)] p-2 sm:p-4 flex flex-col lg:flex-row gap-4 overflow-hidden">
-      {/* Mobile/Tablet View Toggle Tabs (< lg) */}
+    <div className="w-full flex flex-col space-y-4">
+      <PageHeader
+        eyebrow="DIRECT SIGNALS"
+        title="Messages"
+        subtitle="Real-time end-to-end encrypted direct messaging and code pairing."
+        icon={MessagesSquare}
+        className="px-2 sm:px-0 mb-2"
+      />
+      <div className="w-full h-[calc(100vh-160px)] p-2 sm:p-0 flex flex-col lg:flex-row gap-4 overflow-hidden">
+        {/* Mobile/Tablet View Toggle Tabs (< lg) */}
       <div className="lg:hidden w-full shrink-0 sticky top-[118px] z-30 py-1 bg-transparent backdrop-blur-md mb-2">
         <Tabs
           value={mobileTab}
@@ -289,16 +298,16 @@ export function MessagesPageClient() {
           <TabsList className="w-full flex items-center justify-start flex-wrap border-b border-border/50 bg-transparent p-0 rounded-none h-auto gap-x-4 sm:gap-x-6 gap-y-1">
             <TabsTrigger
               value="conversations"
-              className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
             >
-              <Users className="size-3.5 sm:size-4 shrink-0" />
+              <Users className="size-4 shrink-0" />
               <span>Conversations</span>
             </TabsTrigger>
             <TabsTrigger
               value="chat"
-              className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-0.5 text-xs sm:text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
             >
-              <MessageCircle className="size-3.5 sm:size-4 shrink-0" />
+              <MessageCircle className="size-4 shrink-0" />
               <span>Chat</span>
             </TabsTrigger>
           </TabsList>
@@ -558,6 +567,7 @@ export function MessagesPageClient() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
