@@ -16,13 +16,13 @@
     --card-foreground: 222 50% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 50% 10%;
-    --primary: 158 83% 32%; /* Slightly darker #06402B variant for light mode */
+    --primary: 158 83% 32%; /* Terminal Emerald #06402B baseline in light mode */
     --primary-foreground: 0 0% 98%;
     --secondary: 220 14% 90%;
     --secondary-foreground: 222 50% 10%;
     --muted: 220 14% 92%;
     --muted-foreground: 215 16% 47%;
-    --accent: 35 92% 38%; /* Deep Antique Ochre Gold for high contrast in light mode */
+    --accent: 158 75% 38%; /* Unified Emerald tone for light mode */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -50,13 +50,13 @@
     --card-foreground: 0 0% 98%;
     --popover: 220 18% 9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 158 83% 32%;
+    --primary: 158 83% 38%; /* Signature Terminal Emerald #10b981 */
     --primary-foreground: 0 0% 98%;
     --secondary: 220 16% 14%;
     --secondary-foreground: 0 0% 98%;
     --muted: 220 16% 14%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 40 94% 48%; /* Warm Metallic Gold for rich dark mode glow */
+    --accent: 158 83% 45%; /* High-vibe Emerald accent for dark mode */
     --accent-foreground: 220 25% 6%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
