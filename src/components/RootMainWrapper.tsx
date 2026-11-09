@@ -15,20 +15,24 @@ export function RootMainWrapper({ children }: { children: React.ReactNode }) {
     <>
       {/* Background Ambient Glow & Cyberpunk Dual-Tone Dot Grid for Main App */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-        <div className="absolute -top-40 -left-40 size-[650px] rounded-full bg-[#d8b65c]/15 dark:bg-[#d8b65c]/10 blur-[150px] animate-pulse" />
-        <div className="absolute top-1/3 -right-40 size-[700px] rounded-full bg-primary/20 dark:bg-primary/15 blur-[160px]" />
-        <div className="absolute -bottom-40 left-1/4 size-[600px] rounded-full bg-[#d8b65c]/10 dark:bg-[#d8b65c]/08 blur-[150px]" />
+        {/* Enhanced High-Intensity Gold Aurora Bloom from Top-Left */}
+        <div className="absolute -top-32 -left-32 size-[700px] rounded-full bg-[#d8b65c]/35 dark:bg-[#d8b65c]/30 blur-[140px] animate-pulse" />
+        <div className="absolute top-0 left-0 size-[450px] rounded-full bg-[#d8b65c]/25 dark:bg-[#d8b65c]/20 blur-[100px]" />
+        
+        {/* Emerald Ambient Depth Blooms */}
+        <div className="absolute top-1/3 -right-40 size-[700px] rounded-full bg-primary/25 dark:bg-primary/20 blur-[160px]" />
+        <div className="absolute -bottom-40 left-1/4 size-[600px] rounded-full bg-[#d8b65c]/20 dark:bg-[#d8b65c]/15 blur-[140px]" />
         
         {/* Crisp Cyberpunk Grid Dots: Gold (36px) + Green (72px) Matrix */}
         <div 
-          className="absolute inset-0 opacity-40 dark:opacity-40"
+          className="absolute inset-0 opacity-50 dark:opacity-55"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #d8b65c 1.1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 1px 1px, #d8b65c 1.2px, transparent 0)`,
             backgroundSize: '36px 36px'
           }}
         />
         <div 
-          className="absolute inset-0 opacity-25 dark:opacity-25"
+          className="absolute inset-0 opacity-30 dark:opacity-35"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--primary)) 1px, transparent 0)`,
             backgroundSize: '72px 72px'
