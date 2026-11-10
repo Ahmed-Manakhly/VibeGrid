@@ -209,7 +209,7 @@ export function CommentCard({
                         <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="h-8 w-8 p-0 text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                             onClick={handleDelete}
                             disabled={isDeleting}
                         >

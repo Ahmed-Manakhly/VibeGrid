@@ -43,7 +43,7 @@ function ImageUpload({ onChange, value, purpose = 'post_attachment' }: ImageUplo
         )}
         <button
           onClick={() => onChange("")}
-          className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 transition-colors rounded-full shadow-md text-white"
+          className="absolute top-2 right-2 p-1.5 bg-destructive hover:bg-destructive/90 transition-colors rounded-full shadow-md text-destructive-foreground"
           type="button"
         >
           <XIcon className="h-4 w-4" />

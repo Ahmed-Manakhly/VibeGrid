@@ -91,7 +91,7 @@ export function OnboardingProfileBanner() {
     <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
       <div className="relative overflow-hidden rounded-3xl border border-white/60 dark:border-white/10 bg-white/70 dark:bg-card/45 backdrop-blur-3xl p-6 shadow-[0_20px_60px_-15px_rgba(4,120,87,0.08),0_10px_30px_-10px_rgba(216,182,92,0.14)] dark:shadow-[0_0_50px_rgba(4,120,87,0.15)] transition-all">
         {/* Ambient background glows matching login hero card */}
-        <div className="pointer-events-none absolute -top-16 -left-16 size-48 rounded-full bg-[#d8b65c]/25 dark:bg-[#d8b65c]/15 blur-3xl" />
+        <div className="pointer-events-none absolute -top-16 -left-16 size-48 rounded-full bg-brand-gold/25 dark:bg-brand-gold/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 -right-16 size-48 rounded-full bg-primary/25 dark:bg-primary/20 blur-3xl" />
 
         <div className="relative z-10 flex flex-col gap-4">
@@ -128,7 +128,7 @@ export function OnboardingProfileBanner() {
           {/* Progress Bar */}
           <div className="w-full bg-secondary/80 dark:bg-muted/40 rounded-full h-1.5 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-[#d8b65c] via-emerald-400 to-primary h-full rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(216,182,92,0.5)]"
+              className="bg-gradient-to-r from-brand-gold via-emerald-400 to-primary h-full rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(216,182,92,0.5)]"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -153,14 +153,14 @@ export function OnboardingProfileBanner() {
               className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
                 isProfileComplete
                   ? 'border-primary/20 bg-background/50 backdrop-blur-md'
-                  : 'border-[#d8b65c]/40 bg-[#d8b65c]/5 hover:border-[#d8b65c]/70 shadow-sm backdrop-blur-md'
+                  : 'border-brand-gold/40 bg-brand-gold/5 hover:border-brand-gold/70 shadow-sm backdrop-blur-md'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 {isProfileComplete ? (
                   <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
                 ) : (
-                  <Circle className="size-5 text-[#d8b65c] animate-pulse shrink-0" />
+                  <Circle className="size-5 text-brand-gold animate-pulse shrink-0" />
                 )}
                 <div className="min-w-0">
                   <p
@@ -194,14 +194,14 @@ export function OnboardingProfileBanner() {
               className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
                 isPersonalizationComplete
                   ? 'border-primary/20 bg-background/50 backdrop-blur-md'
-                  : 'border-[#d8b65c]/40 bg-[#d8b65c]/5 hover:border-[#d8b65c]/70 shadow-sm backdrop-blur-md'
+                  : 'border-brand-gold/40 bg-brand-gold/5 hover:border-brand-gold/70 shadow-sm backdrop-blur-md'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 {isPersonalizationComplete ? (
                   <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
                 ) : (
-                  <Circle className="size-5 text-[#d8b65c] animate-pulse shrink-0" />
+                  <Circle className="size-5 text-brand-gold animate-pulse shrink-0" />
                 )}
                 <div className="min-w-0">
                   <p

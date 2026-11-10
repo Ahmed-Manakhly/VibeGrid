@@ -84,7 +84,7 @@ export function TrendingSidebar() {
                 <Loader2 className="size-5 animate-spin text-muted-foreground" />
               </div>
             ) : error ? (
-              <div className="mt-5 text-sm text-red-500">
+              <div className="mt-5 text-sm text-destructive">
                 Failed to load trending topics.
               </div>
             ) : trending.length === 0 ? (

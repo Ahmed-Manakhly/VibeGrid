@@ -44,15 +44,15 @@ export function AuthLayoutWrapper({
     <div className="min-h-screen w-full flex flex-col bg-background relative selection:bg-accent selection:text-white">
       {/* Background Ambient Glow Orbs & Dual-Tone Depth Orbits */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-        <div className="absolute -top-40 -left-40 size-[550px] rounded-full bg-[#d8b65c]/25 dark:bg-[#d8b65c]/20 blur-[130px] animate-pulse" />
+        <div className="absolute -top-40 -left-40 size-[550px] rounded-full bg-brand-gold/25 dark:bg-brand-gold/20 blur-[130px] animate-pulse" />
         <div className="absolute top-1/2 -right-40 size-[650px] rounded-full bg-primary/30 dark:bg-primary/25 blur-[140px]" />
-        <div className="absolute -bottom-40 left-1/3 size-[550px] rounded-full bg-[#d8b65c]/20 dark:bg-[#d8b65c]/15 blur-[130px]" />
+        <div className="absolute -bottom-40 left-1/3 size-[550px] rounded-full bg-brand-gold/20 dark:bg-brand-gold/15 blur-[130px]" />
         
         {/* Crisp Cyberpunk Grid Dots Pattern: Gold + Green Dual Matrix */}
         <div 
           className="absolute inset-0 opacity-45 dark:opacity-20"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #d8b65c 1.2px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--brand-gold)) 1.2px, transparent 0)`,
             backgroundSize: '36px 36px'
           }}
         />
@@ -74,7 +74,7 @@ export function AuthLayoutWrapper({
           
           {/* Left Column: Visual Hero Panel (Desktop left, Mobile bottom order) */}
           <div className="w-full lg:col-span-5 flex flex-col justify-between p-6 sm:p-8 rounded-3xl backdrop-blur-3xl bg-white/70 dark:bg-card/25 border border-white/60 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(4,120,87,0.12),0_10px_30px_-10px_rgba(216,182,92,0.18)] dark:shadow-[0_0_50px_rgba(216,182,92,0.08)] relative overflow-hidden shrink-0">
-            <div className="absolute -top-24 -left-24 size-48 rounded-full bg-[#d8b65c]/30 blur-3xl" />
+            <div className="absolute -top-24 -left-24 size-48 rounded-full bg-brand-gold/30 blur-3xl" />
             <div className="absolute -bottom-24 -right-24 size-48 rounded-full bg-primary/35 blur-3xl" />
 
             {/* Back to grid link above the left card content */}
@@ -83,7 +83,7 @@ export function AuthLayoutWrapper({
                 href="/" 
                 className="inline-flex items-center gap-2 text-xs font-mono font-medium text-muted-foreground hover:text-foreground transition-all duration-300 group"
               >
-                <span className="p-1.5 rounded-full bg-[#d8b65c]/10 group-hover:bg-[#d8b65c]/20 text-[#d8b65c] transition-colors">
+                <span className="p-1.5 rounded-full bg-brand-gold/10 group-hover:bg-brand-gold/20 text-brand-gold transition-colors">
                   <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
                 </span>
                 <span>Back to the grid</span>
@@ -91,7 +91,7 @@ export function AuthLayoutWrapper({
             </div>
 
             <div className="space-y-4 relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d8b65c]/15 border border-[#d8b65c]/30 text-[#d8b65c] text-xs font-mono font-semibold tracking-wider uppercase">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-gold/15 border border-brand-gold/30 text-brand-gold text-xs font-mono font-semibold tracking-wider uppercase">
                 <Radio className="size-3.5 animate-pulse" />
                 <span>{badge}</span>
               </div>
@@ -109,7 +109,7 @@ export function AuthLayoutWrapper({
             {/* Feature Bullet Badges: Dev-First Social Media & Code Playground Positioning */}
             <div className="space-y-2.5 relative z-10 my-4 sm:my-6">
               <div className="flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-white/60 dark:bg-background/40 border border-emerald-900/10 dark:border-white/5 shadow-sm backdrop-blur-md">
-                <div className="p-2 rounded-xl bg-[#d8b65c]/15 text-[#d8b65c] shrink-0">
+                <div className="p-2 rounded-xl bg-brand-gold/15 text-brand-gold shrink-0">
                   <Zap className="size-4" />
                 </div>
                 <div>
@@ -129,7 +129,7 @@ export function AuthLayoutWrapper({
               </div>
 
               <div className="flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-white/60 dark:bg-background/40 border border-emerald-900/10 dark:border-white/5 shadow-sm backdrop-blur-md">
-                <div className="p-2 rounded-xl bg-[#d8b65c]/15 text-[#d8b65c] shrink-0">
+                <div className="p-2 rounded-xl bg-brand-gold/15 text-brand-gold shrink-0">
                   <Sparkles className="size-4" />
                 </div>
                 <div>
@@ -141,7 +141,7 @@ export function AuthLayoutWrapper({
 
             <div className="pt-3 border-t border-border/70 dark:border-white/10 flex items-center justify-between text-xs text-muted-foreground font-mono relative z-10">
               <span>VibeGrid v1.0</span>
-              <span className="text-[#d8b65c]">● LIVE</span>
+              <span className="text-brand-gold">● LIVE</span>
             </div>
           </div>
 

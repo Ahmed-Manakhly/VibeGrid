@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       badge="WELCOME BACK"
     >
       <div className="text-left mb-6">
-        <p className="eyebrow text-[#d8b65c] font-mono text-xs uppercase tracking-wider font-semibold">ACCOUNT ACCESS</p>
+        <p className="eyebrow text-brand-gold font-mono text-xs uppercase tracking-wider font-semibold">ACCOUNT ACCESS</p>
         <h2 className="font-display text-2xl font-bold tracking-tight text-foreground mt-1">
           Log in to VibeGrid
         </h2>

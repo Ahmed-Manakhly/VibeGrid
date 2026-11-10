@@ -46,6 +46,12 @@ const config: Config = withUt({
 				DEFAULT: 'hsl(var(--destructive))',
 				foreground: 'hsl(var(--destructive-foreground))'
 			},
+			'brand-gold': {
+				DEFAULT: 'hsl(var(--brand-gold))',
+				foreground: 'hsl(var(--brand-gold-foreground))',
+				muted: 'hsl(var(--brand-gold-muted))',
+				border: 'hsl(var(--brand-gold-border))'
+			},
 			border: 'hsl(var(--border))',
 			input: 'hsl(var(--input))',
 			ring: 'hsl(var(--ring))',

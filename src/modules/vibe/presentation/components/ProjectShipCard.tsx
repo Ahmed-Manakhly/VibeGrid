@@ -25,12 +25,12 @@ export function ProjectShipCard({
 
   return (
     <div
-      className={`rounded-2xl border border-[#d8b65c]/30 bg-gradient-to-br from-[#d8b65c]/15 via-background/60 to-[#b89539]/10 p-4 sm:p-5 backdrop-blur-md shadow-lg shadow-[#d8b65c]/10 space-y-4 ${className}`}
+      className={`rounded-2xl border border-brand-gold/30 bg-gradient-to-br from-brand-gold/15 via-background/60 to-brand-gold-muted/10 p-4 sm:p-5 backdrop-blur-md shadow-lg shadow-brand-gold/10 space-y-4 ${className}`}
     >
       {/* Launch Mode Badge & Header */}
       <div className="flex items-center justify-between gap-2">
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#d8b65c]/15 text-[#d8b65c] border border-[#d8b65c]/30">
-          <RocketIcon className="size-3.5 text-[#d8b65c] animate-pulse" />
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-gold/15 text-brand-gold border border-brand-gold/30">
+          <RocketIcon className="size-3.5 text-brand-gold animate-pulse" />
           <span>SHIPPED PROJECT</span>
         </div>
       </div>
@@ -58,7 +58,7 @@ export function ProjectShipCard({
               href={`/explore?tag=${encodeURIComponent(tech.toLowerCase())}`}
               className="inline-block"
             >
-              <span className="inline-flex items-center text-[11px] sm:text-xs font-mono font-medium px-2.5 py-0.5 rounded-lg border border-border/50 bg-secondary/70 text-secondary-foreground hover:bg-[#d8b65c]/20 hover:text-[#d8b65c] hover:border-[#d8b65c]/40 transition-all cursor-pointer">
+              <span className="inline-flex items-center text-[11px] sm:text-xs font-mono font-medium px-2.5 py-0.5 rounded-lg border border-border/50 bg-secondary/70 text-secondary-foreground hover:bg-brand-gold/20 hover:text-brand-gold hover:border-brand-gold/40 transition-all cursor-pointer">
                 #{tech}
               </span>
             </Link>
