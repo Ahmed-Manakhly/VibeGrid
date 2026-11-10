@@ -159,10 +159,13 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
-  // 5. Protected routes (/profile, /settings, /create-post, /notifications, /messages, /bookmarks)
-  const isProtectedRoute = PROTECTED_ROUTES.some(
+  // 5. Protected routes (/profile, /profile/edit, /settings, /create-post, /notifications, /messages, /bookmarks)
+  // Note: /profile/:username is public; only exact /profile and /profile/edit require authentication
+  const isProfileProtected = pathname === '/profile' || pathname === '/profile/edit' || pathname.startsWith('/profile/edit/');
+  const isOtherProtected = ['/settings', '/create-post', '/notifications', '/messages', '/bookmarks'].some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
+  const isProtectedRoute = isProfileProtected || isOtherProtected;
 
   if (isProtectedRoute && !payload) {
     logger.info('[AUTH_FORENSIC_TRACE] Redirecting unauthenticated user from protected route to login', { requestId, pathname });
