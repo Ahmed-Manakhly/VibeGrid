@@ -1,6 +1,6 @@
 import { getPosts } from "@/actions/post.action";
 import { getDbUserId } from "@/actions/user.action";
-import PostCard from "./PostCard";
+import PostCard from "@/modules/vibe/presentation/components/PostCard";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 
 export async function RelatedPostsSidebar({ tags, currentPostId }: { tags: any[], currentPostId: string }) {

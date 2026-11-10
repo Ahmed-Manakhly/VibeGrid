@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
 import { CommunityHeader } from "@/components/community/CommunityHeader";
 import { CommunityEntity, CommunityMemberEntity } from "@/modules/community/domain/ICommunityRepository";
-import { PostCard } from "@/components/PostCard";
+import { PostCard } from "@/modules/vibe/presentation/components/PostCard";
 import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

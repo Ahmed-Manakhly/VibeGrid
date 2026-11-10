@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { getPostById } from "@/actions/post.action";
 import { getDbUserId } from "@/actions/user.action";
-import PostCard from "@/components/PostCard";
+import PostCard from "@/modules/vibe/presentation/components/PostCard";
 import { notFound } from "next/navigation";
 import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { RelatedPostsSidebar } from "@/components/RelatedPostsSidebar";

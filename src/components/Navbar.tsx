@@ -8,7 +8,7 @@ import { useSession } from '@/components/auth/SessionProvider';
 import { MobileMenuButton } from './MobileMenuButton';
 import { UserNavDropdown } from './UserNavDropdown';
 import { DesktopDropVibeButton } from './DropVibeButtons';
-import { NavSearch, MobileNavSearch } from './NavSearch';
+import { SearchForm, MobileNavSearch } from './SearchForm';
 
 import { usePathname } from 'next/navigation';
 
@@ -30,7 +30,7 @@ function Navbar() {
         <MobileMenuButton />
         <div className="lg:hidden"><VibeLogo /></div>
         
-        <NavSearch />
+        <SearchForm variant="inline" />
         
         <div className="ml-auto flex items-center gap-3">
           <ModeToggle />

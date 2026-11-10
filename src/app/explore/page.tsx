@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { getPosts } from "@/actions/post.action";
 import { getDbUserId, searchUsers } from "@/actions/user.action";
 import { InfiniteScroll } from "@/components/InfiniteScroll";
-import { SearchInput } from "@/components/SearchInput";
+import { SearchForm } from "@/components/SearchForm";
 import { ExploreFilters } from "@/components/ExploreFilters";
 import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { TrendingSidebar } from "@/components/TrendingSidebar";
@@ -69,7 +69,7 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
           icon={Compass}
           className="mb-4"
         />
-        <SearchInput />
+        <SearchForm variant="hero" />
       </div>
 
       <MobileTabsLayout

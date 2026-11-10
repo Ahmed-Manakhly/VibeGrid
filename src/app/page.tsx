@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { getPosts } from "@/actions/post.action";
 import { getDbUserId } from "@/actions/user.action";
-import CreatPost from "@/components/CreatPost";
+import CreatPost from "@/modules/vibe/presentation/components/CreatePostForm";
 import WhoToFollow from "@/components/WhoToFollow";
 import { TrendingSidebar } from "@/components/TrendingSidebar";
 import { MobileTabsLayout } from "@/components/MobileTabsLayout";

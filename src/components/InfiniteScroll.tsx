@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
-import PostCard from "./PostCard";
+import PostCard from "@/modules/vibe/presentation/components/PostCard";
 import { useSearchParams } from "next/navigation";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 

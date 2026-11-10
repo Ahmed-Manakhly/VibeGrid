@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Zap, UserRound, Loader2, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { UserAvatar } from '@/components/UserAvatar';
-import FollowButton from '@/components/FollowButton';
+import FollowButton from '@/modules/social/presentation/components/FollowButton';
 import { FollowTagButton } from '@/components/FollowTagButton';
 
 type TrendingTag = {

@@ -1,4 +1,4 @@
-import { LoginForm } from '@/components/auth/LoginForm';
+import { LoginForm } from '@/modules/auth/presentation/components/LoginForm';
 import { AuthLayoutWrapper } from '@/components/auth/AuthLayoutWrapper';
 
 export const metadata = {
