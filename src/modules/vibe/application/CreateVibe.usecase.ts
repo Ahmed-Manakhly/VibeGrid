@@ -21,9 +21,18 @@ export class CreateVibeUseCase {
     vibeId?: string,
     techContext?: any,
     postType?: any,
-    poll?: { question: string; options: string[]; durationHours: number }
+    poll?: { question: string; options: string[]; durationHours: number },
+    quotedPostId?: string
   ) {
     if (!authorId) return { success: false as const, error: "No user found!" };
+
+    // Validate quoted post if provided
+    if (quotedPostId) {
+      const targetPost = await this.vibeRepository.getPostById(quotedPostId);
+      if (!targetPost) {
+        return { success: false as const, error: "The vibe you are trying to quote does not exist." };
+      }
+    }
     
     // Combine explicit tags and techStack tags if ship context is provided
     let combinedTags = tags ? [...tags] : [];
@@ -60,7 +69,8 @@ export class CreateVibeUseCase {
       vibeId,
       techContext,
       postType,
-      poll
+      poll,
+      quotedPostId
     });
     if (result.success) {
       if (this.cacheService?.delByPattern) {
@@ -71,6 +81,7 @@ export class CreateVibeUseCase {
         vibeId: result.value.id,
         authorId,
         timestamp: new Date(),
+        quotedPostId,
       });
     }
     return result;

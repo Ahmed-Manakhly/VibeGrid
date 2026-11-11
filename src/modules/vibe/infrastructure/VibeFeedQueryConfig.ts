@@ -60,6 +60,12 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
         votes: true
       }
     },
+    quotedPost: {
+      include: {
+        author: { select: { id: true, name: true, username: true, image: true } },
+        tags: { include: { tag: true } },
+      }
+    },
     _count: { select: { likes: true, comments: true, bookmarks: true, regrids: true } },
   },
 };
