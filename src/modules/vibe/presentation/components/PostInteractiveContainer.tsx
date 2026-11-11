@@ -18,6 +18,19 @@ interface PostInteractiveContainerProps {
   initialComments: any[];
   isTruncated?: boolean;
   isDetailPage?: boolean;
+  targetPostData?: {
+    id: string;
+    content: string | null;
+    mediaUrl?: string | null;
+    postType?: string | null;
+    createdAt: Date | string;
+    author: {
+      id: string;
+      name: string | null;
+      username: string | null;
+      image: string | null;
+    };
+  };
 }
 
 export function PostInteractiveContainer({
@@ -34,6 +47,7 @@ export function PostInteractiveContainer({
   initialComments,
   isTruncated = false,
   isDetailPage = false,
+  targetPostData,
 }: PostInteractiveContainerProps) {
   const [showComments, setShowComments] = useState(isDetailPage);
 
@@ -53,6 +67,7 @@ export function PostInteractiveContainer({
         showComments={showComments}
         onToggleComments={() => setShowComments((prev) => !prev)}
         isTruncated={isTruncated}
+        targetPostData={targetPostData}
       />
 
       {!isTruncated && showComments && (

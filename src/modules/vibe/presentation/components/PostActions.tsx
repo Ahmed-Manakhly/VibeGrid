@@ -3,11 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { HeartIcon, RepeatIcon, BookmarkIcon, MessageCircleIcon } from 'lucide-react';
+import { HeartIcon, RepeatIcon, BookmarkIcon, MessageCircleIcon, MessageSquareQuote } from 'lucide-react';
 import { UserAvatar } from '@/components/UserAvatar';
 import { useSession } from '@/components/auth/SessionProvider';
 import { toggleLike, toggleBookmark, toggleReGrid } from '@/actions/post.action';
 import { toast } from '@/components/ui/toast';
+import { QuoteVibeDialog } from '@/components/QuoteVibeDialog';
 
 interface PostActionsProps {
   postId: string;
@@ -23,6 +24,19 @@ interface PostActionsProps {
   showComments: boolean;
   onToggleComments: () => void;
   isTruncated?: boolean;
+  targetPostData?: {
+    id: string;
+    content: string | null;
+    mediaUrl?: string | null;
+    postType?: string | null;
+    createdAt: Date | string;
+    author: {
+      id: string;
+      name: string | null;
+      username: string | null;
+      image: string | null;
+    };
+  };
 }
 
 export function PostActions({
@@ -39,6 +53,7 @@ export function PostActions({
   showComments,
   onToggleComments,
   isTruncated = false,
+  targetPostData,
 }: PostActionsProps) {
   const { isAuthenticated } = useSession();
 
@@ -53,6 +68,7 @@ export function PostActions({
   const [hasReGridded, setHasReGridded] = useState(initialReGridded);
   const [optimisticReGrids, setOptimisticReGrids] = useState(initialReGrids);
   const [isReGridding, setIsReGridding] = useState(false);
+  const [isQuoteOpen, setIsQuoteOpen] = useState(false);
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -203,6 +219,7 @@ export function PostActions({
           variant="ghost"
           size="sm"
           onClick={handleReGrid}
+          title="Re-Grid Vibe"
         >
           <RepeatIcon className={`size-5 ${hasReGridded ? 'text-green-500' : ''}`} />
           <span>{optimisticReGrids}</span>
@@ -219,6 +236,32 @@ export function PostActions({
             <span>{optimisticReGrids}</span>
           </Link>
         </Button>
+      )}
+
+      {/* Quote Vibe Button */}
+      {targetPostData && (
+        isAuthenticated ? (
+          <Button
+            className="text-muted-foreground gap-1.5 hover:bg-transparent hover:text-primary transition-colors"
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsQuoteOpen(true)}
+            title="Quote Vibe with commentary"
+          >
+            <MessageSquareQuote className="size-5" />
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground gap-1.5 hover:bg-transparent hover:text-primary"
+            asChild
+          >
+            <Link href="/login" title="Log in to quote vibe">
+              <MessageSquareQuote className="size-5" />
+            </Link>
+          </Button>
+        )
       )}
 
       {/* Bookmark Button */}
@@ -244,6 +287,15 @@ export function PostActions({
             <BookmarkIcon className="size-5" />
           </Link>
         </Button>
+      )}
+
+      {/* Quote Vibe Modal */}
+      {targetPostData && isQuoteOpen && (
+        <QuoteVibeDialog
+          isOpen={isQuoteOpen}
+          onClose={() => setIsQuoteOpen(false)}
+          targetPost={targetPostData}
+        />
       )}
     </div>
   );

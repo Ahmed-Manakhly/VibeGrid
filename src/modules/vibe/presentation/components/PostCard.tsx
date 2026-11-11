@@ -13,6 +13,7 @@ import { PostInteractiveContainer } from './PostInteractiveContainer';
 import { ProjectShipCard } from './ProjectShipCard';
 import { PostGitHubUnfold } from '@/modules/github/presentation/components/PostGitHubUnfold';
 import { TechDilemmaPollCard } from './TechDilemmaPollCard';
+import { EmbeddedQuotedPostCard } from '@/components/EmbeddedQuotedPostCard';
 import { RepeatIcon } from 'lucide-react';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>;
@@ -27,6 +28,7 @@ type post = FeedResponse['data'][number] & {
   techContext?: any;
   postType?: string;
   poll?: any;
+  quotedPost?: any;
 };
 
 interface PostCardProps {
@@ -173,6 +175,11 @@ export function PostCard({
 
             {contentText && <PostGitHubUnfold content={contentText} />}
 
+            {/* Embedded Quoted Post (Quote Vibe) */}
+            {post.quotedPost && (
+              <EmbeddedQuotedPostCard post={post.quotedPost} />
+            )}
+
             {shouldTruncate && (
               <Link
                 href={`/vibes/${post.id}`}
@@ -261,6 +268,14 @@ export function PostCard({
           initialComments={post.comments || []}
           isTruncated={isTruncated}
           isDetailPage={isDetailPage}
+          targetPostData={{
+            id: post.id,
+            content: post.content,
+            mediaUrl: post.mediaUrl,
+            postType: post.postType,
+            createdAt: post.createdAt,
+            author: post.author,
+          }}
         />
       </div>
     </article>
