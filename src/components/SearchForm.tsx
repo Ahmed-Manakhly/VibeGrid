@@ -95,3 +95,4 @@ export { SearchForm as NavSearch };
 export function MobileNavSearch() {
   return <SearchForm variant="mobile" />;
 }
+
