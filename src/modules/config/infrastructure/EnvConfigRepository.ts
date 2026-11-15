@@ -9,6 +9,7 @@
 export interface AppEndpoints {
   apiBaseUrl: string;
   publicApiBaseUrl: string;
+  realtimeUrl: string;
   imgOriginSsr: string;
   imgOriginCsr: string;
   imgOrigin: string; // Dynamically returns imgOriginSsr on server, imgOriginCsr on client
@@ -50,9 +51,13 @@ export class EnvConfigRepository {
     const cleanCsr = imgOriginCsr ? (imgOriginCsr.endsWith('/') ? imgOriginCsr : `${imgOriginCsr}/`) : '';
     const imgOrigin = isServer ? cleanSsr : cleanCsr;
 
+    // Browser client connects to publicApiBaseUrl (http://localhost:8000 in dev, domain in prod)
+    const realtimeUrl = publicApiBaseUrl || 'http://localhost:8000';
+
     return {
       apiBaseUrl,
       publicApiBaseUrl,
+      realtimeUrl,
       imgOriginSsr: cleanSsr,
       imgOriginCsr: cleanCsr,
       imgOrigin,

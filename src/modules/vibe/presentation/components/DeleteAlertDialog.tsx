@@ -47,7 +47,7 @@ export function DeleteAlertDialog({
                     <AlertDialogCancel className="text-muted-foreground hover:bg-transparent hover:text-foreground sm:mt-0 bg-transparent border-none shadow-none">Cancel</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={onDelete}
-                        className="bg-destructive hover:bg-destructive/90 !bg-none border-destructive text-destructive-foreground rounded-xl"
+                        className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-md border-none rounded-xl px-4 py-2 transition-colors disabled:opacity-50"
                         disabled={isDeleting}
                     >
                         {isDeleting ? "Deleting..." : "Delete"}

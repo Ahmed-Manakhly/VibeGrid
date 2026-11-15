@@ -72,7 +72,7 @@ export function ProjectShipCard({
           <Button
             asChild
             size="sm"
-            className="btn-gradient text-xs font-medium rounded-xl h-9 px-4 shadow-md shadow-violet-500/20 flex items-center gap-1.5"
+            className="btn-gradient text-xs font-medium rounded-xl h-9 px-4 shadow-md shadow-amber-500/20 flex items-center gap-1.5"
           >
             <a href={demoUrl} target="_blank" rel="noopener noreferrer">
               <span>Live Demo</span>

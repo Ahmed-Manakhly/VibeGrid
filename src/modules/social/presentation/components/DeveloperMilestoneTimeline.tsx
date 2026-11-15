@@ -47,7 +47,7 @@ const CATEGORY_CONFIG: Record<
   OPEN_SOURCE: {
     label: "Open Source",
     icon: GitPullRequest,
-    colorClass: "bg-violet-500/10 text-violet-500 border-violet-500/30",
+    colorClass: "bg-amber-500/10 text-amber-500 border-amber-500/30",
   },
   AWARD: {
     label: "Recognition / Award",

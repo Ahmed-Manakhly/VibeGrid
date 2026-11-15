@@ -118,10 +118,14 @@ export class PrismaEngagementRepository implements IEngagementRepository {
     try {
       const comment = await this.db.comment.findUnique({
         where: { id: commentId },
+        include: { post: { select: { authorId: true } } },
       });
       if (!comment) return failure(new Error("comment not found"));
       
-      if (comment.authorId !== userId) {
+      // Allow deletion if caller is the comment author OR the owner of the post
+      const isCommentAuthor = comment.authorId === userId;
+      const isPostAuthor = comment.post?.authorId === userId;
+      if (!isCommentAuthor && !isPostAuthor) {
         return failure(new Error("unauthorized"));
       }
 

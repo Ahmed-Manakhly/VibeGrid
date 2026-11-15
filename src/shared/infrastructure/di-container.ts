@@ -187,5 +187,5 @@ import { CachedGitHubRepoRepository } from "@/modules/github/infrastructure/Cach
 export const gitHubRepoRepository = new CachedGitHubRepoRepository(cacheService, logger);
 
 // Initialize Event Handlers
-export const notificationEventHandler = new NotificationEventHandler(notificationRepository, eventBus);
+export const notificationEventHandler = new NotificationEventHandler(notificationRepository, eventBus, cacheService);
 

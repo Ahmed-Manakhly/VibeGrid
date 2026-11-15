@@ -60,7 +60,7 @@ export function DeveloperBadgeList({
       label: "Active Shipper",
       description: "Documented product releases and milestones",
       icon: Sparkles,
-      color: "bg-purple-500/10 text-purple-500 border-purple-500/30",
+      color: "bg-amber-500/10 text-amber-500 border-amber-500/30",
     });
   }
 

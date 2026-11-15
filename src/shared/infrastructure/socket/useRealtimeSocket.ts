@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { toast } from '@/components/ui/toast';
+import { EnvConfigRepository } from '@/modules/config/infrastructure/EnvConfigRepository';
 
 export interface NotificationSignal {
   id: string;
@@ -133,10 +134,10 @@ export function useRealtimeSocket() {
           return;
         }
 
-        // Connect via gateway endpoint
-        const socketUrl = process.env.NEXT_PUBLIC_REALTIME_URL || window.location.origin;
+        // Resolve realtime gateway URL strictly via EnvConfigRepository SSOT
+        const { realtimeUrl } = EnvConfigRepository.getEndpoints();
 
-        socket = io(socketUrl, {
+        socket = io(realtimeUrl, {
           path: '/socket.io/',
           auth: { token },
           query: { token },
@@ -150,6 +151,16 @@ export function useRealtimeSocket() {
 
         socket.on('connect', () => {
           setIsConnected(true);
+          // ModelLink Parity: emit joinRoom upon connection
+          try {
+            const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+            const uid = tokenPayload.userId || tokenPayload.sub || tokenPayload.id;
+            if (uid) {
+              socket?.emit('joinRoom', uid);
+            }
+          } catch (e) {
+            // Non-blocking
+          }
         });
 
         socket.on('disconnect', () => {
