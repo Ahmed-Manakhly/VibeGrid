@@ -12,7 +12,6 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL_DOCKER_DEV:-postgresql://vibegrid:VgDB_P2026%23k9%24XmL!8qWz@vibegrid_postgres:5432/vibegrid_db?schema=public}
       - REDIS_URL=${REDIS_URL_DOCKER_DEV:-redis://:VgRedis_R2026%23m4%24ZpQ%219wKx@vibegrid_redis:6379}
-      - AUTH_SERVICE_URL=http://vibegrid_api_gateway:8000/api/auth
       - LOG_DIR=/logs
     ports:
       - "3000:3000"
