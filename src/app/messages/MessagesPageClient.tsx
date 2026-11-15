@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "@/components/auth/SessionProvider";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
-import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import {
   getConversationsAction,
   getMessagesAction,
