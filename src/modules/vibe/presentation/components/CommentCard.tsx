@@ -37,7 +37,9 @@ export function CommentCard({
     const [isSolution, setIsSolution] = useState(Boolean(comment.isSolution));
     const [isTogglingSolution, setIsTogglingSolution] = useState(false);
 
-    const isQuestionAuthor = Boolean(dbUserId && postAuthorId && dbUserId === postAuthorId);
+    const currentUserId = dbUserId || user?.id;
+    const isQuestionAuthor = Boolean(currentUserId && postAuthorId && currentUserId === postAuthorId);
+    const canDelete = Boolean(currentUserId && (currentUserId === comment.authorId || currentUserId === comment.author?.id));
 
     const handleToggleSolution = async () => {
         if (isTogglingSolution) return;
@@ -204,14 +206,16 @@ export function CommentCard({
                     </div>
                 </div>
                 
-                {dbUserId === comment.authorId && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-0 top-0">
+                {canDelete && (
+                    <div className="opacity-70 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute right-0 top-0">
                         <Button 
                             variant="ghost" 
                             size="sm" 
                             className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                             onClick={handleDelete}
                             disabled={isDeleting}
+                            aria-label="Delete comment"
+                            title="Delete comment"
                         >
                             <Trash2Icon className="size-4" />
                         </Button>

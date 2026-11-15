@@ -8,25 +8,49 @@ import { CommunityCard } from "@/components/community/CommunityCard";
 import { CreateCommunityDialog } from "@/components/community/CreateCommunityDialog";
 import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
 
-const CURATED_TAGS = [
-  "all",
-  "frontend",
-  "backend",
-  "ai",
-  "rust",
-  "devops",
-  "typescript",
-  "systems",
-  "oss",
-];
+interface CategoryTaxonomy {
+  id: string;
+  name: string;
+  slug: string;
+  emoji?: string | null;
+}
 
 interface CommunitiesDirectoryViewProps {
   initialCommunities: CommunityEntity[];
+  categories?: CategoryTaxonomy[];
 }
 
-export function CommunitiesDirectoryView({ initialCommunities }: CommunitiesDirectoryViewProps) {
+export function CommunitiesDirectoryView({ 
+  initialCommunities, 
+  categories = [] 
+}: CommunitiesDirectoryViewProps) {
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState("all");
+
+  // Dynamic filter tags derived from database categories, falling back to discovered tags
+  const filterPills = useMemo(() => {
+    const pills = [{ key: "all", label: "🔥 All Guilds" }];
+    
+    if (categories && categories.length > 0) {
+      categories.forEach((cat) => {
+        pills.push({
+          key: cat.slug.toLowerCase(),
+          label: `${cat.emoji ? cat.emoji + " " : "#"}${cat.name}`,
+        });
+      });
+    } else {
+      // Fallback to tags present on communities
+      const tagSet = new Set<string>();
+      initialCommunities.forEach((c) => {
+        c.techTags?.forEach((t) => tagSet.add(t.toLowerCase().replace(/^#/, "")));
+      });
+      tagSet.forEach((t) => {
+        pills.push({ key: t, label: `#${t}` });
+      });
+    }
+
+    return pills;
+  }, [categories, initialCommunities]);
 
   const filteredCommunities = useMemo(() => {
     return initialCommunities.filter((c) => {
@@ -41,7 +65,9 @@ export function CommunitiesDirectoryView({ initialCommunities }: CommunitiesDire
         selectedTag === "all" ||
         (c.techTags &&
           c.techTags.some(
-            (t) => t.toLowerCase().replace(/^#/, "") === selectedTag.toLowerCase()
+            (t) =>
+              t.toLowerCase().replace(/^#/, "") === selectedTag.toLowerCase() ||
+              t.toLowerCase().replace(/[^a-z0-9]/g, "") === selectedTag.toLowerCase().replace(/[^a-z0-9]/g, "")
           ));
 
       return matchesSearch && matchesTag;
@@ -74,21 +100,22 @@ export function CommunitiesDirectoryView({ initialCommunities }: CommunitiesDire
         </div>
       </div>
 
-      {/* Tag Filters Carousel */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {CURATED_TAGS.map((tag) => {
-          const isActive = selectedTag === tag;
+      {/* Dynamic Category/Tag Filters Carousel (Layout-Stable) */}
+      <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none min-h-[38px]">
+        {filterPills.map((pill) => {
+          const isActive = selectedTag === pill.key;
           return (
             <button
-              key={tag}
-              onClick={() => setSelectedTag(tag)}
-              className={`shrink-0 px-3 py-1 rounded-full text-xs font-mono font-medium transition-all duration-150 ${
+              key={pill.key}
+              type="button"
+              onClick={() => setSelectedTag(pill.key)}
+              className={`shrink-0 h-8 px-3.5 rounded-full text-xs font-mono font-medium transition-colors border ${
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-secondary/50 text-muted-foreground border border-border/40 hover:bg-secondary hover:text-foreground"
+                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                  : "bg-secondary/40 text-muted-foreground border-border/40 hover:bg-secondary hover:text-foreground hover:border-border"
               }`}
             >
-              {tag === "all" ? "🔥 All Guilds" : `#${tag}`}
+              {pill.label}
             </button>
           );
         })}

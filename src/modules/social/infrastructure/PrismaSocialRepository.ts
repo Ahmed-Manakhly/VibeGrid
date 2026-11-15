@@ -147,23 +147,27 @@ export class PrismaSocialRepository implements ISocialRepository {
             websearch_to_tsquery('english', ${formattedQuery})
           ) as rank
         FROM "User" u
-        WHERE to_tsvector('english', 
-          coalesce(u.username, '') || ' ' || 
-          coalesce(u.name, '') || ' ' || 
-          coalesce(u.bio, '') || ' ' || 
-          coalesce(u.location, '')
-        ) @@ websearch_to_tsquery('english', ${formattedQuery})
+        WHERE (
+          to_tsvector('english', 
+            coalesce(u.username, '') || ' ' || 
+            coalesce(u.name, '') || ' ' || 
+            coalesce(u.bio, '') || ' ' || 
+            coalesce(u.location, '')
+          ) @@ websearch_to_tsquery('english', ${formattedQuery})
+          OR u.username ILIKE ${'%' + formattedQuery + '%'}
+          OR u.name ILIKE ${'%' + formattedQuery + '%'}
+        )
         ORDER BY rank DESC, u.username ASC
         LIMIT ${limit};
       `;
 
       if (!rawUsers || rawUsers.length === 0) {
-        // Fallback to prefix matching if FTS yields 0 exact token matches
+        // Fallback to substring matching if FTS yields 0 exact token matches
         return this.db.user.findMany({
           where: {
             OR: [
-              { username: { startsWith: formattedQuery, mode: "insensitive" } },
-              { name: { startsWith: formattedQuery, mode: "insensitive" } },
+              { username: { contains: formattedQuery, mode: "insensitive" } },
+              { name: { contains: formattedQuery, mode: "insensitive" } },
             ],
           },
           select: {

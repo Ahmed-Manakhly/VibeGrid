@@ -58,6 +58,7 @@ export function PostActions({
   const { isAuthenticated } = useSession();
 
   const [hasLiked, setHasLiked] = useState(initialLiked);
+  const [showLikesModal, setShowLikesModal] = useState(false);
   const [optimisticLikes, setOptimisticLikes] = useState(initialLikes);
   const [isLiking, setIsLiking] = useState(false);
 
@@ -136,7 +137,11 @@ export function PostActions({
   return (
     <div className="flex items-center pt-2 space-x-4">
       {/* Like Button */}
-      <div className="relative group/like inline-flex items-center">
+      <div 
+        className="relative group/like inline-flex items-center"
+        onMouseEnter={() => setShowLikesModal(true)}
+        onMouseLeave={() => setShowLikesModal(false)}
+      >
         {isAuthenticated ? (
           <Button
             className={`text-muted-foreground gap-2 hover:bg-transparent ${
@@ -163,8 +168,8 @@ export function PostActions({
           </Button>
         )}
 
-        {likesList && likesList.length > 0 && (
-          <div className="absolute bottom-full left-0 mb-2 hidden group-hover/like:block group-focus-within/like:block z-30 min-w-[200px] max-w-[260px] p-2.5 rounded-xl bg-card border border-border/80 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 pointer-events-auto">
+        {(showLikesModal || undefined) && likesList && likesList.length > 0 && (
+          <div className="absolute bottom-full left-0 mb-2 z-30 min-w-[200px] max-w-[260px] p-2.5 rounded-xl bg-card border border-border/80 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 pointer-events-auto">
             <p className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 border-b border-border/40 pb-1">
               Liked by ({optimisticLikes})
             </p>

@@ -166,6 +166,12 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
       const result = await updateProfile(formData);
       if (result && result.success) {
         await refreshSession();
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('session_updated'));
+          window.dispatchEvent(new CustomEvent('interests_updated'));
+        }
+
         onOpenChange(false);
 
         const newUsername = result.user?.username;

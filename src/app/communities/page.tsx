@@ -1,4 +1,5 @@
 import { listCommunitiesAction } from "@/actions/community.action";
+import { getTaxonomyUseCase } from "@/shared/infrastructure/di-container";
 import { CommunitiesDirectoryView } from "@/components/community/CommunitiesDirectoryView";
 
 export const metadata = {
@@ -7,8 +8,18 @@ export const metadata = {
 };
 
 export default async function CommunitiesPage() {
-  const result = await listCommunitiesAction({ limit: 50 });
-  const initialCommunities = result.success && result.data ? result.data.items : [];
+  const [commResult, taxonomy] = await Promise.all([
+    listCommunitiesAction({ limit: 50 }),
+    getTaxonomyUseCase.execute().catch(() => ({ categories: [], vibes: [] })),
+  ]);
 
-  return <CommunitiesDirectoryView initialCommunities={initialCommunities} />;
+  const initialCommunities = commResult.success && commResult.data ? commResult.data.items : [];
+  const categories = taxonomy?.categories || [];
+
+  return (
+    <CommunitiesDirectoryView 
+      initialCommunities={initialCommunities} 
+      categories={categories}
+    />
+  );
 }
