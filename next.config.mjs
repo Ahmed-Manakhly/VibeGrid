@@ -56,6 +56,14 @@ const nextConfig = {
         },
       ],
     },
+  async rewrites() {
+    return [
+      {
+        source: '/socket.io/:path*',
+        destination: `${process.env.INTERNAL_REALTIME_URL || 'http://vibegrid_realtime:8005'}/socket.io/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

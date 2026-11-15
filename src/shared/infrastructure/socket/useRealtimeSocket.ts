@@ -107,92 +107,159 @@ export function useRealtimeSocket() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Connect via relative path to gateway endpoint (or host)
-    const socketUrl = process.env.NEXT_PUBLIC_REALTIME_URL || window.location.origin;
+    let socket: Socket | null = null;
+    let isCancelled = false;
 
-    const socket = io(socketUrl, {
-      path: '/socket.io/',
-      withCredentials: true,
-      transports: ['websocket', 'polling'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 2000,
-    });
+    async function initSocket() {
+      try {
+        // Fetch valid JWT token from BFF auth endpoint
+        let token: string | undefined;
+        try {
+          const tokenRes = await fetch('/api/auth/token');
+          if (tokenRes.ok) {
+            const tokenData = await tokenRes.json();
+            if (tokenData.success && tokenData.token) {
+              token = tokenData.token;
+            }
+          }
+        } catch (e) {
+          // Token fetch error
+        }
 
-    socketRef.current = socket;
+        if (isCancelled) return;
 
-    socket.on('connect', () => {
-      setIsConnected(true);
-    });
+        // If no auth token (unauthenticated user), do not connect
+        if (!token) {
+          return;
+        }
 
-    socket.on('disconnect', () => {
-      setIsConnected(false);
-    });
+        // Connect via gateway endpoint
+        const socketUrl = process.env.NEXT_PUBLIC_REALTIME_URL || window.location.origin;
 
-    socket.on('notification:new', (data: NotificationSignal) => {
-      // Deduplicate by ID
-      if (data.id && processedNotificationIds.current.has(data.id)) {
-        return;
+        socket = io(socketUrl, {
+          path: '/socket.io/',
+          auth: { token },
+          query: { token },
+          withCredentials: true,
+          transports: ['websocket', 'polling'],
+          reconnectionAttempts: 10,
+          reconnectionDelay: 2000,
+        });
+
+        socketRef.current = socket;
+
+        socket.on('connect', () => {
+          setIsConnected(true);
+        });
+
+        socket.on('disconnect', () => {
+          setIsConnected(false);
+        });
+
+        // ModelLink Parity: 'get-users' active presence list
+        socket.on('get-users', (users: Array<{ userId: string; socketId: string }>) => {
+          if (Array.isArray(users)) {
+            setOnlineUsers(new Set(users.map((u) => u.userId)));
+          }
+        });
+
+        // ModelLink Parity: 'receive_msg'
+        socket.on('receive_msg', (msg: any) => {
+          const directMsg: DirectMessageSignal = {
+            messageId: msg.id || msg.messageId || `msg_${Date.now()}`,
+            conversationId: msg.conversationId,
+            senderId: msg.senderId,
+            senderName: msg.senderName || msg.sender?.name || msg.sender?.username || 'Someone',
+            content: msg.content,
+            createdAt: msg.createdAt ? new Date(msg.createdAt).toISOString() : new Date().toISOString(),
+          };
+
+          if (directMsg.messageId && processedMessageIds.current.has(directMsg.messageId)) {
+            return;
+          }
+          if (directMsg.messageId) {
+            processedMessageIds.current.add(directMsg.messageId);
+          }
+
+          setLatestDirectMessage(directMsg);
+          setUnreadMessagesCount((prev) => prev + 1);
+          toast.info(`✉️ Message from ${directMsg.senderName}`);
+        });
+
+        socket.on('notification:new', (data: NotificationSignal) => {
+          // Deduplicate by ID
+          if (data.id && processedNotificationIds.current.has(data.id)) {
+            return;
+          }
+          if (data.id) {
+            processedNotificationIds.current.add(data.id);
+          }
+
+          setLatestNotification(data);
+          if (!data.isRead) {
+            setUnreadCount((prev) => prev + 1);
+          }
+
+          if (data.type === 'FOLLOW') {
+            toast.success(`🎉 User ${data.creatorId} started following you!`);
+          } else if (data.type === 'LIKE') {
+            toast.success(`❤️ Someone liked your post!`);
+          } else if (data.type === 'COMMENT') {
+            toast.success(`💬 New comment on your post!`);
+          } else {
+            toast.success(`✉️ New notification received`);
+          }
+        });
+
+        socket.on('feed:updated', (signal: FeedSignal) => {
+          setLatestFeedSignal(signal);
+          toast.info('⚡ New vibes available in your feed');
+        });
+
+        socket.on('message:new', (signal: DirectMessageSignal) => {
+          if (signal.messageId && processedMessageIds.current.has(signal.messageId)) {
+            return;
+          }
+          if (signal.messageId) {
+            processedMessageIds.current.add(signal.messageId);
+          }
+
+          setLatestDirectMessage(signal);
+          setUnreadMessagesCount((prev) => prev + 1);
+          toast.info(`✉️ Message from ${signal.senderName || 'someone'}`);
+        });
+
+        socket.on('chat:typing', (typing: TypingSignal) => {
+          setLatestTypingSignal(typing);
+        });
+
+        socket.on('presence:online', (presence: PresenceSignal) => {
+          setOnlineUsers((prev) => {
+            const next = new Set(prev);
+            next.add(presence.userId);
+            return next;
+          });
+        });
+
+        socket.on('presence:offline', (presence: PresenceSignal) => {
+          setOnlineUsers((prev) => {
+            const next = new Set(prev);
+            next.delete(presence.userId);
+            return next;
+          });
+        });
+      } catch (err) {
+        // Init error
       }
-      if (data.id) {
-        processedNotificationIds.current.add(data.id);
-      }
+    }
 
-      setLatestNotification(data);
-      if (!data.isRead) {
-        setUnreadCount((prev) => prev + 1);
-      }
-
-      if (data.type === 'FOLLOW') {
-        toast.success(`🎉 User ${data.creatorId} started following you!`);
-      } else if (data.type === 'LIKE') {
-        toast.success(`❤️ Someone liked your post!`);
-      } else if (data.type === 'COMMENT') {
-        toast.success(`💬 New comment on your post!`);
-      } else {
-        toast.success(`✉️ New notification received`);
-      }
-    });
-
-    socket.on('feed:updated', (signal: FeedSignal) => {
-      setLatestFeedSignal(signal);
-      toast.info('⚡ New vibes available in your feed');
-    });
-
-    socket.on('message:new', (signal: DirectMessageSignal) => {
-      if (signal.messageId && processedMessageIds.current.has(signal.messageId)) {
-        return;
-      }
-      if (signal.messageId) {
-        processedMessageIds.current.add(signal.messageId);
-      }
-
-      setLatestDirectMessage(signal);
-      setUnreadMessagesCount((prev) => prev + 1);
-      toast.info(`✉️ Message from ${signal.senderName || 'someone'}`);
-    });
-
-    socket.on('chat:typing', (typing: TypingSignal) => {
-      setLatestTypingSignal(typing);
-    });
-
-    socket.on('presence:online', (presence: PresenceSignal) => {
-      setOnlineUsers((prev) => {
-        const next = new Set(prev);
-        next.add(presence.userId);
-        return next;
-      });
-    });
-
-    socket.on('presence:offline', (presence: PresenceSignal) => {
-      setOnlineUsers((prev) => {
-        const next = new Set(prev);
-        next.delete(presence.userId);
-        return next;
-      });
-    });
+    initSocket();
 
     return () => {
-      socket.disconnect();
+      isCancelled = true;
+      if (socket) {
+        socket.disconnect();
+      }
       socketRef.current = null;
     };
   }, []);
