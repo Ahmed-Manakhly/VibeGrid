@@ -26,6 +26,63 @@ export class GetCommunityBySlugUseCase {
   }
 }
 
+export class UpdateCommunityUseCase {
+  constructor(private communityRepo: ICommunityRepository) {}
+
+  async execute(input: {
+    communityId: string;
+    userId: string;
+    name?: string;
+    description?: string | null;
+    avatarUrl?: string | null;
+    bannerUrl?: string | null;
+    techTags?: string[];
+    rules?: string[];
+    isPrivate?: boolean;
+  }): Promise<CommunityEntity> {
+    const community = await this.communityRepo.findById(input.communityId, input.userId);
+    if (!community) {
+      throw new Error("Community not found");
+    }
+
+    const isCreator = community.creatorId === input.userId;
+    const isAdmin = community.userRole === "ADMIN";
+    if (!isCreator && !isAdmin) {
+      throw new Error("Unauthorized: Only Guild Admins or the Creator can edit settings");
+    }
+
+    return await this.communityRepo.updateCommunity(input);
+  }
+}
+
+export class UpdateMemberRoleUseCase {
+  constructor(private communityRepo: ICommunityRepository) {}
+
+  async execute(input: {
+    communityId: string;
+    actorUserId: string;
+    targetUserId: string;
+    newRole: CommunityRole;
+  }): Promise<void> {
+    const community = await this.communityRepo.findById(input.communityId, input.actorUserId);
+    if (!community) {
+      throw new Error("Community not found");
+    }
+
+    const isCreator = community.creatorId === input.actorUserId;
+    const isAdmin = community.userRole === "ADMIN";
+    if (!isCreator && !isAdmin) {
+      throw new Error("Unauthorized: Only Guild Admins or the Creator can manage roles");
+    }
+
+    if (input.targetUserId === community.creatorId) {
+      throw new Error("Cannot alter the Creator's ownership role");
+    }
+
+    await this.communityRepo.updateMemberRole(input.communityId, input.targetUserId, input.newRole);
+  }
+}
+
 export class CreateCommunityUseCase {
   constructor(private communityRepo: ICommunityRepository) {}
 

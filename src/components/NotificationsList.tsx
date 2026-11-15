@@ -36,14 +36,26 @@ interface NotificationsListProps {
   initialNotifications: Notification[];
 }
 
-const getNotificationIcon = (type: string) => {
+const getNotificationBadge = (type: string) => {
   switch (type) {
     case "LIKE":
-      return <HeartIcon className="size-4 text-destructive" />;
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-rose-600 text-white shadow-md ring-2 ring-background flex items-center justify-center">
+          <HeartIcon className="size-3 fill-current" />
+        </span>
+      );
     case "COMMENT":
-      return <MessageCircleIcon className="size-4 text-accent" />;
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-emerald-600 text-white shadow-md ring-2 ring-background flex items-center justify-center">
+          <MessageCircleIcon className="size-3 fill-current" />
+        </span>
+      );
     case "FOLLOW":
-      return <UserPlusIcon className="size-4 text-emerald-500" />;
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-amber-500 text-white shadow-md ring-2 ring-background flex items-center justify-center">
+          <UserPlusIcon className="size-3 stroke-[2.5]" />
+        </span>
+      );
     default:
       return null;
   }
@@ -87,11 +99,11 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
       markNotificationsAsRead([notification.id]).catch(console.error);
     }
 
-    // 2. Navigate to the relevant event page
+    // 2. Navigate to the relevant event page (/explore/[id] for vibes, /profile/[username] for follow)
     if (notification.type === "FOLLOW") {
       router.push(`/profile/${notification.creator.username}`);
     } else if ((notification.type === "LIKE" || notification.type === "COMMENT") && notification.post?.id) {
-      router.push(`/vibes/${notification.post.id}`);
+      router.push(`/explore/${notification.post.id}`);
     } else {
       router.push(`/profile/${notification.creator.username}`);
     }
@@ -100,68 +112,82 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <Card className="border border-border/60 bg-card/80 backdrop-blur-xl w-full">
-      <CardHeader className="border-b">
+    <Card className="border border-border/60 bg-card/80 backdrop-blur-xl w-full rounded-2xl shadow-sm overflow-hidden">
+      <CardHeader className="border-b bg-card/40 px-6 py-4">
         <div className="flex items-center justify-between">
-          <CardTitle>Notifications</CardTitle>
-          <span className="text-sm text-muted-foreground">{unreadCount} unread</span>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg font-bold">Notifications</CardTitle>
+            {unreadCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-primary/20 text-primary border border-primary/30">
+                {unreadCount} new
+              </span>
+            )}
+          </div>
+          <span className="text-xs text-muted-foreground font-mono">
+            {unreadCount === 0 ? "All caught up" : `${unreadCount} unread`}
+          </span>
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-12rem)]">
+        <ScrollArea className="h-[calc(100vh-14rem)]">
           {notifications.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">No notifications yet</div>
+            <div className="p-12 text-center text-muted-foreground flex flex-col items-center justify-center gap-2">
+              <span className="text-3xl">🔔</span>
+              <p className="font-medium text-sm">No notifications yet</p>
+              <p className="text-xs text-muted-foreground/80">When fellow developers like, comment, or follow, they will appear here.</p>
+            </div>
           ) : (
             notifications.map((notification) => (
               <div 
                 key={notification.id}
                 onClick={() => handleNotificationClick(notification)}
-                className={`flex items-start gap-4 p-4 border-b hover:bg-muted/25 transition-colors cursor-pointer ${!notification.read ? "bg-muted/50 font-medium" : ""}`}
+                className={`flex items-start gap-3.5 p-4 border-b border-border/40 hover:bg-accent/10 transition-all cursor-pointer relative ${
+                  !notification.read 
+                    ? "bg-accent/10 hover:bg-accent/15 border-l-4 border-l-primary" 
+                    : "border-l-4 border-l-transparent hover:bg-muted/30"
+                }`}
               >
-                <Avatar className="mt-1">
-                  <AvatarImage src={notification.creator.image ?? "/avatar.png"} />
-                </Avatar>
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    {getNotificationIcon(notification.type)}
-                    <span>
-                      <span className="font-semibold hover:underline">
+                <div className="relative shrink-0 mt-0.5">
+                  <Avatar className="size-11 ring-1 ring-border">
+                    <AvatarImage src={notification.creator.image ?? "/avatar.png"} />
+                  </Avatar>
+                  {getNotificationBadge(notification.type)}
+                </div>
+
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm leading-snug">
+                      <span className="font-bold text-foreground hover:underline">
                         {notification.creator.name ?? notification.creator.username}
                       </span>
-                      {" "}{
-                        notification.type === "FOLLOW"
+                      {" "}
+                      <span className={!notification.read ? "text-foreground font-medium" : "text-muted-foreground"}>
+                        {notification.type === "FOLLOW"
                           ? "started following you"
                           : notification.type === "LIKE"
-                          ? "liked your post"
-                          : "commented on your post"
-                      }
-                    </span>
+                          ? "liked your vibe"
+                          : "commented on your vibe"}
+                      </span>
+                    </p>
                     {!notification.read && (
-                      <span className="inline-block size-2 rounded-full bg-accent ml-auto" />
+                      <span className="size-2.5 rounded-full bg-primary shrink-0 mt-1 ring-2 ring-background animate-pulse" />
                     )}
                   </div>
 
                   {notification.post && (notification.type === "LIKE" || notification.type === "COMMENT") && (
-                    <div className="pl-6 space-y-2">
-                      <div className="text-sm text-muted-foreground rounded-md p-2 bg-muted/30 mt-2 hover:bg-muted/50 transition-colors">
+                    <div className="space-y-1.5">
+                      <div className="text-xs text-muted-foreground rounded-xl p-2.5 bg-muted/40 border border-border/40 hover:bg-muted/60 transition-colors line-clamp-2">
                         <p>{notification.post.content}</p>
-                        {notification.post.image && (
-                          <img
-                            src={notification.post.image}
-                            alt="Post content"
-                            className="mt-2 rounded-md w-full max-w-[200px] h-auto object-cover"
-                          />
-                        )}
                       </div>
                       {notification.type === "COMMENT" && notification.comment && (
-                        <div className="text-sm p-2 bg-accent/30 rounded-md">
-                          {notification.comment.content}
+                        <div className="text-xs p-2.5 bg-primary/10 border border-primary/20 rounded-xl text-foreground font-medium">
+                          &ldquo;{notification.comment.content}&rdquo;
                         </div>
                       )}
                     </div>
                   )}
 
-                  <p className="text-sm text-muted-foreground pl-6" suppressHydrationWarning>
+                  <p className="text-[11px] text-muted-foreground font-mono" suppressHydrationWarning>
                     {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                   </p>
                 </div>
@@ -173,4 +199,3 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
     </Card>
   );
 }
-

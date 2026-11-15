@@ -31,7 +31,7 @@ export function EmbeddedQuotedPostCard({ post }: EmbeddedQuotedPostCardProps) {
 
   return (
     <Link
-      href={`/vibes/${post.id}`}
+      href={`/explore/${post.id}`}
       className="block mt-3 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/30 transition-all p-3 sm:p-3.5 space-y-2 group"
     >
       {/* Header: Author Info */}

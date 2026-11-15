@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
 import { CommunityHeader } from "@/components/community/CommunityHeader";
 import { CommunityEntity, CommunityMemberEntity } from "@/modules/community/domain/ICommunityRepository";
 import { PostCard } from "@/modules/vibe/presentation/components/PostCard";
-import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles } from "lucide-react";
+import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { updateMemberRoleAction } from "@/actions/community.action";
+import { toast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
 
 interface CommunitySpaceViewProps {
   community: CommunityEntity;
@@ -23,6 +26,33 @@ export function CommunitySpaceView({
   dbUserId,
 }: CommunitySpaceViewProps) {
   const [activeTab, setActiveTab] = useState("feed");
+  const [members, setMembers] = useState<CommunityMemberEntity[]>(initialMembers);
+  const [isPendingRole, startRoleTransition] = useTransition();
+  const router = useRouter();
+
+  const isCreatorOrAdmin = Boolean(
+    dbUserId && (community.creatorId === dbUserId || community.userRole === "ADMIN")
+  );
+
+  const handleRoleChange = (targetUserId: string, newRole: any) => {
+    startRoleTransition(async () => {
+      const res = await updateMemberRoleAction({
+        communityId: community.id,
+        targetUserId,
+        newRole,
+        communitySlug: community.slug,
+      });
+
+      if (res.success) {
+        setMembers((prev) =>
+          prev.map((m) => (m.userId === targetUserId ? { ...m, role: newRole } : m))
+        );
+        toast.success(`Role updated to ${newRole}`);
+      } else {
+        toast.error(res.error || "Failed to update member role");
+      }
+    });
+  };
 
   const tabs = [
     { value: "feed", label: `Feed (${initialPosts.length})`, icon: LayoutGrid },
@@ -133,19 +163,19 @@ export function CommunitySpaceView({
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {initialMembers.map((m) => (
+            {members.map((m) => (
               <div
                 key={m.id}
                 className="flex items-center justify-between p-3 rounded-xl border border-border/40 bg-secondary/30 hover:bg-secondary/50 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <Avatar className="size-10 border border-border/40">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar className="size-10 border border-border/40 shrink-0">
                     <AvatarImage src={m.user?.image || undefined} alt={m.user?.name || "Member"} />
                     <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
                       {m.user?.name ? m.user.name.slice(0, 2).toUpperCase() : "MB"}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
+                  <div className="min-w-0">
                     <Link
                       href={m.user?.username ? `/profile/${m.user.username}` : "#"}
                       className="text-sm font-semibold text-foreground hover:text-primary transition-colors line-clamp-1"
@@ -158,17 +188,32 @@ export function CommunitySpaceView({
                   </div>
                 </div>
 
-                <span
-                  className={`text-[11px] font-mono px-2 py-0.5 rounded-full border ${
-                    m.role === "ADMIN"
-                      ? "bg-amber-500/10 text-amber-500 border-amber-500/30 font-semibold"
-                      : m.role === "MODERATOR"
-                      ? "bg-primary/10 text-primary border-primary/30 font-semibold"
-                      : "bg-secondary text-muted-foreground border-border/40"
-                  }`}
-                >
-                  {m.role}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  {isCreatorOrAdmin && m.userId !== community.creatorId ? (
+                    <select
+                      value={m.role}
+                      disabled={isPendingRole}
+                      onChange={(e) => handleRoleChange(m.userId, e.target.value)}
+                      className="text-xs font-mono font-semibold bg-background border border-border/60 rounded-lg px-2 py-1 cursor-pointer focus:ring-1 focus:ring-primary outline-none"
+                    >
+                      <option value="MEMBER">Member</option>
+                      <option value="MODERATOR">Moderator</option>
+                      <option value="ADMIN">Admin</option>
+                    </select>
+                  ) : (
+                    <span
+                      className={`text-[11px] font-mono px-2 py-0.5 rounded-full border ${
+                        m.role === "ADMIN"
+                          ? "bg-amber-500/10 text-amber-500 border-amber-500/30 font-semibold"
+                          : m.role === "MODERATOR"
+                          ? "bg-primary/10 text-primary border-primary/30 font-semibold"
+                          : "bg-secondary text-muted-foreground border-border/40"
+                      }`}
+                    >
+                      {m.userId === community.creatorId ? "OWNER" : m.role}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>

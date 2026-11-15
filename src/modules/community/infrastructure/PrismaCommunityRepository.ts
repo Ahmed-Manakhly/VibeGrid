@@ -149,6 +149,39 @@ export class PrismaCommunityRepository implements ICommunityRepository {
     return this.mapCommunity(created, data.creatorId);
   }
 
+  async updateCommunity(data: import("../domain/ICommunityRepository").UpdateCommunityDTO): Promise<CommunityEntity> {
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.avatarUrl !== undefined) updateData.avatarUrl = data.avatarUrl;
+    if (data.bannerUrl !== undefined) updateData.bannerUrl = data.bannerUrl;
+    if (data.techTags !== undefined) updateData.techTags = data.techTags;
+    if (data.rules !== undefined) updateData.rules = data.rules;
+    if (data.isPrivate !== undefined) updateData.isPrivate = data.isPrivate;
+
+    const updated = await (this.prisma as any).community.update({
+      where: { id: data.communityId },
+      data: updateData,
+      include: {
+        _count: { select: { members: true, posts: true } },
+      },
+    });
+
+    return this.mapCommunity(updated);
+  }
+
+  async updateMemberRole(communityId: string, targetUserId: string, role: CommunityRole): Promise<void> {
+    await (this.prisma as any).communityMember.update({
+      where: {
+        userId_communityId: {
+          userId: targetUserId,
+          communityId,
+        },
+      },
+      data: { role },
+    });
+  }
+
   async addMember(communityId: string, userId: string, role: CommunityRole = CommunityRole.MEMBER): Promise<CommunityMemberEntity> {
     const member = await (this.prisma as any).communityMember.upsert({
       where: {

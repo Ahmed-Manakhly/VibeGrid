@@ -80,6 +80,21 @@ export function PostCard({
           </Link>
         </div>
       )}
+      {post.community && (
+        <div className="bg-primary/5 px-3 sm:px-5 py-1.5 border-b border-border/30 text-[11px] sm:text-xs text-muted-foreground flex items-center justify-between">
+          <Link 
+            href={`/communities/${post.community.slug}`} 
+            className="flex items-center gap-1.5 font-medium text-foreground hover:text-primary transition-colors group"
+          >
+            <span className="size-2 rounded-full bg-primary shrink-0" />
+            <span className="text-muted-foreground">in</span>
+            <span className="font-semibold group-hover:underline">{post.community.name}</span>
+          </Link>
+          <span className="text-[10px] font-mono uppercase tracking-wider text-primary/80 bg-primary/10 px-1.5 py-0.5 rounded">
+            Guild
+          </span>
+        </div>
+      )}
       <div className="p-3 sm:p-5 space-y-3 sm:space-y-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center space-x-3 min-w-0 flex-1">
@@ -105,7 +120,7 @@ export function PostCard({
                     </span>
                   </>
                 ) : (
-                  <Link href={`/vibes/${post.id}`} className="hover:underline flex items-center space-x-1 sm:space-x-2">
+                  <Link href={`/explore/${post.id}`} className="hover:underline flex items-center space-x-1 sm:space-x-2">
                     <span className="shrink-0 hidden sm:inline" suppressHydrationWarning>
                       {formatDistanceToNow(new Date(post.createdAt))} ago
                     </span>
@@ -140,7 +155,7 @@ export function PostCard({
                   {displayContent}
                 </p>
               ) : (
-                <Link href={`/vibes/${post.id}`} className="block hover:opacity-80 transition-opacity">
+                <Link href={`/explore/${post.id}`} className="block hover:opacity-80 transition-opacity">
                   <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
                     {displayContent}
                   </p>
@@ -182,7 +197,7 @@ export function PostCard({
 
             {shouldTruncate && (
               <Link
-                href={`/vibes/${post.id}`}
+                href={`/explore/${post.id}`}
                 className="inline-flex items-center mt-2 text-sm font-medium text-primary hover:text-foreground transition-colors group"
               >
                 <span className="group-hover:underline">Read more</span>

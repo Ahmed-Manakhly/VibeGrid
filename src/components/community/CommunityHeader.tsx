@@ -3,9 +3,10 @@
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Users, Flame, Shield, Check, UserPlus, Loader2, ArrowLeft, Calendar, FileText, Trash2 } from "lucide-react";
+import { Users, Flame, Shield, Check, UserPlus, Loader2, ArrowLeft, Calendar, FileText, Trash2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { joinCommunityAction, leaveCommunityAction, deleteCommunityAction } from "@/actions/community.action";
+import { CommunitySettingsDialog } from "./CommunitySettingsDialog";
 import { useSession } from "@/components/auth/SessionProvider";
 import {
   AlertDialog,
@@ -109,7 +110,11 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
           </div>
 
           {/* Action Join & Admin Buttons */}
-          <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
+          <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end flex-wrap">
+            {(isCreator || community.userRole === "ADMIN") && (
+              <CommunitySettingsDialog community={community} />
+            )}
+
             {isCreator && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>

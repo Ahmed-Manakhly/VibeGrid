@@ -342,31 +342,37 @@ export function MessagesPageClient() {
                     setActiveConversationId(conv.id);
                     setMobileTab("chat");
                   }}
-                  className={`w-full p-3 flex items-center gap-3 text-left transition hover:bg-accent/50 ${
-                    isActive ? "bg-accent" : ""
+                  className={`w-full p-3.5 flex items-center gap-3.5 text-left transition-all relative border-l-4 ${
+                    isActive 
+                      ? "bg-accent/15 border-l-primary shadow-sm" 
+                      : "border-l-transparent hover:bg-muted/40"
                   }`}
                 >
                   <div className="relative shrink-0">
-                    <UserAvatar src={other?.image} name={other?.name} className="size-10" />
+                    <UserAvatar src={other?.image} name={other?.name} className="size-11 ring-1 ring-border" />
                     {other?.id && onlineUsers.has(other.id) && (
-                      <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-500 ring-2 ring-background animate-pulse" />
+                      <span className="absolute top-0 right-0 size-3 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex justify-between items-baseline">
-                      <span className="font-semibold text-sm truncate">{other?.name || other?.username || "Developer"}</span>
+                    <div className="flex justify-between items-baseline gap-1">
+                      <span className={`text-sm truncate ${isActive ? "font-bold text-foreground" : "font-semibold text-foreground/90"}`}>
+                        {other?.name || other?.username || "Developer"}
+                      </span>
                       {conv.latestMessage && (
-                        <span className="text-[10px] text-muted-foreground shrink-0 ml-1">
+                        <span className="text-[11px] text-muted-foreground shrink-0 font-mono">
                           {formatDistanceToNow(new Date(conv.latestMessage.createdAt), { addSuffix: false })}
                         </span>
                       )}
                     </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <p className={`text-xs truncate ${hasUnread ? "font-bold text-foreground" : "text-muted-foreground"}`}>
+                    <div className="flex justify-between items-center mt-1 gap-2">
+                      <p className={`text-xs truncate ${hasUnread ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
                         {conv.latestMessage?.content || "Started a conversation"}
                       </p>
                       {hasUnread && (
-                        <span className="size-2 rounded-full bg-primary shrink-0 ml-2" />
+                        <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center shrink-0">
+                          {conv.unreadCount}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -398,9 +404,9 @@ export function MessagesPageClient() {
               {otherParticipant && (
                 <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`} className="flex items-center gap-3 group">
                   <div className="relative shrink-0">
-                    <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-9 group-hover:opacity-80 transition-opacity" />
+                    <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-10 group-hover:opacity-80 transition-opacity ring-1 ring-border" />
                     {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
-                      <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-500 ring-2 ring-background animate-pulse" />
+                      <span className="absolute top-0 right-0 size-3 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
                     )}
                   </div>
                   <div>
@@ -521,12 +527,28 @@ export function MessagesPageClient() {
                   <SmileIcon className="size-4" />
                 </Button>
                 {showEmojiPicker && (
-                  <div className="absolute bottom-full left-0 mb-2 z-50 w-64 p-2 rounded-xl bg-card border border-border/80 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95">
-                    <div className="text-[11px] font-mono font-semibold text-muted-foreground mb-1.5 px-1">
-                      Quick Reactions & Emojis
+                  <div className="absolute bottom-full left-0 mb-2 z-50 w-72 p-3 rounded-2xl bg-card/95 border border-border/80 shadow-2xl backdrop-blur-xl animate-in fade-in-50 zoom-in-95">
+                    <div className="text-[11px] font-mono font-semibold text-muted-foreground mb-2 px-1 flex items-center justify-between">
+                      <span>Developer Reactions & Emojis</span>
+                      <span className="text-[10px] text-muted-foreground/70">Click to insert</span>
                     </div>
-                    <div className="grid grid-cols-6 gap-1 text-lg">
-                      {["😀", "🔥", "🚀", "💻", "🎉", "👍", "❤️", "⚡", "✨", "🙌", "🐛", "💯", "👀", "🫡", "🤝", "💡", "☕", "✅"].map((emoji) => (
+                    <div className="grid grid-cols-7 gap-1.5 text-xl max-h-56 overflow-y-auto pr-1">
+                      {[
+                        "😀", "😃", "😄", "😁", "😆", "😂", "🤣",
+                        "😊", "😇", "🙂", "🙃", "😉", "😌", "😍",
+                        "🥰", "😘", "😎", "🤓", "🧐", "🤔", "🫡",
+                        "🤫", "🤐", "😐", "😑", "😶", "🙄", "😬",
+                        "😮‍💨", "🤥", "😌", "😴", "😷", "🤒", "🤕",
+                        "🔥", "✨", "🚀", "⚡", "💯", "🎉", "👏",
+                        "🙌", "👍", "👎", "👊", "✊", "🤛", "🤜",
+                        "🤝", "🙏", "💪", "❤️", "🧡", "💛", "💚",
+                        "💙", "💜", "🖤", "🤍", "🤎", "💔", "❣️",
+                        "💻", "⌨️", "🖥️", "📱", "💾", "💿", "🕹️",
+                        "🛠️", "🔧", "🔨", "⚙️", "🧪", "🧫", "🧬",
+                        "☕", "🍵", "🍺", "🍻", "🍕", "🍔", "🍿",
+                        "🐛", "🐞", "🐜", "🕷️", "🕸️", "🚨", "⚠️",
+                        "✅", "❌", "❓", "❗", "💡", "🧠", "🎯"
+                      ].map((emoji) => (
                         <button
                           key={emoji}
                           type="button"
@@ -534,7 +556,7 @@ export function MessagesPageClient() {
                             setContent((prev) => prev + emoji);
                             setShowEmojiPicker(false);
                           }}
-                          className="p-1.5 rounded-lg hover:bg-muted text-center transition-colors"
+                          className="p-1 rounded-lg hover:bg-muted hover:scale-125 transition-all text-center flex items-center justify-center size-8"
                         >
                           {emoji}
                         </button>

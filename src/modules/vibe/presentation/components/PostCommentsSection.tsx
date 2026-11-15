@@ -91,7 +91,7 @@ export function PostCommentsSection({
         ))}
         {localComments.length > (isDetailPage ? 5 : 2) && (
           <Link
-            href={`/vibes/${postId}`}
+            href={`/explore/${postId}`}
             className="block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline"
           >
             View all {localComments.length} comments &rarr;

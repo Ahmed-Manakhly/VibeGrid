@@ -78,7 +78,7 @@ export function TrendingShipsLeaderboard({
                       {rank}
                     </span>
                     <Link
-                      href={`/vibes/${ship.id}`}
+                      href={`/explore/${ship.id}`}
                       className="font-semibold text-xs text-foreground group-hover:text-primary transition truncate hover:underline"
                     >
                       {ship.projectName}

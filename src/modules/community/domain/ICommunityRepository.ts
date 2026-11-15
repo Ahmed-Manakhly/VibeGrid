@@ -55,13 +55,26 @@ export interface ListCommunitiesParams {
   viewerId?: string;
 }
 
+export interface UpdateCommunityDTO {
+  communityId: string;
+  name?: string;
+  description?: string | null;
+  avatarUrl?: string | null;
+  bannerUrl?: string | null;
+  techTags?: string[];
+  rules?: string[];
+  isPrivate?: boolean;
+}
+
 export interface ICommunityRepository {
   findBySlug(slug: string, viewerId?: string): Promise<CommunityEntity | null>;
   findById(id: string, viewerId?: string): Promise<CommunityEntity | null>;
   listCommunities(params: ListCommunitiesParams): Promise<{ items: CommunityEntity[]; nextCursor?: string }>;
   createCommunity(data: CreateCommunityDTO): Promise<CommunityEntity>;
+  updateCommunity(data: UpdateCommunityDTO): Promise<CommunityEntity>;
   addMember(communityId: string, userId: string, role?: CommunityRole): Promise<CommunityMemberEntity>;
   removeMember(communityId: string, userId: string): Promise<void>;
+  updateMemberRole(communityId: string, targetUserId: string, role: CommunityRole): Promise<void>;
   getMembership(communityId: string, userId: string): Promise<CommunityMemberEntity | null>;
   getCommunityMembers(communityId: string, limit?: number): Promise<CommunityMemberEntity[]>;
   getCommunityFeed(communityId: string, params: { limit?: number; cursor?: string; viewerId?: string }): Promise<{ posts: any[]; nextCursor?: string }>;

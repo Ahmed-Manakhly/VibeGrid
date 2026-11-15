@@ -66,6 +66,9 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
         tags: { include: { tag: true } },
       }
     },
+    community: {
+      select: { id: true, name: true, slug: true, avatarUrl: true },
+    },
     _count: { select: { likes: true, comments: true, bookmarks: true, regrids: true } },
   },
 };

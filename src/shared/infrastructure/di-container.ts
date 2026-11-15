@@ -173,12 +173,16 @@ import {
   GetCommunityMembersUseCase,
   DeleteCommunityUseCase,
   GetUserCommunitiesUseCase,
+  UpdateCommunityUseCase,
+  UpdateMemberRoleUseCase,
 } from "@/modules/community/application/CommunityUseCases";
 
 export const communityRepository = new PrismaCommunityRepository(prisma);
 export const listCommunitiesUseCase = new ListCommunitiesUseCase(communityRepository);
 export const getCommunityBySlugUseCase = new GetCommunityBySlugUseCase(communityRepository);
 export const createCommunityUseCase = new CreateCommunityUseCase(communityRepository);
+export const updateCommunityUseCase = new UpdateCommunityUseCase(communityRepository);
+export const updateMemberRoleUseCase = new UpdateMemberRoleUseCase(communityRepository);
 export const joinCommunityUseCase = new JoinCommunityUseCase(communityRepository);
 export const leaveCommunityUseCase = new LeaveCommunityUseCase(communityRepository);
 export const getCommunityFeedUseCase = new GetCommunityFeedUseCase(communityRepository);

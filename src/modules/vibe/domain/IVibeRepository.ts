@@ -25,6 +25,13 @@ export interface VibePost {
     poll?: any;
     quotedPostId?: string | null;
     quotedPost?: any | null;
+    communityId?: string | null;
+    community?: {
+        id: string;
+        name: string;
+        slug: string;
+        avatarUrl: string | null;
+    } | null;
     _count: {
         likes: number;
         comments: number;

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Bell } from 'lucide-react';
+import { Bell, Mail } from 'lucide-react';
 import { ModeToggle } from './ModeToggle';
 import { VibeLogo } from './VibeLogo';
 import { useSession } from '@/components/auth/SessionProvider';
@@ -16,7 +16,7 @@ import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
 
 function Navbar() {
   const { user, isAuthenticated, isLoading } = useSession();
-  const { unreadCount } = useRealtime();
+  const { unreadCount, unreadMessagesCount } = useRealtime();
   const pathname = usePathname();
 
   const isAuthRoute = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'].some(path => pathname.startsWith(path));
@@ -38,8 +38,20 @@ function Navbar() {
             isAuthenticated && user ? (
               <>
                 <Link 
+                  href="/messages" 
+                  className="icon-button hidden lg:flex relative text-muted-foreground hover:text-foreground transition-colors" 
+                  aria-label="Messages"
+                >
+                  <Mail className="size-4" />
+                  {unreadMessagesCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in-50">
+                      {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                    </span>
+                  )}
+                </Link>
+                <Link 
                   href="/notifications" 
-                  className="icon-button hidden lg:flex relative" 
+                  className="icon-button hidden lg:flex relative text-muted-foreground hover:text-foreground transition-colors" 
                   aria-label="Notifications"
                 >
                   <Bell className="size-4" />

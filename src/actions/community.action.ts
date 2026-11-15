@@ -11,8 +11,11 @@ import {
   getCommunityMembersUseCase,
   deleteCommunityUseCase,
   getUserCommunitiesUseCase,
+  updateCommunityUseCase,
+  updateMemberRoleUseCase,
   logger,
 } from "@/shared/infrastructure/di-container";
+import { CommunityRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function listCommunitiesAction(params: {
@@ -194,5 +197,64 @@ export async function getUserCommunitiesAction(userId: string) {
   } catch (error: any) {
     logger.error("Failed to fetch user communities", error, { userId });
     return { success: false, error: error.message || "Failed to fetch user communities." };
+  }
+}
+
+export async function updateCommunityAction(input: {
+  communityId: string;
+  name?: string;
+  description?: string | null;
+  avatarUrl?: string | null;
+  bannerUrl?: string | null;
+  techTags?: string[];
+  rules?: string[];
+  isPrivate?: boolean;
+}) {
+  try {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const updated = await updateCommunityUseCase.execute({
+      ...input,
+      userId: session.user.id,
+    });
+
+    revalidatePath(`/communities/${updated.slug}`);
+    revalidatePath("/communities");
+    return { success: true, data: updated };
+  } catch (error: any) {
+    logger.error("Failed to update community", error, { communityId: input.communityId });
+    return { success: false, error: error.message || "Failed to update guild settings." };
+  }
+}
+
+export async function updateMemberRoleAction(input: {
+  communityId: string;
+  targetUserId: string;
+  newRole: CommunityRole;
+  communitySlug?: string;
+}) {
+  try {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    await updateMemberRoleUseCase.execute({
+      communityId: input.communityId,
+      actorUserId: session.user.id,
+      targetUserId: input.targetUserId,
+      newRole: input.newRole,
+    });
+
+    if (input.communitySlug) {
+      revalidatePath(`/communities/${input.communitySlug}`);
+    }
+    return { success: true };
+  } catch (error: any) {
+    logger.error("Failed to update member role", error, input);
+    return { success: false, error: error.message || "Failed to update member role." };
   }
 }
