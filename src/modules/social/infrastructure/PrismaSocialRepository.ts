@@ -1,21 +1,24 @@
 import { ISocialRepository } from "../domain/ISocialRepository";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserRole } from "@prisma/client";
 
 export class PrismaSocialRepository implements ISocialRepository {
-  constructor(private db: PrismaClient) {}
+  constructor(private db: PrismaClient) { }
 
   async getSuggestedUsers(currentUserId?: string): Promise<any[]> {
     try {
       const whereCondition = currentUserId
         ? {
-            AND: [
-              { NOT: { id: currentUserId } },
-              { NOT: { followers: { some: { followerId: currentUserId } } } },
-              { NOT: { blockedUsers: { some: { blockedId: currentUserId } } } },
-              { NOT: { blockedBy: { some: { blockerId: currentUserId } } } },
-            ],
-          }
-        : {};
+          AND: [
+            { role: { not: UserRole.ADMIN } },
+            { NOT: { id: currentUserId } },
+            { NOT: { followers: { some: { followerId: currentUserId } } } },
+            { NOT: { blockedUsers: { some: { blockedId: currentUserId } } } },
+            { NOT: { blockedBy: { some: { blockerId: currentUserId } } } },
+          ],
+        }
+        : {
+          role: { not: UserRole.ADMIN },
+        };
 
       // Retrieve candidates with their interest categories and followed tech
       const candidates = await this.db.user.findMany({
@@ -38,16 +41,16 @@ export class PrismaSocialRepository implements ISocialRepository {
           },
           followers: currentUserId
             ? {
-                where: {
-                  follower: {
-                    followers: { some: { followerId: currentUserId } },
-                  },
+              where: {
+                follower: {
+                  followers: { some: { followerId: currentUserId } },
                 },
-                select: {
-                  follower: { select: { id: true, name: true, username: true } },
-                },
-                take: 1,
-              }
+              },
+              select: {
+                follower: { select: { id: true, name: true, username: true } },
+              },
+              take: 1,
+            }
             : false,
           _count: { select: { followers: true, posts: true } },
         },

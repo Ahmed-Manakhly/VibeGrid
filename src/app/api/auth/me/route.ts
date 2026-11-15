@@ -49,6 +49,7 @@ export async function GET(req: Request) {
         ...session.user,
         username: dbUser?.username || session.user.username || `user_${session.user.email.split('@')[0]}`,
         name: dbUser?.name || session.user.name,
+        bio: dbUser?.bio || null,
         image: dbUser?.image || null,
       },
     });

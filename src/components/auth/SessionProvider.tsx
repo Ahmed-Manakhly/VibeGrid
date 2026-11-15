@@ -8,6 +8,7 @@ export interface SafeUser {
   email: string;
   name?: string;
   username?: string;
+  bio?: string | null;
   image?: string | null;
   role: string;
   isEmailVerified: boolean;

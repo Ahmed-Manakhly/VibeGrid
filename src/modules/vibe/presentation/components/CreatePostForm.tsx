@@ -149,7 +149,7 @@ export default function CreatPost() {
         formRef.current?.reset();
     };
 
-    const profileHref = user ? `/profile/${user.name ? user.name.toLowerCase().replace(/\s+/g, '_') : user.email.split('@')[0]}` : '/login';
+    const profileHref = user?.username ? `/profile/${user.username}` : user ? '/profile' : '/login';
 
     return (
         <Card id="create-post" className="mb-6 feed-card scroll-mt-24">

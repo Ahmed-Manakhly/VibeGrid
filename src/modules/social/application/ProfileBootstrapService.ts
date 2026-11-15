@@ -89,7 +89,7 @@ export class ProfileBootstrapService {
         name: displayName,
         username: uniqueUsername,
         image: user.avatarUrl || null,
-        role: user.role === 'ADMIN' ? 'ADMIN' : 'USER',
+        role: (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') ? 'ADMIN' : 'USER',
       },
     });
   }

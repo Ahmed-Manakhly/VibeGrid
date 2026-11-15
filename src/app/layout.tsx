@@ -14,7 +14,6 @@ import { bootstrap } from "@/lib/bootstrap";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { RootMainWrapper } from "@/components/RootMainWrapper";
 import { RealtimeProvider } from "@/shared/infrastructure/socket/RealtimeProvider";
-import { UnifiedOnboardingDialog } from "@/components/onboarding/UnifiedOnboardingDialog";
 
 bootstrap(); // Runs once on server startup
 
@@ -61,7 +60,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   <MobileBottomBar />
                 </SidebarProvider>
               </div>
-              <UnifiedOnboardingDialog />
               <ScrollToTop />
               <Toaster />
             </ThemeProvider>

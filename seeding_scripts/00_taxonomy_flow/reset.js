@@ -18,6 +18,17 @@ async function resetTaxonomy() {
 
   console.log(`   ✅ Categories reset (${catR.count} deleted)`);
   console.log(`   ✅ Vibes reset (${vibeR.count} deleted)`);
+
+  const path = require('path');
+  const fs = require('fs');
+  const INPUT_PATH = path.join(__dirname, 'data_input.json');
+  const REFERENCE_PATH = path.join(__dirname, 'data_reference.json');
+
+  if (fs.existsSync(REFERENCE_PATH)) {
+    fs.copyFileSync(REFERENCE_PATH, INPUT_PATH);
+    console.log('   📋 Reset data_input.json from master data_reference.json');
+  }
+
   console.log('✅ Flow 00 Reset complete.\n');
 }
 

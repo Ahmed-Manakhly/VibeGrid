@@ -32,7 +32,7 @@ export function OnboardingProfileBanner() {
       try {
         const [interestRes, profileRes] = await Promise.all([
           fetch('/api/social/interests'),
-          user?.username ? fetch(`/api/profile?username=${encodeURIComponent(user.username)}`) : Promise.resolve(null),
+          fetch('/api/profile'),
         ]);
 
         if (interestRes.ok) {
@@ -44,8 +44,9 @@ export function OnboardingProfileBanner() {
 
         if (profileRes && profileRes.ok) {
           const profileData = await profileRes.json();
-          if (profileData.user && isMounted) {
-            setDbProfile(profileData.user);
+          const p = profileData.profile || profileData.user;
+          if (p && isMounted) {
+            setDbProfile(p);
           }
         }
       } catch (e) {
@@ -57,7 +58,7 @@ export function OnboardingProfileBanner() {
     return () => {
       isMounted = false;
     };
-  }, [shouldFetch, user?.username]);
+  }, [shouldFetch, user?.username, user?.bio]);
 
   if (!shouldFetch) {
     return null;
