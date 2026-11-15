@@ -246,7 +246,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-9 px-3 text-xs text-red-400 hover:text-red-300 border-red-500/30 hover:bg-red-500/10 rounded-xl"
+                    className="h-9 px-3 text-xs text-destructive hover:text-destructive/90 border-destructive/30 hover:bg-destructive/10 rounded-xl"
                     disabled={isDeleting}
                   >
                     {isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4 mr-1.5" />}
