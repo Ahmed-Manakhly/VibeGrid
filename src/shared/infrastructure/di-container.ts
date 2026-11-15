@@ -126,7 +126,7 @@ export const toggleFollowTagUseCase = new ToggleFollowTagUseCase(tagFollowReposi
 
 // Engagement
 export const toggleLikeUseCase = new ToggleLikeUseCase(engagementRepository, eventBus);
-export const toggleReGridUseCase = new ToggleReGridUseCase(engagementRepository, eventBus);
+export const toggleReGridUseCase = new ToggleReGridUseCase(engagementRepository, eventBus, cacheService);
 export const toggleBookmarkUseCase = new ToggleBookmarkUseCase(engagementRepository, eventBus);
 export const addCommentUseCase = new AddCommentUseCase(engagementRepository, eventBus);
 export const deleteCommentUseCase = new DeleteCommentUseCase(engagementRepository);

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { HeartIcon, RepeatIcon, BookmarkIcon, MessageCircleIcon, MessageSquareQuote } from 'lucide-react';
 import { UserAvatar } from '@/components/UserAvatar';
@@ -70,6 +71,7 @@ export function PostActions({
   const [optimisticReGrids, setOptimisticReGrids] = useState(initialReGrids);
   const [isReGridding, setIsReGridding] = useState(false);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
+  const router = useRouter();
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -124,6 +126,7 @@ export function PostActions({
         toast.error(res?.error || 'Failed to update regrid');
       } else {
         toast.success(nextReGridded ? 'Vibe re-gridded to your feed' : 'Re-grid removed');
+        router.refresh();
       }
     } catch {
       setHasReGridded(hasReGridded);
