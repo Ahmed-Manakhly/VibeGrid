@@ -73,8 +73,7 @@ export function useLoginForm({ callbackUrl = '/' }: UseLoginFormProps) {
       const userName = data?.user?.name || data?.user?.username || data?.user?.email?.split('@')[0] || 'friend';
       toast.success(`Welcome to VibeGrid, ${userName}! 🚀`);
       await refreshSession();
-      router.replace(callbackUrl);
-      router.refresh();
+      window.location.href = callbackUrl;
     } catch {
       toast.error('An unexpected error occurred');
       setIsSubmitting(false);

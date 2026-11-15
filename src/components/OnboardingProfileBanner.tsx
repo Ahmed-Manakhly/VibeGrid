@@ -55,8 +55,22 @@ export function OnboardingProfileBanner() {
     }
 
     loadOnboardingState();
+
+    const handleInterestsUpdated = () => {
+      loadOnboardingState();
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('interests_updated', handleInterestsUpdated);
+      window.addEventListener('session_updated', handleInterestsUpdated);
+    }
+
     return () => {
       isMounted = false;
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('interests_updated', handleInterestsUpdated);
+        window.removeEventListener('session_updated', handleInterestsUpdated);
+      }
     };
   }, [shouldFetch, user?.username, user?.bio]);
 

@@ -68,6 +68,9 @@ export function FeedPreferencesSettingsForm() {
       }
 
       toast.success('Feed preferences updated!');
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('interests_updated'));
+      }
       router.refresh();
     } catch (err: any) {
       toast.error(err.message || 'Failed to save preferences');
