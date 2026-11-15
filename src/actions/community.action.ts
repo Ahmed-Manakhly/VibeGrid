@@ -13,6 +13,7 @@ import {
   getUserCommunitiesUseCase,
   updateCommunityUseCase,
   updateMemberRoleUseCase,
+  removeMemberUseCase,
   logger,
 } from "@/shared/infrastructure/di-container";
 import { CommunityRole } from "@prisma/client";
@@ -256,5 +257,33 @@ export async function updateMemberRoleAction(input: {
   } catch (error: any) {
     logger.error("Failed to update member role", error, input);
     return { success: false, error: error.message || "Failed to update member role." };
+  }
+}
+
+export async function removeMemberAction(input: {
+  communityId: string;
+  targetUserId: string;
+  communitySlug?: string;
+}) {
+  try {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    await removeMemberUseCase.execute({
+      communityId: input.communityId,
+      actorUserId: session.user.id,
+      targetUserId: input.targetUserId,
+    });
+
+    if (input.communitySlug) {
+      revalidatePath(`/communities/${input.communitySlug}`);
+    }
+    revalidatePath("/communities");
+    return { success: true };
+  } catch (error: any) {
+    logger.error("Failed to remove member", error, input);
+    return { success: false, error: error.message || "Failed to remove member." };
   }
 }

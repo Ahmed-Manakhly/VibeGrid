@@ -51,10 +51,33 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
 
   // Controlled Realtime Reconciliation: Prepend new posts without destroying loaded pagination
   useEffect(() => {
+    // Listen for local delete events for instant optimistic unmounting
+    const handleLocalDelete = (event: Event) => {
+      const customEvent = event as CustomEvent<{ postId: string }>;
+      const deletedId = customEvent.detail?.postId;
+      if (deletedId) {
+        setPosts((prev) => prev.filter((p) => p.id !== deletedId));
+        setPendingFreshPosts((prev) => prev.filter((p) => p.id !== deletedId));
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("vibe_deleted", handleLocalDelete);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("vibe_deleted", handleLocalDelete);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (!latestFeedSignal) return;
 
     if (latestFeedSignal.type === "post_deleted" && latestFeedSignal.postId) {
       setPosts((prev) => prev.filter((p) => p.id !== latestFeedSignal.postId));
+      setPendingFreshPosts((prev) => prev.filter((p) => p.id !== latestFeedSignal.postId));
       return;
     }
 

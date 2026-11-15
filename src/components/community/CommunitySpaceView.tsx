@@ -5,10 +5,21 @@ import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
 import { CommunityHeader } from "@/components/community/CommunityHeader";
 import { CommunityEntity, CommunityMemberEntity } from "@/modules/community/domain/ICommunityRepository";
 import { PostCard } from "@/modules/vibe/presentation/components/PostCard";
-import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles, ChevronDown } from "lucide-react";
+import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles, ChevronDown, UserX, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { updateMemberRoleAction } from "@/actions/community.action";
+import { updateMemberRoleAction, removeMemberAction } from "@/actions/community.action";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 
@@ -28,11 +39,34 @@ export function CommunitySpaceView({
   const [activeTab, setActiveTab] = useState("feed");
   const [members, setMembers] = useState<CommunityMemberEntity[]>(initialMembers);
   const [isPendingRole, startRoleTransition] = useTransition();
+  const [removingUserId, setRemovingUserId] = useState<string | null>(null);
   const router = useRouter();
 
   const isCreatorOrAdmin = Boolean(
     dbUserId && (community.creatorId === dbUserId || community.userRole === "ADMIN")
   );
+
+  const handleRemoveMember = async (targetUserId: string, targetName: string) => {
+    try {
+      setRemovingUserId(targetUserId);
+      const res = await removeMemberAction({
+        communityId: community.id,
+        targetUserId,
+        communitySlug: community.slug,
+      });
+
+      if (res.success) {
+        setMembers((prev) => prev.filter((m) => m.userId !== targetUserId));
+        toast.success(`Removed ${targetName} from guild`);
+      } else {
+        toast.error(res.error || "Failed to remove member");
+      }
+    } catch {
+      toast.error("Failed to remove member");
+    } finally {
+      setRemovingUserId(null);
+    }
+  };
 
   const handleRoleChange = (targetUserId: string, newRole: any) => {
     startRoleTransition(async () => {
@@ -190,16 +224,56 @@ export function CommunitySpaceView({
 
                 <div className="flex items-center gap-2 shrink-0">
                   {isCreatorOrAdmin && m.userId !== community.creatorId ? (
-                    <select
-                      value={m.role}
-                      disabled={isPendingRole}
-                      onChange={(e) => handleRoleChange(m.userId, e.target.value)}
-                      className="text-xs font-mono font-semibold bg-background border border-border/60 rounded-lg px-2 py-1 cursor-pointer focus:ring-1 focus:ring-primary outline-none"
-                    >
-                      <option value="MEMBER">Member</option>
-                      <option value="MODERATOR">Moderator</option>
-                      <option value="ADMIN">Admin</option>
-                    </select>
+                    <div className="flex items-center gap-1.5">
+                      <select
+                        value={m.role}
+                        disabled={isPendingRole}
+                        onChange={(e) => handleRoleChange(m.userId, e.target.value)}
+                        className="text-xs font-mono font-semibold bg-background border border-border/60 rounded-lg px-2 py-1 cursor-pointer focus:ring-1 focus:ring-primary outline-none"
+                      >
+                        <option value="MEMBER">Member</option>
+                        <option value="MODERATOR">Moderator</option>
+                        <option value="ADMIN">Admin</option>
+                      </select>
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <button
+                            type="button"
+                            disabled={removingUserId === m.userId}
+                            className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                            title="Remove member"
+                          >
+                            {removingUserId === m.userId ? (
+                              <Loader2 className="size-4 animate-spin text-destructive" />
+                            ) : (
+                              <UserX className="size-4" />
+                            )}
+                          </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Remove Member from Guild?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to remove{" "}
+                              <strong className="text-foreground">
+                                {m.user?.name || m.user?.username || "this member"}
+                              </strong>{" "}
+                              from {community.name}? They will lose access to member discussions.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="bg-transparent border-none">Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleRemoveMember(m.userId, m.user?.name || m.user?.username || "member")}
+                              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold rounded-xl"
+                            >
+                              Remove Member
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   ) : (
                     <span
                       className={`text-[11px] font-mono px-2 py-0.5 rounded-full border ${

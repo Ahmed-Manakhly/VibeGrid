@@ -160,26 +160,30 @@ model Follows {
 }
 
 model Notifications {
-  id         String           @id @default(cuid())
-  userId     String
-  creatorId  String
-  type       NotificationType
-  read       Boolean          @default(false)
-  postId     String?
-  commenttId String?
-  createdAt  DateTime         @default(now())
-  user       User             @relation("userNotifications", fields: [userId], references: [id], onDelete: Cascade)
-  creator    User             @relation("NotificationCreator", fields: [creatorId], references: [id], onDelete: Cascade)
-  post       Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
-  comment    Comment?         @relation(fields: [commenttId], references: [id], onDelete: Cascade)
+  id          String           @id @default(cuid())
+  userId      String
+  creatorId   String
+  type        NotificationType
+  read        Boolean          @default(false)
+  postId      String?
+  commenttId  String?
+  communityId String?
+  createdAt   DateTime         @default(now())
+  user        User             @relation("userNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  creator     User             @relation("NotificationCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  post        Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment     Comment?         @relation(fields: [commenttId], references: [id], onDelete: Cascade)
+  community   Community?       @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
   @@index([userId, postId])
+  @@index([userId, communityId])
 }
 
 enum NotificationType {
   LIKE
   COMMENT
   FOLLOW
+  COMMUNITY_JOIN
 }
 
 model Category {
@@ -425,9 +429,10 @@ model Community {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
-  creator     User              @relation("CommunityCreator", fields: [creatorId], references: [id], onDelete: Cascade)
-  members     CommunityMember[]
-  posts       Post[]
+  creator       User              @relation("CommunityCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members       CommunityMember[]
+  posts         Post[]
+  notifications Notifications[]
 
   @@index([createdAt(sort: Desc)])
 }

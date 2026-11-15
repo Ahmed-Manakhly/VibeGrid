@@ -83,6 +83,33 @@ export class UpdateMemberRoleUseCase {
   }
 }
 
+export class RemoveMemberUseCase {
+  constructor(private communityRepo: ICommunityRepository) {}
+
+  async execute(input: {
+    communityId: string;
+    actorUserId: string;
+    targetUserId: string;
+  }): Promise<void> {
+    const community = await this.communityRepo.findById(input.communityId, input.actorUserId);
+    if (!community) {
+      throw new Error("Community not found");
+    }
+
+    const isCreator = community.creatorId === input.actorUserId;
+    const isAdmin = community.userRole === "ADMIN";
+    if (!isCreator && !isAdmin) {
+      throw new Error("Unauthorized: Only Guild Admins or the Creator can remove members");
+    }
+
+    if (input.targetUserId === community.creatorId) {
+      throw new Error("Cannot remove the Community Creator");
+    }
+
+    await this.communityRepo.removeMember(input.communityId, input.targetUserId);
+  }
+}
+
 export class CreateCommunityUseCase {
   constructor(private communityRepo: ICommunityRepository) {}
 
@@ -134,13 +161,37 @@ export class CreateCommunityUseCase {
 }
 
 export class JoinCommunityUseCase {
-  constructor(private communityRepo: ICommunityRepository) {}
+  constructor(
+    private communityRepo: ICommunityRepository,
+    private eventBus?: any
+  ) {}
 
   async execute(input: { communityId: string; userId: string }): Promise<CommunityMemberEntity> {
     if (!input.communityId || !input.userId) {
       throw new Error("Missing communityId or userId to join community");
     }
-    return await this.communityRepo.addMember(input.communityId, input.userId, CommunityRole.MEMBER);
+    const member = await this.communityRepo.addMember(input.communityId, input.userId, CommunityRole.MEMBER);
+
+    // Notify community owner if eventBus available
+    if (this.eventBus) {
+      try {
+        const community = await this.communityRepo.findById(input.communityId);
+        if (community && community.creatorId && community.creatorId !== input.userId) {
+          await this.eventBus.publish("CommunityJoinedEvent", {
+            communityId: community.id,
+            communityName: community.name,
+            communitySlug: community.slug,
+            targetUserId: community.creatorId,
+            joinerId: input.userId,
+            timestamp: new Date(),
+          });
+        }
+      } catch {
+        // Non-blocking
+      }
+    }
+
+    return member;
   }
 }
 

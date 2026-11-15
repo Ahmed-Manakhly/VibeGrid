@@ -18,6 +18,9 @@ export class PrismaNotificationRepository implements INotificationRepository {
           comment: {
             select: { id: true, content: true, createdAt: true },
           },
+          community: {
+            select: { id: true, name: true, slug: true, avatarUrl: true },
+          },
         },
         orderBy: { createdAt: "desc" },
       });
@@ -51,6 +54,7 @@ export class PrismaNotificationRepository implements INotificationRepository {
         type: data.type,
         postId: data.postId,
         commenttId: data.commentId,
+        communityId: data.communityId,
       },
     });
   }

@@ -4,7 +4,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
-import { HeartIcon, MessageCircleIcon, UserPlusIcon } from "lucide-react";
+import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
@@ -30,6 +30,12 @@ type Notification = {
     id: string;
     content: string;
   } | null;
+  community?: {
+    id: string;
+    name: string;
+    slug: string;
+    avatarUrl: string | null;
+  } | null;
 };
 
 interface NotificationsListProps {
@@ -54,6 +60,12 @@ const getNotificationBadge = (type: string) => {
       return (
         <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-amber-500 text-white shadow-md ring-2 ring-background flex items-center justify-center">
           <UserPlusIcon className="size-3 stroke-[2.5]" />
+        </span>
+      );
+    case "COMMUNITY_JOIN":
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-background flex items-center justify-center">
+          <Users className="size-3 stroke-[2.5]" />
         </span>
       );
     default:
@@ -99,8 +111,10 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
       markNotificationsAsRead([notification.id]).catch(console.error);
     }
 
-    // 2. Navigate to the relevant event page (/explore/[id] for vibes, /profile/[username] for follow)
-    if (notification.type === "FOLLOW") {
+    // 2. Navigate to the relevant event page (/explore/[id] for vibes, /profile/[username] for follow, /communities/[slug] for community join)
+    if (notification.type === "COMMUNITY_JOIN" && notification.community?.slug) {
+      router.push(`/communities/${notification.community.slug}`);
+    } else if (notification.type === "FOLLOW") {
       router.push(`/profile/${notification.creator.username}`);
     } else if ((notification.type === "LIKE" || notification.type === "COMMENT") && notification.post?.id) {
       router.push(`/explore/${notification.post.id}`);
@@ -166,6 +180,8 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
                           ? "started following you"
                           : notification.type === "LIKE"
                           ? "liked your vibe"
+                          : notification.type === "COMMUNITY_JOIN"
+                          ? `joined your guild ${notification.community?.name ? `"${notification.community.name}"` : ""}`
                           : "commented on your vibe"}
                       </span>
                     </p>

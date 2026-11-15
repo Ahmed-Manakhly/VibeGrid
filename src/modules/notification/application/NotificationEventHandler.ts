@@ -24,6 +24,7 @@ export class NotificationEventHandler {
             creatorId: notification.creatorId,
             postId: notification.postId,
             commentId: notification.commenttId || notification.commentId,
+            communityId: notification.communityId,
             isRead: notification.read,
             createdAt: notification.createdAt ? new Date(notification.createdAt).toISOString() : new Date().toISOString(),
           },
@@ -87,6 +88,27 @@ export class NotificationEventHandler {
       } catch (error) {
         const { logger } = require("@/shared/infrastructure/di-container");
         logger.error("[NotificationEventHandler] Error creating FOLLOW notification", error);
+      }
+    });
+
+    this.eventBus.subscribe("CommunityJoinedEvent", async (payload: any) => {
+      // Create a COMMUNITY_JOIN notification for the community creator / admins
+      try {
+        if (!payload.targetUserId || !payload.joinerId || payload.targetUserId === payload.joinerId) {
+          return;
+        }
+        const created = await this.repo.create({
+          userId: payload.targetUserId,
+          creatorId: payload.joinerId,
+          type: NotificationType.COMMUNITY_JOIN,
+          communityId: payload.communityId,
+        });
+        await this.dispatchRealtime(payload.targetUserId, created);
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.info(`[NotificationEventHandler] COMMUNITY_JOIN notification created for user ${payload.targetUserId}`);
+      } catch (error) {
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.error("[NotificationEventHandler] Error creating COMMUNITY_JOIN notification", error);
       }
     });
   }

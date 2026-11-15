@@ -1,10 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Zap, UserRound, Loader2, Sparkles } from 'lucide-react';
+import { Zap, Users, Loader2, Sparkles, ArrowRight, Shield } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { UserAvatar } from '@/components/UserAvatar';
-import FollowButton from '@/modules/social/presentation/components/FollowButton';
 import { FollowTagButton } from '@/components/FollowTagButton';
 
 type TrendingTag = {
@@ -17,30 +15,34 @@ type TrendingTag = {
   recentCount: number;
 };
 
-type SpotlightCreator = {
+type SuggestedCommunity = {
   id: string;
   name: string;
-  username: string;
-  image: string | null;
-  bio: string | null;
+  slug: string;
+  description: string | null;
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  techTags: string[];
+  matchedTag?: string | null;
+  isMember?: boolean;
   _count: {
-    followers: number;
+    members: number;
     posts: number;
   };
 };
 
 export function TrendingSidebar() {
   const [trending, setTrending] = useState<TrendingTag[]>([]);
-  const [featuredCreator, setFeaturedCreator] = useState<SpotlightCreator | null>(null);
+  const [suggestedGuild, setSuggestedGuild] = useState<SuggestedCommunity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [trendingRes, creatorsRes] = await Promise.all([
+        const [trendingRes, guildRes] = await Promise.all([
           fetch('/api/feed/trending?limit=5'),
-          fetch('/api/social/suggested')
+          fetch('/api/communities/suggested')
         ]);
         
         if (trendingRes.ok) {
@@ -48,10 +50,10 @@ export function TrendingSidebar() {
           setTrending(trendingData.trending || []);
         }
         
-        if (creatorsRes.ok) {
-          const creatorsData = await creatorsRes.json();
-          if (creatorsData.creators && creatorsData.creators.length > 0) {
-            setFeaturedCreator(creatorsData.creators[0]);
+        if (guildRes.ok) {
+          const guildData = await guildRes.json();
+          if (guildData.community) {
+            setSuggestedGuild(guildData.community);
           }
         }
       } catch (err: any) {
@@ -68,7 +70,11 @@ export function TrendingSidebar() {
     };
 
     window.addEventListener('refreshTrending', handleRefresh);
-    return () => window.removeEventListener('refreshTrending', handleRefresh);
+    window.addEventListener('interests_updated', handleRefresh);
+    return () => {
+      window.removeEventListener('refreshTrending', handleRefresh);
+      window.removeEventListener('interests_updated', handleRefresh);
+    };
   }, []);
 
   return (
@@ -114,50 +120,73 @@ export function TrendingSidebar() {
                 <div className="flex items-center justify-between">
                   <p className="eyebrow flex items-center gap-1.5">
                     <Sparkles className="size-3 text-primary animate-pulse" />
-                    Creator spotlight
+                    Suggested Guild
                   </p>
+                  {suggestedGuild?.matchedTag && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      Matches #{suggestedGuild.matchedTag}
+                    </span>
+                  )}
                 </div>
 
-                {featuredCreator ? (
-                  <div className="mt-4 space-y-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <Link href={`/profile/${featuredCreator.username}`} className="flex items-center gap-3 group min-w-0 flex-1">
-                        <UserAvatar src={featuredCreator.image} name={featuredCreator.name} className="size-10 shrink-0 group-hover:opacity-80 transition-opacity" />
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                            {featuredCreator.name}
-                          </h3>
-                          <p className="text-xs text-muted-foreground truncate">
-                            @{featuredCreator.username}
-                          </p>
-                        </div>
-                      </Link>
-                      <div className="shrink-0">
-                        <FollowButton userId={featuredCreator.id} />
+                {suggestedGuild ? (
+                  <div className="mt-4 space-y-3.5">
+                    <div className="flex items-center gap-3">
+                      <div className="size-11 rounded-xl bg-card border-2 border-border/80 flex items-center justify-center shrink-0 overflow-hidden text-primary font-bold shadow-sm">
+                        {suggestedGuild.avatarUrl ? (
+                          <img src={suggestedGuild.avatarUrl} alt={suggestedGuild.name} className="size-full object-cover" />
+                        ) : (
+                          <Users className="size-5 text-primary" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <Link href={`/communities/${suggestedGuild.slug}`} className="text-sm font-semibold text-foreground hover:text-primary transition-colors truncate block">
+                          {suggestedGuild.name}
+                        </Link>
+                        <p className="text-xs text-muted-foreground truncate font-mono">
+                          /c/{suggestedGuild.slug}
+                        </p>
                       </div>
                     </div>
 
                     <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                      {featuredCreator.bio || "Meet the creators shaping the next layer of digital culture."}
+                      {suggestedGuild.description || "Developer space based on your active tech interests and stack."}
                     </p>
 
+                    {suggestedGuild.techTags && suggestedGuild.techTags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {suggestedGuild.techTags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-secondary/50 text-foreground/80">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground pt-2 border-t border-border/50">
-                      <span>{featuredCreator._count.followers} followers</span>
-                      <span>{featuredCreator._count.posts} vibes</span>
+                      <span>{suggestedGuild._count?.members || 1} members</span>
+                      <span>{suggestedGuild._count?.posts || 0} vibes</span>
                     </div>
 
-                    <Link href="/explore" className="button-outline mt-2 w-full justify-center inline-flex items-center text-xs">
-                      Explore all creators <UserRound className="size-3.5 ml-2" />
+                    <Link
+                      href={`/communities/${suggestedGuild.slug}`}
+                      className="btn-gradient mt-2 w-full justify-center inline-flex items-center text-xs py-2 rounded-xl text-white font-medium shadow-sm hover:opacity-90 transition-opacity"
+                    >
+                      <span>Explore Guild</span>
+                      <ArrowRight className="size-3.5 ml-1.5" />
                     </Link>
                   </div>
                 ) : (
-                  <>
-                    <h2 className="mt-2 font-display text-lg font-semibold">Make the unseen visible.</h2>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">Meet the people shaping the next layer of culture.</p>
-                    <Link href="/explore" className="button-outline mt-5 inline-flex text-xs">
-                      Explore creators <UserRound className="size-4 ml-2" />
+                  <div className="mt-3">
+                    <h3 className="font-display text-sm font-semibold text-foreground">Find Your Guild</h3>
+                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                      Join specialized engineering spaces aligned with your tech stack.
+                    </p>
+                    <Link href="/communities" className="button-outline mt-3.5 w-full justify-center inline-flex items-center text-xs">
+                      <span>Browse All Guilds</span>
+                      <Users className="size-3.5 ml-1.5" />
                     </Link>
-                  </>
+                  </div>
                 )}
             </div>
         </section>

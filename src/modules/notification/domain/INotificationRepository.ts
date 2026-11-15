@@ -6,6 +6,7 @@ export interface CreateNotificationDTO {
   type: NotificationType;
   postId?: string;
   commentId?: string;
+  communityId?: string;
 }
 
 export interface INotificationRepository {
