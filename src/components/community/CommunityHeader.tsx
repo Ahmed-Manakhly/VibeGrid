@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Users, Flame, Shield, Check, UserPlus, Loader2, ArrowLeft, Calendar, FileText, Trash2, Settings } from "lucide-react";
+import { Users, Flame, Shield, Check, UserPlus, Loader2, ArrowLeft, Calendar, FileText, Trash2, Settings, Camera, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { joinCommunityAction, leaveCommunityAction, deleteCommunityAction } from "@/actions/community.action";
+import { joinCommunityAction, leaveCommunityAction, deleteCommunityAction, updateCommunityAction } from "@/actions/community.action";
 import { CommunitySettingsDialog } from "./CommunitySettingsDialog";
 import { useSession } from "@/components/auth/SessionProvider";
+import { uploadMediaAsset } from "@/lib/mediaClient";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,8 +35,65 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isMember, setIsMember] = useState(community.isMember || false);
   const [memberCount, setMemberCount] = useState(community._count?.members || 0);
+  const [avatarUrl, setAvatarUrl] = useState(community.avatarUrl || "");
+  const [bannerUrl, setBannerUrl] = useState(community.bannerUrl || "");
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   const isCreator = Boolean(user?.id && community.creatorId === user.id);
+  const canManage = isCreator || community.userRole === "ADMIN";
+
+  const handleAvatarDirectUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploadingAvatar(true);
+      const res = await uploadMediaAsset({ file, purpose: "avatar" });
+      setAvatarUrl(res.publicUrl);
+      const updateRes = await updateCommunityAction({
+        communityId: community.id,
+        avatarUrl: res.publicUrl,
+      });
+      if (updateRes.success) {
+        toast.success("Community avatar updated!");
+        router.refresh();
+      } else {
+        toast.error(updateRes.error || "Failed to save avatar update");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload avatar");
+    } finally {
+      setIsUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  };
+
+  const handleBannerDirectUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploadingBanner(true);
+      const res = await uploadMediaAsset({ file, purpose: "post_attachment" });
+      setBannerUrl(res.publicUrl);
+      const updateRes = await updateCommunityAction({
+        communityId: community.id,
+        bannerUrl: res.publicUrl,
+      });
+      if (updateRes.success) {
+        toast.success("Community banner updated!");
+        router.refresh();
+      } else {
+        toast.error(updateRes.error || "Failed to save banner update");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload banner");
+    } finally {
+      setIsUploadingBanner(false);
+      if (bannerInputRef.current) bannerInputRef.current.value = "";
+    }
+  };
 
   const handleDeleteCommunity = async () => {
     try {
@@ -87,7 +145,11 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
   return (
     <div className="w-full rounded-2xl border border-border/50 bg-card/60 backdrop-blur-md overflow-hidden shadow-sm mb-6">
       {/* Back button & Banner */}
-      <div className="relative h-32 sm:h-44 w-full bg-gradient-to-r from-primary/20 via-primary/10 to-secondary/30">
+      <div className="relative h-32 sm:h-48 w-full bg-gradient-to-r from-primary/20 via-primary/10 to-secondary/30 overflow-hidden group">
+        {bannerUrl ? (
+          <img src={bannerUrl} alt={community.name} className="size-full object-cover" />
+        ) : null}
+
         <Link
           href="/communities"
           className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/80 hover:bg-background border border-border/50 text-xs font-medium text-foreground backdrop-blur-sm transition-all shadow-sm"
@@ -95,23 +157,86 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
           <ArrowLeft className="size-3.5" />
           <span>All Guilds</span>
         </Link>
+
+        {/* Change Banner Overlay Button (Visible to Creator / Admin) */}
+        {canManage && (
+          <>
+            <input
+              ref={bannerInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={handleBannerDirectUpload}
+              disabled={isUploadingBanner}
+            />
+            <button
+              type="button"
+              onClick={() => bannerInputRef.current?.click()}
+              disabled={isUploadingBanner}
+              className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/85 hover:bg-background text-xs font-medium text-foreground backdrop-blur-sm border border-border/60 transition-all shadow-md opacity-80 hover:opacity-100"
+            >
+              {isUploadingBanner ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin text-accent" />
+                  <span>Uploading Banner...</span>
+                </>
+              ) : (
+                <>
+                  <Camera className="size-3.5 text-accent" />
+                  <span>{bannerUrl ? "Change Banner" : "Upload Banner"}</span>
+                </>
+              )}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Hero Meta Info */}
       <div className="px-5 sm:px-6 pb-6 pt-0 relative">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 -mt-12 sm:-mt-14 mb-4">
-          {/* Avatar Icon */}
-          <div className="flex size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl bg-card border-4 border-background text-primary font-bold text-2xl shadow-md overflow-hidden">
-            {community.avatarUrl ? (
-              <img src={community.avatarUrl} alt={community.name} className="size-full object-cover" />
-            ) : (
-              <Users className="size-10 text-primary" />
+          {/* Avatar Icon with Direct Change on Click */}
+          <div className="relative group">
+            {canManage && (
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={handleAvatarDirectUpload}
+                disabled={isUploadingAvatar}
+              />
             )}
+            <div
+              onClick={() => canManage && !isUploadingAvatar && avatarInputRef.current?.click()}
+              className={`flex size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl bg-card border-4 border-background text-primary font-bold text-2xl shadow-md overflow-hidden relative ${
+                canManage ? "cursor-pointer hover:ring-2 hover:ring-primary/60" : ""
+              }`}
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={community.name} className="size-full object-cover" />
+              ) : (
+                <Users className="size-10 text-primary" />
+              )}
+
+              {/* Direct Click Overlay for Creator/Admin */}
+              {canManage && (
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[10px] font-semibold">
+                  {isUploadingAvatar ? (
+                    <Loader2 className="size-5 animate-spin text-primary" />
+                  ) : (
+                    <>
+                      <Camera className="size-5 mb-0.5 text-primary" />
+                      <span>Change</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Action Join & Admin Buttons */}
           <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end flex-wrap">
-            {(isCreator || community.userRole === "ADMIN") && (
+            {canManage && (
               <CommunitySettingsDialog community={community} />
             )}
 

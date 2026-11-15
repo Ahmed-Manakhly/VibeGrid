@@ -14,6 +14,7 @@
 
 const { PrismaClient } = require('@prisma/client');
 const { execSync } = require('child_process');
+const Redis = require('ioredis');
 const prisma = new PrismaClient();
 
 const confirmed = process.argv.includes('--confirm');
@@ -79,6 +80,19 @@ async function cleanAll() {
   }
 
   console.log('\n🔥 Full wipe complete. Admin account preserved.\n');
+
+  // Invalidate Redis cache & Next.js cache
+  try {
+    const redisUrl = process.env.REDIS_URL || 'redis://:VgRedis_R2026%23m4%24ZpQ%219wKx@localhost:6379';
+    const redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 1 });
+    await redis.connect();
+    await redis.flushdb();
+    console.log('   🧹 Flushed all Redis cache keys (feed, taxonomy, recommendations, suggestions)');
+    await redis.quit();
+  } catch (err) {
+    console.warn(`   ⚠️ Notice: Redis cache flush skipped (${err.message})`);
+  }
+
   console.log('   ➡️  Next: node seeding_scripts/00_taxonomy_flow/bot.js\n');
 }
 

@@ -10,9 +10,10 @@ interface FollowButtonProps {
   userId?: string;
   initialIsFollowing?: boolean;
   className?: string;
+  onFollowChange?: (isFollowing: boolean) => void;
 }
 
-export function FollowButton({ targetUserId, userId, initialIsFollowing = false, className }: FollowButtonProps) {
+export function FollowButton({ targetUserId, userId, initialIsFollowing = false, className, onFollowChange }: FollowButtonProps) {
   const effectiveUserId = targetUserId || userId;
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -22,8 +23,12 @@ export function FollowButton({ targetUserId, userId, initialIsFollowing = false,
     setIsUpdating(true);
     try {
       await toggleFollow(effectiveUserId);
-      setIsFollowing((prev) => !prev);
-      toast.success(isFollowing ? "Unfollowed user" : "Followed user");
+      const nextState = !isFollowing;
+      setIsFollowing(nextState);
+      if (onFollowChange) {
+        onFollowChange(nextState);
+      }
+      toast.success(nextState ? "Followed user" : "Unfollowed user");
     } catch {
       toast.error("Failed to update follow status");
     } finally {

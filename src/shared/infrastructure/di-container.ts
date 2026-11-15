@@ -140,7 +140,7 @@ export const syncUserUseCase = new SyncUserUseCase(authRepository);
 export const getUserUseCase = new GetUserUseCase(authRepository);
 
 // Social
-export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository, eventBus);
+export const toggleFollowUseCase = new ToggleFollowUseCase(socialRepository, eventBus, cacheService);
 export const getUserInterestsUseCase = new GetUserInterestsUseCase(userInterestRepository);
 export const setUserInterestsUseCase = new SetUserInterestsUseCase(userInterestRepository, taxonomyRepository);
 

@@ -59,6 +59,8 @@ describe("Community Use Cases Unit Tests", () => {
       getCommunityFeed: jest.fn(),
       deleteCommunity: jest.fn(),
       getUserCommunities: jest.fn(),
+      updateCommunity: jest.fn(),
+      updateMemberRole: jest.fn(),
     };
 
     listCommunitiesUseCase = new ListCommunitiesUseCase(mockRepo);

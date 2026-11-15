@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,11 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Settings, Loader2, Sparkles, Shield, Image as ImageIcon } from "lucide-react";
+import { Settings, Loader2, Sparkles, Shield, Image as ImageIcon, UploadCloud, X, Users } from "lucide-react";
 import { updateCommunityAction } from "@/actions/community.action";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
+import { uploadMediaAsset } from "@/lib/mediaClient";
 
 interface CommunitySettingsDialogProps {
   community: CommunityEntity;
@@ -35,7 +36,43 @@ export function CommunitySettingsDialog({ community }: CommunitySettingsDialogPr
   );
   const [isPrivate, setIsPrivate] = useState(community.isPrivate || false);
   const [isPending, startTransition] = useTransition();
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploadingAvatar(true);
+      const res = await uploadMediaAsset({ file, purpose: 'avatar' });
+      setAvatarUrl(res.publicUrl);
+      toast.success("Community avatar uploaded successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload avatar");
+    } finally {
+      setIsUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  };
+
+  const handleBannerFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploadingBanner(true);
+      const res = await uploadMediaAsset({ file, purpose: 'post_attachment' });
+      setBannerUrl(res.publicUrl);
+      toast.success("Community banner uploaded successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload banner");
+    } finally {
+      setIsUploadingBanner(false);
+      if (bannerInputRef.current) bannerInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,28 +156,118 @@ export function CommunitySettingsDialog({ community }: CommunitySettingsDialogPr
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                <ImageIcon className="size-3.5 text-primary" />
-                <span>Avatar / Logo Image URL</span>
+          {/* Community Visual Identity (Avatar & Banner Uploaders) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Guild Avatar */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <ImageIcon className="size-3.5 text-primary" />
+                  <span>Guild Avatar / Logo</span>
+                </span>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setAvatarUrl("")}
+                    className="text-[11px] text-destructive hover:underline flex items-center gap-0.5"
+                  >
+                    <X className="size-3" /> Remove
+                  </button>
+                )}
               </label>
-              <Input
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://..."
+
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={handleAvatarFile}
+                disabled={isUploadingAvatar}
               />
+
+              <div
+                onClick={() => !isUploadingAvatar && avatarInputRef.current?.click()}
+                className="group relative flex flex-col items-center justify-center h-28 rounded-xl border border-dashed border-border/70 hover:border-primary/60 bg-muted/20 hover:bg-muted/30 cursor-pointer transition-all overflow-hidden p-2 text-center"
+              >
+                {avatarUrl ? (
+                  <div className="relative size-20 rounded-xl overflow-hidden border border-border/80 shadow-inner">
+                    <img src={avatarUrl} alt="Guild avatar" className="size-full object-cover" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[10px] font-medium">
+                      <UploadCloud className="size-4 mb-0.5" />
+                      <span>Change</span>
+                    </div>
+                  </div>
+                ) : isUploadingAvatar ? (
+                  <div className="flex flex-col items-center gap-1.5 text-primary">
+                    <Loader2 className="size-5 animate-spin" />
+                    <span className="text-xs">Uploading avatar...</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground group-hover:text-primary transition-colors">
+                    <div className="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <Users className="size-5" />
+                    </div>
+                    <span className="text-xs font-medium">Click to upload avatar</span>
+                    <span className="text-[10px] text-muted-foreground/80">JPG, PNG, WebP (Max 10MB)</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                <ImageIcon className="size-3.5 text-accent" />
-                <span>Banner Cover Image URL</span>
+
+            {/* Guild Banner Cover */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <ImageIcon className="size-3.5 text-accent" />
+                  <span>Banner Cover Image</span>
+                </span>
+                {bannerUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setBannerUrl("")}
+                    className="text-[11px] text-destructive hover:underline flex items-center gap-0.5"
+                  >
+                    <X className="size-3" /> Remove
+                  </button>
+                )}
               </label>
-              <Input
-                value={bannerUrl}
-                onChange={(e) => setBannerUrl(e.target.value)}
-                placeholder="https://..."
+
+              <input
+                ref={bannerInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={handleBannerFile}
+                disabled={isUploadingBanner}
               />
+
+              <div
+                onClick={() => !isUploadingBanner && bannerInputRef.current?.click()}
+                className="group relative flex flex-col items-center justify-center h-28 rounded-xl border border-dashed border-border/70 hover:border-accent/60 bg-muted/20 hover:bg-muted/30 cursor-pointer transition-all overflow-hidden text-center"
+              >
+                {bannerUrl ? (
+                  <div className="relative size-full">
+                    <img src={bannerUrl} alt="Guild banner" className="size-full object-cover" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[10px] font-medium">
+                      <UploadCloud className="size-4 mb-0.5" />
+                      <span>Change Cover</span>
+                    </div>
+                  </div>
+                ) : isUploadingBanner ? (
+                  <div className="flex flex-col items-center gap-1.5 text-accent">
+                    <Loader2 className="size-5 animate-spin" />
+                    <span className="text-xs">Uploading banner...</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground group-hover:text-accent transition-colors">
+                    <div className="size-9 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                      <UploadCloud className="size-5" />
+                    </div>
+                    <span className="text-xs font-medium">Click to upload banner cover</span>
+                    <span className="text-[10px] text-muted-foreground/80">Wide header (Max 10MB)</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
