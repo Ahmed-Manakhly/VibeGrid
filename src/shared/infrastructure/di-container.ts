@@ -171,6 +171,8 @@ import {
   LeaveCommunityUseCase,
   GetCommunityFeedUseCase,
   GetCommunityMembersUseCase,
+  DeleteCommunityUseCase,
+  GetUserCommunitiesUseCase,
 } from "@/modules/community/application/CommunityUseCases";
 
 export const communityRepository = new PrismaCommunityRepository(prisma);
@@ -181,6 +183,8 @@ export const joinCommunityUseCase = new JoinCommunityUseCase(communityRepository
 export const leaveCommunityUseCase = new LeaveCommunityUseCase(communityRepository);
 export const getCommunityFeedUseCase = new GetCommunityFeedUseCase(communityRepository);
 export const getCommunityMembersUseCase = new GetCommunityMembersUseCase(communityRepository);
+export const deleteCommunityUseCase = new DeleteCommunityUseCase(communityRepository);
+export const getUserCommunitiesUseCase = new GetUserCommunitiesUseCase(communityRepository);
 
 // GitHub Module
 import { CachedGitHubRepoRepository } from "@/modules/github/infrastructure/CachedGitHubRepoRepository";

@@ -28,13 +28,14 @@ export async function creatPost(
     techContext?: any,
     postType?: any,
     poll?: { question: string; options: string[]; durationHours: number },
-    quotedPostId?: string
+    quotedPostId?: string,
+    communityId?: string
 ) {
     try {
         const userId = await getDbUserId() ;
         if(!userId) return { success: false, error: 'User is not authenticated. Please log in.' }; 
         
-        const result = await createVibeUseCase.execute(content, mediaUrl, mediaType, userId, tags, undefined, categoryId, vibeId, techContext, postType, poll, quotedPostId);
+        const result = await createVibeUseCase.execute(content, mediaUrl, mediaType, userId, tags, undefined, categoryId, vibeId, techContext, postType, poll, quotedPostId, communityId);
         
         if (!result.success) {
             const errorMsg = typeof result.error === 'object' && result.error && 'message' in result.error 
@@ -74,6 +75,7 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
     const categoryId = formData.get('categoryId') as string;
     const vibeId = formData.get('vibeId') as string;
     const quotedPostId = formData.get('quotedPostId') as string;
+    const communityId = formData.get('communityId') as string;
 
     // Ship Mode Inputs
     const isShip = formData.get('isShip') === 'true' || formData.get('isShip') === 'on';
@@ -136,7 +138,7 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
     const tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()).filter(Boolean) : undefined;
 
     try {
-        const result = await creatPost(finalContent, mediaUrl, mediaType, tags, categoryId || undefined, vibeId || undefined, techContext, postType, pollData, quotedPostId || undefined);
+        const result = await creatPost(finalContent, mediaUrl, mediaType, tags, categoryId || undefined, vibeId || undefined, techContext, postType, pollData, quotedPostId || undefined, communityId || undefined);
         if (result?.success) {
             return { success: true };
         }

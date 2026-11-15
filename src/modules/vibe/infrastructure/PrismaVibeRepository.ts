@@ -8,7 +8,7 @@ import { vibeFeedQueryConfig } from "./VibeFeedQueryConfig";
 export class PrismaVibeRepository implements IVibeRepository {
   constructor(private db: PrismaClient) {}
 
-  async create(data: { content: string; mediaUrl?: string; mediaType?: any; authorId: string; categoryId?: string; vibeId?: string; tags?: string[]; techContext?: any; postType?: any; poll?: { question: string; options: string[]; durationHours: number }; quotedPostId?: string }, tx?: any): Promise<Result<any>> {
+  async create(data: { content: string; mediaUrl?: string; mediaType?: any; authorId: string; categoryId?: string; vibeId?: string; tags?: string[]; techContext?: any; postType?: any; poll?: { question: string; options: string[]; durationHours: number }; quotedPostId?: string; communityId?: string }, tx?: any): Promise<Result<any>> {
     try {
       const db = tx || this.db;
       const postData: any = {
@@ -24,6 +24,7 @@ export class PrismaVibeRepository implements IVibeRepository {
     if (data.techContext) postData.techContext = data.techContext;
     if (data.postType) postData.postType = data.postType;
     if (data.quotedPostId) postData.quotedPostId = data.quotedPostId;
+    if (data.communityId) postData.communityId = data.communityId;
 
     if (data.poll && data.poll.options && data.poll.options.length >= 2) {
       const expiresAt = new Date(Date.now() + (data.poll.durationHours || 24) * 60 * 60 * 1000);

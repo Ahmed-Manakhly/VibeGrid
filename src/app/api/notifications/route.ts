@@ -12,7 +12,7 @@ export async function GET() {
     }
 
     const notifications = await getNotificationsUseCase.execute(session.user.id);
-    return NextResponse.json({ success: true, notifications });
+    return NextResponse.json(notifications);
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to fetch notifications" }, { status: 500 });
   }

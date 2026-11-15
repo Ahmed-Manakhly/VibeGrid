@@ -76,6 +76,8 @@ export default function CreatPost() {
 
     const [categories, setCategories] = useState<any[]>([]);
     const [vibes, setVibes] = useState<any[]>([]);
+    const [userCommunities, setUserCommunities] = useState<any[]>([]);
+    const [selectedCommunityId, setSelectedCommunityId] = useState<string>("");
     
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
@@ -116,7 +118,17 @@ export default function CreatPost() {
                 if (data.vibes) setVibes(data.vibes);
             })
             .catch((err) => console.error(err));
-    }, []);
+
+        if (user?.id) {
+            import("@/actions/community.action").then(({ getUserCommunitiesAction }) => {
+                getUserCommunitiesAction(user.id).then((res) => {
+                    if (res.success && res.data) {
+                        setUserCommunities(res.data);
+                    }
+                }).catch(() => {});
+            });
+        }
+    }, [user?.id]);
 
     useEffect(() => {
         const handleFocus = () => {
@@ -390,6 +402,26 @@ export default function CreatPost() {
                             
                             {/* Hidden input for imageUrl so it submits with form */}
                             <input type="hidden" name="imageUrl" value={imageUrl} />
+                            <input type="hidden" name="communityId" value={selectedCommunityId} />
+
+                            {userCommunities && userCommunities.length > 0 && (
+                                <div className="flex items-center gap-2 px-1">
+                                    <span className="text-xs text-muted-foreground shrink-0">Guild:</span>
+                                    <Select value={selectedCommunityId} onValueChange={setSelectedCommunityId}>
+                                        <SelectTrigger className="h-8 text-xs bg-white/5 border-white/10 rounded-lg max-w-[200px]">
+                                            <SelectValue placeholder="Public Grid (No Guild)" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="">🌐 Public Grid</SelectItem>
+                                            {userCommunities.map((c) => (
+                                                <SelectItem key={c.id} value={c.id}>
+                                                    🏰 {c.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
 
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-white/10 pt-4">
                                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">

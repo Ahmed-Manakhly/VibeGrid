@@ -308,4 +308,45 @@ export class PrismaCommunityRepository implements ICommunityRepository {
 
     return { posts, nextCursor };
   }
+
+  async deleteCommunity(communityId: string, userId: string): Promise<void> {
+    const community = await (this.prisma as any).community.findUnique({
+      where: { id: communityId },
+      select: { creatorId: true },
+    });
+
+    if (!community) {
+      throw new Error("Community not found");
+    }
+
+    if (community.creatorId !== userId) {
+      throw new Error("Unauthorized: Only the community creator can delete this guild");
+    }
+
+    await (this.prisma as any).community.delete({
+      where: { id: communityId },
+    });
+  }
+
+  async getUserCommunities(userId: string): Promise<CommunityEntity[]> {
+    const memberships = await (this.prisma as any).communityMember.findMany({
+      where: { userId },
+      include: {
+        community: {
+          include: {
+            _count: {
+              select: { members: true, posts: true },
+            },
+          },
+        },
+      },
+      orderBy: { joinedAt: "desc" },
+    });
+
+    return memberships.map((m: any) => ({
+      ...this.mapCommunity(m.community, userId),
+      isMember: true,
+      userRole: m.role as CommunityRole,
+    }));
+  }
 }

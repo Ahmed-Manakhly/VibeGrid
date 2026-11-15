@@ -2,9 +2,22 @@
 
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
-import { Users, Flame, Shield, Check, UserPlus, Loader2, ArrowLeft, Calendar, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Users, Flame, Shield, Check, UserPlus, Loader2, ArrowLeft, Calendar, FileText, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { joinCommunityAction, leaveCommunityAction } from "@/actions/community.action";
+import { joinCommunityAction, leaveCommunityAction, deleteCommunityAction } from "@/actions/community.action";
+import { useSession } from "@/components/auth/SessionProvider";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/toast";
 import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
 import { format } from "date-fns";
@@ -14,9 +27,31 @@ interface CommunityHeaderProps {
 }
 
 export function CommunityHeader({ community }: CommunityHeaderProps) {
+  const router = useRouter();
+  const { user } = useSession();
   const [isPending, startTransition] = useTransition();
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isMember, setIsMember] = useState(community.isMember || false);
   const [memberCount, setMemberCount] = useState(community._count?.members || 0);
+
+  const isCreator = Boolean(user?.id && community.creatorId === user.id);
+
+  const handleDeleteCommunity = async () => {
+    try {
+      setIsDeleting(true);
+      const res = await deleteCommunityAction(community.id);
+      if (res.success) {
+        toast.success(`Guild "${community.name}" deleted`);
+        router.push("/communities");
+      } else {
+        toast.error(res.error || "Failed to delete guild");
+      }
+    } catch {
+      toast.error("Failed to delete guild");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleToggleJoin = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -73,8 +108,41 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
             )}
           </div>
 
-          {/* Action Join Button */}
+          {/* Action Join & Admin Buttons */}
           <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
+            {isCreator && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-3 text-xs text-red-400 hover:text-red-300 border-red-500/30 hover:bg-red-500/10 rounded-xl"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4 mr-1.5" />}
+                    Delete Guild
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Guild "{community.name}"?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete this guild and remove all member associations. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-transparent border-none">Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteCommunity}
+                      className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl"
+                    >
+                      Confirm Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+
             <Button
               onClick={handleToggleJoin}
               disabled={isPending}

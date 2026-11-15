@@ -9,6 +9,8 @@ import {
   leaveCommunityUseCase,
   getCommunityFeedUseCase,
   getCommunityMembersUseCase,
+  deleteCommunityUseCase,
+  getUserCommunitiesUseCase,
   logger,
 } from "@/shared/infrastructure/di-container";
 import { revalidatePath } from "next/cache";
@@ -162,5 +164,35 @@ export async function getCommunityMembersAction(communityId: string, limit: numb
   } catch (error: any) {
     logger.error("Failed to fetch community members", error, { communityId });
     return { success: false, error: error.message || "Failed to fetch community members." };
+  }
+}
+
+export async function deleteCommunityAction(communityId: string) {
+  try {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    await deleteCommunityUseCase.execute({
+      communityId,
+      userId: session.user.id,
+    });
+
+    revalidatePath("/communities");
+    return { success: true };
+  } catch (error: any) {
+    logger.error("Failed to delete community", error, { communityId });
+    return { success: false, error: error.message || "Failed to delete community." };
+  }
+}
+
+export async function getUserCommunitiesAction(userId: string) {
+  try {
+    const communities = await getUserCommunitiesUseCase.execute(userId);
+    return { success: true, data: communities };
+  } catch (error: any) {
+    logger.error("Failed to fetch user communities", error, { userId });
+    return { success: false, error: error.message || "Failed to fetch user communities." };
   }
 }

@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "@/components/auth/SessionProvider";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
+import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import {
   getConversationsAction,
   getMessagesAction,
@@ -32,7 +33,7 @@ export function MessagesPageClient() {
   const searchParams = useSearchParams();
   const initialConvId = searchParams.get("conversationId");
 
-  const { latestDirectMessage, latestTypingSignal, onlineUsers, socket } = useRealtime();
+  const { latestDirectMessage, latestTypingSignal, onlineUsers, socket, setUnreadMessagesCount } = useRealtime();
 
   const [conversations, setConversations] = useState<any[]>([]);
   const [mobileTab, setMobileTab] = useState<"conversations" | "chat">("conversations");
@@ -104,9 +105,12 @@ export function MessagesPageClient() {
         setMessages(res.messages || []);
         setNextCursor(res.nextCursor || null);
         // Clear unread indicator locally for active conversation
-        setConversations((prev) =>
-          prev.map((c) => (c.id === activeConversationId ? { ...c, unreadCount: 0 } : c))
-        );
+        setConversations((prev) => {
+          const next = prev.map((c) => (c.id === activeConversationId ? { ...c, unreadCount: 0 } : c));
+          const totalUnread = next.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
+          setUnreadMessagesCount(totalUnread);
+          return next;
+        });
       }
       setLoadingMessages(false);
     }
@@ -156,6 +160,8 @@ export function MessagesPageClient() {
           latestMessage: { id: messageId, content: msgContent, createdAt: new Date(createdAt), senderId },
           unreadCount: isCurrentActive ? 0 : (conv.unreadCount || 0) + 1,
         };
+        const totalUnread = updated.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
+        setUnreadMessagesCount(totalUnread);
         // Re-sort list by newest update
         return updated.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
       } else {

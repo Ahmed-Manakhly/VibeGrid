@@ -65,4 +65,6 @@ export interface ICommunityRepository {
   getMembership(communityId: string, userId: string): Promise<CommunityMemberEntity | null>;
   getCommunityMembers(communityId: string, limit?: number): Promise<CommunityMemberEntity[]>;
   getCommunityFeed(communityId: string, params: { limit?: number; cursor?: string; viewerId?: string }): Promise<{ posts: any[]; nextCursor?: string }>;
+  deleteCommunity(communityId: string, userId: string): Promise<void>;
+  getUserCommunities(userId: string): Promise<CommunityEntity[]>;
 }

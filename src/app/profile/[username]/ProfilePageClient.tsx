@@ -32,7 +32,7 @@ import {
     SerializedMilestone,
 } from "@/modules/social/presentation/components/DeveloperMilestoneTimeline";
 import { DeveloperBadgeList } from "@/modules/social/presentation/components/DeveloperBadgeList";
-import { Milestone, UserCheck } from "lucide-react";
+import { Milestone, UserCheck, Users } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
@@ -44,6 +44,7 @@ interface ProfilePageClientProps {
     likedPostsResult: PostsResult;
     isFollowing: boolean;
     initialMilestones?: SerializedMilestone[];
+    userCommunities?: any[];
 }
 
 function ProfilePageClient({
@@ -52,6 +53,7 @@ function ProfilePageClient({
     postsResult,
     user,
     initialMilestones = [],
+    userCommunities = [],
 }: ProfilePageClientProps) {
     const { user: currentUser, isAuthenticated } = useSession();
     const searchParams = useSearchParams();
@@ -296,6 +298,13 @@ function ProfilePageClient({
                                     <HeartIcon className="size-4 shrink-0" />
                                     <span>Likes</span>
                                 </TabsTrigger>
+                                <TabsTrigger
+                                    value="guilds"
+                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+                                >
+                                    <Users className="size-4 shrink-0" />
+                                    <span>Guilds ({userCommunities.length})</span>
+                                </TabsTrigger>
                             </TabsList>
                         </div>
                         <TabsContent value="posts" className="mt-6">
@@ -324,6 +333,34 @@ function ProfilePageClient({
                                     dbUserId={currentUser ? user.id : null}
                                 />
                             </div>
+                        </TabsContent>
+                        <TabsContent value="guilds" className="mt-6">
+                            {userCommunities.length === 0 ? (
+                                <div className="text-center py-12 text-muted-foreground text-sm">
+                                    No guilds joined yet. Explore the <Link href="/communities" className="text-primary hover:underline">Guilds Directory</Link>.
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {userCommunities.map((comm) => (
+                                        <div key={comm.id} className="p-4 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between gap-3">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <UserAvatar src={comm.avatarUrl} name={comm.name} className="size-10 shrink-0" />
+                                                <div className="min-w-0">
+                                                    <Link href={`/communities/${comm.slug}`} className="font-semibold text-sm hover:underline block truncate">
+                                                        {comm.name}
+                                                    </Link>
+                                                    <span className="text-xs text-muted-foreground truncate block">
+                                                        {comm._count?.members || 1} members
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <Link href={`/communities/${comm.slug}`} className="btn-gradient text-xs px-3 py-1.5 rounded-lg shrink-0">
+                                                View
+                                            </Link>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </TabsContent>
                     </Tabs>
                 </div>

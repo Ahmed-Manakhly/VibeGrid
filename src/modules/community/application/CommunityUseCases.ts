@@ -123,3 +123,23 @@ export class GetCommunityMembersUseCase {
     return await this.communityRepo.getCommunityMembers(input.communityId, input.limit);
   }
 }
+
+export class DeleteCommunityUseCase {
+  constructor(private communityRepo: ICommunityRepository) {}
+
+  async execute(input: { communityId: string; userId: string }): Promise<void> {
+    if (!input.communityId || !input.userId) {
+      throw new Error("communityId and userId are required to delete a community");
+    }
+    await this.communityRepo.deleteCommunity(input.communityId, input.userId);
+  }
+}
+
+export class GetUserCommunitiesUseCase {
+  constructor(private communityRepo: ICommunityRepository) {}
+
+  async execute(userId: string): Promise<CommunityEntity[]> {
+    if (!userId) return [];
+    return await this.communityRepo.getUserCommunities(userId);
+  }
+}

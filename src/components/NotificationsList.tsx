@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 import { HeartIcon, MessageCircleIcon, UserPlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import { markNotificationsAsRead, getNotifications } from "@/actions/notification.action";
 
@@ -49,30 +50,25 @@ const getNotificationIcon = (type: string) => {
 };
 
 export function NotificationsList({ initialNotifications }: NotificationsListProps) {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const { latestNotification, setUnreadCount } = useRealtime();
 
-  // Mark initial unread as read
+  // Keep realtime unread count in sync with unread notifications in state
   useEffect(() => {
-    const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
-    if (unreadIds.length > 0) {
-      markNotificationsAsRead(unreadIds).catch(console.error);
-      setUnreadCount(0);
-    }
-  }, []);
+    const unread = notifications.filter((n) => !n.read).length;
+    setUnreadCount(unread);
+  }, [notifications, setUnreadCount]);
 
-  // Realtime notification sync
+  // Realtime notification sync: when a new notification signal arrives, fetch updated list
   useEffect(() => {
     if (!latestNotification) return;
 
     const syncNotifications = async () => {
       try {
         const data = await getNotifications();
-        setNotifications(data as Notification[]);
-        const unreadIds = (data as Notification[]).filter((n) => !n.read).map((n) => n.id);
-        if (unreadIds.length > 0) {
-          await markNotificationsAsRead(unreadIds);
-          setUnreadCount(0);
+        if (Array.isArray(data)) {
+          setNotifications(data as Notification[]);
         }
       } catch (error) {
         console.error("Failed to sync realtime notification", error);
@@ -80,7 +76,26 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
     };
 
     syncNotifications();
-  }, [latestNotification, setUnreadCount]);
+  }, [latestNotification]);
+
+  const handleNotificationClick = async (notification: Notification) => {
+    // 1. If unread, mark this specific notification as read in DB and update local state
+    if (!notification.read) {
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
+      );
+      markNotificationsAsRead([notification.id]).catch(console.error);
+    }
+
+    // 2. Navigate to the relevant event page
+    if (notification.type === "FOLLOW") {
+      router.push(`/profile/${notification.creator.username}`);
+    } else if ((notification.type === "LIKE" || notification.type === "COMMENT") && notification.post?.id) {
+      router.push(`/vibes/${notification.post.id}`);
+    } else {
+      router.push(`/profile/${notification.creator.username}`);
+    }
+  };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -100,7 +115,8 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
             notifications.map((notification) => (
               <div 
                 key={notification.id}
-                className={`flex items-start gap-4 p-4 border-b hover:bg-muted/25 transition-colors ${!notification.read ? "bg-muted/50" : ""}`}
+                onClick={() => handleNotificationClick(notification)}
+                className={`flex items-start gap-4 p-4 border-b hover:bg-muted/25 transition-colors cursor-pointer ${!notification.read ? "bg-muted/50 font-medium" : ""}`}
               >
                 <Avatar className="mt-1">
                   <AvatarImage src={notification.creator.image ?? "/avatar.png"} />
@@ -109,7 +125,7 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
                   <div className="flex items-center gap-2">
                     {getNotificationIcon(notification.type)}
                     <span>
-                      <span className="font-medium">
+                      <span className="font-semibold hover:underline">
                         {notification.creator.name ?? notification.creator.username}
                       </span>
                       {" "}{
@@ -120,11 +136,14 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
                           : "commented on your post"
                       }
                     </span>
+                    {!notification.read && (
+                      <span className="inline-block size-2 rounded-full bg-accent ml-auto" />
+                    )}
                   </div>
 
                   {notification.post && (notification.type === "LIKE" || notification.type === "COMMENT") && (
                     <div className="pl-6 space-y-2">
-                      <div className="text-sm text-muted-foreground rounded-md p-2 bg-muted/30 mt-2">
+                      <div className="text-sm text-muted-foreground rounded-md p-2 bg-muted/30 mt-2 hover:bg-muted/50 transition-colors">
                         <p>{notification.post.content}</p>
                         {notification.post.image && (
                           <img
@@ -135,7 +154,7 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
                         )}
                       </div>
                       {notification.type === "COMMENT" && notification.comment && (
-                        <div className="text-sm p-2 bg-accent/50 rounded-md">
+                        <div className="text-sm p-2 bg-accent/30 rounded-md">
                           {notification.comment.content}
                         </div>
                       )}

@@ -22,7 +22,8 @@ export class CreateVibeUseCase {
     techContext?: any,
     postType?: any,
     poll?: { question: string; options: string[]; durationHours: number },
-    quotedPostId?: string
+    quotedPostId?: string,
+    communityId?: string
   ) {
     if (!authorId) return { success: false as const, error: "No user found!" };
 
@@ -70,7 +71,8 @@ export class CreateVibeUseCase {
       techContext,
       postType,
       poll,
-      quotedPostId
+      quotedPostId,
+      communityId
     });
     if (result.success) {
       if (this.cacheService?.delByPattern) {
