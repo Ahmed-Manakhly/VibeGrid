@@ -42,6 +42,7 @@ import {
   PauseIcon,
   DownloadIcon,
   XIcon,
+  VideoIcon,
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
@@ -1178,6 +1179,7 @@ export function MessagesPageClient() {
                 <div className="flex items-center justify-between p-2 rounded-xl bg-muted/60 border border-border/60 text-xs">
                   <div className="flex items-center gap-2 min-w-0">
                     {pendingAttachment.type === "image" && <ImageIcon className="size-4 text-primary shrink-0" />}
+                    {pendingAttachment.type === "video" && <VideoIcon className="size-4 text-primary shrink-0" />}
                     {pendingAttachment.type === "voice" && <MicIcon className="size-4 text-emerald-500 shrink-0" />}
                     {pendingAttachment.type === "file" && <FileIcon className="size-4 text-blue-500 shrink-0" />}
                     <span className="font-medium truncate">{pendingAttachment.name || "Attachment"}</span>
@@ -1290,6 +1292,25 @@ export function MessagesPageClient() {
                   >
                     <ImageIcon className="size-3.5" />
                     <span className="font-mono text-[11px]">Image</span>
+                  </Button>
+
+                  {/* Video attachment */}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={uploadingMedia}
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.accept = "video/*";
+                        fileInputRef.current.click();
+                      }
+                    }}
+                    className="text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 h-8 px-2.5 text-xs gap-1.5 rounded-lg transition-colors font-mono"
+                    title="Share video"
+                  >
+                    <VideoIcon className="size-3.5" />
+                    <span className="font-mono text-[11px]">Video</span>
                   </Button>
 
                   {/* File attachment */}
