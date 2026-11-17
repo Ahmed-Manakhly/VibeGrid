@@ -65,7 +65,7 @@ export function MyCommunitiesSidebar({ userId }: MyCommunitiesSidebarProps) {
               return (
                 <Link
                   key={c.id}
-                  href={`/communities/${c.slug}`}
+                  href={`/communities/${c.slug}?view=feed`}
                   className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/50 transition-all border border-transparent hover:border-border/40 group"
                 >
                   <Avatar className="size-8 rounded-lg shrink-0 border border-border/50">

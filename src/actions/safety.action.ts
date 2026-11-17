@@ -77,3 +77,45 @@ export async function createReportAction(params: {
     return { success: false, error: err.message || "Failed to submit report" };
   }
 }
+
+export async function getBlockedUsersAction() {
+  try {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) return { success: false, error: "Unauthorized", data: [] };
+    const currentUserId = await getDbUserId();
+    if (!currentUserId) return { success: false, error: "User not synced", data: [] };
+
+    const { prisma } = await import("@/shared/infrastructure/prisma");
+    const blocks = await prisma.userBlock.findMany({
+      where: { blockerId: currentUserId },
+      include: {
+        blocked: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+            bio: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return {
+      success: true,
+      data: blocks.map((b: any) => ({
+        id: b.blocked.id,
+        name: b.blocked.name,
+        username: b.blocked.username,
+        image: b.blocked.image,
+        bio: b.blocked.bio,
+        blockedAt: b.createdAt.toISOString(),
+      })),
+    };
+  } catch (err: any) {
+    logger.error("Error in getBlockedUsersAction", err);
+    return { success: false, error: err.message || "Failed to fetch blocked users", data: [] };
+  }
+}
+

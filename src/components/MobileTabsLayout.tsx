@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Newspaper, Compass } from 'lucide-react';
 import { UnifiedTabsBar } from '@/components/UnifiedTabsBar';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 const MOBILE_FEED_TABS = [
   { value: 'feed', label: 'Feed', icon: Newspaper },
@@ -16,7 +17,23 @@ export function MobileTabsLayout({
   feed: React.ReactNode; 
   discovery: React.ReactNode; 
 }) {
-  const [activeTab, setActiveTab] = useState<'feed' | 'discovery'>('feed');
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const viewParam = searchParams.get('view');
+  
+  const [activeTab, setActiveTab] = useState<'feed' | 'discovery'>(() => 
+    viewParam === 'discovery' ? 'discovery' : 'feed'
+  );
+
+  // Synchronize when URL path changes (e.g. clicking a guild or navigating to another community)
+  useEffect(() => {
+    if (viewParam === 'discovery' || viewParam === 'feed') {
+      setActiveTab(viewParam);
+    } else {
+      // Default to feed view when navigating to a new route
+      setActiveTab('feed');
+    }
+  }, [pathname, viewParam]);
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 xl:gap-12 xl:items-start w-full">

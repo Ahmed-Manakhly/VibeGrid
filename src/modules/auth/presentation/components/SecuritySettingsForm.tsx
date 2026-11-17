@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { changePasswordAction } from '@/actions/settings.action';
 import { toast } from '@/components/ui/toast';
 import { Lock, Eye, EyeOff, Loader2, KeyRound } from 'lucide-react';
+import { BlockedUsersManager } from '@/modules/safety/presentation/components/BlockedUsersManager';
 
 export function SecuritySettingsForm() {
   const [passwordForm, setPasswordForm] = useState({
@@ -58,7 +59,8 @@ export function SecuritySettingsForm() {
   };
 
   return (
-    <Card className="feed-card overflow-hidden">
+    <div className="space-y-6">
+      <Card className="feed-card overflow-hidden">
       <CardHeader className="p-4 sm:p-6">
         <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
           <KeyRound className="size-5 text-accent" />
@@ -153,5 +155,8 @@ export function SecuritySettingsForm() {
         </form>
       </CardContent>
     </Card>
+
+    <BlockedUsersManager />
+  </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, User, Sparkles, Settings, FileText } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
@@ -9,7 +9,7 @@ import { FeedPreferencesSettingsForm } from '@/modules/social/presentation/compo
 import { SecuritySettingsForm } from '@/modules/auth/presentation/components/SecuritySettingsForm';
 import { PlatformPolicyCenter } from '@/components/settings/PlatformPolicyCenter';
 import { SettingsSidebar } from '@/components/settings/SettingsSidebar';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface SettingsPageClientProps {
   user: {
@@ -27,10 +27,26 @@ interface SettingsPageClientProps {
 }
 
 export default function SettingsPageClient({ user }: SettingsPageClientProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const requestedTab = searchParams.get('tab');
   const validTabs = ['personalization', 'profile', 'security', 'policy'];
-  const defaultTab = requestedTab && validTabs.includes(requestedTab) ? requestedTab : 'personalization';
+  
+  const getSanitizedTab = (tab: string | null) =>
+    tab && validTabs.includes(tab) ? tab : 'personalization';
+
+  const [activeTab, setActiveTab] = useState(() => getSanitizedTab(requestedTab));
+
+  useEffect(() => {
+    if (requestedTab && validTabs.includes(requestedTab) && requestedTab !== activeTab) {
+      setActiveTab(requestedTab);
+    }
+  }, [requestedTab]);
+
+  const handleTabChange = (val: string) => {
+    setActiveTab(val);
+    router.replace(`/settings?tab=${val}`, { scroll: false });
+  };
 
   return (
     <div className="w-full py-2 px-0 space-y-6">
@@ -43,7 +59,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
 
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         <div className="w-full min-w-0 flex-1">
-          <Tabs defaultValue={defaultTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <div className="sticky top-[118px] lg:top-16 z-30 py-1 bg-transparent backdrop-blur-md mb-6">
               <TabsList className="w-full flex items-center justify-start flex-wrap border-b border-border/50 bg-transparent p-0 rounded-none h-auto gap-x-4 sm:gap-x-6 gap-y-1">
                 <TabsTrigger
