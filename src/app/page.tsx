@@ -11,6 +11,7 @@ import { InfiniteScroll } from "@/components/InfiniteScroll";
 import { CategoryPills } from "@/components/CategoryPills";
 import { TrendingShipsLeaderboard } from "@/modules/vibe/presentation/components/TrendingShipsLeaderboard";
 import { PageHeader } from "@/components/PageHeader";
+import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { Radio } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "./loading";
@@ -55,6 +56,7 @@ export default async function Home({ searchParams }: PageProps) {
       <MobileTabsLayout
         feed={
           <>
+            <ActiveFilterChips />
             <div className="mt-4 flex flex-col gap-6">
                {session.isAuthenticated ? <CreatPost/> : null}
             </div>

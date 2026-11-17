@@ -9,6 +9,7 @@ import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { TrendingSidebar } from "@/components/TrendingSidebar";
 import { DeveloperSearchResults } from "@/components/DeveloperSearchResults";
 import { PageHeader } from "@/components/PageHeader";
+import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { Compass } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "../loading";
@@ -74,6 +75,7 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
       <MobileTabsLayout
         feed={
           <>
+            <ActiveFilterChips />
             <div className="mb-6">
               <SearchForm variant="hero" />
             </div>
