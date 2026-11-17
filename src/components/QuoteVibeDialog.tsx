@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,8 +12,17 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { EmbeddedQuotedPostCard } from './EmbeddedQuotedPostCard';
 import { createQuoteVibeAction } from '@/actions/post.action';
+import { getUserCommunitiesAction } from '@/actions/community.action';
+import { useSession } from '@/components/auth/SessionProvider';
 import { toast } from '@/components/ui/toast';
-import { MessageSquareQuote, Loader2 } from 'lucide-react';
+import { MessageSquareQuote, Loader2, Users } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface QuoteVibeDialogProps {
   isOpen: boolean;
@@ -38,8 +47,21 @@ export function QuoteVibeDialog({
   onClose,
   targetPost,
 }: QuoteVibeDialogProps) {
+  const { user } = useSession();
   const [commentary, setCommentary] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedCommunityId, setSelectedCommunityId] = useState<string>('public');
+  const [communities, setCommunities] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user?.id && isOpen) {
+      getUserCommunitiesAction(user.id).then((res) => {
+        if (res.success && res.data) {
+          setCommunities(res.data);
+        }
+      });
+    }
+  }, [user?.id, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,10 +72,12 @@ export function QuoteVibeDialog({
 
     setIsSubmitting(true);
     try {
-      const res = await createQuoteVibeAction(targetPost.id, commentary);
+      const targetCommunity = selectedCommunityId === 'public' ? undefined : selectedCommunityId;
+      const res = await createQuoteVibeAction(targetPost.id, commentary, targetCommunity);
       if (res?.success) {
-        toast.success('Quote vibe posted to your feed!');
+        toast.success(targetCommunity ? 'Quote vibe posted to your guild!' : 'Quote vibe posted to your feed!');
         setCommentary('');
+        setSelectedCommunityId('public');
         onClose();
       } else {
         toast.error(res?.error || 'Failed to post quote vibe.');
@@ -79,6 +103,29 @@ export function QuoteVibeDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2 w-full min-w-0">
+          {/* Destination Selector (Public Feed vs Guild) */}
+          {communities.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0 font-medium">
+                <Users className="size-3.5" />
+                Post to:
+              </span>
+              <Select value={selectedCommunityId} onValueChange={setSelectedCommunityId}>
+                <SelectTrigger className="h-8 text-xs bg-background/80 border-border/50 rounded-xl flex-1">
+                  <SelectValue placeholder="Public Feed" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border/50 text-xs">
+                  <SelectItem value="public">🌐 Public Feed</SelectItem>
+                  {communities.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      🛡️ /c/{c.slug} ({c.name})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <Textarea
             value={commentary}
             onChange={(e) => setCommentary(e.target.value)}

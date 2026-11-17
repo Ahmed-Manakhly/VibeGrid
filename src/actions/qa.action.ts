@@ -1,7 +1,7 @@
 "use server";
 
 import { getCurrentSession } from "@/lib/auth/server";
-import { acceptSolutionUseCase, unacceptSolutionUseCase, logger } from "@/shared/infrastructure/di-container";
+import { acceptSolutionUseCase, unacceptSolutionUseCase, cacheService, logger } from "@/shared/infrastructure/di-container";
 import { revalidatePath } from "next/cache";
 
 export async function acceptSolutionAction(questionId: string, answerCommentId: string) {
@@ -18,7 +18,14 @@ export async function acceptSolutionAction(questionId: string, answerCommentId: 
     });
 
     revalidatePath(`/post/${questionId}`);
+    revalidatePath(`/explore/${questionId}`);
+    revalidatePath("/explore");
     revalidatePath("/");
+
+    if (cacheService?.delByPattern) {
+      await cacheService.delByPattern("feed:query:*");
+      await cacheService.delByPattern("timeline:*");
+    }
 
     return {
       success: true,
@@ -44,7 +51,14 @@ export async function unacceptSolutionAction(questionId: string) {
     });
 
     revalidatePath(`/post/${questionId}`);
+    revalidatePath(`/explore/${questionId}`);
+    revalidatePath("/explore");
     revalidatePath("/");
+
+    if (cacheService?.delByPattern) {
+      await cacheService.delByPattern("feed:query:*");
+      await cacheService.delByPattern("timeline:*");
+    }
 
     return {
       success: true,

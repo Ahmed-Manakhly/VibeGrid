@@ -1,6 +1,7 @@
 "use server";
 
 import { getCurrentSession } from "@/lib/auth/server";
+import { revalidatePath } from "next/cache";
 import { getDbUserId } from "./user.action";
 import {
   blockUserUseCase,
@@ -19,6 +20,11 @@ export async function blockUserAction(targetUserId: string) {
 
     const result = await blockUserUseCase.execute(blockerId, targetUserId);
     const evictedCommunitiesCount = result && typeof result === "object" ? result.evictedCommunitiesCount : 0;
+    revalidatePath("/");
+    revalidatePath("/explore");
+    revalidatePath("/communities");
+    revalidatePath("/messages");
+    revalidatePath("/settings");
     return { success: true, evictedCommunitiesCount };
   } catch (err: any) {
     logger.error("Error in blockUserAction", err);
@@ -34,6 +40,11 @@ export async function unblockUserAction(targetUserId: string) {
     if (!blockerId) return { success: false, error: "User not synced" };
 
     await unblockUserUseCase.execute(blockerId, targetUserId);
+    revalidatePath("/");
+    revalidatePath("/explore");
+    revalidatePath("/communities");
+    revalidatePath("/messages");
+    revalidatePath("/settings");
     return { success: true };
   } catch (err: any) {
     logger.error("Error in unblockUserAction", err);

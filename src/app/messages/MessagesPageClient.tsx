@@ -8,6 +8,7 @@ import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import {
   getConversationsAction,
   getMessagesAction,
+  getConversationByIdAction,
   sendMessageAction,
   deleteMessageAction,
   deleteConversationAction,
@@ -48,6 +49,16 @@ import { uploadMediaAsset } from "@/lib/mediaClient";
 import { ImageLightboxModal } from "@/modules/messaging/presentation/components/ImageLightboxModal";
 import { ChatMessageParser, ChatMediaAttachment } from "@/modules/messaging/domain/ChatMessageParser";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -68,7 +79,7 @@ export function MessagesPageClient() {
   const searchParams = useSearchParams();
   const initialConvId = searchParams.get("conversationId");
 
-  const { latestDirectMessage, latestTypingSignal, onlineUsers, socket, setUnreadMessagesCount } = useRealtime();
+  const { latestDirectMessage, latestTypingSignal, latestSeenSignal, onlineUsers, socket, setUnreadMessagesCount } = useRealtime();
 
   const [conversations, setConversations] = useState<any[]>([]);
   const [sidebarTab, setSidebarTab] = useState<"chats" | "online">("chats");
@@ -260,15 +271,16 @@ export function MessagesPageClient() {
   const [activeDeleteMessageId, setActiveDeleteMessageId] = useState<string | null>(null);
   const [deletingMessage, setDeletingMessage] = useState(false);
   const [deletingConversation, setDeletingConversation] = useState(false);
+  const [showDeleteConvModal, setShowDeleteConvModal] = useState(false);
+  const [isConversationBlocked, setIsConversationBlocked] = useState(false);
 
-  const handleDeleteConversation = async () => {
+  const confirmDeleteConversation = async () => {
     if (!activeConversationId || deletingConversation) return;
-    const confirmDelete = window.confirm("Are you sure you want to delete this conversation? It will be cleared from your messages list.");
-    if (!confirmDelete) return;
 
     setDeletingConversation(true);
     const res = await deleteConversationAction(activeConversationId);
     setDeletingConversation(false);
+    setShowDeleteConvModal(false);
 
     if (res.success) {
       toast.success("Conversation cleared from your list");
@@ -369,7 +381,15 @@ export function MessagesPageClient() {
 
     async function loadMessages() {
       setLoadingMessages(true);
-      const res = await getMessagesAction(activeConversationId as string);
+      const [res, detailsRes] = await Promise.all([
+        getMessagesAction(activeConversationId as string),
+        getConversationByIdAction(activeConversationId as string),
+      ]);
+      if (detailsRes.success && detailsRes.isBlocked) {
+        setIsConversationBlocked(true);
+      } else {
+        setIsConversationBlocked(false);
+      }
       if (res.success) {
         setMessages(res.messages || []);
         setNextCursor(res.nextCursor || null);
@@ -380,12 +400,33 @@ export function MessagesPageClient() {
           setUnreadMessagesCount(totalUnread);
           return next;
         });
+
+        // Broadcast realtime message:seen event to counterparty
+        if (socket && otherParticipant?.id) {
+          socket.emit("message:seen", {
+            conversationId: activeConversationId,
+            recipientUserId: otherParticipant.id,
+          });
+        }
       }
       setLoadingMessages(false);
     }
 
     loadMessages();
   }, [activeConversationId]);
+
+  // Listen for realtime message:seen events
+  useEffect(() => {
+    if (!latestSeenSignal) return;
+
+    if (latestSeenSignal.conversationId === activeConversationId) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.senderId === currentUser?.id ? { ...m, isRead: true } : m
+        )
+      );
+    }
+  }, [latestSeenSignal, activeConversationId, currentUser?.id]);
 
   // Scroll to bottom on initial message load or new message
   useEffect(() => {
@@ -794,7 +835,7 @@ export function MessagesPageClient() {
                   variant="ghost"
                   size="icon"
                   className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                  onClick={handleDeleteConversation}
+                  onClick={() => setShowDeleteConvModal(true)}
                   disabled={deletingConversation}
                   title="Delete conversation for me"
                 >
@@ -1073,7 +1114,23 @@ export function MessagesPageClient() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Composer */}
+            {/* Dead Conversation / Blocked Notice or Input Composer */}
+            {isConversationBlocked ? (
+              <div className="p-4 bg-muted/40 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                <div className="flex items-center gap-2 text-destructive font-medium text-xs sm:text-sm">
+                  <span>🚫</span>
+                  <span>You cannot message this developer because one of you has blocked the other.</span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowDeleteConvModal(true)}
+                  className="text-xs h-8 text-destructive hover:bg-destructive/10 rounded-xl shrink-0"
+                >
+                  Clear Dead Conversation
+                </Button>
+              </div>
+            ) : (
             <form onSubmit={handleSend} className="p-3 border-t bg-card/40 backdrop-blur-md flex flex-col gap-2">
               {/* Pending Attachment Preview Banner */}
               {pendingAttachment && (
@@ -1324,6 +1381,7 @@ export function MessagesPageClient() {
                 </Button>
               </div>
             </form>
+            )}
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-6 sm:p-8 text-center gap-3">
@@ -1342,6 +1400,29 @@ export function MessagesPageClient() {
       imageUrl={lightboxImageUrl}
       onClose={() => setLightboxImageUrl(null)}
     />
+
+    {/* Delete Conversation Confirmation Dialog */}
+    <AlertDialog open={showDeleteConvModal} onOpenChange={setShowDeleteConvModal}>
+      <AlertDialogContent className="rounded-2xl max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Conversation?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This conversation will be cleared from your messages list. You can start chatting again whenever a new message is received.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="gap-2 sm:gap-0">
+          <AlertDialogCancel disabled={deletingConversation} className="rounded-xl">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmDeleteConversation}
+            disabled={deletingConversation}
+            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold rounded-xl"
+          >
+            {deletingConversation ? <Loader2Icon className="size-4 animate-spin mr-1.5" /> : null}
+            Clear Conversation
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </div>
   );
 }

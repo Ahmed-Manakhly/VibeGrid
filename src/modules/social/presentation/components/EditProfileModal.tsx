@@ -158,6 +158,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
       formData.append('website', websiteInput.value.trim());
       formData.append('techStack', JSON.stringify(techStack));
       formData.append('developerLinks', JSON.stringify(developerLinks));
+      formData.append('acceptPolicy', 'true');
 
       if (finalMediaId) {
         formData.append('avatarMediaId', finalMediaId);

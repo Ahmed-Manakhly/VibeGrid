@@ -88,7 +88,7 @@ export function CommunitiesDirectoryView({
           />
         </div>
         <div className="flex items-center gap-2">
-          <CreateCommunityDialog />
+          <CreateCommunityDialog categories={categories} />
         </div>
       </div>
 

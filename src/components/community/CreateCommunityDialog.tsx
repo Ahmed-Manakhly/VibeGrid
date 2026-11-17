@@ -10,11 +10,16 @@ import { createCommunityAction } from "@/actions/community.action";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 
-export function CreateCommunityDialog() {
+interface CreateCommunityDialogProps {
+  categories?: { id: string; name: string; slug: string; emoji?: string | null }[];
+}
+
+export function CreateCommunityDialog({ categories = [] }: CreateCommunityDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>("");
   const [techTagsInput, setTechTagsInput] = useState("");
   const [rulesInput, setRulesInput] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -38,6 +43,10 @@ export function CreateCommunityDialog() {
       .split(",")
       .map((t) => t.trim().toLowerCase().replace(/^#/, ""))
       .filter(Boolean);
+
+    if (selectedCategorySlug && !techTags.includes(selectedCategorySlug.toLowerCase())) {
+      techTags.unshift(selectedCategorySlug.toLowerCase());
+    }
 
     const rules = rulesInput
       .split("\n")
@@ -114,6 +123,27 @@ export function CreateCommunityDialog() {
               maxLength={40}
             />
           </div>
+
+          {/* Category Selector */}
+          {categories && categories.length > 0 && (
+            <div>
+              <label className="text-xs font-semibold text-foreground mb-1 block">
+                Primary Category
+              </label>
+              <select
+                value={selectedCategorySlug}
+                onChange={(e) => setSelectedCategorySlug(e.target.value)}
+                className="w-full h-9 px-3 rounded-lg border border-border/60 bg-secondary/40 text-xs text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+              >
+                <option value="">-- Select Category (Optional) --</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.slug}>
+                    {cat.emoji ? cat.emoji + " " : ""}{cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="text-xs font-semibold text-foreground mb-1 block">

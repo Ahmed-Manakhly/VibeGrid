@@ -54,10 +54,10 @@ export async function creatPost(
 }
 
 // 1.2 helper to create a quote vibe
-export async function createQuoteVibeAction(quotedPostId: string, content: string) {
+export async function createQuoteVibeAction(quotedPostId: string, content: string, communityId?: string) {
     if (!quotedPostId) return { success: false, error: "Target vibe ID is required to quote." };
     if (!content?.trim()) return { success: false, error: "Quote commentary cannot be empty." };
-    return await creatPost(content.trim(), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, quotedPostId);
+    return await creatPost(content.trim(), undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, quotedPostId, communityId);
 }
 
 import { PostContentValueObject, SupportedLanguage } from "@/modules/vibe/domain/PostContentValueObject";
@@ -233,6 +233,7 @@ export async function toggleReGrid(postId : string){
         }
 
         revalidatePath('/') ;
+        revalidatePath('/explore');
         return {success : true, isReGridded: result.value.isReGridded} ;
     } catch (error) {
         logger.error('failed to toggle regrid!', error, { postId });

@@ -11,6 +11,16 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/components/auth/SessionProvider';
 import { acceptSolutionAction, unacceptSolutionAction } from '@/actions/qa.action';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export function CommentCard({ 
     comment, 
@@ -28,6 +38,7 @@ export function CommentCard({
     const { user, isAuthenticated } = useSession();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isDeleted, setIsDeleted] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [replyContent, setReplyContent] = useState('');
@@ -77,6 +88,7 @@ export function CommentCard({
             if (result?.success) {
                 toast.success(isReply ? 'Reply deleted' : 'Comment deleted');
                 setIsDeleted(true);
+                setShowDeleteModal(false);
             } else {
                 toast.error(result?.error || 'Failed to delete comment');
             }
@@ -212,7 +224,7 @@ export function CommentCard({
                             variant="ghost" 
                             size="sm" 
                             className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                            onClick={handleDelete}
+                            onClick={() => setShowDeleteModal(true)}
                             disabled={isDeleting}
                             aria-label="Delete comment"
                             title="Delete comment"
@@ -268,6 +280,28 @@ export function CommentCard({
                     ))}
                 </div>
             )}
+
+            {/* Delete Confirmation Modal */}
+            <AlertDialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+                <AlertDialogContent className="rounded-2xl max-w-md">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{isReply ? "Delete Reply?" : "Delete Comment?"}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently remove this {isReply ? "reply" : "comment"}. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2 sm:gap-0">
+                        <AlertDialogCancel disabled={isDeleting} className="rounded-xl">Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold rounded-xl"
+                        >
+                            {isDeleting ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

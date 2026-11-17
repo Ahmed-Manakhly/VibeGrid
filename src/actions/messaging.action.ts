@@ -111,6 +111,41 @@ export async function deleteMessageAction(messageId: string, scope: 'FOR_ME' | '
   }
 }
 
+export async function getConversationByIdAction(conversationId: string) {
+  try {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) {
+      return { success: false, error: "Unauthorized", isBlocked: false };
+    }
+    const currentUserId = await getDbUserId();
+    if (!currentUserId) {
+      return { success: false, error: "User not synced", isBlocked: false };
+    }
+
+    const { messagingRepository, trustSafetyRepository } = await import("@/shared/infrastructure/di-container");
+    const conv = await messagingRepository.getConversationById(conversationId, currentUserId);
+    if (!conv) {
+      return { success: false, error: "Conversation not found", isBlocked: false };
+    }
+
+    let isBlocked = false;
+    for (const p of conv.participants) {
+      if (p.userId !== currentUserId) {
+        const blocked = await trustSafetyRepository.isBlocked(currentUserId, p.userId);
+        if (blocked) {
+          isBlocked = true;
+          break;
+        }
+      }
+    }
+
+    return { success: true, conversation: conv, isBlocked };
+  } catch (error: any) {
+    logger.error("Error in getConversationByIdAction", error);
+    return { success: false, error: error.message || "Failed to fetch conversation details", isBlocked: false };
+  }
+}
+
 export async function deleteConversationAction(conversationId: string) {
   try {
     const session = await getCurrentSession();

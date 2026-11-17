@@ -10,6 +10,7 @@ const RealtimeContext = createContext<ReturnType<typeof useRealtimeSocket>>({
   latestFeedSignal: null,
   latestDirectMessage: null,
   latestTypingSignal: null,
+  latestSeenSignal: null,
   unreadCount: 0,
   setUnreadCount: () => {},
   unreadMessagesCount: 0,

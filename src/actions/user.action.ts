@@ -61,6 +61,7 @@ export async function toggleFollow(targetUserId: string) {
         const result = await toggleFollowUseCase.execute(userId, targetUserId);
         
         revalidatePath("/");
+        revalidatePath("/explore");
         revalidatePath("/profile/[username]", "page");
         return result;
     } catch (error) {

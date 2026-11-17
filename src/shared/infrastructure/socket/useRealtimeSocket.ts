@@ -42,6 +42,12 @@ export interface TypingSignal {
   isTyping: boolean;
 }
 
+export interface MessageSeenSignal {
+  conversationId: string;
+  seenByUserId: string;
+  seenAt: string;
+}
+
 export interface RealtimeState {
   isConnected: boolean;
   onlineUsers: Set<string>;
@@ -49,6 +55,7 @@ export interface RealtimeState {
   latestFeedSignal: FeedSignal | null;
   latestDirectMessage: DirectMessageSignal | null;
   latestTypingSignal: TypingSignal | null;
+  latestSeenSignal: MessageSeenSignal | null;
   unreadCount: number;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   unreadMessagesCount: number;
@@ -63,6 +70,7 @@ export function useRealtimeSocket() {
   const [latestFeedSignal, setLatestFeedSignal] = useState<FeedSignal | null>(null);
   const [latestDirectMessage, setLatestDirectMessage] = useState<DirectMessageSignal | null>(null);
   const [latestTypingSignal, setLatestTypingSignal] = useState<TypingSignal | null>(null);
+  const [latestSeenSignal, setLatestSeenSignal] = useState<MessageSeenSignal | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
   const processedNotificationIds = useRef<Set<string>>(new Set());
@@ -244,6 +252,10 @@ export function useRealtimeSocket() {
           setLatestTypingSignal(typing);
         });
 
+        socket.on('message:seen', (seenData: MessageSeenSignal) => {
+          setLatestSeenSignal(seenData);
+        });
+
         socket.on('presence:online', (presence: PresenceSignal) => {
           setOnlineUsers((prev) => {
             const next = new Set(prev);
@@ -282,6 +294,7 @@ export function useRealtimeSocket() {
     latestFeedSignal,
     latestDirectMessage,
     latestTypingSignal,
+    latestSeenSignal,
     unreadCount,
     setUnreadCount,
     unreadMessagesCount,
