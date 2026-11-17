@@ -53,6 +53,7 @@ export interface ListCommunitiesParams {
   limit?: number;
   cursor?: string;
   viewerId?: string;
+  excludeCreatorIds?: string[];
 }
 
 export interface UpdateCommunityDTO {

@@ -29,9 +29,16 @@ export async function listCommunitiesAction(params: {
     const session = await getCurrentSession();
     const viewerId = session.isAuthenticated && session.user ? session.user.id : undefined;
 
+    let excludeCreatorIds: string[] | undefined = undefined;
+    if (viewerId) {
+      const { trustSafetyRepository } = await import("@/shared/infrastructure/di-container");
+      excludeCreatorIds = await trustSafetyRepository.getBlockedUserIds(viewerId);
+    }
+
     const result = await listCommunitiesUseCase.execute({
       ...params,
       viewerId,
+      excludeCreatorIds,
     });
 
     return { success: true, data: result };

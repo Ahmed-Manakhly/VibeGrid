@@ -102,6 +102,11 @@ export async function getBlockedUsersAction() {
       orderBy: { createdAt: "desc" },
     });
 
+    logger.info("getBlockedUsersAction query executed", {
+      currentUserId,
+      blocksCount: blocks.length,
+    });
+
     return {
       success: true,
       data: blocks.map((b: any) => ({

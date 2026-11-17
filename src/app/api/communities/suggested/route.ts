@@ -18,10 +18,21 @@ export async function GET() {
       }
     }
 
-    // 2. Fetch communities
+    // 2. Fetch communities (excluding creators who are blocked or blocking)
+    let excludeCreatorIds: string[] | undefined = undefined;
+    if (viewerId) {
+      try {
+        const { trustSafetyRepository } = await import("@/shared/infrastructure/di-container");
+        excludeCreatorIds = await trustSafetyRepository.getBlockedUserIds(viewerId);
+      } catch {
+        // fallback
+      }
+    }
+
     const { items } = await listCommunitiesUseCase.execute({
       limit: 15,
       viewerId,
+      excludeCreatorIds,
     });
 
     if (!items || items.length === 0) {

@@ -90,6 +90,10 @@ export class PrismaCommunityRepository implements ICommunityRepository {
       ];
     }
 
+    if (params.excludeCreatorIds && params.excludeCreatorIds.length > 0) {
+      where.creatorId = { notIn: params.excludeCreatorIds };
+    }
+
     const items = await (this.prisma as any).community.findMany({
       where,
       take: limit + 1,
@@ -310,6 +314,9 @@ export class PrismaCommunityRepository implements ICommunityRepository {
             name: true,
             slug: true,
             avatarUrl: true,
+            members: {
+              select: { userId: true },
+            },
           },
         },
         _count: {

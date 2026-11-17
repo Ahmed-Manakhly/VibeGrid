@@ -39,6 +39,16 @@ export default async function CommunitySlugPage({ params }: CommunityPageProps) 
 
   const community = communityRes.data;
 
+  // If the viewer has blocked the community creator or the creator blocked the viewer, deny access
+  if (dbUserId && community.creatorId && dbUserId !== community.creatorId) {
+    const { trustSafetyRepository } = await import("@/shared/infrastructure/di-container");
+    const isBlocked = await trustSafetyRepository.isBlocked(dbUserId, community.creatorId);
+    if (isBlocked) {
+      const { redirect } = await import("next/navigation");
+      redirect("/?blocked=true");
+    }
+  }
+
   // Parallel fetch: Scoped community feed + Members roster
   const [feedRes, membersRes] = await Promise.all([
     getCommunityFeedAction(community.id, { limit: 20 }),
