@@ -15,7 +15,7 @@ export interface UserReportEntity {
 }
 
 export interface ITrustSafetyRepository {
-  blockUser(blockerId: string, blockedId: string): Promise<void>;
+  blockUser(blockerId: string, blockedId: string): Promise<{ evictedCommunitiesCount: number } | void>;
   unblockUser(blockerId: string, blockedId: string): Promise<void>;
   isBlocked(userA: string, userB: string): Promise<boolean>;
   getBlockedUserIds(userId: string): Promise<string[]>;

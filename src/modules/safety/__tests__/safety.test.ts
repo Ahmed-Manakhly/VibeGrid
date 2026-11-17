@@ -10,11 +10,27 @@ describe('Trust & Safety Module Integration & Messaging Restrictions', () => {
 
   beforeEach(() => {
     mockPrisma = {
+      $transaction: jest.fn(async (cb: any) => cb(mockPrisma)),
       userBlock: {
         upsert: jest.fn(),
         deleteMany: jest.fn(),
         findFirst: jest.fn(),
         findMany: jest.fn(),
+      },
+      follows: {
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
+      community: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      communityMember: {
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
+      conversation: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      conversationParticipant: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
       userReport: {
         create: jest.fn(),

@@ -17,8 +17,9 @@ export async function blockUserAction(targetUserId: string) {
     const blockerId = await getDbUserId();
     if (!blockerId) return { success: false, error: "User not synced" };
 
-    await blockUserUseCase.execute(blockerId, targetUserId);
-    return { success: true };
+    const result = await blockUserUseCase.execute(blockerId, targetUserId);
+    const evictedCommunitiesCount = result && typeof result === "object" ? result.evictedCommunitiesCount : 0;
+    return { success: true, evictedCommunitiesCount };
   } catch (err: any) {
     logger.error("Error in blockUserAction", err);
     return { success: false, error: err.message || "Failed to block user" };

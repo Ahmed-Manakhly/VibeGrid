@@ -3,11 +3,11 @@ import { ITrustSafetyRepository } from "../domain/ITrustSafetyRepository";
 export class BlockUserUseCase {
   constructor(private readonly safetyRepo: ITrustSafetyRepository) {}
 
-  async execute(blockerId: string, blockedId: string): Promise<void> {
+  async execute(blockerId: string, blockedId: string): Promise<{ evictedCommunitiesCount: number } | void> {
     if (!blockerId || !blockedId) throw new Error("Invalid parameters for block user");
     if (blockerId === blockedId) throw new Error("You cannot block yourself");
 
-    await this.safetyRepo.blockUser(blockerId, blockedId);
+    return await this.safetyRepo.blockUser(blockerId, blockedId);
   }
 }
 

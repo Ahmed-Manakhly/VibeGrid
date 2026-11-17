@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { MoreHorizontalIcon, FlagIcon, BanIcon, Loader2Icon } from 'lucide-react';
 import { blockUserAction, createReportAction } from '@/actions/safety.action';
+import { BlockConfirmationDialog } from '@/modules/safety/presentation/components/BlockConfirmationDialog';
 import { toast } from '@/components/ui/toast';
 import { useSession } from '@/components/auth/SessionProvider';
 
@@ -28,6 +29,7 @@ export function PostSafetyMenu({ postId, authorId, authorUsername }: PostSafetyM
   const [reportDescription, setReportDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBlocking, setIsBlocking] = useState(false);
+  const [confirmBlockOpen, setConfirmBlockOpen] = useState(false);
 
   const handleReport = async () => {
     if (isSubmitting) return;
@@ -60,7 +62,11 @@ export function PostSafetyMenu({ postId, authorId, authorUsername }: PostSafetyM
       setIsBlocking(true);
       const res = await blockUserAction(authorId);
       if (res.success) {
-        toast.success(`@${authorUsername} has been blocked.`);
+        const evMsg = res.evictedCommunitiesCount && res.evictedCommunitiesCount > 0
+          ? ` and automatically exited ${res.evictedCommunitiesCount} of their guilds`
+          : "";
+        toast.success(`@${authorUsername} has been blocked${evMsg}.`);
+        setConfirmBlockOpen(false);
         window.location.reload();
       } else {
         toast.error(res.error || 'Failed to block user');
@@ -105,7 +111,7 @@ export function PostSafetyMenu({ postId, authorId, authorUsername }: PostSafetyM
             <button
               onClick={() => {
                 setMenuOpen(false);
-                handleBlock();
+                setConfirmBlockOpen(true);
               }}
               disabled={isBlocking}
               className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
@@ -170,6 +176,14 @@ export function PostSafetyMenu({ postId, authorId, authorUsername }: PostSafetyM
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <BlockConfirmationDialog
+        open={confirmBlockOpen}
+        onOpenChange={setConfirmBlockOpen}
+        username={authorUsername}
+        isPending={isBlocking}
+        onConfirm={handleBlock}
+      />
     </div>
   );
 }

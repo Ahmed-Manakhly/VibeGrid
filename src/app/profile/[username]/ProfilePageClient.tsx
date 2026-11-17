@@ -34,6 +34,8 @@ import {
 import { DeveloperBadgeList } from "@/modules/social/presentation/components/DeveloperBadgeList";
 import { Milestone, UserCheck, Users, UserPlus } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { BlockConfirmationDialog } from "@/modules/safety/presentation/components/BlockConfirmationDialog";
+import { toast } from "@/components/ui/toast";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type PostsResult = Awaited<ReturnType<typeof getPosts>>;
@@ -76,6 +78,8 @@ function ProfilePageClient({
 
     const isEditRequested = searchParams.get('edit') === 'true' || searchParams.get('complete') === 'true';
     const [showEditDialog, setShowEditDialog] = useState(isEditRequested);
+    const [showBlockDialog, setShowBlockDialog] = useState(false);
+    const [isBlocking, setIsBlocking] = useState(false);
 
     useEffect(() => {
         if (isEditRequested) {
@@ -166,14 +170,7 @@ function ProfilePageClient({
                                                 variant="ghost"
                                                 size="sm"
                                                 className="flex-1 text-xs text-muted-foreground hover:text-destructive"
-                                                onClick={async () => {
-                                                    if (confirm(`Are you sure you want to block @${user.username}?`)) {
-                                                        const { blockUserAction } = await import("@/actions/safety.action");
-                                                        const res = await blockUserAction(user.id);
-                                                        if (res.success) alert(`Blocked @${user.username}`);
-                                                        else alert(res.error || "Failed to block");
-                                                    }
-                                                }}
+                                                onClick={() => setShowBlockDialog(true)}
                                             >
                                                 <BanIcon className="size-3 mr-1" />
                                                 Block
@@ -471,6 +468,34 @@ function ProfilePageClient({
                     user={user}
                     open={showEditDialog}
                     onOpenChange={handleOpenChange}
+                />
+
+                <BlockConfirmationDialog
+                    open={showBlockDialog}
+                    onOpenChange={setShowBlockDialog}
+                    username={user.username}
+                    isPending={isBlocking}
+                    onConfirm={async () => {
+                        try {
+                            setIsBlocking(true);
+                            const { blockUserAction } = await import("@/actions/safety.action");
+                            const res = await blockUserAction(user.id);
+                            if (res.success) {
+                                const evMsg = res.evictedCommunitiesCount && res.evictedCommunitiesCount > 0
+                                    ? ` and automatically exited ${res.evictedCommunitiesCount} of their guilds`
+                                    : "";
+                                toast.success(`Blocked @${user.username}${evMsg}`);
+                                setShowBlockDialog(false);
+                                router.push("/?blocked=true");
+                            } else {
+                                toast.error(res.error || "Failed to block user");
+                            }
+                        } catch {
+                            toast.error("Failed to block user");
+                        } finally {
+                            setIsBlocking(false);
+                        }
+                    }}
                 />
             </div>
         </div>
