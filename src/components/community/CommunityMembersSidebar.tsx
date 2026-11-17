@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Users, Shield } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
 import { CommunityMemberEntity } from "@/modules/community/domain/ICommunityRepository";
+import { getUserFollowingAction } from "@/actions/profile.action";
 
 interface CommunityMembersSidebarProps {
   communityName: string;
@@ -19,10 +20,32 @@ export function CommunityMembersSidebar({
   members,
   currentUserId,
 }: CommunityMembersSidebarProps) {
-  // Filter out current viewer
-  const otherMembers = members.filter((m) => m.userId !== currentUserId);
+  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  if (otherMembers.length === 0) return null;
+  useEffect(() => {
+    if (!currentUserId) {
+      setIsLoaded(true);
+      return;
+    }
+
+    getUserFollowingAction(currentUserId)
+      .then((res) => {
+        if (res.success && res.data) {
+          const ids = new Set(res.data.map((u: any) => u.id));
+          setFollowingIds(ids);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setIsLoaded(true));
+  }, [currentUserId]);
+
+  // Filter out current viewer AND members the viewer has already followed
+  const candidateMembers = members.filter(
+    (m) => m.userId !== currentUserId && !followingIds.has(m.userId)
+  );
+
+  if (!isLoaded || candidateMembers.length === 0) return null;
 
   return (
     <Card className="rounded-xl border bg-card/30 shadow-none">
@@ -33,13 +56,13 @@ export function CommunityMembersSidebar({
             <span>Members to Tune In</span>
           </span>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary font-mono text-muted-foreground">
-            {members.length}
+            {candidateMembers.length}
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="space-y-3">
-          {otherMembers.slice(0, 5).map((member) => {
+          {candidateMembers.slice(0, 5).map((member) => {
             const displayName = member.user?.name || member.user?.username || "Developer";
             return (
               <div key={member.id} className="flex items-center justify-between gap-2">
@@ -79,6 +102,11 @@ export function CommunityMembersSidebar({
                 <FollowButton
                   targetUserId={member.userId}
                   className="h-7 px-2.5 text-xs rounded-lg shrink-0"
+                  onFollowChange={(isFollowing) => {
+                    if (isFollowing) {
+                      setFollowingIds((prev) => new Set(prev).add(member.userId));
+                    }
+                  }}
                 />
               </div>
             );

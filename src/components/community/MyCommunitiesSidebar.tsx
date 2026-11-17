@@ -38,17 +38,19 @@ export function MyCommunitiesSidebar({ userId }: MyCommunitiesSidebarProps) {
 
   return (
     <Card className="rounded-xl border bg-card/30 shadow-none">
-      <CardHeader className="pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-        <CardTitle className="font-mono tracking-widest text-muted-foreground uppercase text-xs flex items-center gap-2">
-          <Shield className="size-3.5 text-primary" />
-          <span>My Guilds</span>
+      <CardHeader className="pb-3 flex flex-col gap-2.5">
+        <CardTitle className="font-mono tracking-widest text-muted-foreground uppercase text-xs flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <Shield className="size-3.5 text-primary" />
+            <span>My Guilds</span>
+          </span>
           {communities.length > 0 && (
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-mono">
               {communities.length}
             </span>
           )}
         </CardTitle>
-        <div className="w-full sm:w-auto shrink-0">
+        <div className="w-full">
           <CreateCommunityDialog />
         </div>
       </CardHeader>

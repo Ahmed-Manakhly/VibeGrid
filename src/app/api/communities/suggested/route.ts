@@ -28,9 +28,13 @@ export async function GET() {
       return NextResponse.json({ success: true, community: null });
     }
 
-    // 3. Prefer communities the user has not yet joined
+    // 3. Strictly require communities the user has not yet joined
     const unjoined = items.filter((c: any) => !c.isMember);
-    const candidateList = unjoined.length > 0 ? unjoined : items;
+    if (unjoined.length === 0) {
+      // User is already a member of all available communities
+      return NextResponse.json({ success: true, community: null });
+    }
+    const candidateList = unjoined;
 
     // 4. Rank by matching user interest tags
     const scored = candidateList.map((c: any) => {

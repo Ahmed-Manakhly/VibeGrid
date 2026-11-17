@@ -17,6 +17,7 @@ export function FollowButton({ targetUserId, userId, initialIsFollowing = false,
   const effectiveUserId = targetUserId || userId;
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleFollowToggle = async () => {
     if (!effectiveUserId) return;
@@ -28,7 +29,7 @@ export function FollowButton({ targetUserId, userId, initialIsFollowing = false,
       if (onFollowChange) {
         onFollowChange(nextState);
       }
-      toast.success(nextState ? "Followed user" : "Unfollowed user");
+      toast.success(nextState ? "Tuned in to developer" : "Tuned out");
     } catch {
       toast.error("Failed to update follow status");
     } finally {
@@ -36,17 +37,33 @@ export function FollowButton({ targetUserId, userId, initialIsFollowing = false,
     }
   };
 
+  const getButtonContent = () => {
+    if (!isFollowing) return "Tune In";
+    return isHovered ? "Tune Out" : "Tuned In";
+  };
+
   return (
     <Button
-      className={className || "btn-gradient w-20 rounded-xl font-mono text-xs"}
+      className={
+        isFollowing
+          ? `w-20 rounded-xl font-mono text-xs transition-colors border border-border/60 ${
+              isHovered
+                ? "bg-destructive/15 text-destructive border-destructive/40 hover:bg-destructive/20 hover:text-destructive"
+                : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+            } ${className || ""}`
+          : className || "btn-gradient w-20 rounded-xl font-mono text-xs"
+      }
       variant={isFollowing ? "outline" : "default"}
       size="sm"
       onClick={handleFollowToggle}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       disabled={isUpdating}
     >
-      {isFollowing ? "Following" : "Tune In"}
+      {getButtonContent()}
     </Button>
   );
 }
 
 export default FollowButton;
+
