@@ -17,6 +17,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AddMilestoneDialog } from "./AddMilestoneDialog";
 import { deleteMilestoneAction } from "@/actions/profile.action";
+import { toast } from "@/components/ui/toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export interface SerializedMilestone {
   id: string;
@@ -79,21 +90,27 @@ export function DeveloperMilestoneTimeline({
   const [milestones, setMilestones] = useState<SerializedMilestone[]>(initialMilestones);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const handleCreated = (newMilestone: SerializedMilestone) => {
     setMilestones((prev) => [newMilestone, ...prev]);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this milestone?")) return;
+  const executeDeleteMilestone = async () => {
+    if (!confirmDeleteId) return;
+    const id = confirmDeleteId;
     setDeletingId(id);
     try {
       const res = await deleteMilestoneAction(id);
       if (res.success) {
         setMilestones((prev) => prev.filter((m) => m.id !== id));
+        toast.success("Milestone removed");
+        setConfirmDeleteId(null);
       } else {
-        alert(res.error || "Failed to delete milestone");
+        toast.error(res.error || "Failed to delete milestone");
       }
+    } catch {
+      toast.error("Failed to delete milestone");
     } finally {
       setDeletingId(null);
     }
@@ -192,7 +209,7 @@ export function DeveloperMilestoneTimeline({
                       {isOwner && (
                         <button
                           type="button"
-                          onClick={() => handleDelete(milestone.id)}
+                          onClick={() => setConfirmDeleteId(milestone.id)}
                           disabled={deletingId === milestone.id}
                           className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
                           title="Delete milestone"
@@ -222,6 +239,28 @@ export function DeveloperMilestoneTimeline({
           onCreated={handleCreated}
         />
       )}
+
+      {/* Themed Milestone Delete Confirmation */}
+      <AlertDialog open={Boolean(confirmDeleteId)} onOpenChange={(open) => !open && setConfirmDeleteId(null)}>
+        <AlertDialogContent className="rounded-2xl max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Milestone?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this milestone from your developer timeline? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-0">
+            <AlertDialogCancel disabled={Boolean(deletingId)} className="rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={executeDeleteMilestone}
+              disabled={Boolean(deletingId)}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold rounded-xl"
+            >
+              {deletingId ? "Removing..." : "Remove Milestone"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

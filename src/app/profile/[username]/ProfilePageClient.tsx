@@ -158,7 +158,7 @@ function ProfilePageClient({
                                                     if (res.success && res.conversation) {
                                                         router.push(`/messages?conversationId=${res.conversation.id}`);
                                                     } else if (res.error) {
-                                                        alert(res.error);
+                                                        toast.error(res.error);
                                                     }
                                                 }}
                                             >
@@ -188,8 +188,8 @@ function ProfilePageClient({
                                                             targetId: user.id,
                                                             reason,
                                                         });
-                                                        if (res.success) alert("Report submitted successfully");
-                                                        else alert(res.error || "Failed to submit report");
+                                                        if (res.success) toast.success("Report submitted successfully");
+                                                        else toast.error(res.error || "Failed to submit report");
                                                     }
                                                 }}
                                             >

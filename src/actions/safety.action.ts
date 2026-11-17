@@ -8,6 +8,7 @@ import {
   unblockUserUseCase,
   createReportUseCase,
   trustSafetyRepository,
+  cacheService,
   logger,
 } from "@/shared/infrastructure/di-container";
 
@@ -20,6 +21,21 @@ export async function blockUserAction(targetUserId: string) {
 
     const result = await blockUserUseCase.execute(blockerId, targetUserId);
     const evictedCommunitiesCount = result && typeof result === "object" ? result.evictedCommunitiesCount : 0;
+    
+    // Broadcast realtime block event to counterparty room & flush caches
+    try {
+      const payload = JSON.stringify({
+        recipientIds: [targetUserId, blockerId],
+        type: 'user:blocked',
+        blockerUserId: blockerId,
+        blockedUserId: targetUserId,
+        timestamp: Date.now(),
+      });
+      await (cacheService as any).publish("realtime:direct_message", payload);
+    } catch (pubErr: any) {
+      logger.warn("Failed to publish block event to Redis pubsub", { error: pubErr?.message });
+    }
+
     revalidatePath("/");
     revalidatePath("/explore");
     revalidatePath("/communities");
@@ -40,6 +56,21 @@ export async function unblockUserAction(targetUserId: string) {
     if (!blockerId) return { success: false, error: "User not synced" };
 
     await unblockUserUseCase.execute(blockerId, targetUserId);
+
+    // Broadcast realtime unblock event to counterparty room & flush caches
+    try {
+      const payload = JSON.stringify({
+        recipientIds: [targetUserId, blockerId],
+        type: 'user:unblocked',
+        unblockerUserId: blockerId,
+        unblockedUserId: targetUserId,
+        timestamp: Date.now(),
+      });
+      await (cacheService as any).publish("realtime:direct_message", payload);
+    } catch (pubErr: any) {
+      logger.warn("Failed to publish unblock event to Redis pubsub", { error: pubErr?.message });
+    }
+
     revalidatePath("/");
     revalidatePath("/explore");
     revalidatePath("/communities");

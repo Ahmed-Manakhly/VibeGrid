@@ -9,6 +9,13 @@ import { Plus, Loader2, Sparkles, Hash } from "lucide-react";
 import { createCommunityAction } from "@/actions/community.action";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CreateCommunityDialogProps {
   categories?: { id: string; name: string; slug: string; emoji?: string | null }[];
@@ -130,18 +137,24 @@ export function CreateCommunityDialog({ categories = [] }: CreateCommunityDialog
               <label className="text-xs font-semibold text-foreground mb-1 block">
                 Primary Category
               </label>
-              <select
-                value={selectedCategorySlug}
-                onChange={(e) => setSelectedCategorySlug(e.target.value)}
-                className="w-full h-9 px-3 rounded-lg border border-border/60 bg-secondary/40 text-xs text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+              <Select
+                value={selectedCategorySlug || "none"}
+                onValueChange={(val) => setSelectedCategorySlug(val === "none" ? "" : val)}
               >
-                <option value="">-- Select Category (Optional) --</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.slug}>
-                    {cat.emoji ? cat.emoji + " " : ""}{cat.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full h-9 rounded-lg border-border/60 bg-secondary/40 text-xs text-foreground">
+                  <SelectValue placeholder="Select Category (Optional)" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border/60 backdrop-blur-md">
+                  <SelectItem value="none" className="text-xs">
+                    -- None (Optional) --
+                  </SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.slug} className="text-xs">
+                      {cat.emoji ? cat.emoji + " " : ""}{cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
 

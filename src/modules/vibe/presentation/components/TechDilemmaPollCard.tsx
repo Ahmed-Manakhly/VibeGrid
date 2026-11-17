@@ -6,6 +6,7 @@ import { BarChart3, CheckCircle2, Clock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { votePollAction } from "@/actions/post.action";
 import { useSession } from "@/components/auth/SessionProvider";
+import { toast } from "@/components/ui/toast";
 
 export interface PollOptionUI {
   id: string;
@@ -58,7 +59,7 @@ export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
 
   const handleVote = async (optionId: string) => {
     if (!isAuthenticated) {
-      alert("Please log in to vote in tech dilemmas.");
+      toast.error("Please log in to vote in tech dilemmas.");
       return;
     }
     if (hasVoted || isExpired) return;

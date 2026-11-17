@@ -10,7 +10,7 @@ import { ProfileRules } from '@/modules/social/domain/ProfileRules';
 export function OnboardingProfileBanner() {
   const { user, isAuthenticated, isLoading } = useSession();
   const [selectedInterestsCount, setSelectedInterestsCount] = useState<number | null>(null);
-  const [dbProfile, setDbProfile] = useState<{ bio?: string | null; username?: string | null } | null>(null);
+  const [dbProfile, setDbProfile] = useState<{ bio?: string | null; username?: string | null; isPolicyAccepted?: boolean } | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const pathname = usePathname();
 
@@ -78,8 +78,8 @@ export function OnboardingProfileBanner() {
     return null;
   }
 
-  // Evaluate the 3 Setup Tasks
-  const task1AccountCreated = true; // Registered & authenticated
+  // Evaluate Setup Tasks
+  const isPolicyAccepted = dbProfile?.isPolicyAccepted ?? (user as any)?.isPolicyAccepted ?? false;
   const mergedUser = {
     ...user,
     bio: dbProfile?.bio ?? (user as any)?.bio,
@@ -89,13 +89,14 @@ export function OnboardingProfileBanner() {
   const isProfileComplete = ProfileRules.isProfileComplete(mergedUser);
   const isPersonalizationComplete = selectedInterestsCount !== null && selectedInterestsCount > 0;
 
-  // Once both remaining steps are complete, completely dismiss checklist
-  if (isProfileComplete && isPersonalizationComplete) {
+  // Once all steps are complete, completely dismiss checklist
+  if (isPolicyAccepted && isProfileComplete && isPersonalizationComplete) {
     return null;
   }
 
   // Calculate completion percentage
-  let completedCount = 1; // Step 1 is complete
+  let completedCount = 0;
+  if (isPolicyAccepted) completedCount += 1;
   if (isProfileComplete) completedCount += 1;
   if (isPersonalizationComplete) completedCount += 1;
   const progressPercent = Math.round((completedCount / 3) * 100);
@@ -161,17 +162,45 @@ export function OnboardingProfileBanner() {
 
           {/* 3 Step Action Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
-            {/* Step 1: Account Created */}
-            <div className="flex items-center gap-3 p-3 rounded-2xl border border-primary/20 bg-background/50 backdrop-blur-md">
-              <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-foreground line-through opacity-75">
-                  1. Account Verified
-                </p>
-                <p className="text-[11px] text-muted-foreground truncate font-mono">
-                  Authentication active
-                </p>
+            {/* Step 1: Platform Policy Acceptance */}
+            <div
+              className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
+                isPolicyAccepted
+                  ? 'border-primary/20 bg-background/50 backdrop-blur-md'
+                  : 'border-brand-gold/40 bg-brand-gold/5 hover:border-brand-gold/70 shadow-sm backdrop-blur-md'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                {isPolicyAccepted ? (
+                  <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
+                ) : (
+                  <Circle className="size-5 text-brand-gold animate-pulse shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p
+                    className={`text-xs font-semibold ${
+                      isPolicyAccepted ? 'line-through opacity-75 text-foreground' : 'text-foreground'
+                    }`}
+                  >
+                    1. Platform Policy
+                  </p>
+                  <p className="text-[11px] text-muted-foreground truncate font-mono">
+                    {isPolicyAccepted ? 'Policy Accepted' : 'Terms & Privacy gate'}
+                  </p>
+                </div>
               </div>
+
+              {!isPolicyAccepted && (
+                <div className="flex justify-end pt-1 sm:pt-0">
+                  <Link
+                    href="/settings?tab=policy"
+                    className="btn-gradient inline-flex items-center justify-center gap-1 px-3 py-1 rounded-xl font-semibold text-xs transition-all w-full sm:w-auto shadow-sm"
+                  >
+                    <span>Accept</span>
+                    <ArrowRight className="size-3" />
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Step 2: Complete Profile Bio & Links */}

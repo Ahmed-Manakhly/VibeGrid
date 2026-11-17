@@ -79,7 +79,7 @@ export function MessagesPageClient() {
   const searchParams = useSearchParams();
   const initialConvId = searchParams.get("conversationId");
 
-  const { latestDirectMessage, latestTypingSignal, latestSeenSignal, onlineUsers, socket, setUnreadMessagesCount } = useRealtime();
+  const { latestDirectMessage, latestTypingSignal, latestSeenSignal, latestBlockSignal, onlineUsers, socket, setUnreadMessagesCount } = useRealtime();
 
   const [conversations, setConversations] = useState<any[]>([]);
   const [sidebarTab, setSidebarTab] = useState<"chats" | "online">("chats");
@@ -428,6 +428,26 @@ export function MessagesPageClient() {
     }
   }, [latestSeenSignal, activeConversationId, currentUser?.id]);
 
+  // Listen for realtime block/unblock signals
+  useEffect(() => {
+    if (!latestBlockSignal || !activeConversationId) return;
+
+    const currentConv = conversations.find((c) => c.id === activeConversationId);
+    const currentOtherParticipant = currentConv?.participants.find(
+      (p: any) => p.userId !== currentUser?.id
+    )?.user;
+
+    const { action, data } = latestBlockSignal;
+    if (currentOtherParticipant?.id && (data.blockerUserId === currentOtherParticipant.id || data.blockedUserId === currentOtherParticipant.id)) {
+      if (action === "blocked") {
+        setIsConversationBlocked(true);
+        toast.info("This conversation has been restricted due to a block.");
+      } else {
+        setIsConversationBlocked(false);
+      }
+    }
+  }, [latestBlockSignal, activeConversationId, conversations, currentUser?.id]);
+
   // Scroll to bottom on initial message load or new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -739,35 +759,44 @@ export function MessagesPageClient() {
             conversations.map((conv) => {
               const other = conv.participants.find((p: any) => p.userId !== currentUser?.id)?.user;
               const isActive = conv.id === activeConversationId;
-              const hasUnread = conv.unreadCount && conv.unreadCount > 0;
+              const hasUnread = Boolean(conv.unreadCount && conv.unreadCount > 0);
 
               return (
-                <button
+                <div
                   key={conv.id}
                   onClick={() => {
                     setActiveConversationId(conv.id);
                     setMobileTab("chat");
                   }}
-                  className={`w-full p-3.5 flex items-center gap-3.5 text-left transition-all relative border-l-4 ${
+                  className={`w-full p-3.5 flex items-center gap-3.5 text-left transition-all relative border-l-4 cursor-pointer ${
                     isActive 
                       ? "bg-accent/15 border-l-primary shadow-sm" 
                       : "border-l-transparent hover:bg-muted/40"
                   }`}
                 >
-                  <div className="relative shrink-0">
+                  <Link
+                    href={`/profile/${other?.username || other?.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="relative shrink-0 hover:opacity-80 transition-opacity"
+                    title={`View @${other?.username}'s profile`}
+                  >
                     <UserAvatar src={other?.image} name={other?.name} className="size-11 ring-1 ring-border" />
                     {other?.id && onlineUsers.has(other.id) && (
                       <span className="absolute top-0 right-0 size-3 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
                     )}
-                  </div>
+                  </Link>
                   <div className="min-w-0 flex-1">
-                    <div className="flex justify-between items-baseline gap-1">
-                      <span className={`text-sm truncate ${isActive ? "font-bold text-foreground" : "font-semibold text-foreground/90"}`}>
+                    <div className="flex flex-col gap-0.5">
+                      <Link
+                        href={`/profile/${other?.username || other?.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className={`text-sm truncate hover:underline ${isActive ? "font-bold text-foreground" : "font-semibold text-foreground/90"}`}
+                      >
                         {other?.name || other?.username || "Developer"}
-                      </span>
+                      </Link>
                       {conv.latestMessage && (
-                        <span className="text-[11px] text-muted-foreground shrink-0 font-mono">
-                          {formatDistanceToNow(new Date(conv.latestMessage.createdAt), { addSuffix: false })}
+                        <span className="text-[10px] text-muted-foreground/80 font-mono">
+                          {formatDistanceToNow(new Date(conv.latestMessage.createdAt), { addSuffix: false })} ago
                         </span>
                       )}
                     </div>
@@ -782,7 +811,7 @@ export function MessagesPageClient() {
                       )}
                     </div>
                   </div>
-                </button>
+                </div>
               );
             })
           ))}
@@ -820,9 +849,6 @@ export function MessagesPageClient() {
                       <h3 className="font-semibold text-sm group-hover:underline truncate max-w-[150px] sm:max-w-none">
                         {otherParticipant.name || otherParticipant.username || "Developer"}
                       </h3>
-                      {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
-                        <span className="text-[10px] font-mono text-emerald-500 font-medium shrink-0">● online</span>
-                      )}
                     </div>
                     <p className="text-xs text-muted-foreground truncate">@{otherParticipant.username}</p>
                   </div>
@@ -1209,8 +1235,8 @@ export function MessagesPageClient() {
               )}
 
               {/* Feature Action Bar (Code, Image, File, Voice & Emoji Toolbar) */}
-              <div className="flex items-center justify-between gap-1 border-b border-border/40 pb-2">
-                <div className="flex items-center gap-1">
+              <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-border/40 pb-2">
+                <div className="flex flex-wrap items-center gap-1">
                   {/* Code snippet toggle */}
                   <Button
                     type="button"
@@ -1363,7 +1389,7 @@ export function MessagesPageClient() {
                       }
                     }
                   }}
-                  placeholder="Write a message... (supports rich media & code)"
+                  placeholder="Message..."
                   maxLength={2000}
                   className="flex-1 w-full bg-background/50 border border-input rounded-xl px-3 py-2 text-sm leading-relaxed resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary overflow-y-auto min-h-[40px] max-h-[160px] scrollbar-thin transition-all"
                 />

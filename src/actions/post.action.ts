@@ -46,6 +46,8 @@ export async function creatPost(
         }
 
         revalidatePath('/') ; 
+        revalidatePath('/explore');
+        revalidatePath('/communities'); 
         return {success : true , post: result.value} ; 
     }catch (er: any){
         logger.error('failed to create a post!', er);
@@ -194,7 +196,9 @@ export async function toggleLike(postId : string){
             return {success : false, error : 'failed to toggle like!'}
         }
 
-        revalidatePath('/') ;
+        revalidatePath('/') ; 
+        revalidatePath('/explore');
+        revalidatePath('/communities');
         return {success : true} ;
     } catch (error) {
         logger.error('failed to toggle like!', error, { postId });
@@ -213,7 +217,9 @@ export async function toggleBookmark(postId : string){
             return {success : false, error : 'failed to toggle bookmark!'}
         }
 
-        revalidatePath('/') ;
+        revalidatePath('/') ; 
+        revalidatePath('/explore');
+        revalidatePath('/communities');
         return {success : true, isBookmarked: result.value.isBookmarked} ;
     } catch (error) {
         logger.error('failed to toggle bookmark!', error, { postId });
@@ -232,7 +238,9 @@ export async function toggleReGrid(postId : string){
             return {success : false, error : 'failed to toggle regrid!'}
         }
 
-        revalidatePath('/') ;
+        revalidatePath('/') ; 
+        revalidatePath('/explore');
+        revalidatePath('/communities');
         revalidatePath('/explore');
         return {success : true, isReGridded: result.value.isReGridded} ;
     } catch (error) {
@@ -253,7 +261,9 @@ export async function createComment(postId : string, content : string, parentId?
             return {success : false, error : 'failed to create a comment!'}
         }
 
-        revalidatePath('/') ;
+        revalidatePath('/') ; 
+        revalidatePath('/explore');
+        revalidatePath('/communities');
         return {success : true , comment: result.value.comment};
     }catch (error){
         logger.error('failed to create comment!', error, { postId });
@@ -302,7 +312,9 @@ export async function deletePost(postId : string){
              throw new Error(result.error.message);
         }
 
-        revalidatePath('/') ; // purge the cash
+        revalidatePath('/') ; 
+        revalidatePath('/explore');
+        revalidatePath('/communities'); // purge the cash
         return {success : true} ;
     }catch (er: any){
         logger.error('failed to delete a post!', er, { postId });

@@ -11,6 +11,7 @@ const RealtimeContext = createContext<ReturnType<typeof useRealtimeSocket>>({
   latestDirectMessage: null,
   latestTypingSignal: null,
   latestSeenSignal: null,
+  latestBlockSignal: null,
   unreadCount: 0,
   setUnreadCount: () => {},
   unreadMessagesCount: 0,

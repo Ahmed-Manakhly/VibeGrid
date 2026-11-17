@@ -48,6 +48,12 @@ export interface MessageSeenSignal {
   seenAt: string;
 }
 
+export interface BlockSignal {
+  blockerUserId: string;
+  blockedUserId: string;
+  timestamp: number;
+}
+
 export interface RealtimeState {
   isConnected: boolean;
   onlineUsers: Set<string>;
@@ -56,6 +62,7 @@ export interface RealtimeState {
   latestDirectMessage: DirectMessageSignal | null;
   latestTypingSignal: TypingSignal | null;
   latestSeenSignal: MessageSeenSignal | null;
+  latestBlockSignal: { action: 'blocked' | 'unblocked'; data: BlockSignal } | null;
   unreadCount: number;
   setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   unreadMessagesCount: number;
@@ -71,6 +78,7 @@ export function useRealtimeSocket() {
   const [latestDirectMessage, setLatestDirectMessage] = useState<DirectMessageSignal | null>(null);
   const [latestTypingSignal, setLatestTypingSignal] = useState<TypingSignal | null>(null);
   const [latestSeenSignal, setLatestSeenSignal] = useState<MessageSeenSignal | null>(null);
+  const [latestBlockSignal, setLatestBlockSignal] = useState<{ action: 'blocked' | 'unblocked'; data: BlockSignal } | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
   const processedNotificationIds = useRef<Set<string>>(new Set());
@@ -256,6 +264,14 @@ export function useRealtimeSocket() {
           setLatestSeenSignal(seenData);
         });
 
+        socket.on('user:blocked', (blockData: BlockSignal) => {
+          setLatestBlockSignal({ action: 'blocked', data: blockData });
+        });
+
+        socket.on('user:unblocked', (unblockData: BlockSignal) => {
+          setLatestBlockSignal({ action: 'unblocked', data: unblockData });
+        });
+
         socket.on('presence:online', (presence: PresenceSignal) => {
           setOnlineUsers((prev) => {
             const next = new Set(prev);
@@ -295,6 +311,7 @@ export function useRealtimeSocket() {
     latestDirectMessage,
     latestTypingSignal,
     latestSeenSignal,
+    latestBlockSignal,
     unreadCount,
     setUnreadCount,
     unreadMessagesCount,

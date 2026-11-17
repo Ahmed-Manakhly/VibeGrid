@@ -22,6 +22,7 @@ export class PrismaProfileRepository implements IProfileRepository {
         website: true,
         techStack: true,
         developerLinks: true,
+        isPolicyAccepted: true,
         createdAt: true,
         _count: {
           select: {
