@@ -23,14 +23,20 @@ export function TrendingShipsLeaderboard({
   const [loading, setLoading] = useState(initialShips.length === 0);
 
   useEffect(() => {
-    if (initialShips.length === 0) {
+    let isMounted = true;
+    if (ships.length === 0) {
       getTrendingShipsAction(limit)
         .then((data) => {
-          if (data) setShips(data);
+          if (isMounted && data) setShips(data);
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          if (isMounted) setLoading(false);
+        });
     }
-  }, [initialShips, limit]);
+    return () => {
+      isMounted = false;
+    };
+  }, [limit]);
 
   if (!loading && ships.length === 0) {
     return null;
