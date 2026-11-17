@@ -149,6 +149,9 @@ export function CommentCard({
                 toast.success('Reply posted successfully');
             } else {
                 toast.error(result?.error || 'Failed to post reply');
+                if (result?.requiresPolicy) {
+                    window.dispatchEvent(new CustomEvent('open-policy-prompt'));
+                }
                 setLocalReplies((prev) => prev.filter((r) => r.id !== optimisticId));
                 onCommentCountChange?.(-1);
                 setReplyContent(text);

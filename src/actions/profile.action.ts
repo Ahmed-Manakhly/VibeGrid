@@ -86,6 +86,33 @@ export async function updateProfile(formData: FormData) {
     }
 }
 
+export async function acceptPlatformPolicyAction() {
+    try {
+        const session = await getCurrentSession();
+        if (!session.isAuthenticated || !session.user) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        const result = await updateProfileUseCase.execute(session.user.id, {
+            isPolicyAccepted: true,
+            policyAcceptedAt: new Date(),
+        });
+
+        revalidatePath("/");
+        revalidatePath("/explore");
+        revalidatePath("/notifications");
+        revalidatePath("/settings");
+        if (result?.user?.username) {
+            revalidatePath(`/profile/${result.user.username}`);
+        }
+
+        return { success: true, user: result.user };
+    } catch (err: any) {
+        logger.error("Failed to accept platform policy", err);
+        return { success: false, error: err.message || "Failed to accept platform policy" };
+    }
+}
+
 export async function isFollowing(userId: string) {
     try {
         const currentUserId = await getDbUserId();

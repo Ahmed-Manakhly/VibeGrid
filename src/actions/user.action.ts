@@ -31,6 +31,21 @@ export async function getDbUserId() {
     return session.user.id;
 }
 
+export async function isCurrentUserPolicyAccepted(): Promise<boolean> {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) return false;
+    try {
+        const { prisma } = await import("@/shared/infrastructure/prisma");
+        const user = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            select: { isPolicyAccepted: true },
+        });
+        return Boolean(user?.isPolicyAccepted);
+    } catch {
+        return false;
+    }
+}
+
 export async function getRandomUsers() {
     try {
         const userId = await getDbUserId();
@@ -56,7 +71,16 @@ export async function searchUsers(query: string) {
 export async function toggleFollow(targetUserId: string) {
     try {
         const userId = await getDbUserId();
-        if (!userId) return;
+        if (!userId) return { success: false, error: "Unauthorized" };
+
+        const isPolicyAccepted = await isCurrentUserPolicyAccepted();
+        if (!isPolicyAccepted) {
+            return {
+                success: false,
+                requiresPolicy: true,
+                error: "Please accept the platform policy to follow creators."
+            };
+        }
         
         const result = await toggleFollowUseCase.execute(userId, targetUserId);
         

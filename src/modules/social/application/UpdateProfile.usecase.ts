@@ -20,6 +20,8 @@ export class UpdateProfileUseCase {
       avatarMediaId?: string;
       techStack?: any;
       developerLinks?: any;
+      isPolicyAccepted?: boolean;
+      policyAcceptedAt?: Date;
     }
   ) {
     if (!userId) {

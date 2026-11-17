@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { OnboardingProfileBanner } from '@/components/OnboardingProfileBanner';
+import { PolicyPromptModal } from '@/components/settings/PolicyPromptModal';
 
 export function RootMainWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -38,6 +39,7 @@ export function RootMainWrapper({ children }: { children: React.ReactNode }) {
 
       <div className="relative z-10 w-full">
         <OnboardingProfileBanner />
+        <PolicyPromptModal />
         <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-36 lg:pb-8">
           {children}
         </main>

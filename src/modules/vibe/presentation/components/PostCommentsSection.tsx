@@ -72,6 +72,9 @@ export function PostCommentsSection({
         toast.success('Comment posted successfully');
       } else {
         toast.error(result?.error || 'Failed to create comment!');
+        if (result?.requiresPolicy) {
+          window.dispatchEvent(new CustomEvent('open-policy-prompt'));
+        }
         setLocalComments((prev: any) => prev.filter((c: any) => c.id !== optimisticId));
         onCommentCountChange?.(-1);
         setNewComment(commentText);

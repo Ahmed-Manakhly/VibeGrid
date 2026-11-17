@@ -23,7 +23,14 @@ export function FollowButton({ targetUserId, userId, initialIsFollowing = false,
     if (!effectiveUserId) return;
     setIsUpdating(true);
     try {
-      await toggleFollow(effectiveUserId);
+      const res = await toggleFollow(effectiveUserId);
+      if (res && !res.success) {
+        toast.error(res.error || "Failed to update follow status");
+        if ((res as any).requiresPolicy) {
+          window.dispatchEvent(new CustomEvent('open-policy-prompt'));
+        }
+        return;
+      }
       const nextState = !isFollowing;
       setIsFollowing(nextState);
       if (onFollowChange) {

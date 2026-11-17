@@ -1,6 +1,6 @@
 "use server" ;
 
-import { getDbUserId } from "./user.action";
+import { getDbUserId, isCurrentUserPolicyAccepted } from "./user.action";
 import { revalidatePath } from "next/cache";
 
 import { 
@@ -35,6 +35,15 @@ export async function creatPost(
     try {
         const userId = await getDbUserId() ;
         if(!userId) return { success: false, error: 'User is not authenticated. Please log in.' }; 
+
+        const isPolicyAccepted = await isCurrentUserPolicyAccepted();
+        if (!isPolicyAccepted) {
+            return {
+                success: false,
+                requiresPolicy: true,
+                error: 'Please accept the platform policy before posting.'
+            };
+        }
         
         const result = await createVibeUseCase.execute(content, mediaUrl, mediaType, userId, tags, undefined, categoryId, vibeId, techContext, postType, poll, quotedPostId, communityId);
         
@@ -255,6 +264,15 @@ export async function createComment(postId : string, content : string, parentId?
         const userId = await getDbUserId() ;
         if(!userId) return { success: false, error: 'Unauthorized' };
         if(!content) throw new Error('comment content is required!') ;
+
+        const isPolicyAccepted = await isCurrentUserPolicyAccepted();
+        if (!isPolicyAccepted) {
+            return {
+                success: false,
+                requiresPolicy: true,
+                error: 'Please accept the platform policy before commenting or replying.'
+            };
+        }
         
         const result = await addCommentUseCase.execute(postId, userId, content, parentId);
         if (!result.success) {

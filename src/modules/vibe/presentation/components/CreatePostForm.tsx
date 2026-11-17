@@ -119,6 +119,9 @@ export default function CreatPost({
             window.dispatchEvent(new CustomEvent('refreshTrending'));
         } else if (state?.error) {
             toast.error(state.error);
+            if ((state as any)?.requiresPolicy) {
+                window.dispatchEvent(new CustomEvent('open-policy-prompt'));
+            }
         }
     }, [state]);
 
