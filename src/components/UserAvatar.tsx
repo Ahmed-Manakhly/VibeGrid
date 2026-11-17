@@ -36,7 +36,7 @@ export function UserAvatar({ src, name, className }: UserAvatarProps) {
 
   return (
     <Avatar className={cn("size-10 border-[2px] border-amber-500/60 shrink-0", className)}>
-      <AvatarImage src={avatarSrc} alt={name || "User avatar"} />
+      <AvatarImage src={avatarSrc} alt={name || "User avatar"} referrerPolicy="no-referrer" />
       <AvatarFallback className="bg-amber-500/10 text-amber-500 font-semibold text-xs">
         {initials || <User className="size-4 text-amber-500 fill-amber-500/30" />}
       </AvatarFallback>
