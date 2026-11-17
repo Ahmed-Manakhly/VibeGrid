@@ -202,4 +202,97 @@ export async function deleteMilestoneAction(id: string) {
     }
 }
 
+export async function getUserFollowersAction(userId: string) {
+    try {
+        const { prisma } = await import("@/shared/infrastructure/prisma");
+        const session = await getCurrentSession();
+        const currentUserId = session?.user?.id;
+
+        const followers = await prisma.follows.findMany({
+            where: { followingId: userId },
+            include: {
+                follower: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                        image: true,
+                        bio: true,
+                        role: true,
+                        followers: currentUserId ? {
+                            where: { followerId: currentUserId },
+                            select: { followerId: true },
+                        } : false,
+                    },
+                },
+            },
+            orderBy: { createdAt: "desc" },
+            take: 100,
+        });
+
+        return {
+            success: true,
+            data: followers.map((f: any) => ({
+                id: f.follower.id,
+                name: f.follower.name,
+                username: f.follower.username,
+                image: f.follower.image,
+                bio: f.follower.bio,
+                role: f.follower.role,
+                isFollowing: currentUserId ? (f.follower as any).followers?.length > 0 : false,
+            })),
+        };
+    } catch (error) {
+        logger.error("Error fetching followers", error, { userId });
+        return { success: false, data: [] };
+    }
+}
+
+export async function getUserFollowingAction(userId: string) {
+    try {
+        const { prisma } = await import("@/shared/infrastructure/prisma");
+        const session = await getCurrentSession();
+        const currentUserId = session?.user?.id;
+
+        const following = await prisma.follows.findMany({
+            where: { followerId: userId },
+            include: {
+                following: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                        image: true,
+                        bio: true,
+                        role: true,
+                        followers: currentUserId ? {
+                            where: { followerId: currentUserId },
+                            select: { followerId: true },
+                        } : false,
+                    },
+                },
+            },
+            orderBy: { createdAt: "desc" },
+            take: 100,
+        });
+
+        return {
+            success: true,
+            data: following.map((f: any) => ({
+                id: f.following.id,
+                name: f.following.name,
+                username: f.following.username,
+                image: f.following.image,
+                bio: f.following.bio,
+                role: f.following.role,
+                isFollowing: currentUserId ? (f.following as any).followers?.length > 0 : false,
+            })),
+        };
+    } catch (error) {
+        logger.error("Error fetching following", error, { userId });
+        return { success: false, data: [] };
+    }
+}
+
+
 

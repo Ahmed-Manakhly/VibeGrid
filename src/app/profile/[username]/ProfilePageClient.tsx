@@ -32,11 +32,21 @@ import {
     SerializedMilestone,
 } from "@/modules/social/presentation/components/DeveloperMilestoneTimeline";
 import { DeveloperBadgeList } from "@/modules/social/presentation/components/DeveloperBadgeList";
-import { Milestone, UserCheck, Users } from "lucide-react";
+import { Milestone, UserCheck, Users, UserPlus } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type PostsResult = Awaited<ReturnType<typeof getPosts>>;
+
+interface ProfileFollowUser {
+    id: string;
+    name: string | null;
+    username: string;
+    image: string | null;
+    bio: string | null;
+    role: string;
+    isFollowing: boolean;
+}
 
 interface ProfilePageClientProps {
     user: NonNullable<User>;
@@ -45,6 +55,8 @@ interface ProfilePageClientProps {
     isFollowing: boolean;
     initialMilestones?: SerializedMilestone[];
     userCommunities?: any[];
+    initialFollowers?: ProfileFollowUser[];
+    initialFollowing?: ProfileFollowUser[];
 }
 
 function ProfilePageClient({
@@ -54,6 +66,8 @@ function ProfilePageClient({
     user,
     initialMilestones = [],
     userCommunities = [],
+    initialFollowers = [],
+    initialFollowing = [],
 }: ProfilePageClientProps) {
     const { user: currentUser, isAuthenticated } = useSession();
     const searchParams = useSearchParams();
@@ -305,6 +319,20 @@ function ProfilePageClient({
                                     <Users className="size-4 shrink-0" />
                                     <span>Guilds ({userCommunities.length})</span>
                                 </TabsTrigger>
+                                <TabsTrigger
+                                    value="followers"
+                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+                                >
+                                    <UserCheck className="size-4 shrink-0" />
+                                    <span>Followers ({user._count.followers})</span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="following"
+                                    className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+                                >
+                                    <UserPlus className="size-4 shrink-0" />
+                                    <span>Following ({user._count.following})</span>
+                                </TabsTrigger>
                             </TabsList>
                         </div>
                         <TabsContent value="posts" className="mt-6">
@@ -357,6 +385,80 @@ function ProfilePageClient({
                                             <Link href={`/communities/${comm.slug}`} className="btn-gradient text-xs px-3 py-1.5 rounded-lg shrink-0">
                                                 View
                                             </Link>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </TabsContent>
+                        <TabsContent value="followers" className="mt-6">
+                            {initialFollowers.length === 0 ? (
+                                <div className="text-center py-12 text-muted-foreground text-sm">
+                                    No followers yet.
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {initialFollowers.map((fUser) => (
+                                        <div key={fUser.id} className="p-4 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between gap-3">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <UserAvatar src={fUser.image} name={fUser.name} className="size-10 shrink-0" />
+                                                <div className="min-w-0">
+                                                    <Link href={`/profile/${fUser.username}`} className="font-semibold text-sm hover:underline block truncate">
+                                                        {fUser.name || fUser.username}
+                                                    </Link>
+                                                    <span className="text-xs text-muted-foreground truncate block">
+                                                        @{fUser.username}
+                                                    </span>
+                                                    {fUser.bio && (
+                                                        <p className="text-xs text-muted-foreground/80 truncate mt-0.5">
+                                                            {fUser.bio}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {currentUser?.id !== fUser.id && (
+                                                <FollowButton
+                                                    targetUserId={fUser.id}
+                                                    initialIsFollowing={fUser.isFollowing}
+                                                    className="btn-gradient text-xs px-3 py-1.5 h-8 rounded-lg shrink-0 font-mono"
+                                                />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </TabsContent>
+                        <TabsContent value="following" className="mt-6">
+                            {initialFollowing.length === 0 ? (
+                                <div className="text-center py-12 text-muted-foreground text-sm">
+                                    Not following anyone yet.
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {initialFollowing.map((fUser) => (
+                                        <div key={fUser.id} className="p-4 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between gap-3">
+                                            <div className="flex items-center gap-3 min-w-0">
+                                                <UserAvatar src={fUser.image} name={fUser.name} className="size-10 shrink-0" />
+                                                <div className="min-w-0">
+                                                    <Link href={`/profile/${fUser.username}`} className="font-semibold text-sm hover:underline block truncate">
+                                                        {fUser.name || fUser.username}
+                                                    </Link>
+                                                    <span className="text-xs text-muted-foreground truncate block">
+                                                        @{fUser.username}
+                                                    </span>
+                                                    {fUser.bio && (
+                                                        <p className="text-xs text-muted-foreground/80 truncate mt-0.5">
+                                                            {fUser.bio}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {currentUser?.id !== fUser.id && (
+                                                <FollowButton
+                                                    targetUserId={fUser.id}
+                                                    initialIsFollowing={fUser.isFollowing}
+                                                    className="btn-gradient text-xs px-3 py-1.5 h-8 rounded-lg shrink-0 font-mono"
+                                                />
+                                            )}
                                         </div>
                                     ))}
                                 </div>
