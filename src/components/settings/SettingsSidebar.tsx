@@ -98,7 +98,7 @@ export function SettingsSidebar({ user }: SettingsSidebarProps) {
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-start text-xs border-white/10 hover:bg-white/5"
+            className="w-full justify-start text-xs border-border/60 bg-secondary/30 text-foreground hover:bg-secondary hover:text-foreground active:bg-secondary/80 transition-colors shadow-sm"
             onClick={() => {
               const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
                 id: user.id,

@@ -1,13 +1,15 @@
 import { IVibeRepository } from "../domain/IVibeRepository";
 import { IEventBus } from "@/shared/domain/events/IEventBus";
 import { ICacheService } from "@/shared/application/ports/ICacheService";
+import { ICommunityRepository } from "@/modules/community/domain/ICommunityRepository";
 import { MediaType } from "@prisma/client";
 
 export class CreateVibeUseCase {
   constructor(
     private vibeRepository: IVibeRepository,
     private eventBus: IEventBus,
-    private cacheService?: ICacheService
+    private cacheService?: ICacheService,
+    private communityRepository?: ICommunityRepository
   ) {}
 
   async execute(
@@ -26,6 +28,17 @@ export class CreateVibeUseCase {
     communityId?: string
   ) {
     if (!authorId) return { success: false as const, error: "No user found!" };
+
+    // Enforce membership gate if posting inside a community/guild
+    if (communityId && this.communityRepository) {
+      const membership = await this.communityRepository.getMembership(communityId, authorId);
+      if (!membership) {
+        return {
+          success: false as const,
+          error: "You must join this guild before you can post vibes or start discussions.",
+        };
+      }
+    }
 
     // Validate quoted post if provided
     if (quotedPostId) {

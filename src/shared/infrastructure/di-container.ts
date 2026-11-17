@@ -97,6 +97,9 @@ export const tagFollowRepository = new PrismaTagFollowRepository(prisma);
 export const authGateway = new BffAuthGateway(prisma);
 export const eventBus = new TransactionalOutboxEventBus(outboxRepository);
 
+// Community (instantiated earlier for DI dependency injection)
+export const communityRepository = new PrismaCommunityRepository(prisma);
+
 // 2. Instantiate Use Cases (Inject Repositories & Cache)
 // Safety
 export const blockUserUseCase = new BlockUserUseCase(trustSafetyRepository);
@@ -110,7 +113,7 @@ export const getConversationsUseCase = new GetConversationsUseCase(messagingRepo
 export const getMessagesUseCase = new GetMessagesUseCase(messagingRepository);
 
 // Vibe
-export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus, cacheService);
+export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus, cacheService, communityRepository);
 export const generateFeedUseCase = new GenerateFeedUseCase(
   vibeRepository, 
   cacheService, 
@@ -178,7 +181,6 @@ import {
   RemoveMemberUseCase,
 } from "@/modules/community/application/CommunityUseCases";
 
-export const communityRepository = new PrismaCommunityRepository(prisma);
 export const listCommunitiesUseCase = new ListCommunitiesUseCase(communityRepository);
 export const getCommunityBySlugUseCase = new GetCommunityBySlugUseCase(communityRepository);
 export const createCommunityUseCase = new CreateCommunityUseCase(communityRepository);

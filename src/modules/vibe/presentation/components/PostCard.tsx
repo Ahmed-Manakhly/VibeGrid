@@ -36,6 +36,7 @@ interface PostCardProps {
   dbUserId: string | null;
   isTruncated?: boolean;
   isDetailPage?: boolean;
+  canModerate?: boolean;
 }
 
 /**
@@ -46,6 +47,7 @@ export function PostCard({
   dbUserId,
   isTruncated = false,
   isDetailPage = false,
+  canModerate = false,
 }: PostCardProps) {
   const structuredContent = PostContentValueObject.parse(post.content);
   const contentText = structuredContent.text;
@@ -132,8 +134,13 @@ export function PostCard({
               </div>
             </div>
           </div>
-          {dbUserId === post.author.id ? (
-            <div className="shrink-0">
+          {dbUserId === post.author.id || canModerate ? (
+            <div className="shrink-0 flex items-center gap-1.5">
+              {canModerate && dbUserId !== post.author.id && (
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20 hidden sm:inline">
+                  Mod
+                </span>
+              )}
               <PostDeleteAction postId={post.id} />
             </div>
           ) : (

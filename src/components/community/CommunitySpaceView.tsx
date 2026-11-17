@@ -6,10 +6,10 @@ import { CommunityHeader } from "@/components/community/CommunityHeader";
 import { CommunityEntity, CommunityMemberEntity } from "@/modules/community/domain/ICommunityRepository";
 import { PostCard } from "@/modules/vibe/presentation/components/PostCard";
 import CreatPost from "@/modules/vibe/presentation/components/CreatePostForm";
-import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles, ChevronDown, UserX, Loader2 } from "lucide-react";
+import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles, ChevronDown, UserX, Loader2, UserPlus, Lock } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { updateMemberRoleAction, removeMemberAction } from "@/actions/community.action";
+import { updateMemberRoleAction, removeMemberAction, joinCommunityAction } from "@/actions/community.action";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog,
@@ -41,8 +41,28 @@ export function CommunitySpaceView({
   const [activeTab, setActiveTab] = useState("feed");
   const [members, setMembers] = useState<CommunityMemberEntity[]>(initialMembers);
   const [isPendingRole, startRoleTransition] = useTransition();
+  const [isJoining, startJoinTransition] = useTransition();
+  const [isMember, setIsMember] = useState(community.isMember || false);
   const [removingUserId, setRemovingUserId] = useState<string | null>(null);
   const router = useRouter();
+
+  const isModeratorOrAdmin =
+    community.userRole === "ADMIN" ||
+    community.userRole === "MODERATOR" ||
+    community.creatorId === dbUserId;
+
+  const handleJoinGuild = () => {
+    startJoinTransition(async () => {
+      const res = await joinCommunityAction(community.id, community.slug);
+      if (res.success) {
+        setIsMember(true);
+        toast.success(`Joined ${community.name}`);
+        router.refresh();
+      } else {
+        toast.error(res.error || "Failed to join guild");
+      }
+    });
+  };
 
   const isCreatorOrAdmin = Boolean(
     dbUserId && (community.creatorId === dbUserId || community.userRole === "ADMIN")
@@ -112,12 +132,43 @@ export function CommunitySpaceView({
       {/* Tab 1: Community Feed */}
       {activeTab === "feed" && (
         <div className="space-y-4">
-          {/* Direct Post Input into this Community */}
-          {dbUserId && (
-            <div className="mb-4">
-              <CreatPost defaultCommunityId={community.id} lockCommunity={true} />
-            </div>
-          )}
+          {/* Post Input Gate: User must be an authenticated member to post */}
+          {dbUserId ? (
+            isMember ? (
+              <div className="mb-4">
+                <CreatPost defaultCommunityId={community.id} lockCommunity={true} />
+              </div>
+            ) : (
+              <div className="mb-4 p-4 sm:p-5 rounded-2xl border border-primary/25 bg-gradient-to-r from-card/90 via-primary/5 to-card/90 backdrop-blur-md shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary shrink-0">
+                    <Lock className="size-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground">
+                      Members-Only Guild Feed
+                    </h4>
+                    <p className="text-xs text-muted-foreground">
+                      Join {community.name} to drop engineering vibes, participate in tech discussions, and share code.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleJoinGuild}
+                  disabled={isJoining}
+                  className="btn-gradient text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm shrink-0 self-start sm:self-auto disabled:opacity-50"
+                >
+                  {isJoining ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <UserPlus className="size-3.5" />
+                  )}
+                  <span>Join Guild to Post</span>
+                </button>
+              </div>
+            )
+          ) : null}
 
           {initialPosts.length > 0 ? (
             initialPosts.map((post) => (
@@ -125,6 +176,7 @@ export function CommunitySpaceView({
                 key={post.id}
                 post={post}
                 dbUserId={dbUserId}
+                canModerate={isModeratorOrAdmin}
               />
             ))
           ) : (

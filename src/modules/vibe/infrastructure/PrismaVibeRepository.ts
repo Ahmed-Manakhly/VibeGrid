@@ -73,12 +73,31 @@ export class PrismaVibeRepository implements IVibeRepository {
       const db = tx || this.db;
       const post = await db.post.findUnique({
         where: { id },
-        select: { authorId: true },
+        select: {
+          authorId: true,
+          communityId: true,
+          community: {
+            select: {
+              creatorId: true,
+              members: {
+                where: { userId: authorId },
+                select: { role: true },
+              },
+            },
+          },
+        },
       });
 
       if (!post) return failure(new Error("post not found!"));
-      if (post.authorId !== authorId)
-        return failure(new Error("you are not the author of this post!"));
+
+      const isAuthor = post.authorId === authorId;
+      const isCommunityCreator = post.community?.creatorId === authorId;
+      const userMemberRole = post.community?.members?.[0]?.role;
+      const isCommunityAdminOrMod = userMemberRole === "ADMIN" || userMemberRole === "MODERATOR";
+
+      if (!isAuthor && !isCommunityCreator && !isCommunityAdminOrMod) {
+        return failure(new Error("You do not have permission to delete this vibe!"));
+      }
 
       await db.post.delete({ where: { id } });
       return success(undefined);

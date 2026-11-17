@@ -341,7 +341,7 @@ function ProfilePageClient({
                                     initialPosts={postsResult.data}
                                     initialNextCursor={postsResult.nextCursor}
                                     apiUrl={`/api/posts?authorId=${user.id}`}
-                                    dbUserId={currentUser ? user.id : null}
+                                    dbUserId={currentUser?.id || null}
                                 />
                             </div>
                         </TabsContent>
@@ -358,7 +358,7 @@ function ProfilePageClient({
                                     initialPosts={likedPostsResult.data}
                                     initialNextCursor={likedPostsResult.nextCursor}
                                     apiUrl={`/api/posts?likedByUserId=${user.id}`}
-                                    dbUserId={currentUser ? user.id : null}
+                                    dbUserId={currentUser?.id || null}
                                 />
                             </div>
                         </TabsContent>

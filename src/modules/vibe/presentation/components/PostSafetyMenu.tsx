@@ -80,7 +80,7 @@ export function PostSafetyMenu({ postId, authorId, authorUsername }: PostSafetyM
         variant="ghost"
         size="icon"
         onClick={() => setMenuOpen((prev) => !prev)}
-        className="size-8 text-muted-foreground hover:text-foreground"
+        className="size-8 text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 rounded-lg transition-colors"
       >
         <MoreHorizontalIcon className="size-4" />
       </Button>
@@ -91,7 +91,7 @@ export function PostSafetyMenu({ postId, authorId, authorUsername }: PostSafetyM
             className="fixed inset-0 z-30"
             onClick={() => setMenuOpen(false)}
           />
-          <div className="absolute right-0 top-9 z-40 w-44 rounded-xl border border-border bg-card p-1 shadow-lg animate-in fade-in zoom-in-95 duration-150">
+          <div className="absolute right-0 top-9 z-40 w-40 rounded-xl border border-border bg-card p-1 shadow-lg animate-in fade-in zoom-in-95 duration-150">
             <button
               onClick={() => {
                 setMenuOpen(false);
@@ -110,8 +110,8 @@ export function PostSafetyMenu({ postId, authorId, authorUsername }: PostSafetyM
               disabled={isBlocking}
               className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
             >
-              <BanIcon className="size-3.5" />
-              <span>Block @{authorUsername}</span>
+              <BanIcon className="size-3.5 shrink-0" />
+              <span className="truncate">Block</span>
             </button>
           </div>
         </>
