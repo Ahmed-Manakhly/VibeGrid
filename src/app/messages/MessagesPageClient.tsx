@@ -820,34 +820,47 @@ export function MessagesPageClient() {
                 </div>
               )}
 
+              {/* Persistent Identity Header Card (always rendered at top of history) */}
+              {otherParticipant && (
+                <div className="flex flex-col items-center p-5 rounded-2xl bg-muted/20 border border-border/40 max-w-sm mx-auto w-full my-2 text-center shadow-xs">
+                  <div className="relative mb-2">
+                    <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-14 ring-2 ring-primary/20" />
+                    {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
+                      <span className="absolute bottom-0 right-0 size-3 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
+                    )}
+                  </div>
+                  <h4 className="font-bold text-sm text-foreground">{otherParticipant.name || otherParticipant.username}</h4>
+                  <p className="text-[11px] text-muted-foreground font-mono mb-1.5">@{otherParticipant.username}</p>
+                  {otherParticipant.bio && (
+                    <p className="text-xs text-muted-foreground line-clamp-2 text-center mb-3 px-2">{otherParticipant.bio}</p>
+                  )}
+                  <div className="flex items-center gap-2 mt-1">
+                    <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`}>
+                      <Button size="sm" variant="outline" className="text-xs h-7 px-3 rounded-lg font-medium">
+                        View Profile
+                      </Button>
+                    </Link>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-xs h-7 px-2.5 text-destructive hover:bg-destructive/10 rounded-lg"
+                      onClick={() => {
+                        setActiveConversationId(null);
+                        setDeletingConversation(false);
+                      }}
+                    >
+                      Hide Room
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               {loadingMessages ? (
                 <div className="flex justify-center p-8">
                   <Loader2Icon className="animate-spin text-muted-foreground" />
                 </div>
               ) : messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center text-center p-8 my-auto space-y-3">
-                  {otherParticipant && (
-                    <div className="flex flex-col items-center p-6 rounded-2xl bg-muted/30 border border-border/50 max-w-sm w-full">
-                      <div className="relative mb-3">
-                        <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-16 ring-2 ring-primary/20" />
-                        {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
-                          <span className="absolute bottom-0 right-0 size-3.5 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
-                        )}
-                      </div>
-                      <h4 className="font-bold text-base text-foreground">{otherParticipant.name || otherParticipant.username}</h4>
-                      <p className="text-xs text-muted-foreground font-mono mb-2">@{otherParticipant.username}</p>
-                      {otherParticipant.bio && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 text-center mb-4">{otherParticipant.bio}</p>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`}>
-                          <Button size="sm" variant="outline" className="text-xs h-7 px-3 rounded-lg">
-                            View Profile
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  )}
+                <div className="flex flex-col items-center justify-center text-center p-4 my-auto space-y-2">
                   <p className="text-xs text-muted-foreground">
                     This is the beginning of your direct conversation with {otherParticipant?.name || "this developer"}.
                   </p>
@@ -901,7 +914,7 @@ export function MessagesPageClient() {
                         )}
 
                         <div
-                          className={`rounded-2xl px-4 py-2.5 text-sm break-words flex-1 flex flex-col gap-2 ${
+                          className={`rounded-2xl px-4 py-2.5 text-sm break-words flex-1 min-w-0 max-w-full flex flex-col gap-2 overflow-hidden [overflow-wrap:anywhere] ${
                             isMe
                               ? "bg-primary text-primary-foreground rounded-br-none"
                               : "bg-muted text-foreground rounded-bl-none"
@@ -909,12 +922,12 @@ export function MessagesPageClient() {
                         >
                           {/* Image Attachment */}
                           {parsed.attachment?.type === "image" && (
-                            <div className="rounded-xl overflow-hidden cursor-pointer group/img relative my-1">
+                            <div className="rounded-xl overflow-hidden cursor-pointer group/img relative my-1 max-w-full">
                               <img
                                 src={parsed.attachment.url}
                                 alt="attachment"
                                 onClick={() => setLightboxImageUrl(parsed.attachment!.url)}
-                                className="max-h-60 rounded-lg object-cover hover:opacity-95 transition-opacity"
+                                className="max-h-60 max-w-full w-auto rounded-lg object-contain hover:opacity-95 transition-opacity"
                               />
                               <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
                                 <Button
@@ -936,7 +949,7 @@ export function MessagesPageClient() {
 
                           {/* Voice Note Attachment */}
                           {parsed.attachment?.type === "voice" && (
-                            <div className="flex items-center gap-2.5 p-2 rounded-xl bg-background/20 backdrop-blur-sm border border-foreground/10 my-1">
+                            <div className="flex items-center gap-2.5 p-2 rounded-xl bg-background/20 backdrop-blur-sm border border-foreground/10 my-1 max-w-full overflow-hidden">
                               <Button
                                 type="button"
                                 size="icon"
@@ -961,7 +974,7 @@ export function MessagesPageClient() {
 
                           {/* File Attachment */}
                           {parsed.attachment?.type === "file" && (
-                            <div className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-background/20 backdrop-blur-sm border border-foreground/10 my-1">
+                            <div className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-background/20 backdrop-blur-sm border border-foreground/10 my-1 max-w-full overflow-hidden">
                               <div className="flex items-center gap-2 min-w-0">
                                 <FileIcon className="size-4 shrink-0" />
                                 <span className="text-xs truncate font-medium">
@@ -983,12 +996,14 @@ export function MessagesPageClient() {
 
                           {/* Message Text */}
                           {parsed.text && (
-                            <div className="whitespace-pre-wrap">{parsed.text}</div>
+                            <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-sm leading-relaxed max-w-full overflow-hidden">
+                              {parsed.text}
+                            </div>
                           )}
 
                           {/* Code Block with Syntax Highlighting */}
                           {parsed.codeBlock && (
-                            <div className="my-1 rounded-lg overflow-hidden text-left not-prose">
+                            <div className="my-1 rounded-lg overflow-x-auto text-left not-prose max-w-full">
                               <CodeBlockViewer
                                 language={parsed.codeBlock.language}
                                 code={parsed.codeBlock.code}

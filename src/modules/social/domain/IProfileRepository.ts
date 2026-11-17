@@ -12,6 +12,8 @@ export interface IProfileRepository {
       avatarMediaId?: string;
       techStack?: any;
       developerLinks?: any;
+      isPolicyAccepted?: boolean;
+      policyAcceptedAt?: Date;
     }
   ): Promise<any | null>;
 }

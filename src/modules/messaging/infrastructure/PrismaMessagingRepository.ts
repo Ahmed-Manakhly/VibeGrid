@@ -247,6 +247,17 @@ export class PrismaMessagingRepository implements IMessagingRepository {
         data: { updatedAt: new Date() },
       });
 
+      // Dual-copy resurfacing: If conversation was hidden for any participant (e.g. deleted), unhide it upon receiving new message
+      await tx.conversationParticipant.updateMany({
+        where: {
+          conversationId: data.conversationId,
+          isHidden: true,
+        },
+        data: {
+          isHidden: false,
+        },
+      });
+
       return msg;
     });
 

@@ -60,6 +60,22 @@ export function PostActions({
 
   const [hasLiked, setHasLiked] = useState(initialLiked);
   const [showLikesModal, setShowLikesModal] = useState(false);
+  const likesPopupRef = React.useRef<HTMLDivElement>(null);
+
+  // Close likes popup on click outside on mobile
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (likesPopupRef.current && !likesPopupRef.current.contains(event.target as Node)) {
+        setShowLikesModal(false);
+      }
+    }
+    if (showLikesModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showLikesModal]);
   const [optimisticLikes, setOptimisticLikes] = useState(initialLikes);
   const [isLiking, setIsLiking] = useState(false);
 
@@ -141,22 +157,37 @@ export function PostActions({
     <div className="flex items-center pt-2 space-x-4">
       {/* Like Button */}
       <div 
+        ref={likesPopupRef}
         className="relative group/like inline-flex items-center"
         onMouseEnter={() => setShowLikesModal(true)}
         onMouseLeave={() => setShowLikesModal(false)}
       >
         {isAuthenticated ? (
-          <Button
-            className={`text-muted-foreground gap-2 hover:bg-transparent ${
-              hasLiked ? 'text-red-500 hover:text-red-600' : 'hover:text-red-500'
-            }`}
-            variant="ghost"
-            size="sm"
-            onClick={handleLike}
-          >
-            <HeartIcon className={`size-5 ${hasLiked ? 'fill-current' : ''}`} />
-            <span>{optimisticLikes}</span>
-          </Button>
+          <div className="inline-flex items-center">
+            <Button
+              className={`text-muted-foreground gap-1.5 hover:bg-transparent ${
+                hasLiked ? 'text-red-500 hover:text-red-600' : 'hover:text-red-500'
+              }`}
+              variant="ghost"
+              size="sm"
+              onClick={handleLike}
+            >
+              <HeartIcon className={`size-5 ${hasLiked ? 'fill-current' : ''}`} />
+            </Button>
+            {optimisticLikes > 0 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowLikesModal((prev) => !prev);
+                }}
+                className="text-xs text-muted-foreground hover:text-foreground font-mono px-1 py-1 -ml-1 rounded transition-colors"
+                title="View who liked this post"
+              >
+                {optimisticLikes}
+              </button>
+            )}
+          </div>
         ) : (
           <Button
             variant="ghost"
@@ -171,12 +202,21 @@ export function PostActions({
           </Button>
         )}
 
-        {(showLikesModal || undefined) && likesList && likesList.length > 0 && (
-          <div className="absolute bottom-full left-0 mb-2 z-30 min-w-[200px] max-w-[260px] p-2.5 rounded-xl bg-card border border-border/80 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 pointer-events-auto">
-            <p className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 border-b border-border/40 pb-1">
-              Liked by ({optimisticLikes})
-            </p>
-            <div className="space-y-1 max-h-40 overflow-y-auto">
+        {showLikesModal && likesList && likesList.length > 0 && (
+          <div className="absolute bottom-full left-0 mb-1 z-30 min-w-[210px] max-w-[270px] p-2.5 rounded-xl bg-card border border-border shadow-2xl backdrop-blur-xl animate-in fade-in-50 zoom-in-95 pointer-events-auto">
+            <div className="flex items-center justify-between border-b border-border/40 pb-1.5 mb-1.5">
+              <p className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">
+                Liked by ({optimisticLikes})
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowLikesModal(false)}
+                className="text-[10px] text-muted-foreground hover:text-foreground font-mono sm:hidden"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-1 max-h-48 overflow-y-auto pr-0.5">
               {likesList.slice(0, 10).map((likeItem: any, idx: number) => {
                 const reactor = likeItem.user;
                 const reactorName = reactor?.name || reactor?.username || 'Anonymous';
@@ -185,7 +225,8 @@ export function PostActions({
                   <Link
                     key={idx}
                     href={reactor?.username ? `/profile/${reactor.username}` : '#'}
-                    className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted transition-colors text-xs text-foreground truncate group/user"
+                    onClick={() => setShowLikesModal(false)}
+                    className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted/70 active:bg-muted transition-colors text-xs text-foreground truncate group/user"
                   >
                     <UserAvatar src={reactor?.image} name={reactorName} className="size-6 shrink-0" />
                     <div className="min-w-0 flex-1">

@@ -54,6 +54,11 @@ export class PrismaEngagementRepository implements IEngagementRepository {
         const regrid = await this.db.reGrid.create({
           data: { postId: vibeId, userId },
         });
+        // Bump post updatedAt so regridded posts surface at the top of updated feeds
+        await this.db.post.update({
+          where: { id: vibeId },
+          data: { updatedAt: new Date() },
+        });
         return success({ isReGridded: true, authorId: post.authorId, regrid });
       }
     } catch (err) {

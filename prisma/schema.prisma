@@ -26,6 +26,8 @@ model User {
   techStack            Json?
   developerLinks       Json?
   role                 UserRole        @default(USER)
+  isPolicyAccepted     Boolean         @default(false)
+  policyAcceptedAt     DateTime?
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt
   posts                Post[]

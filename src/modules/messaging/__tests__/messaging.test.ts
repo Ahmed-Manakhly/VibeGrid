@@ -57,6 +57,57 @@ describe('Messaging Module Integration & Authorization', () => {
       expect(res.id).toBe('conv_123');
       expect(mockPrisma.conversation.create).not.toHaveBeenCalled();
     });
+
+    it('should reject starting a conversation if users neither follow each other nor share a guild', async () => {
+      const mockSocialRepo: any = {
+        getFollow: jest.fn().mockResolvedValue(null),
+      };
+      const mockCommunityRepo: any = {
+        getUserCommunities: jest.fn().mockResolvedValue([]),
+      };
+
+      const usecase = new StartConversationUseCase(
+        messagingRepo,
+        undefined,
+        mockSocialRepo,
+        mockCommunityRepo
+      );
+
+      await expect(usecase.execute('user_1', 'user_2')).rejects.toThrow(
+        'Direct messaging requires following each other or sharing a guild.'
+      );
+    });
+
+    it('should allow starting a conversation if sender follows recipient', async () => {
+      const existingConv = {
+        id: 'conv_123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        participants: [
+          { conversationId: 'conv_123', userId: 'user_1', user: { id: 'user_1', username: 'u1' } },
+          { conversationId: 'conv_123', userId: 'user_2', user: { id: 'user_2', username: 'u2' } },
+        ],
+        messages: [],
+      };
+      mockPrisma.conversation.findFirst.mockResolvedValue(existingConv);
+
+      const mockSocialRepo: any = {
+        getFollow: jest.fn().mockImplementation((follower, following) => {
+          if (follower === 'user_1' && following === 'user_2') return Promise.resolve({ id: 'f_1' });
+          return Promise.resolve(null);
+        }),
+      };
+
+      const usecase = new StartConversationUseCase(
+        messagingRepo,
+        undefined,
+        mockSocialRepo,
+        undefined
+      );
+
+      const res = await usecase.execute('user_1', 'user_2');
+      expect(res.id).toBe('conv_123');
+    });
   });
 
   describe('SendMessageUseCase Authorization & Invariants', () => {

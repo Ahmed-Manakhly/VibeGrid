@@ -46,6 +46,8 @@ export class PrismaProfileRepository implements IProfileRepository {
       avatarMediaId?: string;
       techStack?: any;
       developerLinks?: any;
+      isPolicyAccepted?: boolean;
+      policyAcceptedAt?: Date;
     }
   ): Promise<any | null> {
     return await this.prisma.user.update({

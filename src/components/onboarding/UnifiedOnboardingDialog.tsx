@@ -112,6 +112,7 @@ export function UnifiedOnboardingDialog() {
       if (bio.trim()) formData.append('bio', bio.trim());
       if (website.trim()) formData.append('website', website.trim());
       if ((user as any).location) formData.append('location', (user as any).location);
+      formData.append('acceptPolicy', 'true');
 
       const res = await updateProfile(formData);
 

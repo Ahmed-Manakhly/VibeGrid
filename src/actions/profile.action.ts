@@ -30,6 +30,7 @@ export async function updateProfile(formData: FormData) {
         const location = formData.get("location") as string;
         const website = formData.get("website") as string;
         const avatarMediaId = formData.get("avatarMediaId") as string | null;
+        const acceptPolicy = formData.get("acceptPolicy") === "true";
 
         const rawTechStack = formData.get("techStack") as string | null;
         const rawDeveloperLinks = formData.get("developerLinks") as string | null;
@@ -38,6 +39,10 @@ export async function updateProfile(formData: FormData) {
         const { DeveloperLinksValueObject } = await import("@/modules/social/domain/DeveloperLinksValueObject");
 
         const updateData: any = { name, bio, location, website };
+        if (acceptPolicy) {
+            updateData.isPolicyAccepted = true;
+            updateData.policyAcceptedAt = new Date();
+        }
         if (username && username.trim() !== '') {
             updateData.username = username.toLowerCase().replace(/[^a-z0-9_]/g, '');
         }

@@ -108,7 +108,12 @@ export const unblockUserUseCase = new UnblockUserUseCase(trustSafetyRepository);
 export const createReportUseCase = new CreateReportUseCase(trustSafetyRepository);
 
 // Messaging
-export const startConversationUseCase = new StartConversationUseCase(messagingRepository, trustSafetyRepository);
+export const startConversationUseCase = new StartConversationUseCase(
+  messagingRepository,
+  trustSafetyRepository,
+  socialRepository,
+  communityRepository
+);
 export const sendMessageUseCase = new SendMessageUseCase(messagingRepository, cacheService, trustSafetyRepository);
 export const getConversationsUseCase = new GetConversationsUseCase(messagingRepository);
 export const getMessagesUseCase = new GetMessagesUseCase(messagingRepository);

@@ -264,7 +264,7 @@ export async function createComment(postId : string, content : string, parentId?
 export async function deleteComment(commentId: string) {
     try {
         const userId = await getDbUserId();
-        if(!userId) return;
+        if(!userId) return { success: false, error: 'Unauthorized' };
         
         const result = await deleteCommentUseCase.execute(commentId, userId);
         if (!result.success) {
@@ -272,6 +272,7 @@ export async function deleteComment(commentId: string) {
         }
         
         revalidatePath('/');
+        revalidatePath('/explore');
         return {success: true};
     } catch (error) {
         logger.error('failed to delete comment', error, { commentId });
