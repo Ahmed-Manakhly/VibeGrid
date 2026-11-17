@@ -29,7 +29,12 @@ export class ToggleFollowUseCase {
 
     // Invalidate cached suggested users so followed user disappears immediately
     if (this.cacheService) {
-      await this.cacheService.delete(`social:suggested:${userId}`);
+      const { RedisKeys } = await import("@/shared/infrastructure/cache/RedisKeys");
+      await Promise.all([
+        this.cacheService.delete(`social:suggested:${userId}`).catch(() => {}),
+        this.cacheService.delete(RedisKeys.user(userId)).catch(() => {}),
+        this.cacheService.delete(RedisKeys.user(targetUserId)).catch(() => {}),
+      ]);
     }
 
     return { success: true };

@@ -60,6 +60,7 @@ export async function toggleFollow(targetUserId: string) {
         const result = await toggleFollowUseCase.execute(userId, targetUserId);
         
         revalidatePath("/");
+        revalidatePath("/profile/[username]", "page");
         return result;
     } catch (error) {
         logger.error("Error in toggleFollow", error, { targetUserId });
