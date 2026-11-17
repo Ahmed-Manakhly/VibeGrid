@@ -186,18 +186,19 @@ export function MessagesPageClient() {
     setUploadingMedia(true);
     try {
       const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
       const result = await uploadMediaAsset({
         file,
         purpose: "post_attachment",
       });
 
       setPendingAttachment({
-        type: isImage ? "image" : "file",
+        type: isImage ? "image" : isVideo ? "video" : "file",
         url: result.publicUrl,
         name: file.name,
         size: file.size,
       });
-      toast.success(isImage ? "Image uploaded" : "File attached");
+      toast.success(isImage ? "Image uploaded" : isVideo ? "Video attached" : "File attached");
     } catch (err: any) {
       toast.error(err.message || "Failed to upload file");
     } finally {
@@ -1016,15 +1017,27 @@ export function MessagesPageClient() {
                             </div>
                           )}
 
+                          {/* Video Attachment */}
+                          {parsed.attachment?.type === "video" && (
+                            <div className="rounded-xl overflow-hidden my-1 max-w-full">
+                              <video
+                                src={parsed.attachment.url}
+                                controls
+                                preload="metadata"
+                                className="max-h-72 max-w-full w-auto rounded-lg bg-black"
+                              />
+                            </div>
+                          )}
+
                           {/* Voice Note Attachment */}
                           {parsed.attachment?.type === "voice" && (
                             <div className="flex items-center gap-2.5 p-2 rounded-xl bg-background/20 backdrop-blur-sm border border-foreground/10 my-1 max-w-full overflow-hidden">
                               <Button
                                 type="button"
                                 size="icon"
-                                variant="secondary"
+                                variant="ghost"
                                 onClick={() => togglePlayAudio(parsed.attachment!.url)}
-                                className="size-8 rounded-full bg-primary text-primary-foreground hover:opacity-90 shrink-0"
+                                className="size-8 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 transition-colors shrink-0"
                               >
                                 {playingAudioUrl === parsed.attachment.url ? (
                                   <PauseIcon className="size-4" />

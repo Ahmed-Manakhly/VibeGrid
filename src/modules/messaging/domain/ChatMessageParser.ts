@@ -1,5 +1,5 @@
 export interface ChatMediaAttachment {
-  type: "image" | "file" | "voice";
+  type: "image" | "video" | "file" | "voice";
   url: string;
   name?: string;
   size?: number;
