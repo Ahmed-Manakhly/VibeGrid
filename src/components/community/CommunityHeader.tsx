@@ -173,12 +173,12 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
               type="button"
               onClick={() => bannerInputRef.current?.click()}
               disabled={isUploadingBanner}
-              className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/85 hover:bg-background text-xs font-medium text-foreground backdrop-blur-sm border border-border/60 transition-all shadow-md opacity-80 hover:opacity-100"
+              className="absolute top-11 left-3 sm:top-3 sm:left-auto sm:right-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/85 hover:bg-background text-xs font-medium text-foreground backdrop-blur-sm border border-border/60 transition-all shadow-md opacity-90 sm:opacity-80 hover:opacity-100"
             >
               {isUploadingBanner ? (
                 <>
                   <Loader2 className="size-3.5 animate-spin text-accent" />
-                  <span>Uploading Banner...</span>
+                  <span>Uploading...</span>
                 </>
               ) : (
                 <>
@@ -235,68 +235,72 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
           </div>
 
           {/* Action Join & Admin Buttons */}
-          <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end flex-wrap">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:self-auto justify-end">
             {canManage && (
-              <CommunitySettingsDialog community={community} />
+              <div className="w-full sm:w-auto">
+                <CommunitySettingsDialog community={community} />
+              </div>
             )}
 
-            {isCreator && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 px-3 text-xs text-destructive hover:text-destructive/90 border-destructive/30 hover:bg-destructive/10 rounded-xl"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4 mr-1.5" />}
-                    Delete Guild
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Guild "{community.name}"?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete this guild and remove all member associations. This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-transparent border-none">Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteCommunity}
-                      className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl"
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {isCreator && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 sm:flex-initial h-9 px-3 text-xs text-destructive hover:text-destructive/90 border-destructive/30 hover:bg-destructive/10 rounded-xl"
+                      disabled={isDeleting}
                     >
-                      Confirm Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-
-            <Button
-              onClick={handleToggleJoin}
-              disabled={isPending}
-              variant={isMember ? "outline" : "default"}
-              className={`h-9 px-4 text-xs font-semibold transition-all ${
-                isMember
-                  ? "border-primary/30 text-primary hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                  : "btn-gradient text-white"
-              }`}
-            >
-              {isPending ? (
-                <Loader2 className="size-4 animate-spin mr-1.5" />
-              ) : isMember ? (
-                <>
-                  <Check className="size-4 mr-1.5" />
-                  Joined Guild
-                </>
-              ) : (
-                <>
-                  <UserPlus className="size-4 mr-1.5" />
-                  Join Guild
-                </>
+                      {isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4 mr-1.5" />}
+                      Delete Guild
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Guild "{community.name}"?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete this guild and remove all member associations. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="bg-transparent border-none">Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteCommunity}
+                        className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl"
+                      >
+                        Confirm Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
-            </Button>
+
+              <Button
+                onClick={handleToggleJoin}
+                disabled={isPending}
+                variant={isMember ? "outline" : "default"}
+                className={`flex-1 sm:flex-initial h-9 px-4 text-xs font-semibold transition-all ${
+                  isMember
+                    ? "border-primary/30 text-primary hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                    : "btn-gradient text-white"
+                }`}
+              >
+                {isPending ? (
+                  <Loader2 className="size-4 animate-spin mr-1.5" />
+                ) : isMember ? (
+                  <>
+                    <Check className="size-4 mr-1.5" />
+                    Joined Guild
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="size-4 mr-1.5" />
+                    Join Guild
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -336,7 +340,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
         )}
 
         {/* Metrics Row */}
-        <div className="flex items-center gap-5 pt-3 border-t border-border/40 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-3 border-t border-border/40 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5 font-medium">
             <Users className="size-4 text-primary" />
             <span className="text-foreground font-semibold">{memberCount.toLocaleString()}</span> members

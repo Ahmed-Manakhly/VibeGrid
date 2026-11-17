@@ -128,8 +128,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
       </div>
 
       {/* Metrics Footer */}
-      <div className="flex items-center justify-between border-t border-border/40 pt-3 text-xs text-muted-foreground">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-y-2 border-t border-border/40 pt-3 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <span className="flex items-center gap-1.5 font-medium">
             <Users className="size-3.5 text-primary/80" />
             <span>{memberCount.toLocaleString()} {memberCount === 1 ? "member" : "members"}</span>
@@ -141,7 +141,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
         </div>
 
         {community.userRole && (
-          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
             <Shield className="size-3" />
             <span>{community.userRole}</span>
           </span>

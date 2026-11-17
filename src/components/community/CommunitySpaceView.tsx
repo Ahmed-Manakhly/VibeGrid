@@ -208,7 +208,7 @@ export function CommunitySpaceView({
             {members.map((m) => (
               <div
                 key={m.id}
-                className="flex items-center justify-between p-3 rounded-xl border border-border/40 bg-secondary/30 hover:bg-secondary/50 transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border border-border/40 bg-secondary/30 hover:bg-secondary/50 transition-colors gap-3"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <Avatar className="size-10 border border-border/40 shrink-0">
@@ -230,7 +230,7 @@ export function CommunitySpaceView({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center justify-end sm:justify-start gap-2 shrink-0 pt-2 sm:pt-0 border-t border-border/30 sm:border-t-0">
                   {isCreatorOrAdmin && m.userId !== community.creatorId ? (
                     <div className="flex items-center gap-1.5">
                       <select

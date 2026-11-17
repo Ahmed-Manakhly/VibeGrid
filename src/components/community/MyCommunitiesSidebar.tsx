@@ -38,7 +38,7 @@ export function MyCommunitiesSidebar({ userId }: MyCommunitiesSidebarProps) {
 
   return (
     <Card className="rounded-xl border bg-card/30 shadow-none">
-      <CardHeader className="pb-3 flex flex-row items-center justify-between">
+      <CardHeader className="pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <CardTitle className="font-mono tracking-widest text-muted-foreground uppercase text-xs flex items-center gap-2">
           <Shield className="size-3.5 text-primary" />
           <span>My Guilds</span>
@@ -48,7 +48,9 @@ export function MyCommunitiesSidebar({ userId }: MyCommunitiesSidebarProps) {
             </span>
           )}
         </CardTitle>
-        <CreateCommunityDialog />
+        <div className="w-full sm:w-auto shrink-0">
+          <CreateCommunityDialog />
+        </div>
       </CardHeader>
       <CardContent className="pt-0">
         {isLoading ? (
