@@ -3,11 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Users, Shield } from "lucide-react";
+import { Users, Shield, MessageSquare, Radio } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
+import { Button } from "@/components/ui/button";
 import { CommunityMemberEntity } from "@/modules/community/domain/ICommunityRepository";
 import { getUserFollowingAction } from "@/actions/profile.action";
+import { startConversationAction } from "@/actions/messaging.action";
+import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/toast";
 
 interface CommunityMembersSidebarProps {
   communityName: string;
@@ -20,8 +25,11 @@ export function CommunityMembersSidebar({
   members,
   currentUserId,
 }: CommunityMembersSidebarProps) {
+  const router = useRouter();
+  const { onlineUsers } = useRealtime();
   const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
   const [isLoaded, setIsLoaded] = useState(false);
+  const [startingChatUserId, setStartingChatUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentUserId) {
@@ -40,40 +48,66 @@ export function CommunityMembersSidebar({
       .finally(() => setIsLoaded(true));
   }, [currentUserId]);
 
-  // Filter out current viewer AND members the viewer has already followed
-  const candidateMembers = members.filter(
-    (m) => m.userId !== currentUserId && !followingIds.has(m.userId)
-  );
+  const handleFastPassChat = async (targetUserId: string) => {
+    if (!currentUserId) {
+      router.push("/sign-in");
+      return;
+    }
+    setStartingChatUserId(targetUserId);
+    const res = await startConversationAction(targetUserId);
+    setStartingChatUserId(null);
+
+    if (res.success && res.conversation) {
+      router.push(`/messages?conversationId=${res.conversation.id}`);
+    } else {
+      toast.error(res.error || "Could not open direct chat");
+    }
+  };
+
+  // Exclude current viewer
+  const candidateMembers = members.filter((m) => m.userId !== currentUserId);
 
   if (!isLoaded || candidateMembers.length === 0) return null;
+
+  // Split into Online Co-Members vs General Members
+  const onlineMembers = candidateMembers.filter((m) => onlineUsers.has(m.userId));
+  const displayMembers = onlineMembers.length > 0 ? onlineMembers : candidateMembers;
 
   return (
     <Card className="rounded-xl border bg-card/30 shadow-none">
       <CardHeader className="pb-3">
         <CardTitle className="font-mono tracking-widest text-muted-foreground uppercase text-xs flex items-center justify-between">
           <span className="flex items-center gap-1.5">
-            <Users className="size-3.5 text-primary" />
-            <span>Members to Tune In</span>
+            <Radio className="size-3.5 text-emerald-500 animate-pulse" />
+            <span>{onlineMembers.length > 0 ? "Online Guild Members" : "Guild Members"}</span>
           </span>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary font-mono text-muted-foreground">
-            {candidateMembers.length}
+            {displayMembers.length}
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="space-y-3">
-          {candidateMembers.slice(0, 5).map((member) => {
+          {displayMembers.slice(0, 6).map((member) => {
             const displayName = member.user?.name || member.user?.username || "Developer";
+            const isOnline = onlineUsers.has(member.userId);
+            const isFollowing = followingIds.has(member.userId);
+
             return (
               <div key={member.id} className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Link href={`/profile/${member.user?.username || member.userId}`}>
-                    <UserAvatar
-                      src={member.user?.image}
-                      name={displayName}
-                      className="size-8 transition-transform hover:scale-105"
-                    />
-                  </Link>
+                  <div className="relative shrink-0">
+                    <Link href={`/profile/${member.user?.username || member.userId}`}>
+                      <UserAvatar
+                        src={member.user?.image}
+                        name={displayName}
+                        className="size-8 transition-transform hover:scale-105"
+                      />
+                    </Link>
+                    {isOnline && (
+                      <span className="absolute top-0 right-0 size-2.5 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
+                    )}
+                  </div>
                   <div className="min-w-0">
                     <Link
                       href={`/profile/${member.user?.username || member.userId}`}
@@ -99,15 +133,31 @@ export function CommunityMembersSidebar({
                   </div>
                 </div>
 
-                <FollowButton
-                  targetUserId={member.userId}
-                  className="h-7 px-2.5 text-xs rounded-lg shrink-0"
-                  onFollowChange={(isFollowing) => {
-                    if (isFollowing) {
-                      setFollowingIds((prev) => new Set(prev).add(member.userId));
-                    }
-                  }}
-                />
+                <div className="flex items-center gap-1 shrink-0">
+                  {/* 1-Click Fast-Pass Direct Chat */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                    onClick={() => handleFastPassChat(member.userId)}
+                    disabled={startingChatUserId === member.userId}
+                    title="Direct Message co-member"
+                  >
+                    <MessageSquare className="size-3.5" />
+                  </Button>
+
+                  {!isFollowing && (
+                    <FollowButton
+                      targetUserId={member.userId}
+                      className="h-7 px-2 text-[11px] rounded-lg shrink-0"
+                      onFollowChange={(nextFollowing) => {
+                        if (nextFollowing) {
+                          setFollowingIds((prev) => new Set(prev).add(member.userId));
+                        }
+                      }}
+                    />
+                  )}
+                </div>
               </div>
             );
           })}

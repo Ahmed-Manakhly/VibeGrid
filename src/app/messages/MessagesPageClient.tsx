@@ -11,7 +11,9 @@ import {
   sendMessageAction,
   deleteMessageAction,
   deleteConversationAction,
+  startConversationAction,
 } from "@/actions/messaging.action";
+import { getUserFollowingAction } from "@/actions/profile.action";
 import { toast } from "@/components/ui/toast";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
@@ -38,6 +40,9 @@ export function MessagesPageClient() {
   const { latestDirectMessage, latestTypingSignal, onlineUsers, socket, setUnreadMessagesCount } = useRealtime();
 
   const [conversations, setConversations] = useState<any[]>([]);
+  const [sidebarTab, setSidebarTab] = useState<"chats" | "online">("chats");
+  const [followedUsers, setFollowedUsers] = useState<any[]>([]);
+  const [loadingFollowed, setLoadingFollowed] = useState(false);
   const [mobileTab, setMobileTab] = useState<"conversations" | "chat">("conversations");
   const [activeConversationId, setActiveConversationId] = useState<string | null>(initialConvId);
 
@@ -130,6 +135,40 @@ export function MessagesPageClient() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showEmojiPicker]);
+
+  // Load followed users for online roster
+  const loadFollowedUsers = async () => {
+    if (!currentUser?.id) return;
+    setLoadingFollowed(true);
+    const res = await getUserFollowingAction(currentUser.id);
+    if (res.success && res.data) {
+      setFollowedUsers(res.data);
+    }
+    setLoadingFollowed(false);
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && sidebarTab === "online") {
+      loadFollowedUsers();
+    }
+  }, [isAuthenticated, sidebarTab, currentUser?.id]);
+
+  const handleStartDirectChat = async (targetUserId: string) => {
+    const res = await startConversationAction(targetUserId);
+    if (res.success && res.conversation) {
+      setConversations((prev) => {
+        if (!prev.some((c) => c.id === res.conversation.id)) {
+          return [res.conversation, ...prev];
+        }
+        return prev;
+      });
+      setActiveConversationId(res.conversation.id);
+      setSidebarTab("chats");
+      setMobileTab("chat");
+    } else {
+      toast.error(res.error || "Could not start chat");
+    }
+  };
 
   // Load conversations list
   const loadConversations = async () => {
@@ -370,23 +409,106 @@ export function MessagesPageClient() {
             mobileTab === "conversations" ? "flex flex-1 lg:flex-initial" : "hidden lg:flex"
           }`}
         >
-          <div className="p-4 border-b font-bold text-lg flex items-center justify-between">
-            <span>Conversations</span>
+          <div className="p-3 border-b flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-base">Direct Signals</span>
+            </div>
+            {/* Sidebar Sub-tab Switcher: Conversations vs Online Roster */}
+            <div className="grid grid-cols-2 p-1 bg-muted/60 rounded-xl text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setSidebarTab("chats")}
+                className={`py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  sidebarTab === "chats"
+                    ? "bg-background text-foreground shadow-sm font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <MessageCircle className="size-3.5" />
+                <span>Chats</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSidebarTab("online")}
+                className={`py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  sidebarTab === "online"
+                    ? "bg-background text-foreground shadow-sm font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Users className="size-3.5" />
+                <span>Online ({followedUsers.filter((u) => onlineUsers.has(u.id)).length})</span>
+              </button>
+            </div>
           </div>
 
         <div className="flex-1 overflow-y-auto divide-y">
-          {loadingConversations ? (
-            <div className="flex justify-center p-8">
-              <Loader2Icon className="animate-spin text-muted-foreground" />
-            </div>
-          ) : conversations.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground flex flex-col items-center justify-center gap-3">
-              <MessageSquareIcon className="size-10 stroke-[1.5] text-muted-foreground/60" />
-              <p className="text-sm max-w-xs leading-relaxed">
-                No conversations yet. Start messaging developers from their profiles!
-              </p>
-            </div>
+          {sidebarTab === "online" ? (
+            loadingFollowed ? (
+              <div className="flex justify-center p-8">
+                <Loader2Icon className="animate-spin text-muted-foreground" />
+              </div>
+            ) : followedUsers.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground flex flex-col items-center justify-center gap-2">
+                <Users className="size-8 stroke-[1.5] text-muted-foreground/60" />
+                <p className="text-xs">You are not following any developers yet.</p>
+              </div>
+            ) : (
+              followedUsers.map((dev) => {
+                const isOnline = onlineUsers.has(dev.id);
+                return (
+                  <div
+                    key={dev.id}
+                    className="p-3 flex items-center justify-between gap-2.5 hover:bg-muted/40 transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="relative shrink-0">
+                        <UserAvatar src={dev.image} name={dev.name} className="size-9 ring-1 ring-border" />
+                        {isOnline && (
+                          <span className="absolute top-0 right-0 size-2.5 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-xs font-semibold text-foreground truncate block">
+                          {dev.name || dev.username}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] text-muted-foreground font-mono truncate">
+                            @{dev.username}
+                          </span>
+                          {isOnline && (
+                            <span className="text-[9px] text-emerald-500 font-medium font-mono">
+                              ● online
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2.5 text-xs rounded-lg shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                      onClick={() => handleStartDirectChat(dev.id)}
+                    >
+                      Message
+                    </Button>
+                  </div>
+                );
+              })
+            )
           ) : (
+            loadingConversations ? (
+              <div className="flex justify-center p-8">
+                <Loader2Icon className="animate-spin text-muted-foreground" />
+              </div>
+            ) : conversations.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground flex flex-col items-center justify-center gap-3">
+                <MessageSquareIcon className="size-10 stroke-[1.5] text-muted-foreground/60" />
+                <p className="text-sm max-w-xs leading-relaxed">
+                  No conversations yet. Start messaging developers from their profiles or the Online tab!
+                </p>
+              </div>
+            ) : (
             conversations.map((conv) => {
               const other = conv.participants.find((p: any) => p.userId !== currentUser?.id)?.user;
               const isActive = conv.id === activeConversationId;
@@ -436,7 +558,7 @@ export function MessagesPageClient() {
                 </button>
               );
             })
-          )}
+          ))}
         </div>
       </div>
 
@@ -517,8 +639,32 @@ export function MessagesPageClient() {
                   <Loader2Icon className="animate-spin text-muted-foreground" />
                 </div>
               ) : messages.length === 0 ? (
-                <div className="text-center text-muted-foreground text-sm my-12">
-                  Say hello to {otherParticipant?.name || "this developer"}! 👋
+                <div className="flex flex-col items-center justify-center text-center p-8 my-auto space-y-3">
+                  {otherParticipant && (
+                    <div className="flex flex-col items-center p-6 rounded-2xl bg-muted/30 border border-border/50 max-w-sm w-full">
+                      <div className="relative mb-3">
+                        <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-16 ring-2 ring-primary/20" />
+                        {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
+                          <span className="absolute bottom-0 right-0 size-3.5 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
+                        )}
+                      </div>
+                      <h4 className="font-bold text-base text-foreground">{otherParticipant.name || otherParticipant.username}</h4>
+                      <p className="text-xs text-muted-foreground font-mono mb-2">@{otherParticipant.username}</p>
+                      {otherParticipant.bio && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 text-center mb-4">{otherParticipant.bio}</p>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`}>
+                          <Button size="sm" variant="outline" className="text-xs h-7 px-3 rounded-lg">
+                            View Profile
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    This is the beginning of your direct conversation with {otherParticipant?.name || "this developer"}.
+                  </p>
                 </div>
               ) : (
                 messages.map((msg) => {

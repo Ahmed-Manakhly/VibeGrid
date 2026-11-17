@@ -39,6 +39,18 @@ export class PrismaMessagingRepository implements IMessagingRepository {
     });
 
     if (existing) {
+      // If conversation was hidden for either user (e.g. earlier "delete for me"), unhide for requester
+      await this.prisma.conversationParticipant.updateMany({
+        where: {
+          conversationId: existing.id,
+          userId: userId1,
+          isHidden: true,
+        },
+        data: {
+          isHidden: false,
+        },
+      });
+
       return {
         id: existing.id,
         createdAt: existing.createdAt,
