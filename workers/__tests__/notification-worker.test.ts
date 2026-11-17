@@ -12,6 +12,7 @@ describe("NotificationWorker Unit Tests", () => {
       getNotifications: jest.fn(),
       markAsRead: jest.fn(),
       create: jest.fn(),
+      deleteOldNotifications: jest.fn(),
     };
 
     cacheService = {

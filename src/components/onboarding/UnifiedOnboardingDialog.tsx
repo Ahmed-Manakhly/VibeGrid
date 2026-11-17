@@ -16,7 +16,8 @@ import { UserAvatar } from '@/components/UserAvatar';
 import { useSession } from '@/components/auth/SessionProvider';
 import { updateProfile } from '@/actions/profile.action';
 import { toast } from '@/components/ui/toast';
-import { Sparkles, Check, ArrowRight, UserCheck, Code } from 'lucide-react';
+import { Sparkles, Check, ArrowRight, UserCheck, Code, ShieldCheck } from 'lucide-react';
+import { PolicyModal } from '@/components/settings/PolicyModal';
 import { useRouter } from 'next/navigation';
 
 export function UnifiedOnboardingDialog() {
@@ -25,6 +26,7 @@ export function UnifiedOnboardingDialog() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
 
   // Step 1: Basic Identity
   const [displayName, setDisplayName] = useState('');
@@ -98,6 +100,10 @@ export function UnifiedOnboardingDialog() {
   const handleCompleteStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (!acceptedPolicy) {
+      toast.error('Please accept the Developer Platform Policy to proceed.');
+      return;
+    }
     setIsSubmittingProfile(true);
 
     try {
@@ -231,6 +237,28 @@ export function UnifiedOnboardingDialog() {
                   placeholder="https://github.com/alex"
                   className="text-sm break-all"
                 />
+              </div>
+
+              {/* Mandatory Policy & Terms Acceptance Gate for Google OAuth / Onboarding */}
+              <div className="pt-2 border-t border-border/50">
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed select-none">
+                  <input
+                    type="checkbox"
+                    checked={acceptedPolicy}
+                    onChange={(e) => setAcceptedPolicy(e.target.checked)}
+                    className="mt-0.5 size-4 rounded border-border accent-primary shrink-0"
+                    required
+                  />
+                  <span className="text-muted-foreground">
+                    I agree to the{" "}
+                    <PolicyModal>
+                      <button type="button" className="text-primary hover:underline font-semibold inline">
+                        Developer Platform Policies & Terms
+                      </button>
+                    </PolicyModal>
+                    , including trust & safety rules, dual-copy chat data retention, and acceptable use guidelines.
+                  </span>
+                </label>
               </div>
             </form>
           ) : (

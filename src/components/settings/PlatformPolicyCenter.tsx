@@ -82,6 +82,35 @@ export function PlatformPolicyCenter() {
             <p>• <strong>Right to Deletion:</strong> Deleting your account irrevocably detaches your personal identity and removes active sessions.</p>
           </CardContent>
         </Card>
+
+        {/* 5. Trust, Safety & Cascade Blocking */}
+        <Card className="border border-white/10 bg-card/60 backdrop-blur-xl">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2 text-foreground">
+              <ShieldCheck className="size-4 text-rose-400" />
+              <CardTitle className="text-sm font-semibold">5. Trust, Safety & Cascade Blocking</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="text-xs space-y-2 text-muted-foreground leading-relaxed">
+            <p>• <strong>Cascade Blocking:</strong> Blocking a developer triggers a transactional cascade that automatically severs mutual follows, clears and archives shared direct conversations, and immediately evicts the blocker from any guilds created by the blocked developer.</p>
+            <p>• <strong>Bidirectional Search & Feed Isolation:</strong> Blocked parties are completely masked from global search autocomplete, profile views, guild rosters, and discovery feeds.</p>
+          </CardContent>
+        </Card>
+
+        {/* 6. Dual-Copy Messaging & Data Retention */}
+        <Card className="border border-white/10 bg-card/60 backdrop-blur-xl">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2 text-foreground">
+              <Lock className="size-4 text-indigo-400" />
+              <CardTitle className="text-sm font-semibold">6. Dual-Copy Messaging & Data Retention</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="text-xs space-y-2 text-muted-foreground leading-relaxed">
+            <p>• <strong>ModelLink Dual-Copy Chat:</strong> Deleting a conversation clears the chat history for your account only (&quot;Delete for Me&quot;) using independent participant timestamps, preserving the counterparty&apos;s copy unless all participants purge the room.</p>
+            <p>• <strong>Scoped Message Deletion:</strong> Unread messages may be &quot;Deleted for Everyone&quot;. Once read by the recipient, deletion is restricted to &quot;Delete for Me&quot;.</p>
+            <p>• <strong>30-Day Activity Pruning:</strong> Social notifications and activity indicators older than 30 days are automatically pruned from platform storage.</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
