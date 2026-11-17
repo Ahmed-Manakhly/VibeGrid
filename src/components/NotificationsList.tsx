@@ -3,8 +3,9 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
-import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users } from "lucide-react";
+import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users, Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
@@ -40,6 +41,7 @@ type Notification = {
 
 interface NotificationsListProps {
   initialNotifications: Notification[];
+  initialCursor?: string | null;
 }
 
 const getNotificationBadge = (type: string) => {
@@ -73,9 +75,11 @@ const getNotificationBadge = (type: string) => {
   }
 };
 
-export function NotificationsList({ initialNotifications }: NotificationsListProps) {
+export function NotificationsList({ initialNotifications, initialCursor = null }: NotificationsListProps) {
   const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+  const [cursor, setCursor] = useState<string | null>(initialCursor);
+  const [loadingMore, setLoadingMore] = useState(false);
   const { latestNotification, setUnreadCount } = useRealtime();
 
   // Keep realtime unread count in sync with unread notifications in state
@@ -90,9 +94,10 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
 
     const syncNotifications = async () => {
       try {
-        const data = await getNotifications();
-        if (Array.isArray(data)) {
-          setNotifications(data as Notification[]);
+        const data = await getNotifications({ limit: 20 });
+        if (data.success && data.notifications) {
+          setNotifications(data.notifications as Notification[]);
+          setCursor(data.nextCursor || null);
         }
       } catch (error) {
         console.error("Failed to sync realtime notification", error);
@@ -101,6 +106,22 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
 
     syncNotifications();
   }, [latestNotification]);
+
+  const handleLoadMore = async () => {
+    if (!cursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const data = await getNotifications({ limit: 20, cursor });
+      if (data.success && data.notifications) {
+        setNotifications((prev) => [...prev, ...(data.notifications as Notification[])]);
+        setCursor(data.nextCursor || null);
+      }
+    } catch (err) {
+      console.error("Failed to load older notifications", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleNotificationClick = async (notification: Notification) => {
     // 1. If unread, mark this specific notification as read in DB and update local state
@@ -209,6 +230,21 @@ export function NotificationsList({ initialNotifications }: NotificationsListPro
                 </div>
               </div>
             ))
+          )}
+
+          {cursor && (
+            <div className="p-4 flex justify-center border-t border-border/40">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="text-xs h-8 px-4 rounded-xl gap-2 font-mono"
+              >
+                {loadingMore && <Loader2Icon className="size-3 animate-spin" />}
+                <span>{loadingMore ? "Loading more..." : "Load older notifications"}</span>
+              </Button>
+            </div>
           )}
         </ScrollArea>
       </CardContent>

@@ -1,10 +1,10 @@
-import { INotificationRepository } from "../domain/INotificationRepository";
+import { INotificationRepository, GetNotificationsOptions, PaginatedNotificationsResult } from "../domain/INotificationRepository";
 
 export class GetNotificationsUseCase {
   constructor(private repo: INotificationRepository) {}
 
-  async execute(userId: string) {
-    if (!userId) return [];
-    return this.repo.getNotifications(userId);
+  async execute(userId: string, options?: GetNotificationsOptions): Promise<PaginatedNotificationsResult> {
+    if (!userId) return { notifications: [], nextCursor: null };
+    return this.repo.getNotifications(userId, options);
   }
 }

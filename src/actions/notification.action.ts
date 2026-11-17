@@ -3,14 +3,15 @@
 import { getDbUserId } from "./user.action";
 import { getNotificationsUseCase, markAsReadUseCase, logger } from "@/shared/infrastructure/di-container";
 
-export async function getNotifications() {
+export async function getNotifications(options?: { limit?: number; cursor?: string }) {
     try {
         const userId = await getDbUserId();
-        if (!userId) return [];
-        return await getNotificationsUseCase.execute(userId);
+        if (!userId) return { success: false, notifications: [], nextCursor: null };
+        const result = await getNotificationsUseCase.execute(userId, options);
+        return { success: true, ...result };
     } catch (error) {
         logger.error("Error fetching notifications", error);
-        throw new Error("Failed to fetch notifications");
+        return { success: false, notifications: [], nextCursor: null };
     }
 }
 

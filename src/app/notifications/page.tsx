@@ -6,8 +6,10 @@ import { Bell } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function NotificationsPage() {
-  const notifications = await getNotifications();
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const result = await getNotifications({ limit: 20 });
+  const notifications = result.notifications || [];
+  const nextCursor = result.nextCursor || null;
+  const unreadCount = notifications.filter((n: any) => !n.read).length;
 
   return (
     <div className="space-y-6 w-full">
@@ -25,7 +27,7 @@ export default async function NotificationsPage() {
         }
       />
 
-      <NotificationsList initialNotifications={notifications} />
+      <NotificationsList initialNotifications={notifications} initialCursor={nextCursor} />
     </div>
   );
 }
