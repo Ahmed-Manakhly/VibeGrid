@@ -67,15 +67,28 @@ export function SidebarSettingsLink() {
   const isActive = isRouteActive(pathname, sidebarSettingsItem);
 
   return (
-    <Link 
-      href={href} 
-      onClick={() => {
-        if (window.innerWidth < 1024) close();
-      }}
-      className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
-    >
-      <SettingsIcon className="size-5 shrink-0" />
-      <span className="lg:group-[.is-collapsed]:hidden">{label}</span>
-    </Link>
+    <div className="flex flex-col gap-1">
+      <Link 
+        href={href} 
+        onClick={() => {
+          if (window.innerWidth < 1024) close();
+        }}
+        className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
+      >
+        <SettingsIcon className="size-5 shrink-0" />
+        <span className="lg:group-[.is-collapsed]:hidden">{label}</span>
+      </Link>
+      <div className="lg:group-[.is-collapsed]:hidden px-3.5 py-0.5">
+        <Link
+          href="/settings?tab=policy"
+          onClick={() => {
+            if (window.innerWidth < 1024) close();
+          }}
+          className="text-[11px] text-muted-foreground/70 hover:text-primary underline transition-colors"
+        >
+          Policy Center
+        </Link>
+      </div>
+    </div>
   );
 }

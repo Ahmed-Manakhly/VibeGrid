@@ -122,6 +122,13 @@ export function SettingsSidebar({ user }: SettingsSidebarProps) {
           <div className="pt-2 text-[11px] text-muted-foreground/70 leading-relaxed">
             Need to delete your account or revoke all tokens? Manage in the <Link href="/settings?tab=security" className="text-primary underline">Security Tab</Link>.
           </div>
+
+          <div className="pt-2 border-t border-border/40 flex items-center justify-between text-[11px]">
+            <span className="text-muted-foreground">Compliance</span>
+            <Link href="/settings?tab=policy" className="text-primary underline hover:text-primary/80">
+              Policy Center
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </aside>

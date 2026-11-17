@@ -34,6 +34,7 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
   const [showPassword, setShowPassword] = useState(false)
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [agreedToPolicy, setAgreedToPolicy] = useState(false)
 
   // Step 2: Verification State
   const [requiresVerification, setRequiresVerification] = useState(initialVerify)
@@ -73,6 +74,13 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
 
     if (passwordInput.value !== passwordConfirmInput.value) {
       const err = 'Passwords do not match';
+      setFormError(err);
+      toast.error(err);
+      return;
+    }
+
+    if (!agreedToPolicy) {
+      const err = 'You must review and accept the Platform Policy & Terms to create an account.';
       setFormError(err);
       toast.error(err);
       return;
@@ -222,6 +230,8 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
     setShowPassword,
     showPasswordConfirm,
     setShowPasswordConfirm,
+    agreedToPolicy,
+    setAgreedToPolicy,
     isSubmitting,
     requiresVerification,
     verificationCode,

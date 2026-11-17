@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Eye, EyeOff, LockKeyhole, Mail, UserRound, Loader2, KeyRound, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, LockKeyhole, Mail, UserRound, Loader2, KeyRound, ArrowRight, ArrowLeft, ShieldCheck } from 'lucide-react'
 import { useRegisterForm } from '@/modules/auth/presentation/hooks/useRegisterForm'
+import { PolicyModal } from '@/components/settings/PolicyModal'
 
 interface RegisterFormProps {
   initialEmail?: string
@@ -41,7 +42,8 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
     setShowPassword,
     showPasswordConfirm,
     setShowPasswordConfirm,
-
+    agreedToPolicy,
+    setAgreedToPolicy,
     isSubmitting,
     requiresVerification,
     verificationCode,
@@ -194,11 +196,36 @@ export function RegisterForm({ initialEmail = '', initialVerify = false }: Regis
                 )}
               </label>
 
+              {/* Mandatory Policy Checkmark */}
+              <div className="pt-1">
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs text-muted-foreground select-none group">
+                  <input
+                    type="checkbox"
+                    checked={agreedToPolicy}
+                    onChange={(e) => setAgreedToPolicy(e.target.checked)}
+                    className="mt-0.5 size-4 rounded border-border/80 bg-background/50 text-primary accent-primary focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer"
+                    required
+                  />
+                  <span className="leading-relaxed">
+                    I have read and agree to the{' '}
+                    <PolicyModal>
+                      <button
+                        type="button"
+                        className="text-primary hover:underline underline font-medium inline"
+                      >
+                        VibeGrid Developer Policy & Terms
+                      </button>
+                    </PolicyModal>
+                    .
+                  </span>
+                </label>
+              </div>
+
               <div className="flex flex-col gap-3 mt-2">
                 <button
-                  className="btn-gradient w-full h-11 rounded-xl font-semibold flex items-center justify-center gap-2"
+                  className="btn-gradient w-full h-11 rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !agreedToPolicy}
                 >
                   {isSubmitting ? <Loader2 className="animate-spin size-4" /> : 'Create account'}
                 </button>

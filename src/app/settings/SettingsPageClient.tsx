@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, User, Sparkles, Settings } from 'lucide-react';
+import { Shield, User, Sparkles, Settings, FileText } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { ProfileSettingsForm } from '@/modules/social/presentation/components/ProfileSettingsForm';
 import { FeedPreferencesSettingsForm } from '@/modules/social/presentation/components/FeedPreferencesSettingsForm';
 import { SecuritySettingsForm } from '@/modules/auth/presentation/components/SecuritySettingsForm';
+import { PlatformPolicyCenter } from '@/components/settings/PlatformPolicyCenter';
 import { SettingsSidebar } from '@/components/settings/SettingsSidebar';
 import { useSearchParams } from 'next/navigation';
 
@@ -28,14 +29,15 @@ interface SettingsPageClientProps {
 export default function SettingsPageClient({ user }: SettingsPageClientProps) {
   const searchParams = useSearchParams();
   const requestedTab = searchParams.get('tab');
-  const defaultTab = requestedTab === 'personalization' || requestedTab === 'security' ? requestedTab : 'personalization';
+  const validTabs = ['personalization', 'profile', 'security', 'policy'];
+  const defaultTab = requestedTab && validTabs.includes(requestedTab) ? requestedTab : 'personalization';
 
   return (
     <div className="w-full py-2 px-0 space-y-6">
       <PageHeader
         eyebrow="PREFERENCES & CONFIG"
         title="Account Settings"
-        subtitle="Manage your feed personalization, profile identity, and security preferences."
+        subtitle="Manage your feed personalization, profile identity, security, and platform compliance."
         icon={Settings}
       />
 
@@ -65,6 +67,13 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
                   <Shield className="size-4 shrink-0" />
                   <span>Security</span>
                 </TabsTrigger>
+                <TabsTrigger
+                  value="policy"
+                  className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
+                >
+                  <FileText className="size-4 shrink-0" />
+                  <span>Policy Center</span>
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -78,6 +87,10 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
 
             <TabsContent value="security" className="mt-6 space-y-6">
               <SecuritySettingsForm />
+            </TabsContent>
+
+            <TabsContent value="policy" className="mt-6 space-y-6">
+              <PlatformPolicyCenter />
             </TabsContent>
           </Tabs>
         </div>
