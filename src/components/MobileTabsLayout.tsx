@@ -25,15 +25,16 @@ export function MobileTabsLayout({
     viewParam === 'discovery' ? 'discovery' : 'feed'
   );
 
-  // Synchronize when URL path changes (e.g. clicking a guild or navigating to another community)
+  // Synchronize when URL path or searchParams change (e.g. clicking category, tag, search, or view param)
   useEffect(() => {
-    if (viewParam === 'discovery' || viewParam === 'feed') {
-      setActiveTab(viewParam);
+    if (viewParam === 'discovery') {
+      setActiveTab('discovery');
     } else {
-      // Default to feed view when navigating to a new route
+      // Whenever query params change (e.g. ?category=database, ?tag=react, ?q=...) or path changes,
+      // default back to the Feed tab so the user sees the filtered results immediately!
       setActiveTab('feed');
     }
-  }, [pathname, viewParam]);
+  }, [pathname, searchParams]);
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 xl:gap-12 xl:items-start w-full">
