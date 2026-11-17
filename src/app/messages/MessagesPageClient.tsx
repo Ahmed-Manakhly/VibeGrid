@@ -20,9 +20,40 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon, SmileIcon, Users, MessageCircle, MessagesSquare, Trash2Icon, MoreVerticalIcon } from "lucide-react";
+import {
+  SendIcon,
+  MessageSquareIcon,
+  ArrowLeftIcon,
+  Loader2Icon,
+  Code2Icon,
+  SmileIcon,
+  Users,
+  MessageCircle,
+  MessagesSquare,
+  Trash2Icon,
+  MoreVerticalIcon,
+  ImageIcon,
+  PaperclipIcon,
+  MicIcon,
+  MicOffIcon,
+  FileIcon,
+  PlayIcon,
+  PauseIcon,
+  DownloadIcon,
+  XIcon,
+} from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
+import { uploadMediaAsset } from "@/lib/mediaClient";
+import { ImageLightboxModal } from "@/modules/messaging/presentation/components/ImageLightboxModal";
+import { ChatMessageParser, ChatMediaAttachment } from "@/modules/messaging/domain/ChatMessageParser";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const MESSAGES_MOBILE_TABS = [
   { value: "conversations", label: "Conversations", icon: Users },
@@ -81,6 +112,149 @@ export function MessagesPageClient() {
       textareaRef.current.style.height = `${Math.min(Math.max(scrollHeight, 40), maxHeight)}px`;
     }
   }, [content]);
+
+  // Media & Code Block state
+  const [showCodeComposer, setShowCodeComposer] = useState(false);
+  const [codeLanguage, setCodeLanguage] = useState("typescript");
+  const [codeSnippet, setCodeSnippet] = useState("");
+  const [pendingAttachment, setPendingAttachment] = useState<ChatMediaAttachment | null>(null);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Lightbox Modal state
+  const [lightboxImageUrl, setLightboxImageUrl] = useState<string | null>(null);
+
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordDuration, setRecordDuration] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Audio playback state
+  const [playingAudioUrl, setPlayingAudioUrl] = useState<string | null>(null);
+  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const togglePlayAudio = (url: string) => {
+    if (playingAudioUrl === url) {
+      activeAudioRef.current?.pause();
+      setPlayingAudioUrl(null);
+      return;
+    }
+
+    if (activeAudioRef.current) {
+      activeAudioRef.current.pause();
+    }
+
+    const audio = new Audio(url);
+    activeAudioRef.current = audio;
+    setPlayingAudioUrl(url);
+
+    audio.onended = () => {
+      setPlayingAudioUrl(null);
+    };
+    audio.onerror = () => {
+      toast.error("Failed to play audio snippet");
+      setPlayingAudioUrl(null);
+    };
+
+    audio.play().catch(() => {
+      setPlayingAudioUrl(null);
+    });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isImageOnly = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input
+    e.target.value = "";
+
+    setUploadingMedia(true);
+    try {
+      const isImage = file.type.startsWith("image/");
+      const result = await uploadMediaAsset({
+        file,
+        purpose: "post_attachment",
+      });
+
+      setPendingAttachment({
+        type: isImage ? "image" : "file",
+        url: result.publicUrl,
+        name: file.name,
+        size: file.size,
+      });
+      toast.success(isImage ? "Image uploaded" : "File attached");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload file");
+    } finally {
+      setUploadingMedia(false);
+    }
+  };
+
+  const startVoiceRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        if (audioBlob.size > 0) {
+          const audioFile = new File([audioBlob], `voice-note-${Date.now()}.webm`, {
+            type: "audio/webm",
+          });
+          setUploadingMedia(true);
+          try {
+            const result = await uploadMediaAsset({
+              file: audioFile,
+              purpose: "post_attachment",
+            });
+            setPendingAttachment({
+              type: "voice",
+              url: result.publicUrl,
+              name: "Voice Note",
+              duration: recordDuration,
+            });
+            toast.success("Voice note recorded");
+          } catch (err: any) {
+            toast.error("Failed to upload voice note");
+          } finally {
+            setUploadingMedia(false);
+          }
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordDuration(0);
+
+      recordTimerRef.current = setInterval(() => {
+        setRecordDuration((prev) => prev + 1);
+      }, 1000);
+    } catch (err) {
+      toast.error("Microphone access denied or unavailable");
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (recordTimerRef.current) {
+        clearInterval(recordTimerRef.current);
+        recordTimerRef.current = null;
+      }
+    }
+  };
 
   // Deletion modals / state
   const [activeDeleteMessageId, setActiveDeleteMessageId] = useState<string | null>(null);
@@ -320,7 +494,11 @@ export function MessagesPageClient() {
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || !activeConversationId || sending) return;
+    const hasText = Boolean(content.trim());
+    const hasCode = Boolean(codeSnippet.trim());
+    const hasAttachment = Boolean(pendingAttachment);
+
+    if ((!hasText && !hasCode && !hasAttachment) || !activeConversationId || sending) return;
 
     // Immediately stop typing signal when sending
     if (socket && otherParticipant?.id) {
@@ -331,11 +509,19 @@ export function MessagesPageClient() {
       });
     }
 
-    const tempContent = content;
+    const payload = ChatMessageParser.format({
+      text: content.trim(),
+      codeBlock: hasCode ? { language: codeLanguage, code: codeSnippet.trim() } : undefined,
+      attachment: pendingAttachment || undefined,
+    });
+
     setContent("");
+    setCodeSnippet("");
+    setShowCodeComposer(false);
+    setPendingAttachment(null);
     setSending(true);
 
-    const res = await sendMessageAction(activeConversationId, tempContent);
+    const res = await sendMessageAction(activeConversationId, payload);
     setSending(false);
 
     if (res.success && res.message) {
@@ -669,7 +855,7 @@ export function MessagesPageClient() {
               ) : (
                 messages.map((msg) => {
                   const isMe = msg.senderId === currentUser?.id;
-                  const parsed = PostContentValueObject.parse(msg.content);
+                  const parsed = ChatMessageParser.parse(msg.content);
                   const isMenuOpen = activeDeleteMessageId === msg.id;
 
                   return (
@@ -715,17 +901,94 @@ export function MessagesPageClient() {
                         )}
 
                         <div
-                          className={`rounded-2xl px-4 py-2 text-sm break-words flex-1 ${
+                          className={`rounded-2xl px-4 py-2.5 text-sm break-words flex-1 flex flex-col gap-2 ${
                             isMe
                               ? "bg-primary text-primary-foreground rounded-br-none"
                               : "bg-muted text-foreground rounded-bl-none"
                           }`}
                         >
+                          {/* Image Attachment */}
+                          {parsed.attachment?.type === "image" && (
+                            <div className="rounded-xl overflow-hidden cursor-pointer group/img relative my-1">
+                              <img
+                                src={parsed.attachment.url}
+                                alt="attachment"
+                                onClick={() => setLightboxImageUrl(parsed.attachment!.url)}
+                                className="max-h-60 rounded-lg object-cover hover:opacity-95 transition-opacity"
+                              />
+                              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover/img:opacity-100 transition-opacity">
+                                <Button
+                                  type="button"
+                                  size="icon"
+                                  variant="secondary"
+                                  className="size-7 rounded-lg bg-background/80 backdrop-blur-sm shadow"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setLightboxImageUrl(parsed.attachment!.url);
+                                  }}
+                                  title="View full image"
+                                >
+                                  <ImageIcon className="size-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Voice Note Attachment */}
+                          {parsed.attachment?.type === "voice" && (
+                            <div className="flex items-center gap-2.5 p-2 rounded-xl bg-background/20 backdrop-blur-sm border border-foreground/10 my-1">
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="secondary"
+                                onClick={() => togglePlayAudio(parsed.attachment!.url)}
+                                className="size-8 rounded-full bg-primary text-primary-foreground hover:opacity-90 shrink-0"
+                              >
+                                {playingAudioUrl === parsed.attachment.url ? (
+                                  <PauseIcon className="size-4" />
+                                ) : (
+                                  <PlayIcon className="size-4 ml-0.5" />
+                                )}
+                              </Button>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-xs font-semibold block truncate">Voice Note</span>
+                                <span className="text-[10px] opacity-75 font-mono">
+                                  {parsed.attachment.duration ? `${parsed.attachment.duration}s` : "Audio Note"}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* File Attachment */}
+                          {parsed.attachment?.type === "file" && (
+                            <div className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-background/20 backdrop-blur-sm border border-foreground/10 my-1">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <FileIcon className="size-4 shrink-0" />
+                                <span className="text-xs truncate font-medium">
+                                  {parsed.attachment.name || "Attachment"}
+                                </span>
+                              </div>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => window.open(parsed.attachment!.url, "_blank")}
+                                className="h-7 px-2 text-xs gap-1 rounded-lg shrink-0 hover:bg-background/40"
+                              >
+                                <DownloadIcon className="size-3.5" />
+                                <span className="text-[11px]">Download</span>
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Message Text */}
                           {parsed.text && (
                             <div className="whitespace-pre-wrap">{parsed.text}</div>
                           )}
+
+                          {/* Code Block with Syntax Highlighting */}
                           {parsed.codeBlock && (
-                            <div className="my-2 rounded-lg overflow-hidden text-left not-prose">
+                            <div className="my-1 rounded-lg overflow-hidden text-left not-prose">
                               <CodeBlockViewer
                                 language={parsed.codeBlock.language}
                                 code={parsed.codeBlock.code}
@@ -797,22 +1060,160 @@ export function MessagesPageClient() {
 
             {/* Input Composer */}
             <form onSubmit={handleSend} className="p-3 border-t bg-card/40 backdrop-blur-md flex flex-col gap-2">
-              {/* Feature Action Bar (Code Block & Emoji Picker Toolbar) */}
+              {/* Pending Attachment Preview Banner */}
+              {pendingAttachment && (
+                <div className="flex items-center justify-between p-2 rounded-xl bg-muted/60 border border-border/60 text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {pendingAttachment.type === "image" && <ImageIcon className="size-4 text-primary shrink-0" />}
+                    {pendingAttachment.type === "voice" && <MicIcon className="size-4 text-emerald-500 shrink-0" />}
+                    {pendingAttachment.type === "file" && <FileIcon className="size-4 text-blue-500 shrink-0" />}
+                    <span className="font-medium truncate">{pendingAttachment.name || "Attachment"}</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-6 text-muted-foreground hover:text-destructive rounded-full"
+                    onClick={() => setPendingAttachment(null)}
+                  >
+                    <XIcon className="size-3.5" />
+                  </Button>
+                </div>
+              )}
+
+              {/* Code Snippet Composer Tray */}
+              {showCodeComposer && (
+                <div className="border border-border/70 rounded-xl p-2.5 bg-background/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Code2Icon className="size-3.5 text-primary" />
+                      <span className="text-xs font-mono font-semibold uppercase text-muted-foreground">Code Snippet</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Select value={codeLanguage} onValueChange={setCodeLanguage}>
+                        <SelectTrigger className="w-[125px] h-7 text-xs bg-background border-border/50 font-mono rounded-lg">
+                          <SelectValue placeholder="Language" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border-border/50 font-mono">
+                          <SelectItem value="typescript">TypeScript</SelectItem>
+                          <SelectItem value="javascript">JavaScript</SelectItem>
+                          <SelectItem value="tsx">TSX</SelectItem>
+                          <SelectItem value="jsx">JSX</SelectItem>
+                          <SelectItem value="python">Python</SelectItem>
+                          <SelectItem value="sql">SQL</SelectItem>
+                          <SelectItem value="json">JSON</SelectItem>
+                          <SelectItem value="bash">Bash / Shell</SelectItem>
+                          <SelectItem value="html">HTML</SelectItem>
+                          <SelectItem value="css">CSS</SelectItem>
+                          <SelectItem value="java">Java</SelectItem>
+                          <SelectItem value="go">Go</SelectItem>
+                          <SelectItem value="csharp">C#</SelectItem>
+                          <SelectItem value="cpp">C++</SelectItem>
+                          <SelectItem value="php">PHP</SelectItem>
+                          <SelectItem value="rust">Rust</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-6 text-muted-foreground hover:text-foreground rounded-full"
+                        onClick={() => {
+                          setShowCodeComposer(false);
+                          setCodeSnippet("");
+                        }}
+                      >
+                        <XIcon className="size-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  <textarea
+                    placeholder="// Paste your code snippet here..."
+                    value={codeSnippet}
+                    onChange={(e) => setCodeSnippet(e.target.value)}
+                    className="w-full min-h-[90px] font-mono text-xs bg-background/90 border border-border/40 rounded-lg p-2.5 resize-y focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/50"
+                  />
+                </div>
+              )}
+
+              {/* Feature Action Bar (Code, Image, File, Voice & Emoji Toolbar) */}
               <div className="flex items-center justify-between gap-1 border-b border-border/40 pb-2">
                 <div className="flex items-center gap-1">
+                  {/* Code snippet toggle */}
+                  <Button
+                    type="button"
+                    variant={showCodeComposer ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setShowCodeComposer((prev) => !prev)}
+                    className="text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 h-8 px-2.5 text-xs gap-1.5 rounded-lg transition-colors font-mono"
+                    title="Toggle code snippet composer"
+                  >
+                    <Code2Icon className="size-3.5" />
+                    <span className="font-mono text-[11px]">Code</span>
+                  </Button>
+
+                  {/* Hidden file input */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+
+                  {/* Image attachment */}
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
+                    disabled={uploadingMedia}
                     onClick={() => {
-                      setContent((prev) => prev ? `${prev}\n\`\`\`typescript\n// your code snippet here\n\`\`\`\n` : "```typescript\n// your code snippet here\n```\n");
-                      textareaRef.current?.focus();
+                      if (fileInputRef.current) {
+                        fileInputRef.current.accept = "image/*";
+                        fileInputRef.current.click();
+                      }
                     }}
                     className="text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 h-8 px-2.5 text-xs gap-1.5 rounded-lg transition-colors font-mono"
-                    title="Insert code snippet"
+                    title="Share image"
                   >
-                    <Code2Icon className="size-3.5" />
-                    <span className="font-mono text-[11px]">Code</span>
+                    <ImageIcon className="size-3.5" />
+                    <span className="font-mono text-[11px]">Image</span>
+                  </Button>
+
+                  {/* File attachment */}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={uploadingMedia}
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.accept = "*/*";
+                        fileInputRef.current.click();
+                      }
+                    }}
+                    className="text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 h-8 px-2.5 text-xs gap-1.5 rounded-lg transition-colors font-mono"
+                    title="Attach file"
+                  >
+                    <PaperclipIcon className="size-3.5" />
+                    <span className="font-mono text-[11px]">File</span>
+                  </Button>
+
+                  {/* Voice note recorder button */}
+                  <Button
+                    type="button"
+                    variant={isRecording ? "destructive" : "ghost"}
+                    size="sm"
+                    disabled={uploadingMedia}
+                    onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
+                    className={`h-8 px-2.5 text-xs gap-1.5 rounded-lg transition-colors font-mono ${
+                      isRecording ? "animate-pulse" : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                    }`}
+                    title={isRecording ? "Stop recording voice note" : "Record voice note"}
+                  >
+                    {isRecording ? <MicOffIcon className="size-3.5" /> : <MicIcon className="size-3.5" />}
+                    <span className="font-mono text-[11px]">
+                      {isRecording ? `${recordDuration}s` : "Voice"}
+                    </span>
                   </Button>
 
                   {/* Emoji Picker Dropdown */}
@@ -871,7 +1272,7 @@ export function MessagesPageClient() {
                 </div>
 
                 <span className="text-[10px] text-muted-foreground/70 font-mono hidden sm:inline">
-                  Enter to send • Shift+Enter for new line
+                  {uploadingMedia ? "Uploading asset..." : "Enter to send • Shift+Enter for new line"}
                 </span>
               </div>
 
@@ -885,22 +1286,22 @@ export function MessagesPageClient() {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      if (content.trim() && !sending) {
+                      if ((content.trim() || codeSnippet.trim() || pendingAttachment) && !sending && !uploadingMedia) {
                         handleSend(e);
                       }
                     }
                   }}
-                  placeholder="Write a message... (supports ```lang code blocks)"
+                  placeholder="Write a message... (supports rich media & code)"
                   maxLength={2000}
                   className="flex-1 w-full bg-background/50 border border-input rounded-xl px-3 py-2 text-sm leading-relaxed resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary overflow-y-auto min-h-[40px] max-h-[160px] scrollbar-thin transition-all"
                 />
                 <Button
                   type="submit"
                   size="icon"
-                  disabled={!content.trim() || sending}
+                  disabled={(!content.trim() && !codeSnippet.trim() && !pendingAttachment) || sending || uploadingMedia}
                   className="size-10 rounded-xl shrink-0 btn-gradient"
                 >
-                  {sending ? (
+                  {sending || uploadingMedia ? (
                     <Loader2Icon className="animate-spin size-4" />
                   ) : (
                     <SendIcon className="size-4" />
@@ -919,6 +1320,13 @@ export function MessagesPageClient() {
         )}
       </div>
     </div>
+
+    {/* Image Lightbox Modal */}
+    <ImageLightboxModal
+      isOpen={Boolean(lightboxImageUrl)}
+      imageUrl={lightboxImageUrl}
+      onClose={() => setLightboxImageUrl(null)}
+    />
     </div>
   );
 }
