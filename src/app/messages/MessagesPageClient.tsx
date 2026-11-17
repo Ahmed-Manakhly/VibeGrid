@@ -115,12 +115,14 @@ export function MessagesPageClient() {
     if (textareaRef.current) {
       if (!content) {
         textareaRef.current.style.height = "40px";
+        textareaRef.current.style.overflowY = "hidden";
         return;
       }
       textareaRef.current.style.height = "auto";
       const scrollHeight = textareaRef.current.scrollHeight;
       const maxHeight = 160; // Max height limit before internal scrolling
       textareaRef.current.style.height = `${Math.min(Math.max(scrollHeight, 40), maxHeight)}px`;
+      textareaRef.current.style.overflowY = scrollHeight > maxHeight ? "auto" : "hidden";
     }
   }, [content]);
 
@@ -871,7 +873,7 @@ export function MessagesPageClient() {
             </div>
 
             {/* Messages Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3">
               {nextCursor && (
                 <div className="flex justify-center my-2">
                   <Button
@@ -943,10 +945,10 @@ export function MessagesPageClient() {
                       key={msg.id}
                       className={`flex flex-col group relative ${isMe ? "items-end" : "items-start"}`}
                     >
-                      <div className="flex items-center gap-1.5 max-w-[85%] sm:max-w-[75%]">
+                      <div className="flex items-start gap-1.5 w-full sm:w-auto max-w-[92%] sm:max-w-[75%] relative">
                         {/* Options button on left if it's Me */}
                         {isMe && (
-                          <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="relative opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0 mt-1">
                             <Button
                               type="button"
                               variant="ghost"
@@ -958,12 +960,12 @@ export function MessagesPageClient() {
                               <MoreVerticalIcon className="size-3.5" />
                             </Button>
                             {isMenuOpen && (
-                              <div className="absolute right-0 bottom-full mb-1 z-30 min-w-[140px] p-1 rounded-xl bg-card border border-border shadow-lg backdrop-blur-md flex flex-col gap-0.5 text-xs">
+                              <div className="absolute left-0 sm:left-auto sm:right-0 bottom-full mb-1 z-30 min-w-[140px] max-w-[90vw] p-1 rounded-xl bg-card border border-border shadow-lg backdrop-blur-md flex flex-col gap-0.5 text-xs">
                                 {!msg.isRead && (
                                   <button
                                     type="button"
                                     onClick={() => handleDeleteMessage(msg.id, "FOR_EVERYONE")}
-                                    className="text-left px-2.5 py-1.5 rounded-lg hover:bg-destructive/10 text-destructive font-medium transition-colors"
+                                    className="text-left px-2.5 py-1.5 rounded-lg hover:bg-destructive/10 text-destructive font-medium transition-colors whitespace-nowrap"
                                   >
                                     Delete for everyone
                                   </button>
@@ -971,7 +973,7 @@ export function MessagesPageClient() {
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteMessage(msg.id, "FOR_ME")}
-                                  className="text-left px-2.5 py-1.5 rounded-lg hover:bg-muted text-foreground transition-colors"
+                                  className="text-left px-2.5 py-1.5 rounded-lg hover:bg-muted text-foreground transition-colors whitespace-nowrap"
                                 >
                                   Delete for me
                                 </button>
@@ -983,7 +985,7 @@ export function MessagesPageClient() {
                         <div
                           className={`rounded-2xl px-4 py-2.5 text-sm break-words flex-1 min-w-0 max-w-full flex flex-col gap-2 overflow-hidden [overflow-wrap:anywhere] ${
                             isMe
-                              ? "bg-primary text-primary-foreground rounded-br-none"
+                              ? "bg-primary text-white rounded-br-none"
                               : "bg-muted text-foreground rounded-bl-none"
                           }`}
                         >
@@ -1081,7 +1083,7 @@ export function MessagesPageClient() {
 
                         {/* Options button on right if from counterparty */}
                         {!isMe && (
-                          <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="relative opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0 mt-1">
                             <Button
                               type="button"
                               variant="ghost"
@@ -1093,11 +1095,11 @@ export function MessagesPageClient() {
                               <MoreVerticalIcon className="size-3.5" />
                             </Button>
                             {isMenuOpen && (
-                              <div className="absolute left-0 bottom-full mb-1 z-30 min-w-[130px] p-1 rounded-xl bg-card border border-border shadow-lg backdrop-blur-md flex flex-col gap-0.5 text-xs">
+                              <div className="absolute right-0 sm:right-auto sm:left-0 bottom-full mb-1 z-30 min-w-[130px] max-w-[90vw] p-1 rounded-xl bg-card border border-border shadow-lg backdrop-blur-md flex flex-col gap-0.5 text-xs">
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteMessage(msg.id, "FOR_ME")}
-                                  className="text-left px-2.5 py-1.5 rounded-lg hover:bg-muted text-foreground transition-colors"
+                                  className="text-left px-2.5 py-1.5 rounded-lg hover:bg-muted text-foreground transition-colors whitespace-nowrap"
                                 >
                                   Delete for me
                                 </button>
@@ -1391,7 +1393,7 @@ export function MessagesPageClient() {
                   }}
                   placeholder="Message..."
                   maxLength={2000}
-                  className="flex-1 w-full bg-background/50 border border-input rounded-xl px-3 py-2 text-sm leading-relaxed resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary overflow-y-auto min-h-[40px] max-h-[160px] scrollbar-thin transition-all"
+                  className="flex-1 w-full bg-background/50 border border-input rounded-xl px-3 py-2 text-sm leading-relaxed resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary overflow-y-hidden min-h-[40px] max-h-[160px] scrollbar-thin transition-all"
                 />
                 <Button
                   type="submit"

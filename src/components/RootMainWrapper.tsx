@@ -38,7 +38,7 @@ export function RootMainWrapper({ children }: { children: React.ReactNode }) {
 
       <div className="relative z-10 w-full">
         <OnboardingProfileBanner />
-        <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-24 lg:pb-8">
+        <main className="px-4 py-8 lg:px-8 xl:px-12 w-full max-w-[1600px] mx-auto pb-36 lg:pb-8">
           {children}
         </main>
       </div>

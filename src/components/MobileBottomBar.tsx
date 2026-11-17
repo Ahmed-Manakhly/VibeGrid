@@ -22,7 +22,7 @@ export function MobileBottomBar() {
   const displayName = user?.name || user?.email.split('@')[0] || 'User';
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 nav-glass flex h-16 items-center justify-between px-4 sm:px-6 pb-safe border-t border-border/50">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 nav-glass flex h-16 items-center justify-around px-8 sm:px-12 pb-safe border-t border-border/50">
       {isAuthenticated ? (
         <>
           <MobileDropVibeButton />
