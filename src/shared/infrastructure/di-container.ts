@@ -70,6 +70,7 @@ import { PrismaMessagingRepository } from "@/modules/messaging/infrastructure/Pr
 import { StartConversationUseCase } from "@/modules/messaging/application/StartConversation.usecase";
 import { SendMessageUseCase } from "@/modules/messaging/application/SendMessage.usecase";
 import { GetConversationsUseCase, GetMessagesUseCase } from "@/modules/messaging/application/GetMessages.usecase";
+import { DeleteMessageUseCase, DeleteConversationUseCase } from "@/modules/messaging/application/DeleteMessage.usecase";
 
 // Trust & Safety Module
 import { PrismaTrustSafetyRepository } from "@/modules/safety/infrastructure/PrismaTrustSafetyRepository";
@@ -111,6 +112,8 @@ export const startConversationUseCase = new StartConversationUseCase(messagingRe
 export const sendMessageUseCase = new SendMessageUseCase(messagingRepository, cacheService, trustSafetyRepository);
 export const getConversationsUseCase = new GetConversationsUseCase(messagingRepository);
 export const getMessagesUseCase = new GetMessagesUseCase(messagingRepository);
+export const deleteMessageUseCase = new DeleteMessageUseCase(messagingRepository);
+export const deleteConversationUseCase = new DeleteConversationUseCase(messagingRepository);
 
 // Vibe
 export const createVibeUseCase = new CreateVibeUseCase(vibeRepository, eventBus, cacheService, communityRepository);

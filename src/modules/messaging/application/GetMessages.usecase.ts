@@ -24,7 +24,7 @@ export class GetMessagesUseCase {
       throw new Error("Unauthorized: You are not a participant in this conversation");
     }
 
-    const result = await this.messagingRepo.getMessages(conversationId, limit, beforeCursor);
+    const result = await this.messagingRepo.getMessages(conversationId, limit, beforeCursor, currentUserId);
     
     // Automatically mark conversation as read when user fetches messages
     await this.messagingRepo.markConversationAsRead(conversationId, currentUserId);

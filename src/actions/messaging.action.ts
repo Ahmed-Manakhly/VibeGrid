@@ -7,6 +7,8 @@ import {
   sendMessageUseCase,
   getConversationsUseCase,
   getMessagesUseCase,
+  deleteMessageUseCase,
+  deleteConversationUseCase,
   logger,
 } from "@/shared/infrastructure/di-container";
 
@@ -87,5 +89,43 @@ export async function sendMessageAction(conversationId: string, content: string)
   } catch (error: any) {
     logger.error("Error in sendMessageAction", error);
     return { success: false, error: error.message || "Failed to send message" };
+  }
+}
+
+export async function deleteMessageAction(messageId: string, scope: 'FOR_ME' | 'FOR_EVERYONE') {
+  try {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+    const currentUserId = await getDbUserId();
+    if (!currentUserId) {
+      return { success: false, error: "User not synced" };
+    }
+
+    await deleteMessageUseCase.execute(messageId, currentUserId, scope);
+    return { success: true };
+  } catch (error: any) {
+    logger.error("Error in deleteMessageAction", error);
+    return { success: false, error: error.message || "Failed to delete message" };
+  }
+}
+
+export async function deleteConversationAction(conversationId: string) {
+  try {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+    const currentUserId = await getDbUserId();
+    if (!currentUserId) {
+      return { success: false, error: "User not synced" };
+    }
+
+    await deleteConversationUseCase.execute(conversationId, currentUserId);
+    return { success: true };
+  } catch (error: any) {
+    logger.error("Error in deleteConversationAction", error);
+    return { success: false, error: error.message || "Failed to delete conversation" };
   }
 }

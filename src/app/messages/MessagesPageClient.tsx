@@ -9,13 +9,16 @@ import {
   getConversationsAction,
   getMessagesAction,
   sendMessageAction,
+  deleteMessageAction,
+  deleteConversationAction,
 } from "@/actions/messaging.action";
+import { toast } from "@/components/ui/toast";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon, SmileIcon, Users, MessageCircle, MessagesSquare } from "lucide-react";
+import { SendIcon, MessageSquareIcon, ArrowLeftIcon, Loader2Icon, Code2Icon, SmileIcon, Users, MessageCircle, MessagesSquare, Trash2Icon, MoreVerticalIcon } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
 
@@ -73,6 +76,45 @@ export function MessagesPageClient() {
       textareaRef.current.style.height = `${Math.min(Math.max(scrollHeight, 40), maxHeight)}px`;
     }
   }, [content]);
+
+  // Deletion modals / state
+  const [activeDeleteMessageId, setActiveDeleteMessageId] = useState<string | null>(null);
+  const [deletingMessage, setDeletingMessage] = useState(false);
+  const [deletingConversation, setDeletingConversation] = useState(false);
+
+  const handleDeleteConversation = async () => {
+    if (!activeConversationId || deletingConversation) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete this conversation? It will be cleared from your messages list.");
+    if (!confirmDelete) return;
+
+    setDeletingConversation(true);
+    const res = await deleteConversationAction(activeConversationId);
+    setDeletingConversation(false);
+
+    if (res.success) {
+      toast.success("Conversation cleared from your list");
+      setConversations((prev) => prev.filter((c) => c.id !== activeConversationId));
+      setActiveConversationId(null);
+      setMessages([]);
+      setMobileTab("conversations");
+    } else {
+      toast.error(res.error || "Could not delete conversation");
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string, scope: "FOR_ME" | "FOR_EVERYONE") => {
+    setDeletingMessage(true);
+    const res = await deleteMessageAction(messageId, scope);
+    setDeletingMessage(false);
+    setActiveDeleteMessageId(null);
+
+    if (res.success) {
+      toast.success(scope === "FOR_EVERYONE" ? "Deleted for all participants" : "Deleted for you");
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+    } else {
+      toast.error(res.error || "Could not delete message");
+    }
+  };
 
   // Close emoji picker on click outside
   useEffect(() => {
@@ -437,6 +479,20 @@ export function MessagesPageClient() {
                   </div>
                 </Link>
               )}
+
+              {/* Conversation Actions */}
+              <div className="flex items-center gap-1 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                  onClick={handleDeleteConversation}
+                  disabled={deletingConversation}
+                  title="Delete conversation for me"
+                >
+                  {deletingConversation ? <Loader2Icon className="size-4 animate-spin" /> : <Trash2Icon className="size-4" />}
+                </Button>
+              </div>
             </div>
 
             {/* Messages Body */}
@@ -468,33 +524,108 @@ export function MessagesPageClient() {
                 messages.map((msg) => {
                   const isMe = msg.senderId === currentUser?.id;
                   const parsed = PostContentValueObject.parse(msg.content);
+                  const isMenuOpen = activeDeleteMessageId === msg.id;
+
                   return (
                     <div
                       key={msg.id}
-                      className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                      className={`flex flex-col group relative ${isMe ? "items-end" : "items-start"}`}
                     >
-                      <div
-                        className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2 text-sm break-words ${
-                          isMe
-                            ? "bg-primary text-primary-foreground rounded-br-none"
-                            : "bg-muted text-foreground rounded-bl-none"
-                        }`}
-                      >
-                        {parsed.text && (
-                          <div className="whitespace-pre-wrap">{parsed.text}</div>
+                      <div className="flex items-center gap-1.5 max-w-[85%] sm:max-w-[75%]">
+                        {/* Options button on left if it's Me */}
+                        {isMe && (
+                          <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-6 text-muted-foreground hover:text-foreground rounded-full"
+                              onClick={() => setActiveDeleteMessageId((prev) => (prev === msg.id ? null : msg.id))}
+                              title="Message options"
+                            >
+                              <MoreVerticalIcon className="size-3.5" />
+                            </Button>
+                            {isMenuOpen && (
+                              <div className="absolute right-0 bottom-full mb-1 z-30 min-w-[140px] p-1 rounded-xl bg-card border border-border shadow-lg backdrop-blur-md flex flex-col gap-0.5 text-xs">
+                                {!msg.isRead && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteMessage(msg.id, "FOR_EVERYONE")}
+                                    className="text-left px-2.5 py-1.5 rounded-lg hover:bg-destructive/10 text-destructive font-medium transition-colors"
+                                  >
+                                    Delete for everyone
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteMessage(msg.id, "FOR_ME")}
+                                  className="text-left px-2.5 py-1.5 rounded-lg hover:bg-muted text-foreground transition-colors"
+                                >
+                                  Delete for me
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         )}
-                        {parsed.codeBlock && (
-                          <div className="my-2 rounded-lg overflow-hidden text-left not-prose">
-                            <CodeBlockViewer
-                              language={parsed.codeBlock.language}
-                              code={parsed.codeBlock.code}
-                            />
+
+                        <div
+                          className={`rounded-2xl px-4 py-2 text-sm break-words flex-1 ${
+                            isMe
+                              ? "bg-primary text-primary-foreground rounded-br-none"
+                              : "bg-muted text-foreground rounded-bl-none"
+                          }`}
+                        >
+                          {parsed.text && (
+                            <div className="whitespace-pre-wrap">{parsed.text}</div>
+                          )}
+                          {parsed.codeBlock && (
+                            <div className="my-2 rounded-lg overflow-hidden text-left not-prose">
+                              <CodeBlockViewer
+                                language={parsed.codeBlock.language}
+                                code={parsed.codeBlock.code}
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Options button on right if from counterparty */}
+                        {!isMe && (
+                          <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-6 text-muted-foreground hover:text-foreground rounded-full"
+                              onClick={() => setActiveDeleteMessageId((prev) => (prev === msg.id ? null : msg.id))}
+                              title="Message options"
+                            >
+                              <MoreVerticalIcon className="size-3.5" />
+                            </Button>
+                            {isMenuOpen && (
+                              <div className="absolute left-0 bottom-full mb-1 z-30 min-w-[130px] p-1 rounded-xl bg-card border border-border shadow-lg backdrop-blur-md flex flex-col gap-0.5 text-xs">
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteMessage(msg.id, "FOR_ME")}
+                                  className="text-left px-2.5 py-1.5 rounded-lg hover:bg-muted text-foreground transition-colors"
+                                >
+                                  Delete for me
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
-                      <span className="text-[10px] text-muted-foreground mt-1 px-1">
-                        {formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}
-                      </span>
+
+                      <div className="flex items-center gap-1.5 mt-1 px-1">
+                        <span className="text-[10px] text-muted-foreground">
+                          {formatDistanceToNow(new Date(msg.createdAt), { addSuffix: true })}
+                        </span>
+                        {isMe && (
+                          <span className="text-[10px] text-muted-foreground font-mono">
+                            {msg.isRead ? "✓✓ read" : "✓ sent"}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   );
                 })

@@ -6,6 +6,8 @@ export interface IMessagingRepository {
   getUserConversations(userId: string): Promise<ConversationEntity[]>;
   isParticipant(conversationId: string, userId: string): Promise<boolean>;
   saveMessage(data: { conversationId: string; senderId: string; content: string }): Promise<DirectMessageEntity>;
-  getMessages(conversationId: string, limit?: number, beforeCursor?: string): Promise<{ messages: DirectMessageEntity[]; nextCursor: string | null }>;
+  getMessages(conversationId: string, limit?: number, beforeCursor?: string, viewerId?: string): Promise<{ messages: DirectMessageEntity[]; nextCursor: string | null }>;
   markConversationAsRead(conversationId: string, userId: string): Promise<void>;
+  deleteMessage(messageId: string, userId: string, scope: 'FOR_ME' | 'FOR_EVERYONE'): Promise<void>;
+  deleteConversation(conversationId: string, userId: string): Promise<void>;
 }
