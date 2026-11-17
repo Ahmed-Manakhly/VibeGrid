@@ -45,7 +45,8 @@ export async function getRandomUsers() {
 export async function searchUsers(query: string) {
     try {
         if (!query || !query.trim()) return [];
-        return await searchUsersUseCase.execute(query);
+        const currentUserId = await getDbUserId();
+        return await searchUsersUseCase.execute(query, 6, currentUserId || undefined);
     } catch (err) {
         logger.error("Error searching users", err, { query });
         return [];

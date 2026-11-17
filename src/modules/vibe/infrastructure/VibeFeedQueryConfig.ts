@@ -16,6 +16,9 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
     bookmarkedByUserId: (value: string) => ({
       bookmarks: { some: { userId: value } }
     }),
+    excludeAuthorIds: (value: string[]) => ({
+      authorId: { notIn: value }
+    }),
   },
   defaultRelations: {
     author: true,
@@ -67,7 +70,15 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
       }
     },
     community: {
-      select: { id: true, name: true, slug: true, avatarUrl: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        avatarUrl: true,
+        members: {
+          select: { userId: true },
+        },
+      },
     },
     _count: { select: { likes: true, comments: true, bookmarks: true, regrids: true } },
   },

@@ -94,9 +94,28 @@ export class PrismaEngagementRepository implements IEngagementRepository {
     try {
       const post = await this.db.post.findUnique({
         where: { id: vibeId },
-        select: { authorId: true },
+        select: {
+          authorId: true,
+          communityId: true,
+          community: {
+            select: {
+              members: {
+                where: { userId },
+                select: { id: true },
+              },
+            },
+          },
+        },
       });
       if (!post) return failure(new Error("post not found!"));
+
+      // If post is in a guild/community, verify that commenter is a member
+      if (post.communityId) {
+        const isMember = (post.community?.members?.length || 0) > 0;
+        if (!isMember) {
+          return failure(new Error("You must join this guild before commenting on its vibes!"));
+        }
+      }
 
       const newComment = await this.db.comment.create({
         data: { 

@@ -7,6 +7,7 @@ export interface ExplorePostsCriteria {
   authorId?: string;
   likedByUserId?: string;
   bookmarkedByUserId?: string;
+  excludeAuthorIds?: string[];
   cursor?: string;
   limit?: number;
   sort?: string;

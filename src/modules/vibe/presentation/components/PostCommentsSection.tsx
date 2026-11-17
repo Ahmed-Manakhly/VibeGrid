@@ -17,6 +17,8 @@ interface PostCommentsSectionProps {
   dbUserId: string | null;
   initialComments: any[];
   isDetailPage?: boolean;
+  communityId?: string | null;
+  isCommunityMember?: boolean;
 }
 
 export function PostCommentsSection({
@@ -25,6 +27,8 @@ export function PostCommentsSection({
   dbUserId,
   initialComments,
   isDetailPage = false,
+  communityId,
+  isCommunityMember = false,
 }: PostCommentsSectionProps) {
   const { user, isAuthenticated } = useSession();
   const [localComments, setLocalComments] = useState(initialComments || []);
@@ -99,34 +103,47 @@ export function PostCommentsSection({
         )}
       </div>
       {isAuthenticated ? (
-        <div className="flex space-x-3">
-          <UserAvatar src={user?.image} name={user?.name} className="size-8 flex-shrink-0" />
-          <div className="flex-1">
-            <Textarea
-              placeholder="Drop a vibe..."
-              value={newComment}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
-              className="min-h-[80px] resize-none bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border"
-            />
-            <div className="flex justify-end mt-2">
-              <Button
-                onClick={handleAddComment}
-                size="sm"
-                className="btn-gradient flex items-center gap-2"
-                disabled={!newComment.trim() || isCommenting}
-              >
-                {isCommenting ? (
-                  'Dropping...'
-                ) : (
-                  <>
-                    <SendIcon className="size-4" />
-                    Vibe
-                  </>
-                )}
-              </Button>
+        communityId && !isCommunityMember ? (
+          <div className="flex items-center justify-between p-3.5 rounded-xl border border-primary/20 bg-primary/5 text-xs">
+            <span className="text-muted-foreground">
+              Join this guild to participate in discussions and drop comments.
+            </span>
+            <Button size="sm" variant="outline" className="btn-gradient text-white h-7 px-3 text-xs" asChild>
+              <Link href={`/communities`}>
+                Join Guild
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="flex space-x-3">
+            <UserAvatar src={user?.image} name={user?.name} className="size-8 flex-shrink-0" />
+            <div className="flex-1">
+              <Textarea
+                placeholder="Drop a vibe..."
+                value={newComment}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
+                className="min-h-[80px] resize-none bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border"
+              />
+              <div className="flex justify-end mt-2">
+                <Button
+                  onClick={handleAddComment}
+                  size="sm"
+                  className="btn-gradient flex items-center gap-2"
+                  disabled={!newComment.trim() || isCommenting}
+                >
+                  {isCommenting ? (
+                    'Dropping...'
+                  ) : (
+                    <>
+                      <SendIcon className="size-4" />
+                      Vibe
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )
       ) : (
         <div className="flex justify-center p-4 border rounded-lg bg-muted/50">
           <Button variant="outline" className="gap-2" asChild>

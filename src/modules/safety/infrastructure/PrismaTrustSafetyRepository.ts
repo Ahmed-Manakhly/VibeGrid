@@ -41,10 +41,12 @@ export class PrismaTrustSafetyRepository implements ITrustSafetyRepository {
 
   async getBlockedUserIds(userId: string): Promise<string[]> {
     const blocks = await this.prisma.userBlock.findMany({
-      where: { blockerId: userId },
-      select: { blockedId: true },
+      where: {
+        OR: [{ blockerId: userId }, { blockedId: userId }],
+      },
+      select: { blockerId: true, blockedId: true },
     });
-    return blocks.map((b: any) => b.blockedId);
+    return Array.from(new Set(blocks.map((b: any) => (b.blockerId === userId ? b.blockedId : b.blockerId))));
   }
 
   async createReport(data: {

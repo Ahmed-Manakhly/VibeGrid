@@ -18,6 +18,8 @@ interface PostInteractiveContainerProps {
   initialComments: any[];
   isTruncated?: boolean;
   isDetailPage?: boolean;
+  communityId?: string | null;
+  isCommunityMember?: boolean;
   targetPostData?: {
     id: string;
     content: string | null;
@@ -47,6 +49,8 @@ export function PostInteractiveContainer({
   initialComments,
   isTruncated = false,
   isDetailPage = false,
+  communityId,
+  isCommunityMember = false,
   targetPostData,
 }: PostInteractiveContainerProps) {
   const [showComments, setShowComments] = useState(isDetailPage);
@@ -77,6 +81,8 @@ export function PostInteractiveContainer({
           dbUserId={dbUserId}
           initialComments={initialComments}
           isDetailPage={isDetailPage}
+          communityId={communityId}
+          isCommunityMember={isCommunityMember}
         />
       )}
     </>

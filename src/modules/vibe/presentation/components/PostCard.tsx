@@ -290,6 +290,13 @@ export function PostCard({
           initialComments={post.comments || []}
           isTruncated={isTruncated}
           isDetailPage={isDetailPage}
+          communityId={post.communityId}
+          isCommunityMember={
+            Boolean(
+              dbUserId &&
+              post.community?.members?.some((m: any) => m.userId === dbUserId)
+            )
+          }
           targetPostData={{
             id: post.id,
             content: post.content,

@@ -13,6 +13,7 @@ import {
     addCommentUseCase,
     deleteCommentUseCase,
     getPostByIdUseCase,
+    trustSafetyRepository,
     logger
 } from "@/shared/infrastructure/di-container";
 import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
@@ -157,7 +158,25 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
 export async function getPosts(params: ExplorePostsCriteria = {}) {
     try {
         const userId = params.userId || (await getDbUserId()) || undefined;
-        const result = await generateFeedUseCase.execute({ ...params, userId });
+
+        // Fetch bidirectional blocked user IDs to filter out blocked posts completely
+        let excludeAuthorIds: string[] = [];
+        if (userId) {
+            try {
+                const blockedIds = await trustSafetyRepository.getBlockedUserIds(userId);
+                if (blockedIds && blockedIds.length > 0) {
+                    excludeAuthorIds = blockedIds;
+                }
+            } catch (err) {
+                // Fallback silently if safety check fails
+            }
+        }
+
+        const result = await generateFeedUseCase.execute({
+            ...params,
+            userId,
+            excludeAuthorIds: excludeAuthorIds.length > 0 ? excludeAuthorIds : undefined,
+        });
         return result; 
     } catch (er){
         logger.error('failed to fetch posts!', er);

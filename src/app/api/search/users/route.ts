@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { searchUsersUseCase } from "@/shared/infrastructure/di-container";
+import { getCurrentSession } from "@/lib/auth/server";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, users: [] });
     }
 
-    const users = await searchUsersUseCase.execute(query.trim(), limit);
+    const session = await getCurrentSession();
+    const viewerId = session.user?.id;
+
+    const users = await searchUsersUseCase.execute(query.trim(), limit, viewerId);
 
     return NextResponse.json({
       success: true,

@@ -31,6 +31,7 @@ export interface VibePost {
         name: string;
         slug: string;
         avatarUrl: string | null;
+        members?: { userId: string }[];
     } | null;
     _count: {
         likes: number;

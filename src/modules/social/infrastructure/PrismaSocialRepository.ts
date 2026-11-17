@@ -122,84 +122,47 @@ export class PrismaSocialRepository implements ISocialRepository {
     }
   }
 
-  async searchUsers(query: string, limit: number = 6): Promise<any[]> {
+  async searchUsers(query: string, limit: number = 6, viewerId?: string): Promise<any[]> {
     try {
       if (!query || !query.trim()) return [];
       const formattedQuery = query.trim();
 
-      // PostgreSQL Native Full-Text Search with ts_rank ordering
-      const rawUsers: any[] = await this.db.$queryRaw`
-        SELECT 
-          u.id, 
-          u.name, 
-          u.username, 
-          u.image, 
-          u.bio, 
-          u.location, 
-          u.website,
-          ts_rank(
-            to_tsvector('english', 
-              coalesce(u.username, '') || ' ' || 
-              coalesce(u.name, '') || ' ' || 
-              coalesce(u.bio, '') || ' ' || 
-              coalesce(u.location, '')
-            ),
-            websearch_to_tsquery('english', ${formattedQuery})
-          ) as rank
-        FROM "User" u
-        WHERE (
-          to_tsvector('english', 
-            coalesce(u.username, '') || ' ' || 
-            coalesce(u.name, '') || ' ' || 
-            coalesce(u.bio, '') || ' ' || 
-            coalesce(u.location, '')
-          ) @@ websearch_to_tsquery('english', ${formattedQuery})
-          OR u.username ILIKE ${'%' + formattedQuery + '%'}
-          OR u.name ILIKE ${'%' + formattedQuery + '%'}
-        )
-        ORDER BY rank DESC, u.username ASC
-        LIMIT ${limit};
-      `;
-
-      if (!rawUsers || rawUsers.length === 0) {
-        // Fallback to substring matching if FTS yields 0 exact token matches
-        return this.db.user.findMany({
-          where: {
-            OR: [
-              { username: { contains: formattedQuery, mode: "insensitive" } },
-              { name: { contains: formattedQuery, mode: "insensitive" } },
+      const blockedCondition = viewerId
+        ? {
+            NOT: [
+              { blockedUsers: { some: { blockedId: viewerId } } },
+              { blockedBy: { some: { blockerId: viewerId } } },
             ],
-          },
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            image: true,
-            bio: true,
-            location: true,
-            website: true,
-            _count: { select: { followers: true, posts: true } },
-          },
-          orderBy: { username: "asc" },
-          take: limit,
-        });
-      }
+          }
+        : {};
 
-      // Fetch count relations for matched users
-      const userIds = rawUsers.map((u) => u.id);
-      const counts = await this.db.user.findMany({
-        where: { id: { in: userIds } },
+      const matchedUsers = await this.db.user.findMany({
+        where: {
+          AND: [
+            blockedCondition,
+            {
+              OR: [
+                { username: { contains: formattedQuery, mode: "insensitive" as const } },
+                { name: { contains: formattedQuery, mode: "insensitive" as const } },
+              ],
+            },
+          ],
+        },
         select: {
           id: true,
+          name: true,
+          username: true,
+          image: true,
+          bio: true,
+          location: true,
+          website: true,
           _count: { select: { followers: true, posts: true } },
         },
+        orderBy: { username: "asc" },
+        take: limit,
       });
-      const countMap = new Map(counts.map((c) => [c.id, c._count]));
 
-      return rawUsers.map((u) => ({
-        ...u,
-        _count: countMap.get(u.id) || { followers: 0, posts: 0 },
-      }));
+      return matchedUsers;
     } catch (err) {
       const { logger } = require("@/shared/infrastructure/di-container");
       logger.error("Error searching users with FTS", err, { query });
