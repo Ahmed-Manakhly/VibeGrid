@@ -150,17 +150,12 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
     <Card className="border border-border/60 bg-card/80 backdrop-blur-xl w-full rounded-2xl shadow-sm overflow-hidden">
       <CardHeader className="border-b bg-card/40 px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-lg font-bold">Notifications</CardTitle>
-            {unreadCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-primary/20 text-primary border border-primary/30">
-                {unreadCount} new
-              </span>
-            )}
-          </div>
-          <span className="text-xs text-muted-foreground font-mono">
-            {unreadCount === 0 ? "All caught up" : `${unreadCount} unread`}
-          </span>
+          <CardTitle className="text-lg font-bold">Notifications</CardTitle>
+          {unreadCount === 0 && (
+            <span className="text-xs text-muted-foreground font-mono">
+              All caught up
+            </span>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-0">
