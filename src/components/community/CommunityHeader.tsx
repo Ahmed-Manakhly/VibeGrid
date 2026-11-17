@@ -26,9 +26,10 @@ import { format } from "date-fns";
 
 interface CommunityHeaderProps {
   community: CommunityEntity;
+  categories?: { id: string; name: string; slug: string; emoji?: string | null }[];
 }
 
-export function CommunityHeader({ community }: CommunityHeaderProps) {
+export function CommunityHeader({ community, categories = [] }: CommunityHeaderProps) {
   const router = useRouter();
   const { user } = useSession();
   const [isPending, startTransition] = useTransition();
@@ -238,7 +239,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto sm:self-auto justify-end">
             {canManage && (
               <div className="w-full sm:w-auto">
-                <CommunitySettingsDialog community={community} />
+                <CommunitySettingsDialog community={community} categories={categories} />
               </div>
             )}
 

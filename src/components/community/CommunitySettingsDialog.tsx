@@ -17,17 +17,33 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
 import { uploadMediaAsset } from "@/lib/mediaClient";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface CategoryTaxonomy {
+  id: string;
+  name: string;
+  slug: string;
+  emoji?: string | null;
+}
 
 interface CommunitySettingsDialogProps {
   community: CommunityEntity;
+  categories?: CategoryTaxonomy[];
 }
 
-export function CommunitySettingsDialog({ community }: CommunitySettingsDialogProps) {
+export function CommunitySettingsDialog({ community, categories = [] }: CommunitySettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(community.name);
   const [description, setDescription] = useState(community.description || "");
   const [avatarUrl, setAvatarUrl] = useState(community.avatarUrl || "");
   const [bannerUrl, setBannerUrl] = useState(community.bannerUrl || "");
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>("");
   const [techTagsInput, setTechTagsInput] = useState(
     Array.isArray(community.techTags) ? community.techTags.join(", ") : ""
   );
@@ -41,6 +57,18 @@ export function CommunitySettingsDialog({ community }: CommunitySettingsDialogPr
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  // Initialize selectedCategorySlug if any techTag matches a known category slug
+  React.useEffect(() => {
+    if (Array.isArray(community.techTags) && categories && categories.length > 0) {
+      const match = categories.find((cat) =>
+        community.techTags?.some(
+          (t) => t.toLowerCase().replace(/^#/, "") === cat.slug.toLowerCase()
+        )
+      );
+      if (match) setSelectedCategorySlug(match.slug.toLowerCase());
+    }
+  }, [community.techTags, categories]);
 
   const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -85,6 +113,10 @@ export function CommunitySettingsDialog({ community }: CommunitySettingsDialogPr
       .split(",")
       .map((t) => t.trim().toLowerCase().replace(/^#/, ""))
       .filter(Boolean);
+
+    if (selectedCategorySlug && !techTags.includes(selectedCategorySlug.toLowerCase())) {
+      techTags.unshift(selectedCategorySlug.toLowerCase());
+    }
 
     const rules = rulesInput
       .split("\n")
@@ -270,6 +302,34 @@ export function CommunitySettingsDialog({ community }: CommunitySettingsDialogPr
               </div>
             </div>
           </div>
+
+          {/* Category Selector */}
+          {categories && categories.length > 0 && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                <Sparkles className="size-3.5 text-primary" />
+                <span>Primary Category (Optional)</span>
+              </label>
+              <Select
+                value={selectedCategorySlug || "none"}
+                onValueChange={(val) => setSelectedCategorySlug(val === "none" ? "" : val)}
+              >
+                <SelectTrigger className="w-full h-9 rounded-lg border-border/60 bg-secondary/40 text-xs text-foreground">
+                  <SelectValue placeholder="Select Category (Optional)" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border/60 max-h-60">
+                  <SelectItem value="none" className="text-xs text-muted-foreground">
+                    None (Tags only)
+                  </SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.slug.toLowerCase()} className="text-xs">
+                      {cat.emoji ? `${cat.emoji} ` : ""}{cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getCommunityBySlugAction, getCommunityFeedAction, getCommunityMembersAction } from "@/actions/community.action";
 import { getDbUserId } from "@/actions/user.action";
+import { getTaxonomyUseCase } from "@/shared/infrastructure/di-container";
 import { CommunitySpaceView } from "@/components/community/CommunitySpaceView";
 import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { CommunityMembersSidebar } from "@/components/community/CommunityMembersSidebar";
@@ -49,14 +50,16 @@ export default async function CommunitySlugPage({ params }: CommunityPageProps) 
     }
   }
 
-  // Parallel fetch: Scoped community feed + Members roster
-  const [feedRes, membersRes] = await Promise.all([
+  // Parallel fetch: Scoped community feed + Members roster + Taxonomy
+  const [feedRes, membersRes, taxonomy] = await Promise.all([
     getCommunityFeedAction(community.id, { limit: 20 }),
     getCommunityMembersAction(community.id, 50),
+    getTaxonomyUseCase.execute().catch(() => ({ categories: [], vibes: [] })),
   ]);
 
   const initialPosts = feedRes.success && feedRes.data ? feedRes.data.posts : [];
   const initialMembers = membersRes.success && membersRes.data ? membersRes.data : [];
+  const categories = taxonomy?.categories || [];
 
   return (
     <MobileTabsLayout
@@ -66,6 +69,7 @@ export default async function CommunitySlugPage({ params }: CommunityPageProps) 
           initialPosts={initialPosts}
           initialMembers={initialMembers}
           dbUserId={dbUserId}
+          categories={categories}
         />
       }
       discovery={

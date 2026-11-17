@@ -27,25 +27,33 @@ export function CommunitiesDirectoryView({
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState("all");
 
-  // Dynamic filter tags derived from database categories, falling back to discovered tags
+  // Dynamic filter tags: Primary focus is on real community tech tags, supplemented by platform categories
   const filterPills = useMemo(() => {
     const pills = [{ key: "all", label: "🔥 All Guilds" }];
-    
+    const addedKeys = new Set<string>(["all"]);
+
+    // 1. Primary: Collect all unique tech tags from actual communities
+    initialCommunities.forEach((c) => {
+      c.techTags?.forEach((t) => {
+        const rawTag = t.trim().toLowerCase().replace(/^#/, "");
+        if (rawTag && !addedKeys.has(rawTag)) {
+          addedKeys.add(rawTag);
+          pills.push({ key: rawTag, label: `#${rawTag}` });
+        }
+      });
+    });
+
+    // 2. Secondary: Append seeded taxonomy categories as value-add filters
     if (categories && categories.length > 0) {
       categories.forEach((cat) => {
-        pills.push({
-          key: cat.slug.toLowerCase(),
-          label: `${cat.emoji ? cat.emoji + " " : "#"}${cat.name}`,
-        });
-      });
-    } else {
-      // Fallback to tags present on communities
-      const tagSet = new Set<string>();
-      initialCommunities.forEach((c) => {
-        c.techTags?.forEach((t) => tagSet.add(t.toLowerCase().replace(/^#/, "")));
-      });
-      tagSet.forEach((t) => {
-        pills.push({ key: t, label: `#${t}` });
+        const catKey = cat.slug.toLowerCase();
+        if (!addedKeys.has(catKey)) {
+          addedKeys.add(catKey);
+          pills.push({
+            key: catKey,
+            label: `${cat.emoji ? cat.emoji + " " : ""}${cat.name}`,
+          });
+        }
       });
     }
 

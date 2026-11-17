@@ -30,6 +30,7 @@ interface CommunitySpaceViewProps {
   initialPosts: any[];
   initialMembers: CommunityMemberEntity[];
   dbUserId: string | null;
+  categories?: { id: string; name: string; slug: string; emoji?: string | null }[];
 }
 
 export function CommunitySpaceView({
@@ -37,6 +38,7 @@ export function CommunitySpaceView({
   initialPosts,
   initialMembers,
   dbUserId,
+  categories = [],
 }: CommunitySpaceViewProps) {
   const [activeTab, setActiveTab] = useState("feed");
   const [members, setMembers] = useState<CommunityMemberEntity[]>(initialMembers);
@@ -119,7 +121,7 @@ export function CommunitySpaceView({
   return (
     <div className="w-full py-2 px-0 space-y-4">
       {/* Community Hero Header */}
-      <CommunityHeader community={community} />
+      <CommunityHeader community={community} categories={categories} />
 
       {/* Unified Sticky Tabs Bar */}
       <UnifiedTabsBar
