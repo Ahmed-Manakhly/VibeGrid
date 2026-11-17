@@ -35,6 +35,13 @@ export class PrismaProfileRepository implements IProfileRepository {
     });
   }
 
+  async getUserById(id: string): Promise<{ id: string; username: string } | null> {
+    return await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, username: true },
+    });
+  }
+
   async updateProfile(
     userId: string,
     data: {
