@@ -47,7 +47,13 @@ function getDisplayInitial(user: any) {
     return displayName.charAt(0).toUpperCase();
 }
 
-export default function CreatPost() {
+export default function CreatPost({
+    defaultCommunityId,
+    lockCommunity = false,
+}: {
+    defaultCommunityId?: string;
+    lockCommunity?: boolean;
+} = {}) {
     const { user } = useSession();
     const router = useRouter();
     const initialLetter = getDisplayInitial(user);
@@ -77,13 +83,19 @@ export default function CreatPost() {
     const [categories, setCategories] = useState<any[]>([]);
     const [vibes, setVibes] = useState<any[]>([]);
     const [userCommunities, setUserCommunities] = useState<any[]>([]);
-    const [selectedCommunityId, setSelectedCommunityId] = useState<string>("");
+    const [selectedCommunityId, setSelectedCommunityId] = useState<string>(defaultCommunityId || "");
     
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
 
     // Form Action Hook
     const [state, formAction] = useFormState(createPostFormAction, null);
+
+    useEffect(() => {
+        if (defaultCommunityId) {
+            setSelectedCommunityId(defaultCommunityId);
+        }
+    }, [defaultCommunityId]);
 
     useEffect(() => {
         if (state?.success) {
@@ -404,7 +416,7 @@ export default function CreatPost() {
                             <input type="hidden" name="imageUrl" value={imageUrl} />
                             <input type="hidden" name="communityId" value={selectedCommunityId} />
 
-                            {userCommunities && userCommunities.length > 0 && (
+                            {userCommunities && userCommunities.length > 0 && !lockCommunity && (
                                 <div className="flex items-center gap-2 px-1">
                                     <span className="text-xs text-muted-foreground shrink-0">Guild:</span>
                                     <Select value={selectedCommunityId} onValueChange={setSelectedCommunityId}>

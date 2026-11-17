@@ -75,7 +75,7 @@ export function CommunitiesDirectoryView({
   }, [initialCommunities, search, selectedTag]);
 
   return (
-    <div className="w-full max-w-4xl py-2 px-0 space-y-6">
+    <div className="w-full py-2 px-0 space-y-6">
       {/* Page Header */}
       <PageHeader
         eyebrow="BUILDER NETWORKS"

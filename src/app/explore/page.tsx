@@ -61,22 +61,24 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
 
   return (
     <>
-      <div className="mb-6">
-        <PageHeader
-          eyebrow="DISCOVER THE GRID"
-          title="Explore"
-          subtitle="Search developer pulses, topics, and code dilemmas across VibeGrid."
-          icon={Compass}
-          className="mb-4"
-        />
-        <SearchForm variant="hero" />
-      </div>
-
       <MobileTabsLayout
         feed={
-          <Suspense key={suspenseKey} fallback={<Loading />}>
-            <ExploreFeed params={params} dbUserId={dbUserId} />
-          </Suspense>
+          <>
+            <div className="mb-6">
+              <PageHeader
+                eyebrow="DISCOVER THE GRID"
+                title="Explore"
+                subtitle="Search developer pulses, topics, and code dilemmas across VibeGrid."
+                icon={Compass}
+                className="mb-4"
+              />
+              <SearchForm variant="hero" />
+            </div>
+
+            <Suspense key={suspenseKey} fallback={<Loading />}>
+              <ExploreFeed params={params} dbUserId={dbUserId} />
+            </Suspense>
+          </>
         }
         discovery={
           <>

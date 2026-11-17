@@ -2,6 +2,10 @@ import { notFound } from "next/navigation";
 import { getCommunityBySlugAction, getCommunityFeedAction, getCommunityMembersAction } from "@/actions/community.action";
 import { getDbUserId } from "@/actions/user.action";
 import { CommunitySpaceView } from "@/components/community/CommunitySpaceView";
+import { MobileTabsLayout } from "@/components/MobileTabsLayout";
+import { CommunityMembersSidebar } from "@/components/community/CommunityMembersSidebar";
+import { MyCommunitiesSidebar } from "@/components/community/MyCommunitiesSidebar";
+import { TrendingSidebar } from "@/components/TrendingSidebar";
 
 interface CommunityPageProps {
   params: Promise<{
@@ -45,11 +49,26 @@ export default async function CommunitySlugPage({ params }: CommunityPageProps) 
   const initialMembers = membersRes.success && membersRes.data ? membersRes.data : [];
 
   return (
-    <CommunitySpaceView
-      community={community}
-      initialPosts={initialPosts}
-      initialMembers={initialMembers}
-      dbUserId={dbUserId}
+    <MobileTabsLayout
+      feed={
+        <CommunitySpaceView
+          community={community}
+          initialPosts={initialPosts}
+          initialMembers={initialMembers}
+          dbUserId={dbUserId}
+        />
+      }
+      discovery={
+        <>
+          <CommunityMembersSidebar
+            communityName={community.name}
+            members={initialMembers}
+            currentUserId={dbUserId}
+          />
+          <MyCommunitiesSidebar userId={dbUserId} />
+          <TrendingSidebar />
+        </>
+      }
     />
   );
 }

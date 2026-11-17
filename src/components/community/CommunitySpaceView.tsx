@@ -5,6 +5,7 @@ import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
 import { CommunityHeader } from "@/components/community/CommunityHeader";
 import { CommunityEntity, CommunityMemberEntity } from "@/modules/community/domain/ICommunityRepository";
 import { PostCard } from "@/modules/vibe/presentation/components/PostCard";
+import CreatPost from "@/modules/vibe/presentation/components/CreatePostForm";
 import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles, ChevronDown, UserX, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -95,7 +96,7 @@ export function CommunitySpaceView({
   ];
 
   return (
-    <div className="w-full max-w-4xl py-2 px-0 space-y-4">
+    <div className="w-full py-2 px-0 space-y-4">
       {/* Community Hero Header */}
       <CommunityHeader community={community} />
 
@@ -110,6 +111,13 @@ export function CommunitySpaceView({
       {/* Tab 1: Community Feed */}
       {activeTab === "feed" && (
         <div className="space-y-4">
+          {/* Direct Post Input into this Community */}
+          {dbUserId && (
+            <div className="mb-4">
+              <CreatPost defaultCommunityId={community.id} lockCommunity={true} />
+            </div>
+          )}
+
           {initialPosts.length > 0 ? (
             initialPosts.map((post) => (
               <PostCard
