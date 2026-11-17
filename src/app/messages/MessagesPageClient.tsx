@@ -953,7 +953,7 @@ export function MessagesPageClient() {
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="size-6 text-muted-foreground hover:text-foreground rounded-full"
+                              className="size-6 text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 rounded-lg transition-colors"
                               onClick={() => setActiveDeleteMessageId((prev) => (prev === msg.id ? null : msg.id))}
                               title="Message options"
                             >
@@ -1088,7 +1088,7 @@ export function MessagesPageClient() {
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="size-6 text-muted-foreground hover:text-foreground rounded-full"
+                              className="size-6 text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 rounded-lg transition-colors"
                               onClick={() => setActiveDeleteMessageId((prev) => (prev === msg.id ? null : msg.id))}
                               title="Message options"
                             >
