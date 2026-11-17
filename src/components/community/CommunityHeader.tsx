@@ -242,14 +242,14 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
               </div>
             )}
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
               {isCreator && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1 sm:flex-initial h-9 px-3 text-xs text-destructive hover:text-destructive/90 border-destructive/30 hover:bg-destructive/10 rounded-xl"
+                      className="w-full sm:w-auto h-9 px-3 text-xs text-destructive hover:text-destructive/90 border-destructive/30 hover:bg-destructive/10 rounded-xl"
                       disabled={isDeleting}
                     >
                       {isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4 mr-1.5" />}
@@ -280,7 +280,7 @@ export function CommunityHeader({ community }: CommunityHeaderProps) {
                 onClick={handleToggleJoin}
                 disabled={isPending}
                 variant={isMember ? "outline" : "default"}
-                className={`flex-1 sm:flex-initial h-9 px-4 text-xs font-semibold transition-all ${
+                className={`w-full sm:w-auto h-9 px-4 text-xs font-semibold transition-all ${
                   isMember
                     ? "border-primary/30 text-primary hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
                     : "btn-gradient text-white"

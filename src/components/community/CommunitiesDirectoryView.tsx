@@ -75,15 +75,7 @@ export function CommunitiesDirectoryView({
   }, [initialCommunities, search, selectedTag]);
 
   return (
-    <div className="w-full py-2 px-0 space-y-6">
-      {/* Page Header */}
-      <PageHeader
-        eyebrow="BUILDER NETWORKS"
-        title="Developer Communities"
-        subtitle="Discover tech circles, engineering guilds, and framework ecosystems built for high-signal code sharing."
-        icon={Users}
-      />
-
+    <div className="w-full py-0 px-0 space-y-6">
       {/* Control Bar: Search & Create Guild Button */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-card/40 border border-border/40 p-3 rounded-xl backdrop-blur-sm">
         <div className="relative flex-1">

@@ -10,6 +10,7 @@ import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles, ChevronD
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { updateMemberRoleAction, removeMemberAction } from "@/actions/community.action";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -230,26 +231,30 @@ export function CommunitySpaceView({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end sm:justify-start gap-2 shrink-0 pt-2 sm:pt-0 border-t border-border/30 sm:border-t-0">
+                <div className="flex items-center justify-between sm:justify-start gap-3 shrink-0 pt-2.5 sm:pt-0 border-t border-border/30 sm:border-t-0 w-full sm:w-auto">
                   {isCreatorOrAdmin && m.userId !== community.creatorId ? (
-                    <div className="flex items-center gap-1.5">
-                      <select
+                    <div className="flex items-center justify-between sm:justify-start gap-2.5 w-full sm:w-auto">
+                      <Select
                         value={m.role}
                         disabled={isPendingRole}
-                        onChange={(e) => handleRoleChange(m.userId, e.target.value)}
-                        className="text-xs font-mono font-semibold bg-background border border-border/60 rounded-lg px-2 py-1 cursor-pointer focus:ring-1 focus:ring-primary outline-none"
+                        onValueChange={(val) => handleRoleChange(m.userId, val)}
                       >
-                        <option value="MEMBER">Member</option>
-                        <option value="MODERATOR">Moderator</option>
-                        <option value="ADMIN">Admin</option>
-                      </select>
+                        <SelectTrigger className="h-8 text-xs font-mono font-semibold bg-background/80 border-border/60 rounded-lg min-w-[110px] focus:ring-1 focus:ring-primary">
+                          <SelectValue placeholder="Role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="MEMBER">Member</SelectItem>
+                          <SelectItem value="MODERATOR">Moderator</SelectItem>
+                          <SelectItem value="ADMIN">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
 
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <button
                             type="button"
                             disabled={removingUserId === m.userId}
-                            className="p-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                            className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
                             title="Remove member"
                           >
                             {removingUserId === m.userId ? (
