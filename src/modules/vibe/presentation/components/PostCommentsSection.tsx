@@ -19,6 +19,7 @@ interface PostCommentsSectionProps {
   isDetailPage?: boolean;
   communityId?: string | null;
   isCommunityMember?: boolean;
+  onCommentCountChange?: (delta: number) => void;
 }
 
 export function PostCommentsSection({
@@ -29,6 +30,7 @@ export function PostCommentsSection({
   isDetailPage = false,
   communityId,
   isCommunityMember = false,
+  onCommentCountChange,
 }: PostCommentsSectionProps) {
   const { user, isAuthenticated } = useSession();
   const [localComments, setLocalComments] = useState(initialComments || []);
@@ -63,6 +65,7 @@ export function PostCommentsSection({
       };
 
       setLocalComments((prev: any) => [...prev, optimisticComment]);
+      onCommentCountChange?.(1);
 
       const result = await createComment(postId, commentText);
       if (result?.success) {
@@ -70,11 +73,13 @@ export function PostCommentsSection({
       } else {
         toast.error(result?.error || 'Failed to create comment!');
         setLocalComments((prev: any) => prev.filter((c: any) => c.id !== optimisticId));
+        onCommentCountChange?.(-1);
         setNewComment(commentText);
       }
     } catch {
       toast.error('Failed to create comment!');
       setLocalComments((prev: any) => prev.filter((c: any) => c.id !== optimisticId));
+      onCommentCountChange?.(-1);
       setNewComment(commentText);
     } finally {
       setIsCommenting(false);
@@ -91,6 +96,7 @@ export function PostCommentsSection({
             dbUserId={dbUserId}
             postId={postId}
             postAuthorId={postAuthorId}
+            onCommentCountChange={onCommentCountChange}
           />
         ))}
         {localComments.length > (isDetailPage ? 5 : 2) && (

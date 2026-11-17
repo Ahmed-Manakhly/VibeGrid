@@ -64,6 +64,7 @@ export function PostCard({
 
   const hasReGridded = post.regrids?.some((r) => r.userId === dbUserId) || false;
   const initialReGrids = post._count?.regrids || (post.regrids?.length || 0);
+  const initialCommentsCount = post._count?.comments ?? (post.comments?.reduce((acc: number, c: any) => acc + 1 + (c.replies?.length || 0), 0) || 0);
 
   // Check if this card represents a regridded post in the feed
   const firstReposter = post.regrids && post.regrids.length > 0 ? post.regrids[0].user : null;
@@ -288,6 +289,7 @@ export function PostCard({
           initialReGrids={initialReGrids}
           initialReGridded={hasReGridded}
           initialComments={post.comments || []}
+          initialCommentsCount={initialCommentsCount}
           isTruncated={isTruncated}
           isDetailPage={isDetailPage}
           communityId={post.communityId}

@@ -16,6 +16,7 @@ interface PostInteractiveContainerProps {
   initialReGrids: number;
   initialReGridded: boolean;
   initialComments: any[];
+  initialCommentsCount?: number;
   isTruncated?: boolean;
   isDetailPage?: boolean;
   communityId?: string | null;
@@ -47,6 +48,7 @@ export function PostInteractiveContainer({
   initialReGrids,
   initialReGridded,
   initialComments,
+  initialCommentsCount,
   isTruncated = false,
   isDetailPage = false,
   communityId,
@@ -54,6 +56,9 @@ export function PostInteractiveContainer({
   targetPostData,
 }: PostInteractiveContainerProps) {
   const [showComments, setShowComments] = useState(isDetailPage);
+  const [commentsCount, setCommentsCount] = useState<number>(
+    initialCommentsCount ?? initialComments.length
+  );
 
   return (
     <>
@@ -67,7 +72,7 @@ export function PostInteractiveContainer({
         initialBookmarked={initialBookmarked}
         initialReGrids={initialReGrids}
         initialReGridded={initialReGridded}
-        commentsCount={initialComments.length}
+        commentsCount={commentsCount}
         showComments={showComments}
         onToggleComments={() => setShowComments((prev) => !prev)}
         isTruncated={isTruncated}
@@ -83,6 +88,7 @@ export function PostInteractiveContainer({
           isDetailPage={isDetailPage}
           communityId={communityId}
           isCommunityMember={isCommunityMember}
+          onCommentCountChange={(delta: number) => setCommentsCount((prev) => Math.max(0, prev + delta))}
         />
       )}
     </>

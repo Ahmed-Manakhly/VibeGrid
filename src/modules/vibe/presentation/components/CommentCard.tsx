@@ -6,7 +6,7 @@ import { toast } from '@/components/ui/toast';
 import { UserAvatar } from '@/components/UserAvatar';
 import { formatDistanceToNow } from 'date-fns';
 import { formatRelativeTime } from "@/lib/utils";
-import { Trash2Icon, ReplyIcon, SendIcon, CheckCircle2 } from 'lucide-react';
+import { Trash2Icon, ReplyIcon, SendIcon, CheckCircle2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/components/auth/SessionProvider';
@@ -27,13 +27,15 @@ export function CommentCard({
     dbUserId, 
     postId,
     postAuthorId,
-    isReply = false
+    isReply = false,
+    onCommentCountChange
 }: { 
     comment: any, 
     dbUserId: string | null, 
     postId: string,
     postAuthorId?: string,
-    isReply?: boolean
+    isReply?: boolean,
+    onCommentCountChange?: (delta: number) => void
 }) {
     const { user, isAuthenticated } = useSession();
     const [isDeleting, setIsDeleting] = useState(false);
@@ -47,6 +49,19 @@ export function CommentCard({
     const [showReplies, setShowReplies] = useState(false);
     const [isSolution, setIsSolution] = useState(Boolean(comment.isSolution));
     const [isTogglingSolution, setIsTogglingSolution] = useState(false);
+    
+    // Comment / Reply Likes
+    const [isLiked, setIsLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState<number>(0);
+
+    const handleToggleLike = () => {
+        if (!isAuthenticated) {
+            toast.error("Please sign in to like comments");
+            return;
+        }
+        setIsLiked((prev) => !prev);
+        setLikesCount((prev) => (isLiked ? Math.max(0, prev - 1) : prev + 1));
+    };
 
     const currentUserId = dbUserId || user?.id;
     const isQuestionAuthor = Boolean(currentUserId && postAuthorId && currentUserId === postAuthorId);
@@ -88,6 +103,7 @@ export function CommentCard({
             if (result?.success) {
                 toast.success(isReply ? 'Reply deleted' : 'Comment deleted');
                 setIsDeleted(true);
+                onCommentCountChange?.(-1);
                 setShowDeleteModal(false);
             } else {
                 toast.error(result?.error || 'Failed to delete comment');
@@ -126,6 +142,7 @@ export function CommentCard({
 
             setLocalReplies((prev) => [...prev, optimisticReply]);
             setShowReplies(true);
+            onCommentCountChange?.(1);
 
             const result = await createComment(postId, text, comment.id);
             if (result?.success) {
@@ -133,12 +150,14 @@ export function CommentCard({
             } else {
                 toast.error(result?.error || 'Failed to post reply');
                 setLocalReplies((prev) => prev.filter((r) => r.id !== optimisticId));
+                onCommentCountChange?.(-1);
                 setReplyContent(text);
                 setShowReplyForm(true);
             }
         } catch (error) {
             toast.error('Failed to post reply');
             setLocalReplies((prev) => prev.filter((r) => r.id !== optimisticId));
+            onCommentCountChange?.(-1);
             setReplyContent(text);
             setShowReplyForm(true);
         } finally {
@@ -175,6 +194,19 @@ export function CommentCard({
                                 <span>Accepted Solution</span>
                             </span>
                         )}
+
+                        {/* Like button for comment / reply */}
+                        <button
+                            type="button"
+                            onClick={handleToggleLike}
+                            className={`inline-flex items-center gap-1 text-xs transition-colors ${
+                                isLiked ? "text-rose-500 font-medium" : "text-muted-foreground hover:text-rose-500"
+                            }`}
+                            title="Like"
+                        >
+                            <Heart className={`size-3.5 ${isLiked ? "fill-rose-500 text-rose-500" : ""}`} />
+                            {likesCount > 0 && <span>{likesCount}</span>}
+                        </button>
 
                         {!isReply && isAuthenticated && (
                             <button
@@ -276,6 +308,7 @@ export function CommentCard({
                             dbUserId={dbUserId}
                             postId={postId}
                             isReply={true}
+                            onCommentCountChange={onCommentCountChange}
                         />
                     ))}
                 </div>
