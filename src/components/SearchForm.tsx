@@ -152,23 +152,26 @@ export function SearchForm({
             value={query}
             onFocus={() => matchingUsers.length > 0 && setShowDropdown(true)}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 bg-card border border-border/50 rounded-full focus:outline-none focus:ring-2 focus:ring-accent/50 text-foreground placeholder-muted-foreground backdrop-blur-sm transition-all shadow-sm"
+            className="w-full pl-10 pr-28 py-3 bg-card border border-border/50 rounded-full focus:outline-none focus:ring-2 focus:ring-accent/50 text-foreground placeholder-muted-foreground backdrop-blur-sm transition-all shadow-sm"
           />
-          {query && (
+          <div className="absolute right-2 flex items-center gap-1.5">
+            {query && (
+              <button
+                type="button"
+                onClick={clearQuery}
+                className="text-muted-foreground hover:text-foreground p-1.5 rounded-full hover:bg-muted/60 transition-colors"
+                title="Clear search"
+              >
+                <X className="size-4" />
+              </button>
+            )}
             <button
-              type="button"
-              onClick={clearQuery}
-              className="absolute right-20 text-muted-foreground hover:text-foreground p-1"
+              type="submit"
+              className="px-4 py-1.5 btn-gradient rounded-full text-sm font-medium shrink-0"
             >
-              <X className="size-4" />
+              Search
             </button>
-          )}
-          <button
-            type="submit"
-            className="absolute right-2 px-4 py-1.5 btn-gradient rounded-full text-sm font-medium"
-          >
-            Search
-          </button>
+          </div>
         </form>
         {renderDropdown()}
       </div>
