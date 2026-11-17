@@ -32,17 +32,17 @@ export function EmbeddedQuotedPostCard({ post }: EmbeddedQuotedPostCardProps) {
   return (
     <Link
       href={`/explore/${post.id}`}
-      className="block mt-3 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/30 transition-all p-3 sm:p-3.5 space-y-2 group"
+      className="block mt-3 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/30 transition-all p-3 sm:p-3.5 space-y-2 group w-full max-w-full overflow-hidden"
     >
       {/* Header: Author Info */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center justify-between gap-2 w-full min-w-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <UserAvatar
             src={post.author.image}
             name={post.author.name}
             className="size-5 shrink-0"
           />
-          <div className="flex items-center gap-1.5 min-w-0 text-xs">
+          <div className="flex items-center gap-1.5 min-w-0 text-xs truncate">
             <span className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
               {post.author.name || post.author.username}
             </span>
@@ -66,7 +66,7 @@ export function EmbeddedQuotedPostCard({ post }: EmbeddedQuotedPostCardProps) {
 
       {/* Snippet Content */}
       {text && (
-        <p className="text-xs text-foreground/90 leading-relaxed line-clamp-3">
+        <p className="text-xs text-foreground/90 leading-relaxed line-clamp-3 break-words w-full">
           {text}
         </p>
       )}

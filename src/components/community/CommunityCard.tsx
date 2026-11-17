@@ -52,8 +52,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
     <div className="group relative flex flex-col justify-between rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-5 transition-all duration-200 hover:border-primary/40 hover:shadow-md">
       {/* Top Banner Gradient & Badge */}
       <div>
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary font-bold text-lg overflow-hidden">
               {community.avatarUrl ? (
                 <img src={community.avatarUrl} alt={community.name} className="size-full object-cover" />
@@ -61,14 +61,14 @@ export function CommunityCard({ community }: CommunityCardProps) {
                 <Users className="size-6 text-primary" />
               )}
             </div>
-            <div>
+            <div className="min-w-0 flex-1">
               <Link
                 href={`/communities/${community.slug}`}
-                className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 text-base hover:underline"
+                className="font-semibold text-foreground group-hover:text-primary transition-colors text-base hover:underline block break-words"
               >
                 {community.name}
               </Link>
-              <div className="text-xs text-muted-foreground font-mono">
+              <div className="text-xs text-muted-foreground font-mono truncate">
                 /c/{community.slug}
               </div>
             </div>
@@ -80,7 +80,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
             variant={isMember ? "outline" : "default"}
             onClick={handleToggleJoin}
             disabled={isPending}
-            className={`h-8 px-3 text-xs font-medium transition-all ${
+            className={`h-8 px-3 text-xs font-medium transition-all shrink-0 self-start sm:self-auto ${
               isMember
                 ? "border-primary/30 text-primary hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
                 : "btn-gradient text-white"

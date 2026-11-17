@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,15 +76,15 @@ export function CreateCommunityDialog() {
           <span>Create Community</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md bg-card/95 border-border/60 backdrop-blur-md p-6">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-md max-h-[90vh] overflow-y-auto bg-card/95 border-border/60 backdrop-blur-md p-4 sm:p-6 rounded-2xl">
         <DialogHeader className="mb-2">
           <DialogTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
             <Sparkles className="size-5 text-primary" />
             <span>Create Developer Guild</span>
           </DialogTitle>
-          <p className="text-xs text-muted-foreground">
+          <DialogDescription className="text-xs text-muted-foreground">
             Form a high-signal tech circle, open-source collective, or framework guild.
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

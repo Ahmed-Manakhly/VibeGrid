@@ -58,6 +58,21 @@ export function MessagesPageClient() {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const typingDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea as content grows, and reset height when content is cleared
+  useEffect(() => {
+    if (textareaRef.current) {
+      if (!content) {
+        textareaRef.current.style.height = "40px";
+        return;
+      }
+      textareaRef.current.style.height = "auto";
+      const scrollHeight = textareaRef.current.scrollHeight;
+      const maxHeight = 160; // Max height limit before internal scrolling
+      textareaRef.current.style.height = `${Math.min(Math.max(scrollHeight, 40), maxHeight)}px`;
+    }
+  }, [content]);
 
   // Close emoji picker on click outside
   useEffect(() => {
@@ -402,21 +417,23 @@ export function MessagesPageClient() {
                 <ArrowLeftIcon className="size-4" />
               </Button>
               {otherParticipant && (
-                <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`} className="flex items-center gap-3 group">
+                <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`} className="flex items-center gap-3 group min-w-0 flex-1">
                   <div className="relative shrink-0">
                     <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-10 group-hover:opacity-80 transition-opacity ring-1 ring-border" />
                     {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
                       <span className="absolute top-0 right-0 size-3 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
                     )}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-sm group-hover:underline">{otherParticipant.name || otherParticipant.username || "Developer"}</h3>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <h3 className="font-semibold text-sm group-hover:underline truncate max-w-[150px] sm:max-w-none">
+                        {otherParticipant.name || otherParticipant.username || "Developer"}
+                      </h3>
                       {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
-                        <span className="text-[10px] font-mono text-emerald-500 font-medium">● online</span>
+                        <span className="text-[10px] font-mono text-emerald-500 font-medium shrink-0">● online</span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">@{otherParticipant.username}</p>
+                    <p className="text-xs text-muted-foreground truncate">@{otherParticipant.username}</p>
                   </div>
                 </Link>
               )}
@@ -502,80 +519,117 @@ export function MessagesPageClient() {
             </div>
 
             {/* Input Composer */}
-            <form onSubmit={handleSend} className="p-3 border-t flex gap-2 items-center">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => setContent((prev) => prev ? `${prev}\n\`\`\`typescript\n// your code snippet here\n\`\`\`\n` : "```typescript\n// your code snippet here\n```\n")}
-                className="text-muted-foreground hover:text-primary size-9 shrink-0"
-                title="Insert code snippet"
-              >
-                <Code2Icon className="size-4" />
-              </Button>
+            <form onSubmit={handleSend} className="p-3 border-t bg-card/40 backdrop-blur-md flex flex-col gap-2">
+              {/* Feature Action Bar (Code Block & Emoji Picker Toolbar) */}
+              <div className="flex items-center justify-between gap-1 border-b border-border/40 pb-2">
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setContent((prev) => prev ? `${prev}\n\`\`\`typescript\n// your code snippet here\n\`\`\`\n` : "```typescript\n// your code snippet here\n```\n");
+                      textareaRef.current?.focus();
+                    }}
+                    className="text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 h-8 px-2.5 text-xs gap-1.5 rounded-lg transition-colors font-mono"
+                    title="Insert code snippet"
+                  >
+                    <Code2Icon className="size-3.5" />
+                    <span className="font-mono text-[11px]">Code</span>
+                  </Button>
 
-              {/* Emoji Picker Dropdown */}
-              <div className="relative" ref={emojiPickerRef}>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowEmojiPicker((prev) => !prev)}
-                  className="text-muted-foreground hover:text-primary size-9 shrink-0"
-                  title="Insert emoji"
-                >
-                  <SmileIcon className="size-4" />
-                </Button>
-                {showEmojiPicker && (
-                  <div className="absolute bottom-full left-0 mb-2 z-50 w-72 p-3 rounded-2xl bg-card/95 border border-border/80 shadow-2xl backdrop-blur-xl animate-in fade-in-50 zoom-in-95">
-                    <div className="text-[11px] font-mono font-semibold text-muted-foreground mb-2 px-1 flex items-center justify-between">
-                      <span>Developer Reactions & Emojis</span>
-                      <span className="text-[10px] text-muted-foreground/70">Click to insert</span>
-                    </div>
-                    <div className="grid grid-cols-7 gap-1.5 text-xl max-h-56 overflow-y-auto pr-1">
-                      {[
-                        "😀", "😃", "😄", "😁", "😆", "😂", "🤣",
-                        "😊", "😇", "🙂", "🙃", "😉", "😌", "😍",
-                        "🥰", "😘", "😎", "🤓", "🧐", "🤔", "🫡",
-                        "🤫", "🤐", "😐", "😑", "😶", "🙄", "😬",
-                        "😮‍💨", "🤥", "😌", "😴", "😷", "🤒", "🤕",
-                        "🔥", "✨", "🚀", "⚡", "💯", "🎉", "👏",
-                        "🙌", "👍", "👎", "👊", "✊", "🤛", "🤜",
-                        "🤝", "🙏", "💪", "❤️", "🧡", "💛", "💚",
-                        "💙", "💜", "🖤", "🤍", "🤎", "💔", "❣️",
-                        "💻", "⌨️", "🖥️", "📱", "💾", "💿", "🕹️",
-                        "🛠️", "🔧", "🔨", "⚙️", "🧪", "🧫", "🧬",
-                        "☕", "🍵", "🍺", "🍻", "🍕", "🍔", "🍿",
-                        "🐛", "🐞", "🐜", "🕷️", "🕸️", "🚨", "⚠️",
-                        "✅", "❌", "❓", "❗", "💡", "🧠", "🎯"
-                      ].map((emoji) => (
-                        <button
-                          key={emoji}
-                          type="button"
-                          onClick={() => {
-                            setContent((prev) => prev + emoji);
-                            setShowEmojiPicker(false);
-                          }}
-                          className="p-1 rounded-lg hover:bg-muted hover:scale-125 transition-all text-center flex items-center justify-center size-8"
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
+                  {/* Emoji Picker Dropdown */}
+                  <div className="relative" ref={emojiPickerRef}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowEmojiPicker((prev) => !prev)}
+                      className="text-muted-foreground hover:text-primary hover:bg-primary/10 active:bg-primary/20 h-8 px-2.5 text-xs gap-1.5 rounded-lg transition-colors font-mono"
+                      title="Insert emoji"
+                    >
+                      <SmileIcon className="size-3.5" />
+                      <span className="font-mono text-[11px]">Emoji</span>
+                    </Button>
+                    {showEmojiPicker && (
+                      <div className="fixed sm:absolute bottom-20 sm:bottom-full left-1/2 sm:left-0 -translate-x-1/2 sm:translate-x-0 mb-2 z-50 w-[calc(100vw-2rem)] max-w-xs sm:w-72 p-3 rounded-2xl bg-card/95 border border-border/80 shadow-2xl backdrop-blur-xl animate-in fade-in-50 zoom-in-95">
+                        <div className="text-[11px] font-mono font-semibold text-muted-foreground mb-2 px-1 flex items-center justify-between">
+                          <span>Developer Reactions & Emojis</span>
+                          <span className="text-[10px] text-muted-foreground/70">Click to insert</span>
+                        </div>
+                        <div className="grid grid-cols-7 gap-1.5 text-xl max-h-56 overflow-y-auto pr-1">
+                          {[
+                            "😀", "😃", "😄", "😁", "😆", "😂", "🤣",
+                            "😊", "😇", "🙂", "🙃", "😉", "😌", "😍",
+                            "🥰", "😘", "😎", "🤓", "🧐", "🤔", "🫡",
+                            "🤫", "🤐", "😐", "😑", "😶", "🙄", "😬",
+                            "😮‍💨", "🤥", "😌", "😴", "😷", "🤒", "🤕",
+                            "🔥", "✨", "🚀", "⚡", "💯", "🎉", "👏",
+                            "🙌", "👍", "👎", "👊", "✊", "🤛", "🤜",
+                            "🤝", "🙏", "💪", "❤️", "🧡", "💛", "💚",
+                            "💙", "💜", "🖤", "🤍", "🤎", "💔", "❣️",
+                            "💻", "⌨️", "🖥️", "📱", "💾", "💿", "🕹️",
+                            "🛠️", "🔧", "🔨", "⚙️", "🧪", "🧫", "🧬",
+                            "☕", "🍵", "🍺", "🍻", "🍕", "🍔", "🍿",
+                            "🐛", "🐞", "🐜", "🕷️", "🕸️", "🚨", "⚠️",
+                            "✅", "❌", "❓", "❗", "💡", "🧠", "🎯"
+                          ].map((emoji) => (
+                            <button
+                              key={emoji}
+                              type="button"
+                              onClick={() => {
+                                setContent((prev) => prev + emoji);
+                                setShowEmojiPicker(false);
+                                textareaRef.current?.focus();
+                              }}
+                              className="p-1 rounded-lg hover:bg-muted hover:scale-125 transition-all text-center flex items-center justify-center size-8"
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+
+                <span className="text-[10px] text-muted-foreground/70 font-mono hidden sm:inline">
+                  Enter to send • Shift+Enter for new line
+                </span>
               </div>
 
-              <Input
-                value={content}
-                onChange={(e) => handleTypingChange(e.target.value)}
-                placeholder="Write a message... (supports ```lang code blocks)"
-                maxLength={2000}
-                className="flex-1 text-sm focus-visible:ring-1"
-              />
-              <Button type="submit" size="icon" disabled={!content.trim() || sending} className="size-9 shrink-0">
-                {sending ? <Loader2Icon className="animate-spin size-4" /> : <SendIcon className="size-4" />}
-              </Button>
+              {/* Textarea Row with Submit Button */}
+              <div className="flex items-end gap-2 w-full">
+                <textarea
+                  ref={textareaRef}
+                  value={content}
+                  rows={1}
+                  onChange={(e) => handleTypingChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (content.trim() && !sending) {
+                        handleSend(e);
+                      }
+                    }
+                  }}
+                  placeholder="Write a message... (supports ```lang code blocks)"
+                  maxLength={2000}
+                  className="flex-1 w-full bg-background/50 border border-input rounded-xl px-3 py-2 text-sm leading-relaxed resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary overflow-y-auto min-h-[40px] max-h-[160px] scrollbar-thin transition-all"
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled={!content.trim() || sending}
+                  className="size-10 rounded-xl shrink-0 btn-gradient"
+                >
+                  {sending ? (
+                    <Loader2Icon className="animate-spin size-4" />
+                  ) : (
+                    <SendIcon className="size-4" />
+                  )}
+                </Button>
+              </div>
             </form>
           </>
         ) : (

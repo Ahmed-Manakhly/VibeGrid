@@ -103,17 +103,28 @@ export function OnboardingProfileBanner() {
   const profileEditHref = user?.username ? `/profile/${user.username}?edit=true` : '/settings?tab=profile';
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 xl:px-12 pt-4 pb-2">
-      <div className="relative overflow-hidden rounded-3xl border border-white/60 dark:border-white/10 bg-white/70 dark:bg-card/45 backdrop-blur-3xl p-6 shadow-[0_20px_60px_-15px_rgba(4,120,87,0.08),0_10px_30px_-10px_rgba(216,182,92,0.14)] dark:shadow-[0_0_50px_rgba(4,120,87,0.15)] transition-all">
+    <div className="w-full max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-12 pt-3 pb-2">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/60 dark:border-white/10 bg-white/70 dark:bg-card/45 backdrop-blur-3xl p-3 sm:p-6 shadow-[0_20px_60px_-15px_rgba(4,120,87,0.08),0_10px_30px_-10px_rgba(216,182,92,0.14)] dark:shadow-[0_0_50px_rgba(4,120,87,0.15)] transition-all">
         {/* Ambient background glows matching login hero card */}
         <div className="pointer-events-none absolute -top-16 -left-16 size-48 rounded-full bg-brand-gold/25 dark:bg-brand-gold/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 -right-16 size-48 rounded-full bg-primary/25 dark:bg-primary/20 blur-3xl" />
 
-        <div className="relative z-10 flex flex-col gap-4">
+        <div className="relative z-10 flex flex-col gap-3 sm:gap-4">
+          {/* Top Dismiss Button Row for Mobile */}
+          <div className="flex justify-end sm:hidden -mb-2">
+            <button
+              onClick={() => setDismissed(true)}
+              className="text-xs text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted/60 transition-colors"
+              aria-label="Dismiss checklist"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+
           {/* Header Row */}
           <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3 min-w-0 flex-1">
-              <div className="p-2 sm:p-2.5 rounded-2xl bg-primary/15 border border-primary/30 text-primary shadow-[0_0_15px_rgba(16,185,129,0.2)] shrink-0 mt-0.5">
+            <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
+              <div className="p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl bg-primary/15 border border-primary/30 text-primary shadow-[0_0_15px_rgba(16,185,129,0.2)] shrink-0 mt-0.5">
                 <Sparkles className="size-4 sm:size-5 animate-pulse" />
               </div>
               <div className="min-w-0 flex-1 space-y-1">
@@ -121,7 +132,7 @@ export function OnboardingProfileBanner() {
                   <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight leading-snug">
                     Welcome to VibeGrid! Complete your setup
                   </h3>
-                  <span className="self-start text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 shadow-sm shrink-0">
+                  <span className="self-start text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30 shadow-sm shrink-0">
                     {completedCount} OF 3 COMPLETED
                   </span>
                 </div>
@@ -133,7 +144,7 @@ export function OnboardingProfileBanner() {
 
             <button
               onClick={() => setDismissed(true)}
-              className="text-xs text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted/60 transition-colors shrink-0"
+              className="hidden sm:inline-flex text-xs text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted/60 transition-colors shrink-0"
               aria-label="Dismiss checklist"
             >
               <X className="size-4" />
