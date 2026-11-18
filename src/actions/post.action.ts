@@ -448,5 +448,75 @@ export async function getPostLikersAction(postId: string) {
     }
 }
 
+export async function getPostCommentsAction(params: {
+    postId: string;
+    cursor?: string;
+    limit?: number;
+    sort?: 'recent' | 'oldest';
+}) {
+    try {
+        const { postId, cursor, limit = 5, sort = 'recent' } = params;
+        const { prisma } = await import("@/shared/infrastructure/prisma");
+        const currentUserId = await getDbUserId();
+
+        const comments = await prisma.comment.findMany({
+            where: {
+                postId,
+                parentId: null,
+            },
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                        image: true,
+                    },
+                },
+                replies: {
+                    include: {
+                        author: {
+                            select: {
+                                id: true,
+                                name: true,
+                                username: true,
+                                image: true,
+                            },
+                        },
+                    },
+                    orderBy: { createdAt: "asc" },
+                },
+            },
+            orderBy: { createdAt: sort === 'oldest' ? 'asc' : 'desc' },
+            take: limit + 1,
+            ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+        });
+
+        let nextCursor: string | null = null;
+        let data = comments;
+        if (comments.length > limit) {
+            const nextItem = comments.pop();
+            nextCursor = nextItem ? nextItem.id : null;
+            data = comments;
+        }
+
+        return {
+            success: true,
+            data,
+            nextCursor,
+            currentUserId,
+        };
+    } catch (error) {
+        logger.error('Error fetching post comments', error, params);
+        return {
+            success: false,
+            data: [],
+            nextCursor: null,
+            error: 'Failed to fetch comments',
+        };
+    }
+}
+
+
 
 

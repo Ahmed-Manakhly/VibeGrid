@@ -46,7 +46,7 @@ export function CommentCard({
     const [replyContent, setReplyContent] = useState('');
     const [isSubmittingReply, setIsSubmittingReply] = useState(false);
     const [localReplies, setLocalReplies] = useState<any[]>(comment.replies || []);
-    const [showReplies, setShowReplies] = useState(false);
+    const [showAllReplies, setShowAllReplies] = useState(false);
     const [isSolution, setIsSolution] = useState(Boolean(comment.isSolution));
     const [isTogglingSolution, setIsTogglingSolution] = useState(false);
     
@@ -120,53 +120,25 @@ export function CommentCard({
     const handleAddReply = async () => {
         if (!replyContent.trim() || isSubmittingReply) return;
         const text = replyContent;
-        const optimisticId = `optimistic-reply-${Date.now()}`;
 
         try {
             setIsSubmittingReply(true);
-            setReplyContent('');
-            setShowReplyForm(false);
-
-            const optimisticReply = {
-                id: optimisticId,
-                content: text,
-                authorId: dbUserId,
-                postId,
-                parentId: comment.id,
-                createdAt: new Date().toISOString(),
-                author: {
-                    id: dbUserId,
-                    name: user?.name || user?.username || user?.email.split('@')[0] || "You",
-                    username: user?.username || user?.name || "",
-                    image: user?.image || null
-                }
-            };
-
-            setLocalReplies((prev) => [...prev, optimisticReply]);
-            setShowReplies(true);
 
             const result = await createComment(postId, text, comment.id);
-            if (result?.success) {
+            if (result?.success && result.comment) {
                 toast.success('Reply posted successfully');
-                if (result.comment?.id) {
-                    setLocalReplies((prev) =>
-                        prev.map((r) => (r.id === optimisticId ? { ...r, id: result.comment.id } : r))
-                    );
-                }
+                setLocalReplies((prev) => [...prev, result.comment]);
+                setShowAllReplies(true);
+                setReplyContent('');
+                setShowReplyForm(false);
             } else {
                 toast.error(result?.error || 'Failed to post reply');
                 if (result?.requiresPolicy) {
                     window.dispatchEvent(new CustomEvent('open-policy-prompt'));
                 }
-                setLocalReplies((prev) => prev.filter((r) => r.id !== optimisticId));
-                setReplyContent(text);
-                setShowReplyForm(true);
             }
         } catch (error) {
             toast.error('Failed to post reply');
-            setLocalReplies((prev) => prev.filter((r) => r.id !== optimisticId));
-            setReplyContent(text);
-            setShowReplyForm(true);
         } finally {
             setIsSubmittingReply(false);
         }
@@ -254,13 +226,13 @@ export function CommentCard({
                             </button>
                         )}
 
-                        {!isReply && localReplies.length > 0 && (
+                        {!isReply && localReplies.length > 1 && (
                             <button
                                 type="button"
-                                onClick={() => setShowReplies((prev) => !prev)}
+                                onClick={() => setShowAllReplies((prev) => !prev)}
                                 className="inline-flex items-center gap-0.5 text-[10px] leading-none whitespace-nowrap font-medium text-accent hover:underline transition-colors"
                             >
-                                <span>{showReplies ? "Hide replies" : `View ${localReplies.length} ${localReplies.length === 1 ? "reply" : "replies"}`}</span>
+                                <span>{showAllReplies ? "Hide older replies" : `View ${localReplies.length - 1} previous ${localReplies.length - 1 === 1 ? "reply" : "replies"}`}</span>
                             </button>
                         )}
                     </div>
@@ -314,10 +286,10 @@ export function CommentCard({
                 </div>
             )}
 
-            {/* Nested Replies Rendering */}
-            {!isReply && localReplies.length > 0 && showReplies && (
+            {/* Nested Replies Rendering (LinkedIn pattern: latest reply auto-shown, older replies revealed via button) */}
+            {!isReply && localReplies.length > 0 && (
                 <div className="space-y-3">
-                    {localReplies.map((reply: any) => (
+                    {(showAllReplies ? localReplies : localReplies.slice(-1)).map((reply: any) => (
                         <CommentCard
                             key={reply.id}
                             comment={reply}

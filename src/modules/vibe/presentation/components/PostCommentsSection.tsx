@@ -8,7 +8,7 @@ import { UserAvatar } from '@/components/UserAvatar';
 import { SendIcon, LogInIcon } from 'lucide-react';
 import { CommentCard } from './CommentCard';
 import { useSession } from '@/components/auth/SessionProvider';
-import { createComment } from '@/actions/post.action';
+import { getPostCommentsAction, createComment } from '@/actions/post.action';
 import { toast } from '@/components/ui/toast';
 
 interface PostCommentsSectionProps {
@@ -35,15 +35,43 @@ export function PostCommentsSection({
   onCommentCountChange,
 }: PostCommentsSectionProps) {
   const { user, isAuthenticated } = useSession();
-  const [localComments, setLocalComments] = useState(initialComments || []);
+  const [localComments, setLocalComments] = useState<any[]>(initialComments || []);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasLoadedInitialBatch, setHasLoadedInitialBatch] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(isDetailPage);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
+  // Sync initial comments if provided
   useEffect(() => {
-    setLocalComments(initialComments || []);
+    if (initialComments && initialComments.length > 0) {
+      setLocalComments(initialComments);
+      setHasLoadedInitialBatch(true);
+    }
   }, [initialComments]);
+
+  // Load first batch on demand if empty and comments container opened
+  useEffect(() => {
+    if (!hasLoadedInitialBatch && localComments.length === 0) {
+      const loadFirstBatch = async () => {
+        setIsLoadingMore(true);
+        try {
+          const res = await getPostCommentsAction({ postId, limit: 5 });
+          if (res?.success && Array.isArray(res.data)) {
+            setLocalComments(res.data);
+            setNextCursor(res.nextCursor);
+          }
+        } catch {
+          // Keep empty
+        } finally {
+          setIsLoadingMore(false);
+          setHasLoadedInitialBatch(true);
+        }
+      };
+      loadFirstBatch();
+    }
+  }, [postId, hasLoadedInitialBatch, localComments.length]);
 
   useEffect(() => {
     if (showCommentInput && textareaRef.current) {
@@ -51,96 +79,56 @@ export function PostCommentsSection({
     }
   }, [showCommentInput]);
 
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !nextCursor) return;
+    try {
+      setIsLoadingMore(true);
+      const res = await getPostCommentsAction({ postId, cursor: nextCursor, limit: 5 });
+      if (res?.success && Array.isArray(res.data)) {
+        setLocalComments((prev) => {
+          const existingIds = new Set(prev.map((c) => c.id));
+          const fresh = res.data.filter((c: any) => !existingIds.has(c.id));
+          return [...prev, ...fresh];
+        });
+        setNextCursor(res.nextCursor);
+      }
+    } catch {
+      toast.error('Failed to load more comments');
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
   const handleAddComment = async () => {
     if (!newComment.trim() || isCommenting) return;
     const commentText = newComment;
-    const optimisticId = `optimistic-${Date.now()}`;
 
     try {
       setIsCommenting(true);
-      setNewComment('');
-
-      const optimisticComment = {
-        id: optimisticId,
-        content: commentText,
-        authorId: dbUserId,
-        postId: postId,
-        createdAt: new Date().toISOString(),
-        author: {
-          id: dbUserId,
-          name: user?.name || user?.username || user?.email?.split('@')[0] || 'You',
-          username: user?.username || user?.name || '',
-          image: user?.image || null,
-        },
-      };
-
-      setLocalComments((prev: any) => [...prev, optimisticComment]);
-      onCommentCountChange?.(1);
 
       const result = await createComment(postId, commentText);
-      if (result?.success) {
+      if (result?.success && result.comment) {
         toast.success('Comment posted successfully');
-        if (result.comment?.id) {
-          setLocalComments((prev: any) =>
-            prev.map((c: any) => (c.id === optimisticId ? { ...c, id: result.comment.id } : c))
-          );
-        }
+        // Place own new comment at top of comments list
+        setLocalComments((prev: any) => [result.comment, ...prev]);
+        onCommentCountChange?.(1);
+        setNewComment('');
       } else {
         toast.error(result?.error || 'Failed to create comment!');
         if (result?.requiresPolicy) {
           window.dispatchEvent(new CustomEvent('open-policy-prompt'));
         }
-        setLocalComments((prev: any) => prev.filter((c: any) => c.id !== optimisticId));
-        onCommentCountChange?.(-1);
-        setNewComment(commentText);
       }
     } catch {
       toast.error('Failed to create comment!');
-      setLocalComments((prev: any) => prev.filter((c: any) => c.id !== optimisticId));
-      onCommentCountChange?.(-1);
-      setNewComment(commentText);
     } finally {
       setIsCommenting(false);
     }
   };
 
-  const visibleComments = isExpanded ? localComments : localComments.slice(0, 2);
-  const remainingCount = localComments.length - visibleComments.length;
-
   return (
-    <div className="space-y-4 pt-4 border-t border-white/10">
-      <div className="space-y-4">
-        {visibleComments.map((comment: any) => (
-          <CommentCard
-            key={comment.id}
-            comment={comment}
-            dbUserId={dbUserId}
-            postId={postId}
-            postAuthorId={postAuthorId}
-            onCommentCountChange={onCommentCountChange}
-          />
-        ))}
-
-        {/* View all comments controls */}
-        {remainingCount > 0 && (
-          isDetailPage ? (
-            <button
-              type="button"
-              onClick={() => setIsExpanded(true)}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors block"
-            >
-              Show {remainingCount} more {remainingCount === 1 ? 'comment' : 'comments'} &darr;
-            </button>
-          ) : (
-            <Link
-              href={`/explore/${postId}`}
-              className="block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors"
-            >
-              View all {localComments.length} comments &rarr;
-            </Link>
-          )
-        )}
-      </div>
+    <div className="space-y-4 pt-4 border-t border-accent/20 bg-gradient-to-b from-accent/5 to-transparent p-3 sm:p-4 rounded-xl">
+      {/* Top Comment Input Box */}
       {(isDetailPage || showCommentInput) && (
         isAuthenticated ? (
           communityId && !isCommunityMember ? (
@@ -155,7 +143,7 @@ export function PostCommentsSection({
               </Button>
             </div>
           ) : (
-            <div className="flex space-x-3">
+            <div className="flex space-x-3 pb-3 border-b border-border/30">
               <UserAvatar src={user?.image} name={user?.name} className="size-8 flex-shrink-0" />
               <div className="flex-1">
                 <Textarea
@@ -163,21 +151,21 @@ export function PostCommentsSection({
                   placeholder="Drop a vibe..."
                   value={newComment}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
-                  className="min-h-[80px] resize-none bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border"
+                  className="min-h-[70px] resize-none bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border text-xs"
                 />
                 <div className="flex justify-end mt-2">
                   <Button
                     onClick={handleAddComment}
                     size="sm"
-                    className="btn-gradient flex items-center gap-2"
+                    className="btn-gradient flex items-center gap-1.5 h-7 px-3 text-xs"
                     disabled={!newComment.trim() || isCommenting}
                   >
                     {isCommenting ? (
                       'Dropping...'
                     ) : (
                       <>
-                        <SendIcon className="size-4" />
-                        Vibe
+                        <SendIcon className="size-3.5" />
+                        <span>Comment</span>
                       </>
                     )}
                   </Button>
@@ -186,16 +174,59 @@ export function PostCommentsSection({
             </div>
           )
         ) : (
-          <div className="flex justify-center p-4 border rounded-lg bg-muted/50">
-            <Button variant="outline" className="gap-2" asChild>
+          <div className="flex justify-center p-3 border rounded-xl bg-muted/30">
+            <Button variant="outline" size="sm" className="gap-2 text-xs" asChild>
               <Link href="/login">
-                <LogInIcon className="size-4" />
+                <LogInIcon className="size-3.5" />
                 Sign in to comment
               </Link>
             </Button>
           </div>
         )
       )}
+
+      {/* Comments List */}
+      <div className="space-y-4">
+        {localComments.map((comment: any) => (
+          <CommentCard
+            key={comment.id}
+            comment={comment}
+            dbUserId={dbUserId}
+            postId={postId}
+            postAuthorId={postAuthorId}
+            onCommentCountChange={onCommentCountChange}
+          />
+        ))}
+
+        {isLoadingMore && (
+          <div className="space-y-3 py-2 animate-pulse">
+            <div className="flex items-center gap-2">
+              <div className="size-7 rounded-full bg-muted/60" />
+              <div className="h-3 w-28 rounded bg-muted/60" />
+            </div>
+            <div className="h-3 w-full rounded bg-muted/40 ml-9" />
+          </div>
+        )}
+
+        {/* Show More Comments Link / Button */}
+        {nextCursor ? (
+          <button
+            type="button"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="text-xs font-semibold text-accent hover:underline transition-colors block py-1"
+          >
+            {isLoadingMore ? "Loading comments..." : "Show more comments ↓"}
+          </button>
+        ) : !isDetailPage && localComments.length > 5 ? (
+          <Link
+            href={`/explore/${postId}`}
+            className="block text-xs font-semibold text-accent hover:underline transition-colors py-1"
+          >
+            View all comments in thread &rarr;
+          </Link>
+        ) : null}
+      </div>
     </div>
   );
 }
