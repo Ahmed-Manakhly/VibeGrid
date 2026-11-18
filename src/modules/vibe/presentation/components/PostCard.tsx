@@ -15,6 +15,7 @@ import { PostGitHubUnfold } from '@/modules/github/presentation/components/PostG
 import { TechDilemmaPollCard } from './TechDilemmaPollCard';
 import { EmbeddedQuotedPostCard } from '@/components/EmbeddedQuotedPostCard';
 import { RepeatIcon } from 'lucide-react';
+import { FollowButton } from '@/modules/social/presentation/components/FollowButton';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>;
 type post = FeedResponse['data'][number] & {
@@ -102,57 +103,54 @@ export function PostCard({
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center space-x-3 min-w-0 flex-1">
             <Link href={`/profile/${post.author.username}`} className="shrink-0">
-              <UserAvatar src={post.author.image} name={post.author.name} className="size-8 transition-all" />
+              <UserAvatar src={post.author.image} name={post.author.name} className="size-9 transition-all" />
             </Link>
             <div className="flex flex-col min-w-0 flex-1">
-              <Link href={`/profile/${post.author.username}`} className="font-semibold text-[13px] sm:text-sm truncate">
+              <Link href={`/profile/${post.author.username}`} className="font-semibold text-[13px] sm:text-sm truncate hover:underline">
                 {post.author.name}
               </Link>
-              <div className="flex items-center space-x-1 sm:space-x-2 text-[11px] sm:text-xs text-muted-foreground truncate min-w-0">
-                <Link href={`/profile/${post.author.username}`} className="truncate">
-                  @{post.author.username}
-                </Link>
-                <span className="shrink-0">•</span>
+              <Link href={`/profile/${post.author.username}`} className="text-[11px] sm:text-xs text-muted-foreground truncate hover:underline">
+                @{post.author.username}
+              </Link>
+              <div className="text-[10px] text-muted-foreground/80 pt-0.5" suppressHydrationWarning>
                 {isDetailPage ? (
-                  <>
-                    <span className="shrink-0 hidden sm:inline" suppressHydrationWarning>
-                      {formatDistanceToNow(new Date(post.createdAt))} ago
-                    </span>
-                    <span className="shrink-0 sm:hidden" suppressHydrationWarning>
-                      {formatRelativeTime(new Date(post.createdAt))}
-                    </span>
-                  </>
+                  formatDistanceToNow(new Date(post.createdAt)) + ' ago'
                 ) : (
-                  <Link href={`/explore/${post.id}`} className="hover:underline flex items-center space-x-1 sm:space-x-2">
-                    <span className="shrink-0 hidden sm:inline" suppressHydrationWarning>
-                      {formatDistanceToNow(new Date(post.createdAt))} ago
-                    </span>
-                    <span className="shrink-0 sm:hidden" suppressHydrationWarning>
-                      {formatRelativeTime(new Date(post.createdAt))}
-                    </span>
+                  <Link href={`/explore/${post.id}`} className="hover:underline">
+                    {formatDistanceToNow(new Date(post.createdAt))} ago
                   </Link>
                 )}
               </div>
             </div>
           </div>
-          {dbUserId === post.author.id || canModerate ? (
-            <div className="shrink-0 flex items-center gap-1.5">
-              {canModerate && dbUserId !== post.author.id && (
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20 hidden sm:inline">
-                  Mod
-                </span>
-              )}
-              <PostDeleteAction postId={post.id} />
-            </div>
-          ) : (
-            <div className="shrink-0">
-              <PostSafetyMenu
-                postId={post.id}
-                authorId={post.author.id}
-                authorUsername={post.author.username || ''}
+
+          {/* Right Header Actions: Follow/Unfollow toggle button + Post Actions / 3-dots */}
+          <div className="shrink-0 flex items-center gap-1.5">
+            {dbUserId && dbUserId !== post.author.id && (
+              <FollowButton
+                targetUserId={post.author.id}
+                initialIsFollowing={Boolean((post.author as any)?.isFollowing)}
+                className="h-7 px-2.5 text-[11px] rounded-lg"
               />
-            </div>
-          )}
+            )}
+
+            {canModerate && dbUserId !== post.author.id && (
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20 hidden sm:inline">
+                Mod
+              </span>
+            )}
+
+            {dbUserId === post.author.id && (
+              <PostDeleteAction postId={post.id} />
+            )}
+
+            <PostSafetyMenu
+              postId={post.id}
+              authorId={post.author.id}
+              authorUsername={post.author.username || ''}
+              initialBookmarked={hasBookmarked}
+            />
+          </div>
         </div>
 
         {(contentText || post.poll || post.techContext || structuredContent.codeBlock) && (

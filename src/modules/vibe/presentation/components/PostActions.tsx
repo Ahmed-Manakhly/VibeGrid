@@ -347,31 +347,6 @@ export function PostActions({
         )
       )}
 
-      {/* Bookmark Button */}
-      {isAuthenticated ? (
-        <Button
-          className={`ml-auto text-muted-foreground gap-2 hover:bg-transparent ${
-            hasBookmarked ? 'text-primary hover:text-primary/90' : 'hover:text-primary'
-          }`}
-          variant="ghost"
-          size="sm"
-          onClick={handleBookmark}
-        >
-          <BookmarkIcon className={`size-5 ${hasBookmarked ? 'fill-primary text-primary' : ''}`} />
-        </Button>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ml-auto text-muted-foreground gap-2 hover:bg-transparent hover:text-primary"
-          asChild
-        >
-          <Link href="/login">
-            <BookmarkIcon className="size-5" />
-          </Link>
-        </Button>
-      )}
-
       {/* Quote Vibe Modal */}
       {targetPostData && isQuoteOpen && (
         <QuoteVibeDialog
