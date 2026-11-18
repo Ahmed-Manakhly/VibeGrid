@@ -4,12 +4,13 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { HeartIcon, RepeatIcon, BookmarkIcon, MessageCircleIcon, MessageSquareQuote } from 'lucide-react';
+import { HeartIcon, RepeatIcon, BookmarkIcon, MessageCircleIcon, MessageSquareQuote, Share2Icon } from 'lucide-react';
 import { UserAvatar } from '@/components/UserAvatar';
 import { useSession } from '@/components/auth/SessionProvider';
 import { toggleLike, toggleBookmark, toggleReGrid, getPostLikersAction } from '@/actions/post.action';
 import { toast } from '@/components/ui/toast';
 import { QuoteVibeDialog } from '@/components/QuoteVibeDialog';
+import { ShareVibeDialog } from '@/components/ShareVibeDialog';
 
 interface PostActionsProps {
   postId: string;
@@ -117,6 +118,7 @@ export function PostActions({
   const [optimisticReGrids, setOptimisticReGrids] = useState(initialReGrids);
   const [isReGridding, setIsReGridding] = useState(false);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const router = useRouter();
 
   const handleLike = async () => {
@@ -246,7 +248,17 @@ export function PostActions({
             </div>
             <div className="space-y-1 max-h-48 overflow-y-auto pr-0.5">
               {isLoadingLikers && activeLikesList.length === 0 ? (
-                <p className="text-xs text-muted-foreground py-2 text-center">Loading...</p>
+                <div className="space-y-2 py-2 px-1 animate-pulse">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="size-6 rounded-full bg-muted/60" />
+                      <div className="space-y-1 flex-1">
+                        <div className="h-2.5 w-20 rounded bg-muted/60" />
+                        <div className="h-2 w-12 rounded bg-muted/40" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : activeLikesList.length === 0 ? (
                 <p className="text-xs text-muted-foreground py-2 text-center">No likes yet</p>
               ) : (
@@ -347,12 +359,34 @@ export function PostActions({
         )
       )}
 
+      {/* Share Button (Direct Message / Device Share) */}
+      <Button
+        className="text-muted-foreground gap-1.5 hover:bg-transparent hover:text-primary transition-colors ml-auto"
+        variant="ghost"
+        size="sm"
+        onClick={() => setIsShareOpen(true)}
+        title="Share vibe in message or copy link"
+      >
+        <Share2Icon className="size-4" />
+      </Button>
+
       {/* Quote Vibe Modal */}
       {targetPostData && isQuoteOpen && (
         <QuoteVibeDialog
           isOpen={isQuoteOpen}
           onClose={() => setIsQuoteOpen(false)}
           targetPost={targetPostData}
+        />
+      )}
+
+      {/* Share Vibe Modal */}
+      {isShareOpen && (
+        <ShareVibeDialog
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          postId={postId}
+          postContent={targetPostData?.content}
+          authorUsername={targetPostData?.author?.username || ''}
         />
       )}
     </div>
