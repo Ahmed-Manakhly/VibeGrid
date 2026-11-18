@@ -70,6 +70,11 @@ export function PostCommentsSection({
       const result = await createComment(postId, commentText);
       if (result?.success) {
         toast.success('Comment posted successfully');
+        if (result.comment?.id) {
+          setLocalComments((prev: any) =>
+            prev.map((c: any) => (c.id === optimisticId ? { ...c, id: result.comment.id } : c))
+          );
+        }
       } else {
         toast.error(result?.error || 'Failed to create comment!');
         if (result?.requiresPolicy) {

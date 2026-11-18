@@ -147,6 +147,11 @@ export function CommentCard({
             const result = await createComment(postId, text, comment.id);
             if (result?.success) {
                 toast.success('Reply posted successfully');
+                if (result.comment?.id) {
+                    setLocalReplies((prev) =>
+                        prev.map((r) => (r.id === optimisticId ? { ...r, id: result.comment.id } : r))
+                    );
+                }
             } else {
                 toast.error(result?.error || 'Failed to post reply');
                 if (result?.requiresPolicy) {
