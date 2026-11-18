@@ -195,14 +195,42 @@ export function CommentCard({
                     </div>
                     <p className="text-sm break-words mt-0.5">{comment.content}</p>
                     
-                    <div className="flex items-center gap-3 mt-1.5">
-                        {isSolution && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                <CheckCircle2 className="size-3 text-emerald-400" />
-                                <span>Accepted Solution</span>
-                            </span>
-                        )}
+                    {/* Row 1: Solution Status & Author Management Controls */}
+                    {(isSolution || (!isReply && isQuestionAuthor)) && (
+                        <div className="flex items-center gap-2 mt-2 pt-0.5">
+                            {isSolution && (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                                    <CheckCircle2 className="size-3 text-emerald-400" />
+                                    <span>Accepted Solution</span>
+                                </span>
+                            )}
 
+                            {!isReply && isQuestionAuthor && (
+                                <button
+                                    type="button"
+                                    onClick={handleToggleSolution}
+                                    disabled={isTogglingSolution}
+                                    className={`inline-flex items-center gap-1 text-xs transition-colors px-2 py-0.5 rounded-md hover:bg-muted/40 ${
+                                        isSolution
+                                            ? "text-muted-foreground hover:text-rose-400"
+                                            : "text-muted-foreground hover:text-emerald-400"
+                                    }`}
+                                >
+                                    <CheckCircle2 className="size-3.5" />
+                                    <span>
+                                        {isTogglingSolution
+                                            ? "Updating..."
+                                            : isSolution
+                                            ? "Unmark Solution"
+                                            : "Accept Solution"}
+                                    </span>
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Row 2: Social Actions (Like, Reply, View/Hide Replies) */}
+                    <div className="flex items-center gap-3 mt-1.5">
                         {/* Like button for comment / reply */}
                         <button
                             type="button"
@@ -218,6 +246,7 @@ export function CommentCard({
 
                         {!isReply && isAuthenticated && (
                             <button
+                                type="button"
                                 onClick={() => setShowReplyForm((prev) => !prev)}
                                 className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
                             >
@@ -228,31 +257,11 @@ export function CommentCard({
 
                         {!isReply && localReplies.length > 0 && (
                             <button
+                                type="button"
                                 onClick={() => setShowReplies((prev) => !prev)}
                                 className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline transition-colors"
                             >
                                 <span>{showReplies ? "Hide replies" : `View ${localReplies.length} ${localReplies.length === 1 ? "reply" : "replies"}`}</span>
-                            </button>
-                        )}
-
-                        {!isReply && isQuestionAuthor && (
-                            <button
-                                onClick={handleToggleSolution}
-                                disabled={isTogglingSolution}
-                                className={`inline-flex items-center gap-1 text-xs transition-colors ${
-                                    isSolution
-                                        ? "text-emerald-400 hover:text-red-400"
-                                        : "text-muted-foreground hover:text-emerald-400"
-                                }`}
-                            >
-                                <CheckCircle2 className="size-3.5" />
-                                <span>
-                                    {isTogglingSolution
-                                        ? "Updating..."
-                                        : isSolution
-                                        ? "Unmark Solution"
-                                        : "Accept Solution"}
-                                </span>
                             </button>
                         )}
                     </div>
