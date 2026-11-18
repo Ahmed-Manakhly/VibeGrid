@@ -103,7 +103,9 @@ export function CommentCard({
             if (result?.success) {
                 toast.success(isReply ? 'Reply deleted' : 'Comment deleted');
                 setIsDeleted(true);
-                onCommentCountChange?.(-1);
+                if (!isReply) {
+                    onCommentCountChange?.(-1);
+                }
                 setShowDeleteModal(false);
             } else {
                 toast.error(result?.error || 'Failed to delete comment');
@@ -142,7 +144,6 @@ export function CommentCard({
 
             setLocalReplies((prev) => [...prev, optimisticReply]);
             setShowReplies(true);
-            onCommentCountChange?.(1);
 
             const result = await createComment(postId, text, comment.id);
             if (result?.success) {
@@ -158,14 +159,12 @@ export function CommentCard({
                     window.dispatchEvent(new CustomEvent('open-policy-prompt'));
                 }
                 setLocalReplies((prev) => prev.filter((r) => r.id !== optimisticId));
-                onCommentCountChange?.(-1);
                 setReplyContent(text);
                 setShowReplyForm(true);
             }
         } catch (error) {
             toast.error('Failed to post reply');
             setLocalReplies((prev) => prev.filter((r) => r.id !== optimisticId));
-            onCommentCountChange?.(-1);
             setReplyContent(text);
             setShowReplyForm(true);
         } finally {
