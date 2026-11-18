@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import PostCard from "@/modules/vibe/presentation/components/PostCard";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
+import { ArrowUpIcon, RotateCw } from "lucide-react";
 
 interface InfiniteScrollProps {
   initialPosts: any[];
@@ -17,11 +18,13 @@ interface InfiniteScrollProps {
 
 export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUserId, mode = "infinite", isTruncated = false }: InfiniteScrollProps) {
   const [posts, setPosts] = useState(initialPosts);
-  const [pendingFreshPosts, setPendingFreshPosts] = useState<any[]>([]);
+  const [unreadNewPostsCount, setUnreadNewPostsCount] = useState<number>(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"thread" | "grid">("grid");
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { ref, inView } = useInView();
   const { latestFeedSignal } = useRealtime();
 
@@ -61,7 +64,6 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
       const deletedId = customEvent.detail?.postId;
       if (deletedId) {
         setPosts((prev) => prev.filter((p) => p.id !== deletedId));
-        setPendingFreshPosts((prev) => prev.filter((p) => p.id !== deletedId));
       }
     };
 
@@ -81,53 +83,42 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
 
     if (latestFeedSignal.type === "post_deleted" && latestFeedSignal.postId) {
       setPosts((prev) => prev.filter((p) => p.id !== latestFeedSignal.postId));
-      setPendingFreshPosts((prev) => prev.filter((p) => p.id !== latestFeedSignal.postId));
       return;
     }
 
     if (latestFeedSignal.type === "new_content" || latestFeedSignal.type === "post_updated") {
-      const fetchLatest = async () => {
-        try {
-          const base = new URL(apiUrl, window.location.origin);
-          const pageParams = new URLSearchParams(searchParams.toString());
-          pageParams.forEach((value, key) => {
-            base.searchParams.set(key, value);
-          });
-          base.searchParams.set("limit", "5");
-
-          const res = await fetch(base.toString());
-          const data = await res.json();
-
-          if (data.data && Array.isArray(data.data)) {
-            const existingIds = new Set(posts.map((p) => p.id));
-            const freshPosts = data.data.filter((p: any) => !existingIds.has(p.id));
-            
-            if (freshPosts.length > 0) {
-              // If user is at the top of the feed (scrollY < 100), auto-prepend smoothly
-              if (window.scrollY < 100) {
-                setPosts((prev) => {
-                  const currentIds = new Set(prev.map((p) => p.id));
-                  const unadded = freshPosts.filter((p: any) => !currentIds.has(p.id));
-                  return [...unadded, ...prev];
-                });
-              } else {
-                // Otherwise queue them in a floating banner to avoid disruptive layout jumps
-                setPendingFreshPosts((prev) => {
-                  const currentPendingIds = new Set(prev.map((p) => p.id));
-                  const newPending = freshPosts.filter((p: any) => !currentPendingIds.has(p.id));
-                  return [...newPending, ...prev];
-                });
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Failed to reconcile realtime feed update", error);
-        }
-      };
-
-      fetchLatest();
+      setUnreadNewPostsCount((prev) => prev + 1);
     }
-  }, [latestFeedSignal, apiUrl, searchParams, posts]);
+  }, [latestFeedSignal]);
+
+  const handleRefreshFeed = async () => {
+    setIsRefreshing(true);
+    setUnreadNewPostsCount(0);
+    try {
+      // Smoothly scroll to top
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      const base = new URL(apiUrl, window.location.origin);
+      const pageParams = new URLSearchParams(searchParams.toString());
+      pageParams.forEach((value, key) => {
+        base.searchParams.set(key, value);
+      });
+      base.searchParams.set("limit", "12");
+
+      const res = await fetch(base.toString(), { cache: "no-store" });
+      const data = await res.json();
+      if (data?.data && Array.isArray(data.data)) {
+        setPosts(data.data);
+        setNextCursor(data.nextCursor || null);
+      }
+      router.refresh();
+    } catch (err) {
+      console.error("Failed to refresh feed", err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const loadMore = async () => {
     if (loading || !nextCursor) return;
@@ -166,34 +157,30 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
     }
   }, [inView, mode]);
 
-  const handleShowPendingPosts = () => {
-    if (pendingFreshPosts.length === 0) return;
-    setPosts((prev) => [...pendingFreshPosts, ...prev]);
-    setPendingFreshPosts([]);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
     <div className="w-full relative">
-      {/* Floating Fresh Posts Notification Pill */}
-      {pendingFreshPosts.length > 0 && (
-        <div className="sticky top-20 z-20 flex justify-center mb-4 animate-in fade-in slide-in-from-top duration-300">
+      {/* Floating Fresh Posts Notification Pill (Sticky Top) */}
+      {unreadNewPostsCount > 0 && (
+        <div className="sticky top-20 z-30 flex justify-center mb-4 animate-in fade-in slide-in-from-top duration-300 pointer-events-auto">
           <button
-            onClick={handleShowPendingPosts}
-            className="btn-gradient px-4 py-1.5 rounded-full text-xs font-semibold shadow-lg hover:scale-105 transition-transform flex items-center gap-2 text-white"
+            onClick={handleRefreshFeed}
+            disabled={isRefreshing}
+            className="btn-gradient px-4 py-2 rounded-full text-xs font-semibold shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 text-white border border-white/20"
           >
-            <span className="size-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <ArrowUpIcon className="size-3.5 animate-bounce" />
             <span>
-              {pendingFreshPosts.length} new {pendingFreshPosts.length === 1 ? "vibe" : "vibes"} available &uarr;
+              {isRefreshing
+                ? "Refreshing vibes..."
+                : `${unreadNewPostsCount} new ${unreadNewPostsCount === 1 ? "vibe" : "vibes"} available ↑`}
             </span>
           </button>
         </div>
       )}
 
-      {/* Thread / Grid Toggle */}
+      {/* Thread / Grid Toggle & Manual Feed Refresh */}
       {posts.length > 0 && (
-        <div className="hidden sm:flex items-center gap-2 mb-6">
-          <div className="view-switcher">
+        <div className="hidden sm:flex items-center justify-between gap-2 mb-6">
+          <div className="view-switcher flex items-center gap-1">
             <button
               onClick={() => setViewMode("thread")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -217,13 +204,26 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
               Grid
             </button>
           </div>
+
+          {/* Refresh Feed Toggle Button */}
+          <button
+            onClick={handleRefreshFeed}
+            disabled={isRefreshing}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+            title="Refresh feed"
+          >
+            <RotateCw className={`size-3.5 ${isRefreshing ? "animate-spin text-accent" : ""}`} />
+            <span>Refresh</span>
+          </button>
         </div>
       )}
 
       {/* Posts Container */}
-      <div className={viewMode === "thread" ? "flex flex-col gap-6" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
+      <div className={viewMode === "thread" ? "flex flex-col gap-6" : "grid grid-cols-1 md:grid-cols-2 gap-4 items-start"}>
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} dbUserId={dbUserId} isTruncated={isTruncated} />
+          <div key={post.id} className="h-fit">
+            <PostCard key={post.id} post={post} dbUserId={dbUserId} isTruncated={isTruncated} />
+          </div>
         ))}
       </div>
       
