@@ -181,7 +181,7 @@ export function CommentCard({
                 <Link href={`/profile/${comment.author.username || comment.author.id}`}>
                     <UserAvatar src={comment.author.image} name={comment.author.name} className={`${isReply ? 'size-7' : 'size-8'} flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity`} />
                 </Link>
-                <div className="flex-1 min-w-0 pr-12">
+                <div className="flex-1 min-w-0 pr-8">
                     <div className="flex items-center gap-x-1 sm:gap-x-2 text-[11px] sm:text-xs text-muted-foreground truncate min-w-0">
                         <Link href={`/profile/${comment.author.username || comment.author.id}`} className="font-medium text-[13px] sm:text-sm text-foreground truncate hover:underline">
                             {comment.author.name || comment.author.username}
@@ -197,11 +197,11 @@ export function CommentCard({
                     
                     {/* Row 1: Solution Status & Author Management Controls */}
                     {(isSolution || (!isReply && isQuestionAuthor)) && (
-                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5 pt-0.5">
+                        <div className="flex items-center gap-1 mt-1">
                             {isSolution && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-medium leading-none whitespace-nowrap text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20 shrink-0">
-                                    <CheckCircle2 className="size-2.5 text-emerald-400 shrink-0" />
-                                    <span>Accepted Solution</span>
+                                <span className="inline-flex items-center gap-0.5 text-[9px] font-medium leading-none whitespace-nowrap text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
+                                    <CheckCircle2 className="size-2 text-emerald-400 shrink-0" />
+                                    <span>Solution</span>
                                 </span>
                             )}
 
@@ -210,16 +210,16 @@ export function CommentCard({
                                     type="button"
                                     onClick={handleToggleSolution}
                                     disabled={isTogglingSolution}
-                                    className={`inline-flex items-center gap-1 text-[10px] leading-none whitespace-nowrap transition-colors px-1.5 py-1 rounded-md hover:bg-muted/40 shrink-0 ${
+                                    className={`inline-flex items-center gap-0.5 text-[9px] leading-none whitespace-nowrap transition-colors px-1 py-0.5 rounded hover:bg-muted/40 shrink-0 ${
                                         isSolution
                                             ? "text-muted-foreground hover:text-rose-400"
                                             : "text-muted-foreground hover:text-emerald-400"
                                     }`}
                                 >
-                                    <CheckCircle2 className="size-2.5 shrink-0" />
+                                    <CheckCircle2 className="size-2 shrink-0" />
                                     <span>
                                         {isTogglingSolution
-                                            ? "Updating..."
+                                            ? "..."
                                             : isSolution
                                             ? "Unmark"
                                             : "Accept"}
@@ -230,17 +230,17 @@ export function CommentCard({
                     )}
 
                     {/* Row 2: Social Actions (Like, Reply, View/Hide Replies) */}
-                    <div className="flex flex-wrap items-center gap-2.5 mt-1">
+                    <div className="flex items-center gap-2 mt-1">
                         {/* Like button for comment / reply */}
                         <button
                             type="button"
                             onClick={handleToggleLike}
-                            className={`inline-flex items-center gap-1 text-[11px] leading-none whitespace-nowrap transition-colors ${
+                            className={`inline-flex items-center gap-0.5 text-[10px] leading-none whitespace-nowrap transition-colors ${
                                 isLiked ? "text-rose-500 font-medium" : "text-muted-foreground hover:text-rose-500"
                             }`}
                             title="Like"
                         >
-                            <Heart className={`size-3 ${isLiked ? "fill-rose-500 text-rose-500" : ""}`} />
+                            <Heart className={`size-2.5 ${isLiked ? "fill-rose-500 text-rose-500" : ""}`} />
                             {likesCount > 0 && <span>{likesCount}</span>}
                         </button>
 
@@ -248,9 +248,9 @@ export function CommentCard({
                             <button
                                 type="button"
                                 onClick={() => setShowReplyForm((prev) => !prev)}
-                                className="inline-flex items-center gap-1 text-[11px] leading-none whitespace-nowrap text-muted-foreground hover:text-primary transition-colors"
+                                className="inline-flex items-center gap-0.5 text-[10px] leading-none whitespace-nowrap text-muted-foreground hover:text-primary transition-colors"
                             >
-                                <ReplyIcon className="size-3" />
+                                <ReplyIcon className="size-2.5" />
                                 <span>Reply</span>
                             </button>
                         )}
@@ -259,7 +259,7 @@ export function CommentCard({
                             <button
                                 type="button"
                                 onClick={() => setShowReplies((prev) => !prev)}
-                                className="inline-flex items-center gap-1 text-[11px] leading-none whitespace-nowrap font-medium text-accent hover:underline transition-colors"
+                                className="inline-flex items-center gap-0.5 text-[10px] leading-none whitespace-nowrap font-medium text-accent hover:underline transition-colors"
                             >
                                 <span>{showReplies ? "Hide replies" : `View ${localReplies.length} ${localReplies.length === 1 ? "reply" : "replies"}`}</span>
                             </button>
