@@ -55,10 +55,14 @@ export function PostInteractiveContainer({
   isCommunityMember = false,
   targetPostData,
 }: PostInteractiveContainerProps) {
-  const [showComments, setShowComments] = useState(isDetailPage);
+  const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentsCount, setCommentsCount] = useState<number>(
     initialCommentsCount ?? initialComments.length
   );
+
+  const hasComments = initialComments && initialComments.length > 0;
+  // Comments list should be visible if it is detail page, or if the post has existing comments, or if user opened the comment box
+  const shouldRenderCommentsSection = isDetailPage || hasComments || showCommentInput;
 
   return (
     <>
@@ -73,13 +77,13 @@ export function PostInteractiveContainer({
         initialReGrids={initialReGrids}
         initialReGridded={initialReGridded}
         commentsCount={commentsCount}
-        showComments={showComments}
-        onToggleComments={() => setShowComments((prev) => !prev)}
+        showComments={showCommentInput}
+        onToggleComments={() => setShowCommentInput((prev) => !prev)}
         isTruncated={isTruncated}
         targetPostData={targetPostData}
       />
 
-      {!isTruncated && showComments && (
+      {!isTruncated && shouldRenderCommentsSection && (
         <PostCommentsSection
           postId={postId}
           postAuthorId={postAuthorId}
@@ -88,6 +92,7 @@ export function PostInteractiveContainer({
           isDetailPage={isDetailPage}
           communityId={communityId}
           isCommunityMember={isCommunityMember}
+          showCommentInput={showCommentInput}
           onCommentCountChange={(delta: number) => setCommentsCount((prev) => Math.max(0, prev + delta))}
         />
       )}
