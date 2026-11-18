@@ -27,7 +27,7 @@ export function CommunitiesDirectoryView({
   const [search, setSearch] = useState("");
   const [selectedTag, setSelectedTag] = useState("all");
 
-  // Dynamic filter tags: Primary focus is on real community tech tags, supplemented by platform categories
+  // Dynamic filter tags: Primary focus is on real community tech tags, supplemented ONLY by relational categories (categories with at least 1 community)
   const filterPills = useMemo(() => {
     const pills = [{ key: "all", label: "🔥 All Guilds" }];
     const addedKeys = new Set<string>(["all"]);
@@ -43,11 +43,19 @@ export function CommunitiesDirectoryView({
       });
     });
 
-    // 2. Secondary: Append seeded taxonomy categories as value-add filters
+    // 2. Secondary: Append ONLY relational categories present on at least one existing community
     if (categories && categories.length > 0) {
+      const activeCategorySlugs = new Set<string>();
+      initialCommunities.forEach((c) => {
+        c.techTags?.forEach((t) => {
+          activeCategorySlugs.add(t.trim().toLowerCase().replace(/^#/, ""));
+        });
+      });
+
       categories.forEach((cat) => {
         const catKey = cat.slug.toLowerCase();
-        if (!addedKeys.has(catKey)) {
+        // Only include if at least one community has tagged this category
+        if (activeCategorySlugs.has(catKey) && !addedKeys.has(catKey)) {
           addedKeys.add(catKey);
           pills.push({
             key: catKey,

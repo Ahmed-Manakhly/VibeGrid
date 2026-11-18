@@ -56,7 +56,8 @@ export async function creatPost(
 
         revalidatePath('/') ; 
         revalidatePath('/explore');
-        revalidatePath('/communities'); 
+        revalidatePath('/communities');
+        revalidatePath('/bookmarks'); 
         return {success : true , post: result.value} ; 
     }catch (er: any){
         logger.error('failed to create a post!', er);
@@ -208,6 +209,7 @@ export async function toggleLike(postId : string){
         revalidatePath('/') ; 
         revalidatePath('/explore');
         revalidatePath('/communities');
+        revalidatePath('/bookmarks');
         return {success : true} ;
     } catch (error) {
         logger.error('failed to toggle like!', error, { postId });
@@ -229,6 +231,7 @@ export async function toggleBookmark(postId : string){
         revalidatePath('/') ; 
         revalidatePath('/explore');
         revalidatePath('/communities');
+        revalidatePath('/bookmarks');
         return {success : true, isBookmarked: result.value.isBookmarked} ;
     } catch (error) {
         logger.error('failed to toggle bookmark!', error, { postId });
@@ -250,6 +253,7 @@ export async function toggleReGrid(postId : string){
         revalidatePath('/') ; 
         revalidatePath('/explore');
         revalidatePath('/communities');
+        revalidatePath('/bookmarks');
         revalidatePath('/explore');
         return {success : true, isReGridded: result.value.isReGridded} ;
     } catch (error) {
@@ -282,6 +286,7 @@ export async function createComment(postId : string, content : string, parentId?
         revalidatePath('/') ; 
         revalidatePath('/explore');
         revalidatePath('/communities');
+        revalidatePath('/bookmarks');
         return {success : true , comment: result.value.comment};
     }catch (error){
         logger.error('failed to create comment!', error, { postId });
@@ -332,7 +337,8 @@ export async function deletePost(postId : string){
 
         revalidatePath('/') ; 
         revalidatePath('/explore');
-        revalidatePath('/communities'); // purge the cash
+        revalidatePath('/communities');
+        revalidatePath('/bookmarks'); // purge the cash
         return {success : true} ;
     }catch (er: any){
         logger.error('failed to delete a post!', er, { postId });
