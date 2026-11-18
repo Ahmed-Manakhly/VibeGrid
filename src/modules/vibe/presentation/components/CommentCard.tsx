@@ -197,10 +197,10 @@ export function CommentCard({
                     
                     {/* Row 1: Solution Status & Author Management Controls */}
                     {(isSolution || (!isReply && isQuestionAuthor)) && (
-                        <div className="flex items-center gap-1 mt-1">
+                        <div className="flex items-center gap-1.5 mt-1">
                             {isSolution && (
-                                <span className="inline-flex items-center gap-0.5 text-[9px] font-medium leading-none whitespace-nowrap text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
-                                    <CheckCircle2 className="size-2 text-emerald-400 shrink-0" />
+                                <span className="inline-flex items-center gap-1 text-[9px] font-medium leading-none whitespace-nowrap text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
+                                    <CheckCircle2 className="size-2.5 text-emerald-400 shrink-0" />
                                     <span>Solution</span>
                                 </span>
                             )}
@@ -210,13 +210,13 @@ export function CommentCard({
                                     type="button"
                                     onClick={handleToggleSolution}
                                     disabled={isTogglingSolution}
-                                    className={`inline-flex items-center gap-0.5 text-[9px] leading-none whitespace-nowrap transition-colors px-1 py-0.5 rounded hover:bg-muted/40 shrink-0 ${
+                                    className={`inline-flex items-center gap-1 text-[9px] font-medium leading-none whitespace-nowrap transition-colors px-2 py-0.5 rounded-full border shrink-0 ${
                                         isSolution
-                                            ? "text-muted-foreground hover:text-rose-400"
-                                            : "text-muted-foreground hover:text-emerald-400"
+                                            ? "text-muted-foreground border-border/40 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/10"
+                                            : "text-emerald-400 border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/15 hover:border-emerald-500/40"
                                     }`}
                                 >
-                                    <CheckCircle2 className="size-2 shrink-0" />
+                                    <CheckCircle2 className="size-2.5 shrink-0" />
                                     <span>
                                         {isTogglingSolution
                                             ? "..."
