@@ -33,6 +33,7 @@ export default async function PostPage({ params }: { params: any }) {
 
   return (
     <MobileTabsLayout
+      showMobileTabs={false}
       feed={
         <div className="pt-4 max-w-2xl mx-auto w-full">
           <BackButton />

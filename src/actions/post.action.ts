@@ -420,4 +420,33 @@ export async function getTrendingShipsAction(limit: number = 6) {
     }
 }
 
+export async function getPostLikersAction(postId: string) {
+    try {
+        const { prisma } = await import("@/shared/infrastructure/prisma");
+        const likes = await prisma.like.findMany({
+            where: { postId },
+            select: {
+                userId: true,
+                createdAt: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                        image: true,
+                    },
+                },
+            },
+            orderBy: { createdAt: "desc" },
+            take: 30,
+        });
+
+        return { success: true, data: likes };
+    } catch (error) {
+        logger.error('Error fetching post likers', error, { postId });
+        return { success: false, data: [] };
+    }
+}
+
+
 

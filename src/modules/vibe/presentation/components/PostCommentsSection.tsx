@@ -36,6 +36,7 @@ export function PostCommentsSection({
   const [localComments, setLocalComments] = useState(initialComments || []);
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(isDetailPage);
 
   useEffect(() => {
     setLocalComments(initialComments || []);
@@ -94,10 +95,13 @@ export function PostCommentsSection({
     }
   };
 
+  const visibleComments = isExpanded ? localComments : localComments.slice(0, 2);
+  const remainingCount = localComments.length - visibleComments.length;
+
   return (
     <div className="space-y-4 pt-4 border-t border-white/10">
       <div className="space-y-4">
-        {localComments.slice(0, isDetailPage ? 5 : 2).map((comment: any) => (
+        {visibleComments.map((comment: any) => (
           <CommentCard
             key={comment.id}
             comment={comment}
@@ -107,13 +111,25 @@ export function PostCommentsSection({
             onCommentCountChange={onCommentCountChange}
           />
         ))}
-        {localComments.length > (isDetailPage ? 5 : 2) && (
-          <Link
-            href={`/explore/${postId}`}
-            className="block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline"
-          >
-            View all {localComments.length} comments &rarr;
-          </Link>
+
+        {/* View all comments controls */}
+        {remainingCount > 0 && (
+          isDetailPage ? (
+            <button
+              type="button"
+              onClick={() => setIsExpanded(true)}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors block"
+            >
+              Show {remainingCount} more {remainingCount === 1 ? 'comment' : 'comments'} &darr;
+            </button>
+          ) : (
+            <Link
+              href={`/explore/${postId}`}
+              className="block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors"
+            >
+              View all {localComments.length} comments &rarr;
+            </Link>
+          )
         )}
       </div>
       {isAuthenticated ? (

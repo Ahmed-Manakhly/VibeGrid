@@ -42,10 +42,14 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
         setNextCursor(initialNextCursor);
         return initialPosts;
       }
+      // Preserve existing ordering in client state; update post properties (likes, comments, counts) in-place without reshuffling positions
+      const initialMap = new Map(initialPosts.map((p) => [p.id, p]));
+      const updatedExisting = prev.map((p) => initialMap.get(p.id) || p);
+      
       const existingIds = new Set(prev.map((p) => p.id));
-      const newItems = initialPosts.filter((p) => !existingIds.has(p.id));
-      if (newItems.length === 0) return prev;
-      return [...newItems, ...prev];
+      const brandNewItems = initialPosts.filter((p) => !existingIds.has(p.id));
+      if (brandNewItems.length === 0) return updatedExisting;
+      return [...brandNewItems, ...updatedExisting];
     });
   }, [searchParams, initialPosts, initialNextCursor, prevSearchParams]);
 

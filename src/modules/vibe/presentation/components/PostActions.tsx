@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { HeartIcon, RepeatIcon, BookmarkIcon, MessageCircleIcon, MessageSquareQuote } from 'lucide-react';
 import { UserAvatar } from '@/components/UserAvatar';
 import { useSession } from '@/components/auth/SessionProvider';
-import { toggleLike, toggleBookmark, toggleReGrid } from '@/actions/post.action';
+import { toggleLike, toggleBookmark, toggleReGrid, getPostLikersAction } from '@/actions/post.action';
 import { toast } from '@/components/ui/toast';
 import { QuoteVibeDialog } from '@/components/QuoteVibeDialog';
 
@@ -60,7 +60,37 @@ export function PostActions({
 
   const [hasLiked, setHasLiked] = useState(initialLiked);
   const [showLikesModal, setShowLikesModal] = useState(false);
+  const [activeLikesList, setActiveLikesList] = useState<any[]>(likesList || []);
+  const [isLoadingLikers, setIsLoadingLikers] = useState(false);
   const likesPopupRef = React.useRef<HTMLDivElement>(null);
+
+  // Sync activeLikesList when prop changes
+  React.useEffect(() => {
+    if (likesList && likesList.length > 0) {
+      setActiveLikesList(likesList);
+    }
+  }, [likesList]);
+
+  const fetchLiveLikers = async () => {
+    if (isLoadingLikers) return;
+    try {
+      setIsLoadingLikers(true);
+      const res = await getPostLikersAction(postId);
+      if (res?.success && Array.isArray(res.data)) {
+        setActiveLikesList(res.data);
+      }
+    } catch {
+      // Keep existing list on failure
+    } finally {
+      setIsLoadingLikers(false);
+    }
+  };
+
+  const handleOpenLikesModal = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowLikesModal((prev) => !prev);
+    await fetchLiveLikers();
+  };
 
   // Close likes popup on click outside on mobile
   React.useEffect(() => {
@@ -177,10 +207,8 @@ export function PostActions({
             {optimisticLikes > 0 && (
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowLikesModal((prev) => !prev);
-                }}
+                onClick={handleOpenLikesModal}
+                onMouseEnter={fetchLiveLikers}
                 className="text-xs text-muted-foreground hover:text-foreground font-mono px-1 py-1 -ml-1 rounded transition-colors"
                 title="View who liked this post"
               >
@@ -202,8 +230,8 @@ export function PostActions({
           </Button>
         )}
 
-        {showLikesModal && likesList && likesList.length > 0 && (
-          <div className="absolute bottom-full left-0 mb-1 z-30 min-w-[210px] max-w-[270px] p-2.5 rounded-xl bg-card border border-border shadow-2xl backdrop-blur-xl animate-in fade-in-50 zoom-in-95 pointer-events-auto">
+        {showLikesModal && (
+          <div ref={likesPopupRef} className="absolute bottom-full left-0 mb-1 z-30 min-w-[210px] max-w-[270px] p-2.5 rounded-xl bg-card border border-border shadow-2xl backdrop-blur-xl animate-in fade-in-50 zoom-in-95 pointer-events-auto">
             <div className="flex items-center justify-between border-b border-border/40 pb-1.5 mb-1.5">
               <p className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">
                 Liked by ({optimisticLikes})
@@ -217,26 +245,32 @@ export function PostActions({
               </button>
             </div>
             <div className="space-y-1 max-h-48 overflow-y-auto pr-0.5">
-              {likesList.slice(0, 10).map((likeItem: any, idx: number) => {
-                const reactor = likeItem.user;
-                const reactorName = reactor?.name || reactor?.username || 'Anonymous';
-                const reactorHandle = reactor?.username ? `@${reactor.username}` : '';
-                return (
-                  <Link
-                    key={idx}
-                    href={reactor?.username ? `/profile/${reactor.username}` : '#'}
-                    onClick={() => setShowLikesModal(false)}
-                    className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted/70 active:bg-muted transition-colors text-xs text-foreground truncate group/user"
-                  >
-                    <UserAvatar src={reactor?.image} name={reactorName} className="size-6 shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium group-hover/user:underline">{reactorName}</p>
-                      {reactorHandle && <p className="text-[10px] font-mono text-muted-foreground truncate">{reactorHandle}</p>}
-                    </div>
-                  </Link>
-                );
-              })}
-              {optimisticLikes > 10 && (
+              {isLoadingLikers && activeLikesList.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2 text-center">Loading...</p>
+              ) : activeLikesList.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2 text-center">No likes yet</p>
+              ) : (
+                activeLikesList.slice(0, 10).map((likeItem: any, idx: number) => {
+                  const reactor = likeItem.user;
+                  const reactorName = reactor?.name || reactor?.username || 'Anonymous';
+                  const reactorHandle = reactor?.username ? `@${reactor.username}` : '';
+                  return (
+                    <Link
+                      key={idx}
+                      href={reactor?.username ? `/profile/${reactor.username}` : '#'}
+                      onClick={() => setShowLikesModal(false)}
+                      className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-muted/70 active:bg-muted transition-colors text-xs text-foreground truncate group/user"
+                    >
+                      <UserAvatar src={reactor?.image} name={reactorName} className="size-6 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium group-hover/user:underline">{reactorName}</p>
+                        {reactorHandle && <p className="text-[10px] font-mono text-muted-foreground truncate">{reactorHandle}</p>}
+                      </div>
+                    </Link>
+                  );
+                })
+              )}
+              {optimisticLikes > 10 && activeLikesList.length > 10 && (
                 <p className="text-[10px] text-muted-foreground pt-1 italic text-center">
                   and {optimisticLikes - 10} others...
                 </p>
