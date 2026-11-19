@@ -189,6 +189,51 @@ export async function getPosts(params: ExplorePostsCriteria = {}) {
             userId,
             excludeAuthorIds: excludeAuthorIds.length > 0 ? excludeAuthorIds : undefined,
         });
+
+        // Hydrate pinned participation context for the logged-in user if available
+        if (userId && Array.isArray(result.data) && result.data.length > 0) {
+            const postIds = result.data.map((p: any) => p.id);
+            const { prisma } = await import("@/shared/infrastructure/prisma");
+
+            const userParticipations = await prisma.comment.findMany({
+                where: {
+                    postId: { in: postIds },
+                    OR: [
+                        { authorId: userId },
+                        { replies: { some: { authorId: userId } } },
+                    ],
+                    parentId: null, // Top-level comment container
+                },
+                include: {
+                    author: {
+                        select: { id: true, name: true, username: true, image: true },
+                    },
+                    replies: {
+                        include: {
+                            author: {
+                                select: { id: true, name: true, username: true, image: true },
+                            },
+                        },
+                        orderBy: { createdAt: "asc" },
+                    },
+                },
+            });
+
+            if (userParticipations.length > 0) {
+                const commentMap = new Map<string, any[]>();
+                for (const comment of userParticipations) {
+                    const list = commentMap.get(comment.postId) || [];
+                    list.push(comment);
+                    commentMap.set(comment.postId, list);
+                }
+
+                result.data = result.data.map((p: any) => {
+                    const pinned = commentMap.get(p.id);
+                    return pinned ? { ...p, comments: pinned } : p;
+                });
+            }
+        }
+
         return result; 
     } catch (er){
         logger.error('failed to fetch posts!', er);
@@ -452,18 +497,27 @@ export async function getPostCommentsAction(params: {
     postId: string;
     cursor?: string;
     limit?: number;
-    sort?: 'recent' | 'oldest';
+    sort?: 'recent' | 'oldest' | 'mine';
 }) {
     try {
         const { postId, cursor, limit = 5, sort = 'recent' } = params;
         const { prisma } = await import("@/shared/infrastructure/prisma");
         const currentUserId = await getDbUserId();
 
+        const whereClause: any = {
+            postId,
+            parentId: null,
+        };
+
+        if (sort === 'mine' && currentUserId) {
+            whereClause.OR = [
+                { authorId: currentUserId },
+                { replies: { some: { authorId: currentUserId } } },
+            ];
+        }
+
         const comments = await prisma.comment.findMany({
-            where: {
-                postId,
-                parentId: null,
-            },
+            where: whereClause,
             include: {
                 author: {
                     select: {

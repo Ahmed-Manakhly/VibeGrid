@@ -36,6 +36,7 @@ export function PostCommentsSection({
 }: PostCommentsSectionProps) {
   const { user, isAuthenticated } = useSession();
   const [localComments, setLocalComments] = useState<any[]>(initialComments || []);
+  const [commentSort, setCommentSort] = useState<'recent' | 'oldest' | 'mine'>('recent');
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasLoadedInitialBatch, setHasLoadedInitialBatch] = useState(false);
@@ -51,27 +52,34 @@ export function PostCommentsSection({
     }
   }, [initialComments]);
 
-  // Load first batch on demand if empty and comments container opened
+  // Load first batch on demand if empty and comments container opened or when sort changes on detail page
+  const fetchComments = async (sortOption: 'recent' | 'oldest' | 'mine') => {
+    setIsLoadingMore(true);
+    try {
+      const res = await getPostCommentsAction({ postId, limit: 5, sort: sortOption });
+      if (res?.success && Array.isArray(res.data)) {
+        setLocalComments(res.data);
+        setNextCursor(res.nextCursor);
+      }
+    } catch {
+      // Keep empty
+    } finally {
+      setIsLoadingMore(false);
+      setHasLoadedInitialBatch(true);
+    }
+  };
+
   useEffect(() => {
     if (!hasLoadedInitialBatch && localComments.length === 0) {
-      const loadFirstBatch = async () => {
-        setIsLoadingMore(true);
-        try {
-          const res = await getPostCommentsAction({ postId, limit: 5 });
-          if (res?.success && Array.isArray(res.data)) {
-            setLocalComments(res.data);
-            setNextCursor(res.nextCursor);
-          }
-        } catch {
-          // Keep empty
-        } finally {
-          setIsLoadingMore(false);
-          setHasLoadedInitialBatch(true);
-        }
-      };
-      loadFirstBatch();
+      fetchComments(commentSort);
     }
   }, [postId, hasLoadedInitialBatch, localComments.length]);
+
+  const handleSortChange = async (newSort: 'recent' | 'oldest' | 'mine') => {
+    if (newSort === commentSort || isLoadingMore) return;
+    setCommentSort(newSort);
+    await fetchComments(newSort);
+  };
 
   useEffect(() => {
     if (showCommentInput && textareaRef.current) {
@@ -83,7 +91,7 @@ export function PostCommentsSection({
     if (isLoadingMore || !nextCursor) return;
     try {
       setIsLoadingMore(true);
-      const res = await getPostCommentsAction({ postId, cursor: nextCursor, limit: 5 });
+      const res = await getPostCommentsAction({ postId, cursor: nextCursor, limit: 5, sort: commentSort });
       if (res?.success && Array.isArray(res.data)) {
         setLocalComments((prev) => {
           const existingIds = new Set(prev.map((c) => c.id));
@@ -183,6 +191,52 @@ export function PostCommentsSection({
             </Button>
           </div>
         )
+      )}
+
+      {/* Comments List Header & Sorter for Detail Page */}
+      {isDetailPage && (
+        <div className="flex items-center justify-between pt-1 pb-2 border-b border-border/30 text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground">
+            Discussion ({localComments.length})
+          </span>
+          <div className="flex items-center gap-1.5 bg-muted/30 p-0.5 rounded-lg border border-border/40 text-[11px]">
+            <button
+              type="button"
+              onClick={() => handleSortChange('recent')}
+              className={`px-2 py-0.5 rounded-md font-medium transition-colors ${
+                commentSort === 'recent'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'hover:text-foreground'
+              }`}
+            >
+              Recent
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSortChange('oldest')}
+              className={`px-2 py-0.5 rounded-md font-medium transition-colors ${
+                commentSort === 'oldest'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'hover:text-foreground'
+              }`}
+            >
+              Oldest
+            </button>
+            {isAuthenticated && (
+              <button
+                type="button"
+                onClick={() => handleSortChange('mine')}
+                className={`px-2 py-0.5 rounded-md font-medium transition-colors ${
+                  commentSort === 'mine'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'hover:text-foreground'
+                }`}
+              >
+                My Comments
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Comments List */}

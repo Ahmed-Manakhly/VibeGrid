@@ -16,6 +16,8 @@ import { TechDilemmaPollCard } from './TechDilemmaPollCard';
 import { EmbeddedQuotedPostCard } from '@/components/EmbeddedQuotedPostCard';
 import { RepeatIcon } from 'lucide-react';
 import { FollowButton } from '@/modules/social/presentation/components/FollowButton';
+import { PostExpandableText } from './PostExpandableText';
+import { PostLinkPreview } from './PostLinkPreview';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>;
 type post = FeedResponse['data'][number] & {
@@ -52,10 +54,6 @@ export function PostCard({
 }: PostCardProps) {
   const structuredContent = PostContentValueObject.parse(post.content);
   const contentText = structuredContent.text;
-  const contentLimit = 150;
-  const shouldTruncate = !isDetailPage && contentText && contentText.length > contentLimit;
-  const displayContent =
-    shouldTruncate && contentText ? contentText.slice(0, contentLimit) + '...' : contentText;
 
   const hasLiked = post.likes?.some((like) => like.userId === dbUserId) || false;
   const initialLikes = post._count?.likes || 0;
@@ -158,14 +156,10 @@ export function PostCard({
             {contentText ? (
               isDetailPage ? (
                 <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
-                  {displayContent}
+                  {contentText}
                 </p>
               ) : (
-                <Link href={`/explore/${post.id}`} className="block hover:opacity-80 transition-opacity">
-                  <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
-                    {displayContent}
-                  </p>
-                </Link>
+                <PostExpandableText content={contentText} limit={200} />
               )
             ) : null}
 
@@ -194,21 +188,17 @@ export function PostCard({
               </div>
             )}
 
-            {contentText && <PostGitHubUnfold content={contentText} />}
+            {/* Rich previews: GitHub cards and external link OpenGraph previews */}
+            {contentText && (
+              <>
+                <PostGitHubUnfold content={contentText} />
+                <PostLinkPreview content={contentText} />
+              </>
+            )}
 
             {/* Embedded Quoted Post (Quote Vibe) */}
             {post.quotedPost && (
               <EmbeddedQuotedPostCard post={post.quotedPost} />
-            )}
-
-            {shouldTruncate && (
-              <Link
-                href={`/explore/${post.id}`}
-                className="inline-flex items-center mt-2 text-sm font-medium text-primary hover:text-foreground transition-colors group"
-              >
-                <span className="group-hover:underline">Read more</span>
-                <span className="ml-1 transition-transform group-hover:translate-x-1">&rarr;</span>
-              </Link>
             )}
           </div>
         )}
