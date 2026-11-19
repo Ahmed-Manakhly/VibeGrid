@@ -177,9 +177,9 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
         </div>
       )}
 
-      {/* Thread / Grid Toggle & Manual Feed Refresh */}
+      {/* Thread / Grid Toggle */}
       {posts.length > 0 && (
-        <div className="hidden sm:flex items-center justify-between gap-2 mb-6">
+        <div className="hidden sm:flex items-center justify-start gap-2 mb-6">
           <div className="view-switcher flex items-center gap-1">
             <button
               onClick={() => setViewMode("thread")}
@@ -204,17 +204,6 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
               Grid
             </button>
           </div>
-
-          {/* Refresh Feed Toggle Button */}
-          <button
-            onClick={handleRefreshFeed}
-            disabled={isRefreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
-            title="Refresh feed"
-          >
-            <RotateCw className={`size-3.5 ${isRefreshing ? "animate-spin text-accent" : ""}`} />
-            <span>Refresh</span>
-          </button>
         </div>
       )}
 
