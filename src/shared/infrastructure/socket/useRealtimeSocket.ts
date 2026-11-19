@@ -20,6 +20,8 @@ export interface FeedSignal {
   type: 'new_content' | 'post_deleted' | 'post_updated';
   postId?: string;
   authorId?: string;
+  communityId?: string;
+  timestamp?: number;
 }
 
 export interface PresenceSignal {
@@ -60,6 +62,7 @@ export interface RealtimeState {
   onlineUsers: Set<string>;
   latestNotification: NotificationSignal | null;
   latestFeedSignal: FeedSignal | null;
+  clearLatestFeedSignal: () => void;
   latestDirectMessage: DirectMessageSignal | null;
   latestTypingSignal: TypingSignal | null;
   latestSeenSignal: MessageSeenSignal | null;
@@ -86,6 +89,10 @@ export function useRealtimeSocket() {
   const processedMessageIds = useRef<Set<string>>(new Set());
 
   const socketRef = useRef<Socket | null>(null);
+
+  const clearLatestFeedSignal = useCallback(() => {
+    setLatestFeedSignal(null);
+  }, []);
 
   // Fetch initial unread notification & messages count on mount
   useEffect(() => {
@@ -293,6 +300,7 @@ export function useRealtimeSocket() {
     onlineUsers,
     latestNotification,
     latestFeedSignal,
+    clearLatestFeedSignal,
     latestDirectMessage,
     latestTypingSignal,
     latestSeenSignal,

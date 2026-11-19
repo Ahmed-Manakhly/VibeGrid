@@ -29,6 +29,7 @@ async function HomeFeed({ params, dbUserId }: { params: any, dbUserId: string | 
         initialNextCursor={result.nextCursor}
         apiUrl="/api/posts"
         dbUserId={dbUserId}
+        enableIngressPill={true}
       />
     </div>
   );

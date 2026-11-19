@@ -5,6 +5,7 @@ import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
 import { CommunityHeader } from "@/components/community/CommunityHeader";
 import { CommunityEntity, CommunityMemberEntity } from "@/modules/community/domain/ICommunityRepository";
 import { PostCard } from "@/modules/vibe/presentation/components/PostCard";
+import { InfiniteScroll } from "@/components/InfiniteScroll";
 import CreatPost from "@/modules/vibe/presentation/components/CreatePostForm";
 import { LayoutGrid, Info, Users, MessageSquareQuote, Shield, Sparkles, ChevronDown, UserX, Loader2, UserPlus, Lock } from "lucide-react";
 import Link from "next/link";
@@ -173,14 +174,15 @@ export function CommunitySpaceView({
           ) : null}
 
           {initialPosts.length > 0 ? (
-            initialPosts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                dbUserId={dbUserId}
-                canModerate={isModeratorOrAdmin}
-              />
-            ))
+            <InfiniteScroll
+              initialPosts={initialPosts}
+              initialNextCursor={null}
+              apiUrl={`/api/posts?communityId=${community.id}`}
+              dbUserId={dbUserId}
+              mode="infinite"
+              enableIngressPill={true}
+              scopedCommunityId={community.id}
+            />
           ) : (
             <div className="text-center py-16 bg-card/40 rounded-2xl border border-border/40 p-8 shadow-sm">
               <div className="flex justify-center mb-4 text-muted-foreground">

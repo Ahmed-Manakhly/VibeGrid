@@ -67,6 +67,7 @@ export async function creatPost(
                     type: "new_content",
                     postId: result.value?.id,
                     authorId: userId,
+                    communityId: communityId || undefined,
                     timestamp: Date.now(),
                 });
                 await (cacheService as any).publish("realtime:feed", signalPayload);
@@ -330,6 +331,7 @@ export async function toggleReGrid(postId : string){
                         type: "new_content",
                         postId,
                         authorId: userId,
+                        communityId: (result.value as any)?.communityId || undefined,
                         timestamp: Date.now(),
                     });
                     await (cacheService as any).publish("realtime:feed", signalPayload);

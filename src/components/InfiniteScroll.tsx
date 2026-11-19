@@ -14,9 +14,20 @@ interface InfiniteScrollProps {
   dbUserId: string | null;
   mode?: "infinite" | "manual";
   isTruncated?: boolean;
+  enableIngressPill?: boolean;
+  scopedCommunityId?: string;
 }
 
-export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUserId, mode = "infinite", isTruncated = false }: InfiniteScrollProps) {
+export function InfiniteScroll({ 
+  initialPosts, 
+  initialNextCursor, 
+  apiUrl, 
+  dbUserId, 
+  mode = "infinite", 
+  isTruncated = false,
+  enableIngressPill = false,
+  scopedCommunityId,
+}: InfiniteScrollProps) {
   const [posts, setPosts] = useState(initialPosts);
   const [unreadNewPostsCount, setUnreadNewPostsCount] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -26,7 +37,7 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
   const searchParams = useSearchParams();
   const router = useRouter();
   const { ref, inView } = useInView();
-  const { latestFeedSignal } = useRealtime();
+  const { latestFeedSignal, clearLatestFeedSignal } = useRealtime();
 
   const [prevSearchParams, setPrevSearchParams] = useState(searchParams.toString());
 
@@ -86,6 +97,21 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
       return;
     }
 
+    // Only main community feeds with enableIngressPill active should track incoming feed signals
+    if (!enableIngressPill) {
+      return;
+    }
+
+    // If this feed is scoped to a specific community, only react to vibes belonging to this community
+    if (scopedCommunityId && latestFeedSignal.communityId !== scopedCommunityId) {
+      return;
+    }
+
+    // If this feed is global/explore (no scopedCommunityId), do not alert on community-exclusive vibes
+    if (!scopedCommunityId && latestFeedSignal.communityId) {
+      return;
+    }
+
     if (latestFeedSignal.type === "new_content" || latestFeedSignal.type === "post_updated") {
       // Do not count the author's own created post as an unread pill: the author already sees it
       if (latestFeedSignal.authorId && dbUserId && latestFeedSignal.authorId === dbUserId) {
@@ -93,11 +119,14 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
       }
       setUnreadNewPostsCount((prev) => prev + 1);
     }
-  }, [latestFeedSignal]);
+  }, [latestFeedSignal, enableIngressPill, scopedCommunityId, dbUserId]);
 
   const handleRefreshFeed = async () => {
     setIsRefreshing(true);
     setUnreadNewPostsCount(0);
+    if (clearLatestFeedSignal) {
+      clearLatestFeedSignal();
+    }
     try {
       // Smoothly scroll to top
       if (typeof window !== "undefined") {
