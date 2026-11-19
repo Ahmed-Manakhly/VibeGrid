@@ -19,6 +19,18 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
     excludeAuthorIds: (value: string[]) => ({
       authorId: { notIn: value }
     }),
+    communityId: "scalar",
+    allowedCommunityIds: (communityIds: string[]) => {
+      if (!communityIds || communityIds.length === 0) {
+        return { communityId: null };
+      }
+      return {
+        OR: [
+          { communityId: null },
+          { communityId: { in: communityIds } },
+        ],
+      };
+    },
   },
   defaultRelations: {
     author: true,

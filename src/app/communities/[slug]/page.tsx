@@ -74,11 +74,13 @@ export default async function CommunitySlugPage({ params }: CommunityPageProps) 
       }
       discovery={
         <>
-          <CommunityMembersSidebar
-            communityName={community.name}
-            members={initialMembers}
-            currentUserId={dbUserId}
-          />
+          {community.isMember && (
+            <CommunityMembersSidebar
+              communityName={community.name}
+              members={initialMembers}
+              currentUserId={dbUserId}
+            />
+          )}
           <MyCommunitiesSidebar userId={dbUserId} />
           <TrendingSidebar />
         </>

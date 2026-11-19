@@ -18,7 +18,7 @@ export class GenerateFeedUseCase {
   ) {}
 
   async execute(params: ExplorePostsCriteria = {}): Promise<ExplorePostsResult<VibePost>> {
-    const { userId, tag, category, vibe, search, limit = 12, cursor } = params;
+    const { userId, tag, category, vibe, search, limit = 12, cursor, communityId, allowedCommunityIds } = params;
 
     // 1. Personalized Timeline Redis Hydration (if userId provided & no specific filters)
     if (userId && !tag && !category && !vibe && !search && this.cacheService) {
@@ -45,7 +45,8 @@ export class GenerateFeedUseCase {
     let rawResult: ExplorePostsResult<VibePost>;
 
     if (this.cacheService && !cursor && !userId) {
-      const cacheKey = `feed:query:${tag || 'all'}:${category || 'all'}:${vibe || 'all'}:${search || 'none'}:${limit}`;
+      const allowedKey = allowedCommunityIds ? allowedCommunityIds.sort().join(',') : 'all';
+      const cacheKey = `feed:query:${communityId || 'none'}:${allowedKey}:${tag || 'all'}:${category || 'all'}:${vibe || 'all'}:${search || 'none'}:${limit}`;
       rawResult = await this.cacheService.getOrSet(
         cacheKey,
         () => this.repo.getFeed(params),

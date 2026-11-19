@@ -18,6 +18,38 @@ import {
 } from "@/shared/infrastructure/di-container";
 import { ExplorePostsCriteria } from "@/modules/vibe/domain/ExplorePostsCriteria";
 
+async function revalidateAllFeedPaths(postIdOrCommunityId?: { postId?: string; communityId?: string | null }) {
+    try {
+        revalidatePath('/');
+        revalidatePath('/explore');
+        revalidatePath('/communities');
+        revalidatePath('/bookmarks');
+        
+        let targetCommunityId = postIdOrCommunityId?.communityId;
+        if (!targetCommunityId && postIdOrCommunityId?.postId) {
+            const { prisma } = await import("@/shared/infrastructure/prisma");
+            const post = await prisma.post.findUnique({
+                where: { id: postIdOrCommunityId.postId },
+                select: { communityId: true },
+            });
+            targetCommunityId = post?.communityId;
+        }
+
+        if (targetCommunityId) {
+            const { prisma } = await import("@/shared/infrastructure/prisma");
+            const comm = await prisma.community.findUnique({
+                where: { id: targetCommunityId },
+                select: { slug: true }
+            });
+            if (comm?.slug) {
+                revalidatePath(`/communities/${comm.slug}`);
+            }
+        }
+    } catch (e) {
+        // Continue silently if revalidation fails
+    }
+}
+
 //1//to create the post
 export async function creatPost(
     content: string,
@@ -54,10 +86,7 @@ export async function creatPost(
             return { success: false, error: errorMsg };
         }
 
-        revalidatePath('/') ; 
-        revalidatePath('/explore');
-        revalidatePath('/communities');
-        revalidatePath('/bookmarks'); 
+        await revalidateAllFeedPaths({ communityId }); 
 
         // Publish realtime:feed broadcast event so all connected clients receive the LinkedIn-style fresh posts pill
         try {
@@ -206,9 +235,26 @@ export async function getPosts(params: ExplorePostsCriteria = {}) {
             }
         }
 
+        // Scope community posts: If not asking for a specific community, only include posts from communities the user has joined
+        let allowedCommunityIds: string[] | undefined = params.allowedCommunityIds;
+        if (!params.communityId && allowedCommunityIds === undefined) {
+            if (userId) {
+                try {
+                    const { communityRepository } = await import("@/shared/infrastructure/di-container");
+                    const userGuilds = await communityRepository.getUserCommunities(userId);
+                    allowedCommunityIds = userGuilds.map((g) => g.id);
+                } catch {
+                    allowedCommunityIds = [];
+                }
+            } else {
+                allowedCommunityIds = [];
+            }
+        }
+
         const result = await generateFeedUseCase.execute({
             ...params,
             userId,
+            allowedCommunityIds,
             excludeAuthorIds: excludeAuthorIds.length > 0 ? excludeAuthorIds : undefined,
         });
 
@@ -273,10 +319,7 @@ export async function toggleLike(postId : string){
             return {success : false, error : 'failed to toggle like!'}
         }
 
-        revalidatePath('/') ; 
-        revalidatePath('/explore');
-        revalidatePath('/communities');
-        revalidatePath('/bookmarks');
+        await revalidateAllFeedPaths({ postId });
         return {success : true} ;
     } catch (error) {
         logger.error('failed to toggle like!', error, { postId });
@@ -295,10 +338,7 @@ export async function toggleBookmark(postId : string){
             return {success : false, error : 'failed to toggle bookmark!'}
         }
 
-        revalidatePath('/') ; 
-        revalidatePath('/explore');
-        revalidatePath('/communities');
-        revalidatePath('/bookmarks');
+        await revalidateAllFeedPaths({ postId });
         return {success : true, isBookmarked: result.value.isBookmarked} ;
     } catch (error) {
         logger.error('failed to toggle bookmark!', error, { postId });
@@ -317,10 +357,7 @@ export async function toggleReGrid(postId : string){
             return {success : false, error : 'failed to toggle regrid!'}
         }
 
-        revalidatePath('/') ; 
-        revalidatePath('/explore');
-        revalidatePath('/communities');
-        revalidatePath('/bookmarks');
+        await revalidateAllFeedPaths({ postId });
 
         // Publish realtime:feed broadcast event on ReGrid creation
         if (result.value.isReGridded) {
@@ -369,10 +406,7 @@ export async function createComment(postId : string, content : string, parentId?
             return {success : false, error : 'failed to create a comment!'}
         }
 
-        revalidatePath('/') ; 
-        revalidatePath('/explore');
-        revalidatePath('/communities');
-        revalidatePath('/bookmarks');
+        await revalidateAllFeedPaths({ postId });
         return {success : true , comment: result.value.comment};
     }catch (error){
         logger.error('failed to create comment!', error, { postId });
@@ -391,8 +425,7 @@ export async function deleteComment(commentId: string) {
             return {success: false, error: 'failed to delete comment'};
         }
         
-        revalidatePath('/');
-        revalidatePath('/explore');
+        await revalidateAllFeedPaths();
         return {success: true};
     } catch (error) {
         logger.error('failed to delete comment', error, { commentId });
@@ -421,10 +454,7 @@ export async function deletePost(postId : string){
              throw new Error(result.error.message);
         }
 
-        revalidatePath('/') ; 
-        revalidatePath('/explore');
-        revalidatePath('/communities');
-        revalidatePath('/bookmarks'); // purge the cash
+        await revalidateAllFeedPaths({ postId }); // purge the cash
         return {success : true} ;
     }catch (er: any){
         logger.error('failed to delete a post!', er, { postId });

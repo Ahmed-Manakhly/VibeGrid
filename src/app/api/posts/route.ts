@@ -8,6 +8,21 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    const session = await getCurrentSession();
+    const userId = session.isAuthenticated && session.user ? session.user.id : undefined;
+
+    const requestedCommunityId = searchParams.get("communityId") || undefined;
+    let allowedCommunityIds: string[] | undefined = undefined;
+
+    if (!requestedCommunityId) {
+      if (userId) {
+        const { communityRepository } = await import("@/shared/infrastructure/di-container");
+        const userGuilds = await communityRepository.getUserCommunities(userId);
+        allowedCommunityIds = userGuilds.map((g) => g.id);
+      } else {
+        allowedCommunityIds = [];
+      }
+    }
     
     const params: ExplorePostsCriteria = {
       cursor: searchParams.get("cursor") || undefined,
@@ -16,6 +31,8 @@ export async function GET(request: Request) {
       vibe: searchParams.get("vibe") || undefined,
       search: searchParams.get("search") || undefined,
       bookmarkedByUserId: searchParams.get("bookmarkedByUserId") || undefined,
+      communityId: requestedCommunityId,
+      allowedCommunityIds,
       limit: searchParams.has("limit") ? Number(searchParams.get("limit")) : undefined,
     };
 
