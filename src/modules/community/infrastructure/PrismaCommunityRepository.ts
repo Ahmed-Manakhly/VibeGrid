@@ -1,4 +1,5 @@
 import { PrismaClient, CommunityRole } from "@prisma/client";
+import { vibeFeedQueryConfig } from "@/modules/vibe/infrastructure/VibeFeedQueryConfig";
 import {
   ICommunityRepository,
   CreateCommunityDTO,
@@ -299,53 +300,7 @@ export class PrismaCommunityRepository implements ICommunityRepository {
       take: limit + 1,
       ...(params.cursor ? { skip: 1, cursor: { id: params.cursor } } : {}),
       orderBy: { createdAt: "desc" },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            image: true,
-          },
-        },
-        community: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            avatarUrl: true,
-            members: {
-              select: { userId: true },
-            },
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
-            regrids: true,
-            bookmarks: true,
-          },
-        },
-        regrids: {
-          select: {
-            userId: true,
-            createdAt: true,
-            user: { select: { id: true, name: true, username: true, image: true } },
-          },
-          orderBy: { createdAt: "desc" },
-        },
-        tags: {
-          include: {
-            tag: true,
-          },
-        },
-        poll: {
-          include: {
-            options: true,
-          },
-        },
-      },
+      include: vibeFeedQueryConfig.defaultRelations,
     });
 
     let nextCursor: string | undefined = undefined;

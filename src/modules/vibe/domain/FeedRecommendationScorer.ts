@@ -120,20 +120,21 @@ export class FeedRecommendationScorer {
   public rankPosts(posts: VibePost[], context: FeedScoringContext = {}): VibePost[] {
     if (!posts || posts.length === 0) return [];
 
-    const scoredPosts = posts.map((post) => ({
+    // Calculate effective chronological timestamp (creation, quote, or regrid)
+    // Sort strictly by effective timestamp descending so latest content is at the top
+    const postsWithTime = posts.map((post) => ({
       post,
-      score: this.scorePost(post, context),
       effectiveTime: this.getEffectiveTimestamp(post, context),
+      score: this.scorePost(post, context),
     }));
 
-    // Sort by score descending; break ties by effective timestamp descending
-    scoredPosts.sort((a, b) => {
-      if (b.score !== a.score) {
-        return b.score - a.score;
+    postsWithTime.sort((a, b) => {
+      if (b.effectiveTime !== a.effectiveTime) {
+        return b.effectiveTime - a.effectiveTime;
       }
-      return b.effectiveTime - a.effectiveTime;
+      return b.score - a.score;
     });
 
-    return scoredPosts.map((sp) => sp.post);
+    return postsWithTime.map((item) => item.post);
   }
 }

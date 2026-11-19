@@ -82,9 +82,9 @@ describe('Recommendation Engine V1 — Domain & Application Scoring Tests', () =
 
       const ranked = scorer.rankPosts([...samplePosts], context);
 
-      expect(ranked[0].id).toBe('post_new_followed');            // Followed author (+35 pts) + freshness
-      expect(ranked[1].id).toBe('post_new_interested_category'); // Category interest (+25 pts) + engagement
-      expect(ranked[2].id).toBe('post_old_unrelated');           // Decayed engagement + old + no relationship
+      expect(ranked[0].id).toBe('post_new_interested_category'); // 1 hour old (most recent chronologically)
+      expect(ranked[1].id).toBe('post_new_followed');            // 2 hours old
+      expect(ranked[2].id).toBe('post_old_unrelated');           // 72 hours old
     });
 
     it('should boost dilemma polls and project ships with technical bonus of +15 points', () => {
@@ -140,7 +140,7 @@ describe('Recommendation Engine V1 — Domain & Application Scoring Tests', () =
       expect(result.data.length).toBe(3);
       expect(mockSocialRepo.getFollowingIds).toHaveBeenCalledWith('user_active');
       expect(mockUserInterestRepo.getUserInterests).toHaveBeenCalledWith('user_active');
-      expect(result.data[0].id).toBe('post_new_followed');
+      expect(result.data[0].id).toBe('post_new_interested_category');
     });
   });
 });
