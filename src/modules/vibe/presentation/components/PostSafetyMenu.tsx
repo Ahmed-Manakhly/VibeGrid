@@ -63,6 +63,13 @@ export function PostSafetyMenu({
       if (res?.success) {
         toast.success(nextState ? 'Saved to bookmarks' : 'Removed from bookmarks');
         onBookmarkToggle?.();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('vibe_bookmark_toggled', {
+              detail: { postId, isBookmarked: nextState },
+            })
+          );
+        }
       } else {
         setIsBookmarked(!nextState);
         toast.error(res?.error || 'Failed to update bookmark');

@@ -78,13 +78,29 @@ export function InfiniteScroll({
       }
     };
 
+    // Listen for bookmark toggle events: immediately unmount on /bookmarks when unbookmarked
+    const handleBookmarkToggle = (event: Event) => {
+      const customEvent = event as CustomEvent<{ postId: string; isBookmarked: boolean }>;
+      const { postId, isBookmarked } = customEvent.detail || {};
+      if (
+        !isBookmarked &&
+        postId &&
+        typeof window !== "undefined" &&
+        window.location.pathname.startsWith("/bookmarks")
+      ) {
+        setPosts((prev) => prev.filter((p) => p.id !== postId));
+      }
+    };
+
     if (typeof window !== "undefined") {
       window.addEventListener("vibe_deleted", handleLocalDelete);
+      window.addEventListener("vibe_bookmark_toggled", handleBookmarkToggle);
     }
 
     return () => {
       if (typeof window !== "undefined") {
         window.removeEventListener("vibe_deleted", handleLocalDelete);
+        window.removeEventListener("vibe_bookmark_toggled", handleBookmarkToggle);
       }
     };
   }, []);
