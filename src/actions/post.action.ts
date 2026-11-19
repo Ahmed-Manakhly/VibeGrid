@@ -58,6 +58,23 @@ export async function creatPost(
         revalidatePath('/explore');
         revalidatePath('/communities');
         revalidatePath('/bookmarks'); 
+
+        // Publish realtime:feed broadcast event so all connected clients receive the LinkedIn-style fresh posts pill
+        try {
+            const { cacheService } = await import("@/shared/infrastructure/di-container");
+            if (cacheService && typeof (cacheService as any).publish === "function") {
+                const signalPayload = JSON.stringify({
+                    type: "new_content",
+                    postId: result.value?.id,
+                    authorId: userId,
+                    timestamp: Date.now(),
+                });
+                await (cacheService as any).publish("realtime:feed", signalPayload);
+            }
+        } catch (pubErr: any) {
+            logger.warn("Failed to publish realtime:feed event to Redis", { error: pubErr?.message });
+        }
+
         return {success : true , post: result.value} ; 
     }catch (er: any){
         logger.error('failed to create a post!', er);
@@ -299,7 +316,25 @@ export async function toggleReGrid(postId : string){
         revalidatePath('/explore');
         revalidatePath('/communities');
         revalidatePath('/bookmarks');
-        revalidatePath('/explore');
+
+        // Publish realtime:feed broadcast event on ReGrid creation
+        if (result.value.isReGridded) {
+            try {
+                const { cacheService } = await import("@/shared/infrastructure/di-container");
+                if (cacheService && typeof (cacheService as any).publish === "function") {
+                    const signalPayload = JSON.stringify({
+                        type: "new_content",
+                        postId,
+                        authorId: userId,
+                        timestamp: Date.now(),
+                    });
+                    await (cacheService as any).publish("realtime:feed", signalPayload);
+                }
+            } catch (pubErr: any) {
+                logger.warn("Failed to publish ReGrid event to Redis pubsub", { error: pubErr?.message });
+            }
+        }
+
         return {success : true, isReGridded: result.value.isReGridded} ;
     } catch (error) {
         logger.error('failed to toggle regrid!', error, { postId });

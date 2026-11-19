@@ -161,13 +161,13 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
     <div className="w-full relative">
       {/* Floating Fresh Posts Notification Pill (Sticky Top) */}
       {unreadNewPostsCount > 0 && (
-        <div className="sticky top-20 z-30 flex justify-center mb-4 animate-in fade-in slide-in-from-top duration-300 pointer-events-auto">
+        <div className="sticky top-16 z-50 flex justify-center mb-4 animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-auto">
           <button
             onClick={handleRefreshFeed}
             disabled={isRefreshing}
-            className="btn-gradient px-4 py-2 rounded-full text-xs font-semibold shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 text-white border border-white/20"
+            className="btn-gradient px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 text-white border border-white/20 ring-4 ring-primary/20 backdrop-blur-md"
           >
-            <ArrowUpIcon className="size-3.5 animate-bounce" />
+            <ArrowUpIcon className="size-4 animate-bounce shrink-0" />
             <span>
               {isRefreshing
                 ? "Refreshing vibes..."
