@@ -190,29 +190,6 @@ export function useRealtimeSocket() {
           }
         });
 
-        // ModelLink Parity: 'receive_msg'
-        socket.on('receive_msg', (msg: any) => {
-          const directMsg: DirectMessageSignal = {
-            messageId: msg.id || msg.messageId || `msg_${Date.now()}`,
-            conversationId: msg.conversationId,
-            senderId: msg.senderId,
-            senderName: msg.senderName || msg.sender?.name || msg.sender?.username || 'Someone',
-            content: msg.content,
-            createdAt: msg.createdAt ? new Date(msg.createdAt).toISOString() : new Date().toISOString(),
-          };
-
-          if (directMsg.messageId && processedMessageIds.current.has(directMsg.messageId)) {
-            return;
-          }
-          if (directMsg.messageId) {
-            processedMessageIds.current.add(directMsg.messageId);
-          }
-
-          setLatestDirectMessage(directMsg);
-          setUnreadMessagesCount((prev) => prev + 1);
-          toast.info(`✉️ Message from ${directMsg.senderName}`);
-        });
-
         socket.on('notification:new', (data: NotificationSignal) => {
           // Deduplicate by ID
           if (data.id && processedNotificationIds.current.has(data.id)) {

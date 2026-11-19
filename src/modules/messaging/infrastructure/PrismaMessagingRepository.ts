@@ -158,15 +158,6 @@ export class PrismaMessagingRepository implements IMessagingRepository {
             },
           },
         },
-        messages: {
-          take: 1,
-          orderBy: { createdAt: "desc" },
-          include: {
-            sender: {
-              select: { id: true, username: true, name: true, image: true },
-            },
-          },
-        },
       },
     });
 
@@ -176,27 +167,37 @@ export class PrismaMessagingRepository implements IMessagingRepository {
         const lastRead = participant ? participant.lastReadAt : new Date(0);
         const clearedAt = participant ? participant.clearedAt : null;
 
-        const unreadCount = await this.prisma.directMessage.count({
-          where: {
-            conversationId: conv.id,
-            createdAt: { gt: lastRead },
-            ...(clearedAt ? { createdAt: { gt: clearedAt } } : {}),
-            senderId: { not: userId },
-            NOT: {
-              deletedForUserIds: { has: userId },
+        const [unreadCount, latestMessages] = await Promise.all([
+          this.prisma.directMessage.count({
+            where: {
+              conversationId: conv.id,
+              createdAt: { gt: lastRead },
+              ...(clearedAt ? { createdAt: { gt: clearedAt } } : {}),
+              senderId: { not: userId },
+              NOT: {
+                deletedForUserIds: { has: userId },
+              },
             },
-          },
-        });
+          }),
+          this.prisma.directMessage.findMany({
+            where: {
+              conversationId: conv.id,
+              ...(clearedAt ? { createdAt: { gt: clearedAt } } : {}),
+              NOT: {
+                deletedForUserIds: { has: userId },
+              },
+            },
+            take: 1,
+            orderBy: { createdAt: "desc" },
+            include: {
+              sender: {
+                select: { id: true, username: true, name: true, image: true },
+              },
+            },
+          }),
+        ]);
 
-        // Filter latest message if cleared or deleted for this user
-        let latestMessage = conv.messages[0] || null;
-        if (latestMessage) {
-          if (clearedAt && new Date(latestMessage.createdAt) <= new Date(clearedAt)) {
-            latestMessage = null;
-          } else if (latestMessage.deletedForUserIds?.includes(userId)) {
-            latestMessage = null;
-          }
-        }
+        const latestMessage = latestMessages[0] || null;
 
         return {
           id: conv.id,

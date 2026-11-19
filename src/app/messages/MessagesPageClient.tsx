@@ -806,7 +806,7 @@ export function MessagesPageClient() {
                     </div>
                     <div className="flex justify-between items-center mt-1 gap-2">
                       <p className={`text-xs truncate ${hasUnread ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
-                        {conv.latestMessage?.content || "Started a conversation"}
+                        {ChatMessageParser.getPreviewText(conv.latestMessage?.content)}
                       </p>
                       {hasUnread && (
                         <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center shrink-0">

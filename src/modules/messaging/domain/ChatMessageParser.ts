@@ -80,5 +80,23 @@ export class ChatMessageParser {
 
     return parts.join("\n\n");
   }
+
+  public static getPreviewText(raw: string | null | undefined): string {
+    if (!raw) return "Started a conversation";
+    const parsed = this.parse(raw);
+    if (parsed.text && parsed.text.trim()) {
+      return parsed.text.trim();
+    }
+    if (parsed.codeBlock) {
+      return `💻 [Code: ${parsed.codeBlock.language}]`;
+    }
+    if (parsed.attachment) {
+      if (parsed.attachment.type === "image") return "📷 Image";
+      if (parsed.attachment.type === "video") return "🎥 Video";
+      if (parsed.attachment.type === "voice") return "🎤 Voice Note";
+      if (parsed.attachment.type === "file") return `📎 ${parsed.attachment.name || "File"}`;
+    }
+    return "Started a conversation";
+  }
 }
 
