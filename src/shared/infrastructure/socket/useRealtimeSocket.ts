@@ -106,7 +106,12 @@ export function useRealtimeSocket() {
 
         if (notifRes.ok) {
           const data = await notifRes.json();
-          if (Array.isArray(data)) {
+          if (typeof data.unreadCount === 'number') {
+            setUnreadCount(data.unreadCount);
+          } else if (Array.isArray(data.notifications)) {
+            const count = data.notifications.filter((n: any) => !n.read).length;
+            setUnreadCount(count);
+          } else if (Array.isArray(data)) {
             const count = data.filter((n: any) => !n.read).length;
             setUnreadCount(count);
           }

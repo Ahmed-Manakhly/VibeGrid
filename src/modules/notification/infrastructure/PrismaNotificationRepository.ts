@@ -47,6 +47,18 @@ export class PrismaNotificationRepository implements INotificationRepository {
     }
   }
 
+  async getUnreadCount(userId: string): Promise<number> {
+    try {
+      return await this.db.notifications.count({
+        where: { userId, read: false },
+      });
+    } catch (error) {
+      const { logger } = require("@/shared/infrastructure/di-container");
+      logger.error("[PrismaNotificationRepository] Error counting unread notifications", error);
+      return 0;
+    }
+  }
+
   async deleteOldNotifications(daysThreshold = 30): Promise<number> {
     try {
       const cutoffDate = new Date();

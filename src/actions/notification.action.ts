@@ -6,12 +6,15 @@ import { getNotificationsUseCase, markAsReadUseCase, logger } from "@/shared/inf
 export async function getNotifications(options?: { limit?: number; cursor?: string }) {
     try {
         const userId = await getDbUserId();
-        if (!userId) return { success: false, notifications: [], nextCursor: null };
-        const result = await getNotificationsUseCase.execute(userId, options);
-        return { success: true, ...result };
+        if (!userId) return { success: false, notifications: [], nextCursor: null, unreadCount: 0 };
+        const [result, unreadCount] = await Promise.all([
+            getNotificationsUseCase.execute(userId, options),
+            getNotificationsUseCase.getUnreadCount(userId)
+        ]);
+        return { success: true, ...result, unreadCount };
     } catch (error) {
         logger.error("Error fetching notifications", error);
-        return { success: false, notifications: [], nextCursor: null };
+        return { success: false, notifications: [], nextCursor: null, unreadCount: 0 };
     }
 }
 

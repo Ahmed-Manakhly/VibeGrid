@@ -7,4 +7,12 @@ export class GetNotificationsUseCase {
     if (!userId) return { notifications: [], nextCursor: null };
     return this.repo.getNotifications(userId, options);
   }
+
+  async getUnreadCount(userId: string): Promise<number> {
+    if (!userId) return 0;
+    if (typeof this.repo.getUnreadCount === "function") {
+      return this.repo.getUnreadCount(userId);
+    }
+    return 0;
+  }
 }

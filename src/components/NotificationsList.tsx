@@ -16,6 +16,7 @@ import {
   deleteNotificationAction, 
   getNotifications 
 } from "@/actions/notification.action";
+import { TruncatedLinkifiedText } from "@/components/TruncatedLinkifiedText";
 import { toast } from "@/components/ui/toast";
 
 type Notification = {
@@ -277,12 +278,20 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
 
                   {notification.post && (notification.type === "LIKE" || notification.type === "COMMENT") && (
                     <div className="space-y-1.5">
-                      <div className="text-xs text-muted-foreground rounded-xl p-2.5 bg-muted/40 border border-border/40 hover:bg-muted/60 transition-colors line-clamp-2">
-                        <p>{notification.post.content}</p>
+                      <div className="text-xs text-muted-foreground rounded-xl p-2.5 bg-muted/40 border border-border/40 hover:bg-muted/60 transition-colors">
+                        <TruncatedLinkifiedText 
+                          text={notification.post.content} 
+                          limit={140}
+                          className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
+                        />
                       </div>
                       {notification.type === "COMMENT" && notification.comment && (
                         <div className="text-xs p-2.5 bg-primary/10 border border-primary/20 rounded-xl text-foreground font-medium">
-                          &ldquo;{notification.comment.content}&rdquo;
+                          <TruncatedLinkifiedText 
+                            text={notification.comment.content} 
+                            limit={160}
+                            className="text-xs text-foreground font-medium leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
+                          />
                         </div>
                       )}
                     </div>

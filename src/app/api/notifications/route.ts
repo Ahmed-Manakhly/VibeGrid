@@ -11,8 +11,14 @@ export async function GET() {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
-    const notifications = await getNotificationsUseCase.execute(session.user.id);
-    return NextResponse.json(notifications);
+    const [notificationsResult, unreadCount] = await Promise.all([
+      getNotificationsUseCase.execute(session.user.id),
+      getNotificationsUseCase.getUnreadCount(session.user.id)
+    ]);
+    return NextResponse.json({
+      ...notificationsResult,
+      unreadCount
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to fetch notifications" }, { status: 500 });
   }

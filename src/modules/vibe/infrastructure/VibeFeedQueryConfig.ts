@@ -86,6 +86,15 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
         },
       },
     },
-    _count: { select: { likes: true, comments: true, bookmarks: true, regrids: true } },
+    _count: {
+      select: {
+        likes: true,
+        bookmarks: true,
+        regrids: true,
+        comments: {
+          where: { parentId: null }
+        }
+      }
+    },
   },
 };

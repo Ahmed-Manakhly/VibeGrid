@@ -412,6 +412,26 @@ export async function createComment(postId : string, content : string, parentId?
         }
 
         await revalidateAllFeedPaths({ postId });
+
+        // Invalidate Redis feed query cache & publish realtime update
+        try {
+            const { cacheService } = await import("@/shared/infrastructure/di-container");
+            if (cacheService && typeof (cacheService as any).delByPattern === "function") {
+                await (cacheService as any).delByPattern("feed:query:*");
+            }
+            if (cacheService && typeof (cacheService as any).publish === "function") {
+                const signalPayload = JSON.stringify({
+                    type: "comment_added",
+                    postId,
+                    authorId: userId,
+                    timestamp: Date.now(),
+                });
+                await (cacheService as any).publish("realtime:feed", signalPayload);
+            }
+        } catch (cacheErr: any) {
+            logger.warn("Failed to invalidate feed cache or publish comment event", { error: cacheErr?.message });
+        }
+
         return {success : true , comment: result.value.comment};
     }catch (error){
         logger.error('failed to create comment!', error, { postId });
@@ -431,6 +451,17 @@ export async function deleteComment(commentId: string) {
         }
         
         await revalidateAllFeedPaths();
+
+        // Invalidate Redis feed query cache & publish realtime update
+        try {
+            const { cacheService } = await import("@/shared/infrastructure/di-container");
+            if (cacheService && typeof (cacheService as any).delByPattern === "function") {
+                await (cacheService as any).delByPattern("feed:query:*");
+            }
+        } catch (cacheErr: any) {
+            logger.warn("Failed to invalidate feed cache on comment delete", { error: cacheErr?.message });
+        }
+
         return {success: true};
     } catch (error) {
         logger.error('failed to delete comment', error, { commentId });

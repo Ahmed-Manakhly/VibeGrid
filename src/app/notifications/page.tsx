@@ -9,7 +9,7 @@ export default async function NotificationsPage() {
   const result = await getNotifications({ limit: 12 });
   const notifications = result.notifications || [];
   const nextCursor = result.nextCursor || null;
-  const unreadCount = notifications.filter((n: any) => !n.read).length;
+  const unreadCount = (result as any).unreadCount ?? notifications.filter((n: any) => !n.read).length;
 
   return (
     <div className="space-y-6 w-full">
