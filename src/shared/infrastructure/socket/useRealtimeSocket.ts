@@ -17,12 +17,20 @@ export interface NotificationSignal {
 }
 
 export interface FeedSignal {
-  type: 'new_content' | 'post_deleted' | 'post_updated' | 'comment_added' | 'comment_deleted' | 'like_toggled';
+  type: 'new_content' | 'post_deleted' | 'post_updated' | 'comment_added' | 'comment_deleted' | 'like_toggled' | 'comment_like_toggled';
   postId?: string;
+  commentId?: string;
   authorId?: string;
   communityId?: string;
   comment?: any;
   likeData?: {
+    userId: string;
+    isLiked: boolean;
+    likesCount: number;
+    user?: { id: string; name: string | null; username: string | null; image: string | null };
+  };
+  commentLikeData?: {
+    commentId: string;
     userId: string;
     isLiked: boolean;
     likesCount: number;

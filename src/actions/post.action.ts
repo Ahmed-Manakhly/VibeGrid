@@ -280,10 +280,28 @@ export async function getPosts(params: ExplorePostsCriteria = {}) {
                     author: {
                         select: { id: true, name: true, username: true, image: true },
                     },
+                    likes: {
+                        select: {
+                            userId: true,
+                            user: { select: { id: true, name: true, username: true, image: true } },
+                        },
+                    },
+                    _count: {
+                        select: { likes: true },
+                    },
                     replies: {
                         include: {
                             author: {
                                 select: { id: true, name: true, username: true, image: true },
+                            },
+                            likes: {
+                                select: {
+                                    userId: true,
+                                    user: { select: { id: true, name: true, username: true, image: true } },
+                                },
+                            },
+                            _count: {
+                                select: { likes: true },
                             },
                         },
                         orderBy: { createdAt: "asc" },
@@ -679,6 +697,24 @@ export async function getPostCommentsAction(params: {
                         image: true,
                     },
                 },
+                likes: {
+                    select: {
+                        userId: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                username: true,
+                                image: true,
+                            },
+                        },
+                    },
+                },
+                _count: {
+                    select: {
+                        likes: true,
+                    },
+                },
                 replies: {
                     include: {
                         author: {
@@ -687,6 +723,24 @@ export async function getPostCommentsAction(params: {
                                 name: true,
                                 username: true,
                                 image: true,
+                            },
+                        },
+                        likes: {
+                            select: {
+                                userId: true,
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        username: true,
+                                        image: true,
+                                    },
+                                },
+                            },
+                        },
+                        _count: {
+                            select: {
+                                likes: true,
                             },
                         },
                     },
@@ -721,6 +775,117 @@ export async function getPostCommentsAction(params: {
         };
     }
 }
+
+// 6. Toggle Like on a Comment or Reply
+export async function toggleCommentLikeAction(commentId: string, postId: string) {
+    try {
+        const userId = await getDbUserId();
+        if (!userId) return { success: false, error: 'Unauthorized' };
+
+        const { prisma } = await import("@/shared/infrastructure/prisma");
+
+        const existingLike = await prisma.commentLike.findUnique({
+            where: {
+                userId_commentId: {
+                    userId,
+                    commentId,
+                },
+            },
+        });
+
+        let hasLiked = false;
+        if (existingLike) {
+            await prisma.commentLike.delete({
+                where: {
+                    userId_commentId: {
+                        userId,
+                        commentId,
+                    },
+                },
+            });
+            hasLiked = false;
+        } else {
+            await prisma.commentLike.create({
+                data: {
+                    userId,
+                    commentId,
+                },
+            });
+            hasLiked = true;
+        }
+
+        const [likesCount, user] = await Promise.all([
+            prisma.commentLike.count({ where: { commentId } }),
+            prisma.user.findUnique({
+                where: { id: userId },
+                select: { id: true, name: true, username: true, image: true },
+            }),
+        ]);
+
+        // Publish realtime:feed broadcast for instant client synchronisation
+        try {
+            const { cacheService } = await import("@/shared/infrastructure/di-container");
+            if (cacheService && typeof (cacheService as any).publish === "function") {
+                const signalPayload = JSON.stringify({
+                    type: "comment_like_toggled",
+                    postId,
+                    commentId,
+                    commentLikeData: {
+                        commentId,
+                        userId,
+                        isLiked: hasLiked,
+                        likesCount,
+                        user,
+                    },
+                    timestamp: Date.now(),
+                });
+                await (cacheService as any).publish("realtime:feed", signalPayload);
+            }
+        } catch (pubErr: any) {
+            logger.warn("Failed to publish comment_like_toggled event", { error: pubErr?.message });
+        }
+
+        return {
+            success: true,
+            hasLiked,
+            likesCount,
+            user,
+        };
+    } catch (error: any) {
+        logger.error("Error toggling comment like", error, { commentId, postId });
+        return { success: false, error: error.message || "Failed to toggle like on comment" };
+    }
+}
+
+// 7. Get Users Who Liked a Comment or Reply
+export async function getCommentLikersAction(commentId: string) {
+    try {
+        const { prisma } = await import("@/shared/infrastructure/prisma");
+        const likes = await prisma.commentLike.findMany({
+            where: { commentId },
+            select: {
+                userId: true,
+                createdAt: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                        image: true,
+                    },
+                },
+            },
+            orderBy: { createdAt: "desc" },
+            take: 30,
+        });
+
+        return { success: true, data: likes };
+    } catch (error) {
+        logger.error("Error fetching comment likers", error, { commentId });
+        return { success: false, data: [] };
+    }
+}
+
 
 
 

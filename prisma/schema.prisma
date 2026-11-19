@@ -33,6 +33,7 @@ model User {
   posts                Post[]
   comments             Comment[]
   likes                Like[]
+  commentLikes         CommentLike[]
   bookmarks            Bookmark[]
   followers            Follows[]       @relation("following")
   following            Follows[]       @relation("follower")
@@ -120,10 +121,24 @@ model Comment {
   replies          Comment[]       @relation("CommentReplies")
   acceptedForPosts Post[]          @relation("AcceptedAnswer")
   notifications    Notifications[]
+  likes            CommentLike[]
 
   @@index([authorId, postId])
   @@index([parentId])
   @@index([postId, isSolution])
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@index([userId, commentId])
+  @@index([commentId])
+  @@unique([userId, commentId])
 }
 
 model Like {

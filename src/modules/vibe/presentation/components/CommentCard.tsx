@@ -1,7 +1,7 @@
 "use client";
-import { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { deleteComment, createComment } from '@/actions/post.action';
+import { deleteComment, createComment, toggleCommentLikeAction, getCommentLikersAction } from '@/actions/post.action';
 import { toast } from '@/components/ui/toast';
 import { UserAvatar } from '@/components/UserAvatar';
 import { formatDistanceToNow } from 'date-fns';
@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/components/auth/SessionProvider';
 import { acceptSolutionAction, unacceptSolutionAction } from '@/actions/qa.action';
 import { TruncatedLinkifiedText } from '@/components/TruncatedLinkifiedText';
+import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +44,9 @@ export function CommentCard({
     const [isDeleted, setIsDeleted] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     
+    const currentUserId = dbUserId || user?.id;
+    const { latestFeedSignal } = useRealtime();
+
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [replyContent, setReplyContent] = useState('');
     const [isSubmittingReply, setIsSubmittingReply] = useState(false);
@@ -52,19 +56,140 @@ export function CommentCard({
     const [isTogglingSolution, setIsTogglingSolution] = useState(false);
     
     // Comment / Reply Likes
-    const [isLiked, setIsLiked] = useState(false);
-    const [likesCount, setLikesCount] = useState<number>(0);
+    const initialLiked = Boolean(
+      currentUserId &&
+      comment.likes &&
+      comment.likes.some((l: any) => l.userId === currentUserId || l.user?.id === currentUserId)
+    );
+    const initialLikesCount = comment._count?.likes ?? (comment.likes ? comment.likes.length : 0);
 
-    const handleToggleLike = () => {
+    const [isLiked, setIsLiked] = useState(initialLiked);
+    const [likesCount, setLikesCount] = useState<number>(initialLikesCount);
+    const [isTogglingLike, setIsTogglingLike] = useState(false);
+
+    // Likers List Modal / Hover state
+    const [showLikersModal, setShowLikersModal] = useState(false);
+    const [likersList, setLikersList] = useState<any[]>(comment.likes || []);
+    const [isLoadingLikers, setIsLoadingLikers] = useState(false);
+    const likersPopupRef = useRef<HTMLDivElement>(null);
+
+    // Keep localReplies synchronized whenever parent passes down updated replies (e.g. from PostCommentsSection)
+    useEffect(() => {
+        if (comment.replies && Array.isArray(comment.replies)) {
+            setLocalReplies((prev) => {
+                const existingMap = new Map(prev.map((r: any) => [r.id, r]));
+                const merged = comment.replies.map((r: any) => existingMap.get(r.id) || r);
+                const incomingIds = new Set(comment.replies.map((r: any) => r.id));
+                const brandNewLocal = prev.filter((r: any) => !incomingIds.has(r.id));
+                return [...merged, ...brandNewLocal];
+            });
+        }
+    }, [comment.replies]);
+
+    // Keep initial liked / count synced when prop updates
+    useEffect(() => {
+        if (currentUserId && comment.likes) {
+            setIsLiked(comment.likes.some((l: any) => l.userId === currentUserId || l.user?.id === currentUserId));
+        }
+        if (typeof comment._count?.likes === 'number') {
+            setLikesCount(comment._count.likes);
+        }
+    }, [comment.likes, comment._count?.likes, currentUserId]);
+
+    // Realtime Signal Listener for comment likes and replies
+    useEffect(() => {
+        if (!latestFeedSignal) return;
+
+        // 1. Reply added in real-time to this comment
+        if (
+            latestFeedSignal.type === 'comment_added' &&
+            latestFeedSignal.postId === postId &&
+            latestFeedSignal.comment?.parentId === comment.id
+        ) {
+            const incomingReply = latestFeedSignal.comment;
+            setLocalReplies((prev) => {
+                if (prev.some((r: any) => r.id === incomingReply.id)) {
+                    return prev;
+                }
+                return [...prev, incomingReply];
+            });
+            setShowAllReplies(true);
+        }
+
+        // 2. Real-time like toggled on this specific comment or reply
+        if (
+            latestFeedSignal.type === 'comment_like_toggled' &&
+            latestFeedSignal.commentId === comment.id &&
+            latestFeedSignal.commentLikeData
+        ) {
+            const { userId: likerUserId, isLiked: nextLiked, likesCount: nextCount, user: likerUser } = latestFeedSignal.commentLikeData;
+            setLikesCount(nextCount);
+            if (currentUserId && likerUserId === currentUserId) {
+                setIsLiked(nextLiked);
+            }
+            if (likerUser) {
+                setLikersList((prev) => {
+                    if (nextLiked) {
+                        if (prev.some((l: any) => l.userId === likerUserId || l.user?.id === likerUserId)) return prev;
+                        return [{ userId: likerUserId, user: likerUser, createdAt: new Date() }, ...prev];
+                    } else {
+                        return prev.filter((l: any) => l.userId !== likerUserId && l.user?.id !== likerUserId);
+                    }
+                });
+            }
+        }
+    }, [latestFeedSignal, postId, comment.id, currentUserId]);
+
+    const fetchLiveLikers = async () => {
+        if (isLoadingLikers) return;
+        setIsLoadingLikers(true);
+        try {
+            const res = await getCommentLikersAction(comment.id);
+            if (res.success && Array.isArray(res.data)) {
+                setLikersList(res.data);
+            }
+        } catch {
+            // Keep existing
+        } finally {
+            setIsLoadingLikers(false);
+        }
+    };
+
+    const handleToggleLike = async () => {
         if (!isAuthenticated) {
             toast.error("Please sign in to like comments");
             return;
         }
-        setIsLiked((prev) => !prev);
-        setLikesCount((prev) => (isLiked ? Math.max(0, prev - 1) : prev + 1));
+        if (isTogglingLike) return;
+
+        const prevLiked = isLiked;
+        const prevCount = likesCount;
+
+        // Optimistic update
+        setIsLiked(!prevLiked);
+        setLikesCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
+
+        try {
+            setIsTogglingLike(true);
+            const res = await toggleCommentLikeAction(comment.id, postId);
+            if (!res.success) {
+                // Revert
+                setIsLiked(prevLiked);
+                setLikesCount(prevCount);
+                toast.error(res.error || "Failed to like comment");
+            } else {
+                setIsLiked(Boolean(res.hasLiked));
+                setLikesCount(typeof res.likesCount === 'number' ? res.likesCount : prevCount);
+            }
+        } catch {
+            setIsLiked(prevLiked);
+            setLikesCount(prevCount);
+            toast.error("Failed to like comment");
+        } finally {
+            setIsTogglingLike(false);
+        }
     };
 
-    const currentUserId = dbUserId || user?.id;
     const isQuestionAuthor = Boolean(currentUserId && postAuthorId && currentUserId === postAuthorId);
     const canDelete = Boolean(currentUserId && (currentUserId === comment.authorId || currentUserId === comment.author?.id));
 
@@ -209,19 +334,90 @@ export function CommentCard({
                     )}
 
                     {/* Row 2: Social Actions (Like, Reply, View/Hide Replies) */}
-                    <div className="flex items-center gap-2 mt-1">
-                        {/* Like button for comment / reply */}
-                        <button
-                            type="button"
-                            onClick={handleToggleLike}
-                            className={`inline-flex items-center gap-0.5 text-[10px] leading-none whitespace-nowrap transition-colors ${
-                                isLiked ? "text-rose-500 font-medium" : "text-muted-foreground hover:text-rose-500"
-                            }`}
-                            title="Like"
+                    <div className="flex items-center gap-2 mt-1 relative">
+                        {/* Like button for comment / reply with Likers hover popup */}
+                        <div
+                            ref={likersPopupRef}
+                            className="relative group/commentlike inline-flex items-center"
+                            onMouseEnter={() => {
+                                if (likesCount > 0) {
+                                    setShowLikersModal(true);
+                                    fetchLiveLikers();
+                                }
+                            }}
+                            onMouseLeave={() => setShowLikersModal(false)}
                         >
-                            <Heart className={`size-2.5 ${isLiked ? "fill-rose-500 text-rose-500" : ""}`} />
-                            {likesCount > 0 && <span>{likesCount}</span>}
-                        </button>
+                            <button
+                                type="button"
+                                onClick={handleToggleLike}
+                                disabled={isTogglingLike}
+                                className={`inline-flex items-center gap-1 text-[10px] leading-none whitespace-nowrap transition-colors py-0.5 px-1 rounded hover:bg-rose-500/10 ${
+                                    isLiked ? "text-rose-500 font-medium" : "text-muted-foreground hover:text-rose-500"
+                                }`}
+                                title="Like"
+                            >
+                                <Heart className={`size-3 ${isLiked ? "fill-rose-500 text-rose-500" : ""}`} />
+                                {likesCount > 0 && <span className="font-mono">{likesCount}</span>}
+                            </button>
+
+                            {/* Who Liked Popup Tooltip */}
+                            {showLikersModal && likesCount > 0 && (
+                                <div className="absolute bottom-full left-0 mb-1.5 z-40 min-w-[190px] max-w-[240px] p-2 rounded-xl bg-card/95 border border-border/80 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 pointer-events-auto">
+                                    <div className="flex items-center justify-between border-b border-border/40 pb-1 mb-1">
+                                        <p className="text-[9px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">
+                                            Liked by ({likesCount})
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowLikersModal(false);
+                                            }}
+                                            className="text-[9px] text-muted-foreground hover:text-foreground font-mono sm:hidden"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="space-y-1 max-h-36 overflow-y-auto pr-0.5 scrollbar-thin">
+                                        {isLoadingLikers && likersList.length === 0 ? (
+                                            <div className="py-2 text-center text-[10px] text-muted-foreground">
+                                                Loading...
+                                            </div>
+                                        ) : likersList.length > 0 ? (
+                                            likersList.slice(0, 10).map((likeItem: any, idx: number) => {
+                                                const u = likeItem.user || likeItem;
+                                                return (
+                                                    <Link
+                                                        key={idx}
+                                                        href={`/profile/${u.username || u.id}`}
+                                                        className="flex items-center gap-2 p-1 rounded-lg hover:bg-muted/50 transition-colors"
+                                                    >
+                                                        <UserAvatar src={u.image} name={u.name} className="size-4 shrink-0" />
+                                                        <div className="min-w-0 flex-1 truncate text-left">
+                                                            <p className="text-[10px] font-medium text-foreground truncate leading-tight">
+                                                                {u.name || u.username}
+                                                            </p>
+                                                            <p className="text-[9px] text-muted-foreground truncate leading-tight">
+                                                                @{u.username}
+                                                            </p>
+                                                        </div>
+                                                    </Link>
+                                                );
+                                            })
+                                        ) : (
+                                            <p className="text-[10px] text-muted-foreground py-1 text-center">
+                                                No likers recorded
+                                            </p>
+                                        )}
+                                        {likesCount > 10 && likersList.length > 10 && (
+                                            <p className="text-[9px] text-muted-foreground text-center pt-0.5">
+                                                and {likesCount - 10} others...
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
                         {!isReply && isAuthenticated && (
                             <button
