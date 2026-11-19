@@ -175,8 +175,13 @@ export function PostCommentsSection({
       const result = await createComment(postId, commentText);
       if (result?.success && result.comment) {
         toast.success('Comment posted successfully');
-        // Place own new comment at top of comments list
-        setLocalComments((prev: any) => [result.comment, ...prev]);
+        // Place own new comment at top of comments list without duplicating if socket already pushed it
+        setLocalComments((prev: any) => {
+          if (prev.some((c: any) => c.id === result.comment.id)) {
+            return prev;
+          }
+          return [result.comment, ...prev];
+        });
         onCommentCountChange?.(1);
         setNewComment('');
       } else {

@@ -128,7 +128,12 @@ export function CommentCard({
             const result = await createComment(postId, text, comment.id);
             if (result?.success && result.comment) {
                 toast.success('Reply posted successfully');
-                setLocalReplies((prev) => [...prev, result.comment]);
+                setLocalReplies((prev) => {
+                    if (prev.some((r: any) => r.id === result.comment.id)) {
+                        return prev;
+                    }
+                    return [...prev, result.comment];
+                });
                 setShowAllReplies(true);
                 setReplyContent('');
                 setShowReplyForm(false);
