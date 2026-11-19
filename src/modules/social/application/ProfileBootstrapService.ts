@@ -67,7 +67,18 @@ export class ProfileBootstrapService {
       const existingUser = await prisma.user.findUnique({
         where: { id: userId },
       });
-      if (existingUser) return existingUser;
+      if (existingUser) {
+        if (isPolicyAccepted && !existingUser.isPolicyAccepted) {
+          return await prisma.user.update({
+            where: { id: userId },
+            data: {
+              isPolicyAccepted: true,
+              policyAcceptedAt: new Date(),
+            },
+          });
+        }
+        return existingUser;
+      }
     }
 
     const candidateUsername = this.generateUsernameCandidate(email, user.name);
