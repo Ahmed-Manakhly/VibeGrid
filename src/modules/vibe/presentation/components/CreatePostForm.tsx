@@ -424,7 +424,7 @@ export default function CreatPost({
                                     <span className="text-xs text-muted-foreground shrink-0">Guild:</span>
                                     <Select value={selectedCommunityId} onValueChange={setSelectedCommunityId}>
                                         <SelectTrigger className="h-8 text-xs bg-white/5 border-white/10 rounded-lg max-w-[200px]">
-                                            <SelectValue placeholder="Public Grid (No Guild)" />
+                                            <SelectValue placeholder="Public Grid" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="">🌐 Public Grid</SelectItem>
