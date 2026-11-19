@@ -9,6 +9,8 @@ describe("NotificationTTLPrunerWorker Unit & Lifecycle Test", () => {
     mockNotificationRepo = {
       getNotifications: jest.fn(),
       markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      deleteNotification: jest.fn(),
       create: jest.fn(),
       deleteOldNotifications: jest.fn().mockResolvedValue(15),
     };

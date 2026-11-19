@@ -82,6 +82,33 @@ export class PrismaNotificationRepository implements INotificationRepository {
     }
   }
 
+  async markAllAsRead(userId: string): Promise<boolean> {
+    try {
+      await this.db.notifications.updateMany({
+        where: { userId, read: false },
+        data: { read: true },
+      });
+      return true;
+    } catch (error) {
+      const { logger } = require("@/shared/infrastructure/di-container");
+      logger.error("[PrismaNotificationRepository] Error marking all notifications as read", error);
+      return false;
+    }
+  }
+
+  async deleteNotification(notificationId: string, userId: string): Promise<boolean> {
+    try {
+      const res = await this.db.notifications.deleteMany({
+        where: { id: notificationId, userId },
+      });
+      return res.count > 0;
+    } catch (error) {
+      const { logger } = require("@/shared/infrastructure/di-container");
+      logger.error("[PrismaNotificationRepository] Error deleting notification", error);
+      return false;
+    }
+  }
+
   async create(data: CreateNotificationDTO): Promise<any> {
     return this.db.notifications.create({
       data: {

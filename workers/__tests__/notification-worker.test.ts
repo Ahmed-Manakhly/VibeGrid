@@ -11,6 +11,8 @@ describe("NotificationWorker Unit Tests", () => {
     notificationRepo = {
       getNotifications: jest.fn(),
       markAsRead: jest.fn(),
+      markAllAsRead: jest.fn(),
+      deleteNotification: jest.fn(),
       create: jest.fn(),
       deleteOldNotifications: jest.fn(),
     };

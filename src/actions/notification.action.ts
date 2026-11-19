@@ -25,3 +25,29 @@ export async function markNotificationsAsRead(notificationIds: string[]) {
     }
 }
 
+export async function markAllNotificationsAsReadAction() {
+    try {
+        const userId = await getDbUserId();
+        if (!userId) return { success: false, error: "Unauthorized" };
+        const { notificationRepository } = await import("@/shared/infrastructure/di-container");
+        const success = await notificationRepository.markAllAsRead(userId);
+        return { success };
+    } catch (error: any) {
+        logger.error("Error marking all notifications as read", error);
+        return { success: false, error: error?.message || "Failed to mark all as read" };
+    }
+}
+
+export async function deleteNotificationAction(notificationId: string) {
+    try {
+        const userId = await getDbUserId();
+        if (!userId) return { success: false, error: "Unauthorized" };
+        const { notificationRepository } = await import("@/shared/infrastructure/di-container");
+        const success = await notificationRepository.deleteNotification(notificationId, userId);
+        return { success };
+    } catch (error: any) {
+        logger.error("Error deleting notification", error, { notificationId });
+        return { success: false, error: error?.message || "Failed to delete notification" };
+    }
+}
+

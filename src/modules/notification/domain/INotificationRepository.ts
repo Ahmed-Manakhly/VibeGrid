@@ -22,6 +22,8 @@ export interface PaginatedNotificationsResult {
 export interface INotificationRepository {
   getNotifications(userId: string, options?: GetNotificationsOptions): Promise<PaginatedNotificationsResult>;
   markAsRead(notificationIds: string[]): Promise<boolean>;
+  markAllAsRead(userId: string): Promise<boolean>;
+  deleteNotification(notificationId: string, userId: string): Promise<boolean>;
   create(data: CreateNotificationDTO): Promise<any>;
   deleteOldNotifications(daysThreshold?: number): Promise<number>;
 }

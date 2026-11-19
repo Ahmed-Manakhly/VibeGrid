@@ -5,11 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
-import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users, Loader2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users, Loader2Icon, CheckCheck, Trash2 } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
-import { markNotificationsAsRead, getNotifications } from "@/actions/notification.action";
+import { 
+  markNotificationsAsRead, 
+  markAllNotificationsAsReadAction, 
+  deleteNotificationAction, 
+  getNotifications 
+} from "@/actions/notification.action";
+import { toast } from "@/components/ui/toast";
 
 type Notification = {
   id: string;
@@ -80,6 +86,8 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [cursor, setCursor] = useState<string | null>(initialCursor);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [isMarkingAll, startMarkingAll] = useTransition();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { latestNotification, setUnreadCount } = useRealtime();
 
   // Keep realtime unread count in sync with unread notifications in state
@@ -106,6 +114,37 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
 
     syncNotifications();
   }, [latestNotification]);
+
+  const handleMarkAllAsRead = () => {
+    startMarkingAll(async () => {
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setUnreadCount(0);
+      const res = await markAllNotificationsAsReadAction();
+      if (res.success) {
+        toast.success("All notifications marked as read");
+      } else {
+        toast.error("Failed to mark all as read");
+      }
+    });
+  };
+
+  const handleDeleteNotification = async (e: React.MouseEvent, notificationId: string) => {
+    e.stopPropagation();
+    setDeletingId(notificationId);
+    try {
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+      const res = await deleteNotificationAction(notificationId);
+      if (res.success) {
+        toast.success("Notification removed");
+      } else {
+        toast.error("Failed to delete notification");
+      }
+    } catch {
+      toast.error("Failed to delete notification");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleLoadMore = async () => {
     if (!cursor || loadingMore) return;
@@ -151,11 +190,28 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
       <CardHeader className="border-b bg-card/40 px-6 py-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-bold">Notifications</CardTitle>
-          {unreadCount === 0 && (
-            <span className="text-xs text-muted-foreground font-mono">
-              All caught up
-            </span>
-          )}
+          <div className="flex items-center gap-3">
+            {unreadCount > 0 ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMarkAllAsRead}
+                disabled={isMarkingAll}
+                className="h-8 px-2.5 rounded-lg text-xs font-mono font-medium text-primary hover:text-primary hover:bg-primary/10 gap-1.5 transition-colors"
+              >
+                {isMarkingAll ? (
+                  <Loader2Icon className="size-3.5 animate-spin" />
+                ) : (
+                  <CheckCheck className="size-3.5" />
+                )}
+                <span>Mark all as read</span>
+              </Button>
+            ) : (
+              <span className="text-xs text-muted-foreground font-mono">
+                All caught up
+              </span>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-0">
@@ -219,9 +275,26 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
                     </div>
                   )}
 
-                  <p className="text-[11px] text-muted-foreground font-mono" suppressHydrationWarning>
-                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
-                  </p>
+                  <div className="flex items-center justify-between pt-0.5">
+                    <p className="text-[11px] text-muted-foreground font-mono" suppressHydrationWarning>
+                      {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                    </p>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => handleDeleteNotification(e, notification.id)}
+                      disabled={deletingId === notification.id}
+                      className="size-7 rounded-lg text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      title="Remove notification"
+                    >
+                      {deletingId === notification.id ? (
+                        <Loader2Icon className="size-3.5 animate-spin text-destructive" />
+                      ) : (
+                        <Trash2 className="size-3.5" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))
