@@ -21,8 +21,25 @@ export class RedisCacheService implements ICacheService {
           this.client = redisClientOrUrl;
         } else {
           const redisUrl = EnvConfigRepository.getRedisUrl();
+          const redisPassword = process.env.REDIS_PASSWORD ? decodeURIComponent(process.env.REDIS_PASSWORD) : undefined;
           if (redisUrl) {
-            this.client = new Redis(redisUrl, { maxRetriesPerRequest: 3 });
+            try {
+              // Parse URL to extract host and port directly to avoid URL encoding issues with special characters in password
+              const parsed = new URL(redisUrl);
+              const host = parsed.hostname || 'vibegrid_redis';
+              const port = parseInt(parsed.port || '6379', 10);
+              const password = redisPassword || (parsed.password ? decodeURIComponent(parsed.password) : undefined);
+              
+              this.client = new Redis({
+                host,
+                port,
+                password,
+                maxRetriesPerRequest: 3,
+                lazyConnect: false,
+              });
+            } catch {
+              this.client = new Redis(redisUrl, { maxRetriesPerRequest: 3 });
+            }
           } else {
             this.logger.warn('[RedisCacheService] REDIS_URL is not defined in EnvConfigRepository; running with cache disabled.');
           }
