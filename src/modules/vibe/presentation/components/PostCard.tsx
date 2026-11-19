@@ -16,7 +16,7 @@ import { TechDilemmaPollCard } from './TechDilemmaPollCard';
 import { EmbeddedQuotedPostCard } from '@/components/EmbeddedQuotedPostCard';
 import { RepeatIcon } from 'lucide-react';
 import { FollowButton } from '@/modules/social/presentation/components/FollowButton';
-import { PostExpandableText, renderLinkifiedText } from './PostExpandableText';
+import { PostExpandableText } from './PostExpandableText';
 import { PostLinkPreview } from './PostLinkPreview';
 import { PostCardHeaderSlot } from './PostCardHeaderSlot';
 
@@ -159,9 +159,7 @@ export function PostCard({
             {/* 1. Text Content */}
             {contentText ? (
               isDetailPage ? (
-                <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
-                  {renderLinkifiedText(contentText)}
-                </p>
+                <PostExpandableText content={contentText} showExpandToggle={false} />
               ) : (
                 <PostExpandableText content={contentText} limit={200} />
               )
