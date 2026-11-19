@@ -357,7 +357,7 @@ export class PrismaCommunityRepository implements ICommunityRepository {
     if (params.viewerId && posts.length > 0) {
       const authorIds = Array.from(new Set(posts.map((p: any) => p.author?.id).filter(Boolean)));
       if (authorIds.length > 0) {
-        const follows = await (this.prisma as any).follow.findMany({
+        const follows = await (this.prisma as any).follows.findMany({
           where: {
             followerId: params.viewerId,
             followingId: { in: authorIds },

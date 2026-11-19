@@ -11,6 +11,7 @@ import { toggleLike, toggleReGrid, getPostLikersAction } from '@/actions/post.ac
 import { toast } from '@/components/ui/toast';
 import { QuoteVibeDialog } from '@/components/QuoteVibeDialog';
 import { ShareVibeDialog } from '@/components/ShareVibeDialog';
+import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
 
 interface PostActionsProps {
   postId: string;
@@ -54,12 +55,44 @@ export function PostActions({
   targetPostData,
 }: PostActionsProps) {
   const { isAuthenticated } = useSession();
+  const { latestFeedSignal } = useRealtime();
 
   const [hasLiked, setHasLiked] = useState(initialLiked);
   const [showLikesModal, setShowLikesModal] = useState(false);
   const [activeLikesList, setActiveLikesList] = useState<any[]>(likesList || []);
   const [isLoadingLikers, setIsLoadingLikers] = useState(false);
   const likesPopupRef = React.useRef<HTMLDivElement>(null);
+  const [optimisticLikes, setOptimisticLikes] = useState(initialLikes);
+
+  // Sync state with incoming props when server revalidates
+  React.useEffect(() => {
+    setOptimisticLikes(initialLikes);
+    setHasLiked(initialLiked);
+  }, [initialLikes, initialLiked]);
+
+  // Real-time synchronization for likes across all connected browsers
+  React.useEffect(() => {
+    if (!latestFeedSignal || latestFeedSignal.postId !== postId) return;
+
+    if (latestFeedSignal.type === 'like_toggled' && latestFeedSignal.likeData) {
+      const { userId, isLiked, likesCount, user } = latestFeedSignal.likeData;
+      setOptimisticLikes(likesCount);
+
+      if (dbUserId && userId === dbUserId) {
+        setHasLiked(isLiked);
+      }
+
+      // Update who-liked modal list in real time
+      setActiveLikesList((prev) => {
+        if (isLiked && user) {
+          if (prev.some((l) => (l.userId || l.user?.id) === userId)) return prev;
+          return [{ userId, user, createdAt: new Date() }, ...prev];
+        } else {
+          return prev.filter((l) => (l.userId || l.user?.id) !== userId);
+        }
+      });
+    }
+  }, [latestFeedSignal, postId, dbUserId]);
 
   // Sync activeLikesList when prop changes
   React.useEffect(() => {
@@ -103,7 +136,6 @@ export function PostActions({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showLikesModal]);
-  const [optimisticLikes, setOptimisticLikes] = useState(initialLikes);
   const [isLiking, setIsLiking] = useState(false);
 
   const [hasReGridded, setHasReGridded] = useState(initialReGridded);

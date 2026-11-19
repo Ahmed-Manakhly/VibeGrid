@@ -316,15 +316,51 @@ export async function getPosts(params: ExplorePostsCriteria = {}) {
 export async function toggleLike(postId : string){
     try {
         const userId = await getDbUserId() ;
-        if(!userId) return;
+        if(!userId) return { success: false, error: 'Unauthorized' };
         
         const result = await toggleLikeUseCase.execute(postId, userId);
         if (!result.success) {
             return {success : false, error : 'failed to toggle like!'}
         }
 
+        const isLiked = result.value.isLiked;
+
+        // Invalidate Redis query cache & publish realtime like_toggled event
+        try {
+            const { prisma } = await import("@/shared/infrastructure/prisma");
+            const { cacheService } = await import("@/shared/infrastructure/di-container");
+            const [likesCount, user] = await Promise.all([
+                prisma.like.count({ where: { postId } }),
+                prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { id: true, name: true, username: true, image: true },
+                }),
+            ]);
+
+            if (cacheService && typeof (cacheService as any).delByPattern === "function") {
+                await (cacheService as any).delByPattern("feed:query:*");
+            }
+            if (cacheService && typeof (cacheService as any).publish === "function") {
+                const signalPayload = JSON.stringify({
+                    type: "like_toggled",
+                    postId,
+                    authorId: userId,
+                    likeData: {
+                        userId,
+                        isLiked,
+                        likesCount,
+                        user,
+                    },
+                    timestamp: Date.now(),
+                });
+                await (cacheService as any).publish("realtime:feed", signalPayload);
+            }
+        } catch (cacheErr: any) {
+            logger.warn("Failed to publish like_toggled event", { error: cacheErr?.message });
+        }
+
         await revalidateAllFeedPaths({ postId });
-        return {success : true} ;
+        return {success : true, isLiked} ;
     } catch (error) {
         logger.error('failed to toggle like!', error, { postId });
         return {success : false, error : 'failed to toggle like!'}
