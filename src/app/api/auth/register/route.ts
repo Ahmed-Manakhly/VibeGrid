@@ -28,6 +28,20 @@ export async function POST(req: NextRequest) {
     }
 
     const resData = authRes.data?.data || authRes.data;
+    const registeredUser = resData?.user;
+
+    // Immediately bootstrap the profile in PostgreSQL upon registration
+    if (registeredUser?.id) {
+      const { ProfileBootstrapService } = await import('@/modules/social/application/ProfileBootstrapService');
+      await ProfileBootstrapService.bootstrapProfile({
+        id: registeredUser.id,
+        email: registeredUser.email || email,
+        name: registeredUser.name || name,
+        role: registeredUser.role || 'USER',
+        isPolicyAccepted: Boolean(agreedToPolicy),
+      }).catch((err) => console.warn('[Register Profile Bootstrap Warning]', err));
+    }
+
     const requiresEmailVerification = resData?.requiresEmailVerification ?? true; // Default to true if manual registration
 
     return NextResponse.json({
