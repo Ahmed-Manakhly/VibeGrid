@@ -17,6 +17,7 @@ interface PostCommentsSectionProps {
   postAuthorId?: string;
   dbUserId: string | null;
   initialComments: any[];
+  totalCommentsCount?: number;
   isDetailPage?: boolean;
   communityId?: string | null;
   isCommunityMember?: boolean;
@@ -29,6 +30,7 @@ export function PostCommentsSection({
   postAuthorId,
   dbUserId,
   initialComments,
+  totalCommentsCount,
   isDetailPage = false,
   communityId,
   isCommunityMember = false,
@@ -182,6 +184,23 @@ export function PostCommentsSection({
     }
   };
 
+  const handleFetchAllComments = async () => {
+    setIsLoadingMore(true);
+    try {
+      const res = await getPostCommentsAction({ postId, limit: 50, sort: 'recent' });
+      if (res?.success && Array.isArray(res.data)) {
+        setLocalComments(res.data);
+        setNextCursor(res.nextCursor);
+      }
+    } catch {
+      toast.error('Failed to load comments');
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const remainingCommentsCount = Math.max(0, (totalCommentsCount ?? 0) - localComments.length);
+
   return (
     <div className="space-y-4 pt-4 border-t border-brand-gold/30 bg-gradient-to-b from-brand-gold/15 via-brand-gold/5 to-transparent backdrop-blur-md shadow-lg shadow-brand-gold/5 p-3 sm:p-4 rounded-2xl border-x border-b border-brand-gold/20">
       {/* Top Comment Input Box */}
@@ -319,6 +338,15 @@ export function PostCommentsSection({
             className="text-xs font-semibold text-accent hover:underline transition-colors block py-1"
           >
             {isLoadingMore ? "Loading comments..." : "Show more comments ↓"}
+          </button>
+        ) : !isDetailPage && remainingCommentsCount > 0 ? (
+          <button
+            type="button"
+            onClick={handleFetchAllComments}
+            disabled={isLoadingMore}
+            className="text-xs font-semibold text-accent hover:underline transition-colors block py-1"
+          >
+            {isLoadingMore ? "Loading comments..." : `Show all comments (${remainingCommentsCount} more) ↓`}
           </button>
         ) : !isDetailPage && localComments.length > 5 ? (
           <Link

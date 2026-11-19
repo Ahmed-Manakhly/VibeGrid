@@ -99,6 +99,7 @@ export function PostInteractiveContainer({
           postAuthorId={postAuthorId}
           dbUserId={dbUserId}
           initialComments={initialComments}
+          totalCommentsCount={commentsCount}
           isDetailPage={isDetailPage}
           communityId={communityId}
           isCommunityMember={isCommunityMember}
