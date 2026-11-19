@@ -85,6 +85,15 @@ export class GenerateFeedUseCase {
     // 4. Deterministically rank candidate posts using FeedRecommendationScorer
     const rankedPosts = this.scorer.rankPosts(rawResult.data, scoringContext);
 
+    // 5. Hydrate author relationship metadata (isFollowing) if viewer is authenticated
+    if (scoringContext.followedAuthorIds) {
+      for (const post of rankedPosts) {
+        if (post.author) {
+          (post.author as any).isFollowing = scoringContext.followedAuthorIds.has(post.author.id);
+        }
+      }
+    }
+
     return {
       data: rankedPosts,
       nextCursor: rawResult.nextCursor,

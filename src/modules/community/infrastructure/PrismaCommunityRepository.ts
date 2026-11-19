@@ -354,6 +354,25 @@ export class PrismaCommunityRepository implements ICommunityRepository {
       nextCursor = nextPost.id;
     }
 
+    if (params.viewerId && posts.length > 0) {
+      const authorIds = Array.from(new Set(posts.map((p: any) => p.author?.id).filter(Boolean)));
+      if (authorIds.length > 0) {
+        const follows = await (this.prisma as any).follow.findMany({
+          where: {
+            followerId: params.viewerId,
+            followingId: { in: authorIds },
+          },
+          select: { followingId: true },
+        });
+        const followedSet = new Set(follows.map((f: any) => f.followingId));
+        for (const post of posts) {
+          if (post.author) {
+            post.author.isFollowing = followedSet.has(post.author.id);
+          }
+        }
+      }
+    }
+
     return { posts, nextCursor };
   }
 

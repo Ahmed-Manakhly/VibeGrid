@@ -33,6 +33,7 @@ export async function GET(request: Request) {
       bookmarkedByUserId: searchParams.get("bookmarkedByUserId") || undefined,
       communityId: requestedCommunityId,
       allowedCommunityIds,
+      userId,
       limit: searchParams.has("limit") ? Number(searchParams.get("limit")) : undefined,
     };
 
