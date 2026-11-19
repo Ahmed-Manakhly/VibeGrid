@@ -187,27 +187,27 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
 
   return (
     <Card className="border border-border/60 bg-card/80 backdrop-blur-xl w-full rounded-2xl shadow-sm overflow-hidden">
-      <CardHeader className="border-b bg-card/40 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-bold">Notifications</CardTitle>
-          <div className="flex items-center gap-3">
+      <CardHeader className="border-b bg-card/40 px-3.5 sm:px-6 py-3 sm:py-4">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <CardTitle className="text-sm sm:text-lg font-bold truncate shrink-0">Notifications</CardTitle>
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {unreadCount > 0 ? (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleMarkAllAsRead}
                 disabled={isMarkingAll}
-                className="h-8 px-2.5 rounded-lg text-xs font-mono font-medium text-primary hover:text-primary hover:bg-primary/10 gap-1.5 transition-colors"
+                className="h-7 sm:h-8 px-2 sm:px-2.5 rounded-lg text-[10px] sm:text-xs font-mono font-medium text-primary hover:text-primary hover:bg-primary/10 gap-1 sm:gap-1.5 transition-colors whitespace-nowrap"
               >
                 {isMarkingAll ? (
-                  <Loader2Icon className="size-3.5 animate-spin" />
+                  <Loader2Icon className="size-3 sm:size-3.5 animate-spin" />
                 ) : (
-                  <CheckCheck className="size-3.5" />
+                  <CheckCheck className="size-3 sm:size-3.5" />
                 )}
                 <span>Mark all as read</span>
               </Button>
             ) : (
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="text-[10px] sm:text-xs text-muted-foreground font-mono whitespace-nowrap">
                 All caught up
               </span>
             )}
