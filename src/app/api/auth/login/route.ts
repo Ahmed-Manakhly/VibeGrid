@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
+        isPolicyAccepted: Boolean(user.isPolicyAccepted || user.agreedToPolicy),
       }).catch((err) => logger.warn('[Login Profile Bootstrap Warning]', { error: err }));
     }
 

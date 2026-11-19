@@ -51,6 +51,7 @@ export async function GET(req: Request) {
         name: dbUser?.name || session.user.name,
         bio: dbUser?.bio || null,
         image: dbUser?.image || null,
+        isPolicyAccepted: Boolean(dbUser?.isPolicyAccepted),
       },
     });
   } catch (error: any) {

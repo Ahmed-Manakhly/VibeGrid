@@ -12,6 +12,7 @@ export interface SafeUser {
   image?: string | null;
   role: string;
   isEmailVerified: boolean;
+  isPolicyAccepted?: boolean;
 }
 
 interface SessionContextType {

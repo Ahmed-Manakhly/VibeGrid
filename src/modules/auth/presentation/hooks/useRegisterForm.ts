@@ -97,6 +97,7 @@ export function useRegisterForm({ initialEmail = '', initialVerify = false }: Us
           email: normalizedEmail,
           password: passwordInput.value,
           passwordConfirm: passwordConfirmInput.value,
+          agreedToPolicy: true,
         }),
       })
       const data = await res.json()

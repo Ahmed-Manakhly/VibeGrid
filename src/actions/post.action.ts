@@ -172,7 +172,11 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
         if (result?.success) {
             return { success: true };
         }
-        return { success: false, error: result?.error || 'Failed to drop vibe.' };
+        return { 
+            success: false, 
+            requiresPolicy: Boolean(result?.requiresPolicy), 
+            error: result?.error || 'Failed to drop vibe.' 
+        };
     } catch (err: any) {
         logger.error('Error in createPostFormAction', err);
         const rawMsg = err.message || '';

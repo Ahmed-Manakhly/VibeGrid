@@ -4,7 +4,7 @@ import { authServiceFetch } from '@/lib/auth/auth.client';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password, passwordConfirm, name } = body;
+    const { email, password, passwordConfirm, name, agreedToPolicy } = body;
 
     const authRes = await authServiceFetch('/register', {
       method: 'POST',
@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
         password,
         passwordConfirm: passwordConfirm || password,
         name,
+        agreedToPolicy: Boolean(agreedToPolicy),
       }),
     });
 

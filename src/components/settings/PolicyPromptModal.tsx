@@ -36,6 +36,7 @@ export function PolicyPromptModal() {
         toast.success("Platform terms & privacy policy accepted! 🎉");
         setOpen(false);
         if (refreshSession) await refreshSession();
+        window.dispatchEvent(new CustomEvent("policy-accepted-success"));
       } else {
         toast.error(res.error || "Failed to save policy acceptance");
       }

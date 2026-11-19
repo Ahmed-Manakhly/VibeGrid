@@ -52,12 +52,13 @@ export class ProfileBootstrapService {
    * Idempotently bootstraps a native VibeGrid User/Profile record
    */
   public static async bootstrapProfile(
-    user: { id: string; email: string; name?: string; role?: string; avatarUrl?: string },
+    user: { id: string; email: string; name?: string; role?: string; avatarUrl?: string; isPolicyAccepted?: boolean },
     authRepo?: IAuthRepository
   ): Promise<any> {
     const userId = user.id;
     const email = user.email.toLowerCase();
     const displayName = user.name || email.split('@')[0];
+    const isPolicyAccepted = Boolean(user.isPolicyAccepted);
 
     if (authRepo) {
       const existingUser = await authRepo.getUserById(userId);
@@ -90,6 +91,8 @@ export class ProfileBootstrapService {
         username: uniqueUsername,
         image: user.avatarUrl || null,
         role: (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') ? 'ADMIN' : 'USER',
+        isPolicyAccepted,
+        policyAcceptedAt: isPolicyAccepted ? new Date() : null,
       },
     });
   }
