@@ -14,12 +14,50 @@ export class FeedRecommendationScorer {
    * Formula:
    * score = relevance_score + relationship_score + engagement_score + freshness_score
    */
+  /**
+   * Calculates the effective chronological timestamp of a post.
+   * If the post has been re-gridded, the latest relevant regrid timestamp
+   * takes precedence so the post resurfaces at the top of the feed.
+   */
+  public getEffectiveTimestamp(post: VibePost, context: FeedScoringContext = {}): number {
+    let effective = new Date(post.createdAt).getTime();
+
+    if (post.regrids && post.regrids.length > 0) {
+      for (const regrid of post.regrids) {
+        if (!regrid.createdAt) continue;
+        const regridTime = new Date(regrid.createdAt).getTime();
+
+        // If viewed by a user, prioritize regrids made by followed developers or the viewer
+        const isFollowedReposter = context.followedAuthorIds && context.followedAuthorIds.has(regrid.userId);
+        const isSelfReposter = context.userId && regrid.userId === context.userId;
+
+        if (isFollowedReposter || isSelfReposter) {
+          if (regridTime > effective) {
+            effective = regridTime;
+          }
+        } else if (regridTime > effective) {
+          effective = regridTime;
+        }
+      }
+    }
+
+    return effective;
+  }
+
   public scorePost(post: VibePost, context: FeedScoringContext = {}): number {
     let score = 0;
 
     // 1. Relationship Signal (+35 points if author is followed by current user)
     if (context.followedAuthorIds && context.followedAuthorIds.has(post.author.id)) {
       score += 35;
+    }
+
+    // 1.1 Reposter Relationship Signal (+35 points if anyone who re-gridded this post is followed by current user)
+    if (context.followedAuthorIds && post.regrids && post.regrids.length > 0) {
+      const isReGriddedByFollowed = post.regrids.some((r) => context.followedAuthorIds!.has(r.userId));
+      if (isReGriddedByFollowed) {
+        score += 35;
+      }
     }
 
     // 2. User Interest & Followed Tech Tags Relevance Signal (+25 points each)
@@ -49,8 +87,8 @@ export class FeedRecommendationScorer {
     const rawEngagementPoints = likesCount * 1.0 + commentsCount * 2.0 + bookmarksCount * 3.0 + regridsCount * 2.5;
     
     const now = new Date().getTime();
-    const postTime = new Date(post.createdAt).getTime();
-    const ageHours = Math.max(0, (now - postTime) / (1000 * 60 * 60));
+    const effectiveTime = this.getEffectiveTimestamp(post, context);
+    const ageHours = Math.max(0, (now - effectiveTime) / (1000 * 60 * 60));
 
     // Gravity time decay factor: (age_hours + 2)^1.5
     const decayFactor = Math.pow(ageHours + 2, 1.5);
@@ -60,7 +98,7 @@ export class FeedRecommendationScorer {
     const engagementScore = Math.min(30, decayedEngagement);
     score += engagementScore;
 
-    // 4. Bounded Freshness Signal (Max 20 points for posts within last 48 hours)
+    // 4. Bounded Freshness Signal (Max 20 points for posts/re-grids within last 48 hours)
     // Linear decay from 20 -> 0 over 48 hours
     const freshnessScore = Math.max(0, 20 * (1 - ageHours / 48));
     score += freshnessScore;
@@ -85,14 +123,15 @@ export class FeedRecommendationScorer {
     const scoredPosts = posts.map((post) => ({
       post,
       score: this.scorePost(post, context),
+      effectiveTime: this.getEffectiveTimestamp(post, context),
     }));
 
-    // Sort by score descending; break ties by createdAt descending
+    // Sort by score descending; break ties by effective timestamp descending
     scoredPosts.sort((a, b) => {
       if (b.score !== a.score) {
         return b.score - a.score;
       }
-      return new Date(b.post.createdAt).getTime() - new Date(a.post.createdAt).getTime();
+      return b.effectiveTime - a.effectiveTime;
     });
 
     return scoredPosts.map((sp) => sp.post);

@@ -327,6 +327,14 @@ export class PrismaCommunityRepository implements ICommunityRepository {
             bookmarks: true,
           },
         },
+        regrids: {
+          select: {
+            userId: true,
+            createdAt: true,
+            user: { select: { id: true, name: true, username: true, image: true } },
+          },
+          orderBy: { createdAt: "desc" },
+        },
         tags: {
           include: {
             tag: true,

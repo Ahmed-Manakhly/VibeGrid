@@ -51,8 +51,10 @@ export const vibeFeedQueryConfig: FeedQueryConfig = {
     regrids: {
       select: {
         userId: true,
+        createdAt: true,
         user: { select: { id: true, name: true, username: true, image: true } },
-      }
+      },
+      orderBy: { createdAt: "desc" },
     },
     poll: {
       include: {

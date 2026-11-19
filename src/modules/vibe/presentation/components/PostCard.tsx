@@ -122,32 +122,34 @@ export function PostCard({
             </div>
           </div>
 
-          {/* Right Header Actions: Follow/Unfollow toggle button + Post Actions / 3-dots */}
-          <div className="shrink-0 flex items-center gap-1.5">
+          {/* Right Header Actions: Stacked vertically with 3-dots on top, and Tune In / Delete button directly underneath */}
+          <div className="shrink-0 flex flex-col items-end gap-1.5">
+            <div className="flex items-center gap-1.5">
+              {canModerate && dbUserId !== post.author.id && (
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20 hidden sm:inline">
+                  Mod
+                </span>
+              )}
+
+              <PostSafetyMenu
+                postId={post.id}
+                authorId={post.author.id}
+                authorUsername={post.author.username || ''}
+                initialBookmarked={hasBookmarked}
+              />
+            </div>
+
             {dbUserId && dbUserId !== post.author.id && (
               <FollowButton
                 targetUserId={post.author.id}
                 initialIsFollowing={Boolean((post.author as any)?.isFollowing)}
-                className="h-7 px-2.5 text-[11px] rounded-lg"
+                className="h-6 px-2 text-[10px] sm:text-[11px] rounded-lg shadow-sm"
               />
-            )}
-
-            {canModerate && dbUserId !== post.author.id && (
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-destructive/10 text-destructive border border-destructive/20 hidden sm:inline">
-                Mod
-              </span>
             )}
 
             {dbUserId === post.author.id && (
               <PostDeleteAction postId={post.id} />
             )}
-
-            <PostSafetyMenu
-              postId={post.id}
-              authorId={post.author.id}
-              authorUsername={post.author.username || ''}
-              initialBookmarked={hasBookmarked}
-            />
           </div>
         </div>
 

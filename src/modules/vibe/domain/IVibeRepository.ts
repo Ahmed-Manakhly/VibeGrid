@@ -18,7 +18,7 @@ export interface VibePost {
     vibe?: any;
     likes: { userId: string }[];
     bookmarks?: { userId: string }[];
-    regrids?: { userId: string }[];
+    regrids?: { userId: string; createdAt?: Date }[];
     comments: any[];
     techContext?: any;
     postType?: string;
