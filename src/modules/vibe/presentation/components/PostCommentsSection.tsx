@@ -195,15 +195,15 @@ export function PostCommentsSection({
 
       {/* Comments List Header & Sorter for Detail Page */}
       {isDetailPage && (
-        <div className="flex items-center justify-between pt-1 pb-2 border-b border-border/30 text-xs text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1 pb-2 border-b border-border/30 text-xs text-muted-foreground">
           <span className="font-semibold text-foreground">
             Discussion ({localComments.length})
           </span>
-          <div className="flex items-center gap-1.5 bg-muted/30 p-0.5 rounded-lg border border-border/40 text-[11px]">
+          <div className="grid grid-cols-3 sm:flex items-center gap-1 bg-muted/30 p-1 rounded-xl border border-border/40 text-[11px]">
             <button
               type="button"
               onClick={() => handleSortChange('recent')}
-              className={`px-2 py-0.5 rounded-md font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-lg font-medium text-center transition-colors ${
                 commentSort === 'recent'
                   ? 'bg-background text-foreground shadow-sm'
                   : 'hover:text-foreground'
@@ -214,7 +214,7 @@ export function PostCommentsSection({
             <button
               type="button"
               onClick={() => handleSortChange('oldest')}
-              className={`px-2 py-0.5 rounded-md font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-lg font-medium text-center transition-colors ${
                 commentSort === 'oldest'
                   ? 'bg-background text-foreground shadow-sm'
                   : 'hover:text-foreground'
@@ -222,11 +222,11 @@ export function PostCommentsSection({
             >
               Oldest
             </button>
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <button
                 type="button"
                 onClick={() => handleSortChange('mine')}
-                className={`px-2 py-0.5 rounded-md font-medium transition-colors ${
+                className={`px-2.5 py-1 rounded-lg font-medium text-center transition-colors ${
                   commentSort === 'mine'
                     ? 'bg-background text-foreground shadow-sm'
                     : 'hover:text-foreground'
@@ -234,7 +234,7 @@ export function PostCommentsSection({
               >
                 My Comments
               </button>
-            )}
+            ) : null}
           </div>
         </div>
       )}

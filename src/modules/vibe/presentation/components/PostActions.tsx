@@ -154,7 +154,7 @@ export function PostActions({
   };
 
   return (
-    <div className="flex items-center pt-2 space-x-4">
+    <div className="flex items-center flex-wrap gap-2 sm:gap-4 pt-2">
       {/* Like Button */}
       <div 
         ref={likesPopupRef}
