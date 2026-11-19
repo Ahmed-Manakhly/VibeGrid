@@ -87,6 +87,10 @@ export function InfiniteScroll({ initialPosts, initialNextCursor, apiUrl, dbUser
     }
 
     if (latestFeedSignal.type === "new_content" || latestFeedSignal.type === "post_updated") {
+      // Do not count the author's own created post as an unread pill: the author already sees it
+      if (latestFeedSignal.authorId && dbUserId && latestFeedSignal.authorId === dbUserId) {
+        return;
+      }
       setUnreadNewPostsCount((prev) => prev + 1);
     }
   }, [latestFeedSignal]);

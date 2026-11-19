@@ -19,6 +19,7 @@ export interface NotificationSignal {
 export interface FeedSignal {
   type: 'new_content' | 'post_deleted' | 'post_updated';
   postId?: string;
+  authorId?: string;
 }
 
 export interface PresenceSignal {
@@ -165,17 +166,20 @@ export function useRealtimeSocket() {
 
         socketRef.current = socket;
 
+        // Resolve current user ID from JWT token payload
+        let currentUserId: string | null = null;
+        try {
+          const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+          currentUserId = tokenPayload.userId || tokenPayload.sub || tokenPayload.id || null;
+        } catch (e) {
+          // Non-blocking
+        }
+
         socket.on('connect', () => {
           setIsConnected(true);
           // ModelLink Parity: emit joinRoom upon connection
-          try {
-            const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-            const uid = tokenPayload.userId || tokenPayload.sub || tokenPayload.id;
-            if (uid) {
-              socket?.emit('joinRoom', uid);
-            }
-          } catch (e) {
-            // Non-blocking
+          if (currentUserId) {
+            socket?.emit('joinRoom', currentUserId);
           }
         });
 
@@ -216,6 +220,10 @@ export function useRealtimeSocket() {
         });
 
         socket.on('feed:updated', (signal: FeedSignal) => {
+          // Filter out author's own created vibes: the author already sees their vibe immediately
+          if (signal.authorId && currentUserId && signal.authorId === currentUserId) {
+            return;
+          }
           setLatestFeedSignal(signal);
           toast.info('⚡ New vibes available in your feed');
         });
