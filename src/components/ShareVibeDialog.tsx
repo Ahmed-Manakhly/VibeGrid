@@ -12,6 +12,7 @@ import { UserAvatar } from '@/components/UserAvatar';
 import { Share2Icon, CopyIcon, SendIcon, CheckIcon, Loader2Icon, MessageSquareIcon } from 'lucide-react';
 import { getConversationsAction, sendMessageAction } from '@/actions/messaging.action';
 import { toast } from '@/components/ui/toast';
+import { useSession } from '@/components/auth/SessionProvider';
 
 interface ShareVibeDialogProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export function ShareVibeDialog({
   postContent,
   authorUsername,
 }: ShareVibeDialogProps) {
+  const { user } = useSession();
   const [conversations, setConversations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sendingToId, setSendingToId] = useState<string | null>(null);
@@ -167,7 +169,8 @@ export function ShareVibeDialog({
             ) : (
               <div className="max-h-56 overflow-y-auto space-y-1 pr-1">
                 {conversations.map((c) => {
-                  const otherUser = c.otherParticipant;
+                  const otherParticipantObj = c.participants?.find((p: any) => p.userId !== user?.id);
+                  const otherUser = otherParticipantObj?.user || c.otherParticipant;
                   const isSent = Boolean(sentMap[c.id]);
                   const isSendingThis = sendingToId === c.id;
 
@@ -179,15 +182,15 @@ export function ShareVibeDialog({
                       <div className="flex items-center gap-2.5 min-w-0">
                         <UserAvatar
                           src={otherUser?.image}
-                          name={otherUser?.name || otherUser?.username}
+                          name={otherUser?.name || otherUser?.username || 'Developer'}
                           className="size-8 shrink-0"
                         />
                         <div className="min-w-0">
                           <p className="text-xs font-medium text-foreground truncate">
-                            {otherUser?.name || otherUser?.username}
+                            {otherUser?.name || otherUser?.username || 'Developer'}
                           </p>
                           <p className="text-[10px] text-muted-foreground truncate font-mono">
-                            @{otherUser?.username}
+                            @{otherUser?.username || 'developer'}
                           </p>
                         </div>
                       </div>
