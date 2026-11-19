@@ -41,6 +41,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/ioredis ./node_modules/ioredis
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@ioredis ./node_modules/@ioredis
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/redis-errors ./node_modules/redis-errors
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/cluster-key-slot ./node_modules/cluster-key-slot
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/debug ./node_modules/debug
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/denque ./node_modules/denque
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/standard-as-callback ./node_modules/standard-as-callback
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/ms ./node_modules/ms
 
 USER nextjs
 
