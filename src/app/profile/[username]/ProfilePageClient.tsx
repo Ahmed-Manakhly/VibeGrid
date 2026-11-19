@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { TruncatedLinkifiedText } from "@/components/TruncatedLinkifiedText";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
 import { EditProfileModal } from "@/modules/social/presentation/components/EditProfileModal";
@@ -114,7 +115,15 @@ function ProfilePageClient({
                                 <UserAvatar src={user.image} name={user.name} className="w-24 h-24" />
                                 <h1 className="mt-4 text-2xl font-bold">{user.name ?? user.username}</h1>
                                 <p className="text-muted-foreground">@{user.username}</p>
-                                <p className="mt-2 text-sm">{user.bio}</p>
+                                {user.bio && (
+                                    <div className="mt-2 w-full">
+                                        <TruncatedLinkifiedText
+                                            text={user.bio}
+                                            limit={150}
+                                            className="text-sm text-foreground/90 leading-relaxed break-words"
+                                        />
+                                    </div>
+                                )}
                                 <div className="w-full mt-6">
                                     <div className="flex justify-between mb-4">
                                         <div>

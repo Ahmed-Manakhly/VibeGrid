@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { joinCommunityAction, leaveCommunityAction } from "@/actions/community.action";
 import { toast } from "@/components/ui/toast";
 import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
+import { TruncatedLinkifiedText } from "@/components/TruncatedLinkifiedText";
 
 interface CommunityCardProps {
   community: CommunityEntity;
@@ -103,9 +104,13 @@ export function CommunityCard({ community }: CommunityCardProps) {
         </div>
 
         {/* Description */}
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-4 leading-relaxed">
-          {community.description || "A collaborative developer hub on VibeGrid."}
-        </p>
+        <div className="mb-4">
+          <TruncatedLinkifiedText
+            text={community.description || "A collaborative developer hub on VibeGrid."}
+            limit={120}
+            className="text-sm text-muted-foreground leading-relaxed break-words"
+          />
+        </div>
 
         {/* Tech Stack Tags */}
         {community.techTags && community.techTags.length > 0 && (

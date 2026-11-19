@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/components/auth/SessionProvider';
 import { acceptSolutionAction, unacceptSolutionAction } from '@/actions/qa.action';
+import { TruncatedLinkifiedText } from '@/components/TruncatedLinkifiedText';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -164,7 +165,9 @@ export function CommentCard({
                         <span className="shrink-0 hidden sm:inline" suppressHydrationWarning>{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
                         <span className="shrink-0 sm:hidden" suppressHydrationWarning>{formatRelativeTime(new Date(comment.createdAt))}</span>
                     </div>
-                    <p className="text-sm break-words mt-0.5">{comment.content}</p>
+                    <div className="mt-0.5">
+                        <TruncatedLinkifiedText text={comment.content} limit={160} className="text-sm break-words leading-relaxed text-foreground" />
+                    </div>
                     
                     {/* Row 1: Solution Status & Author Management Controls */}
                     {(isSolution || (!isReply && isQuestionAuthor)) && (

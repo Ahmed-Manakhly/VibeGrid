@@ -18,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AddMilestoneDialog } from "./AddMilestoneDialog";
 import { deleteMilestoneAction } from "@/actions/profile.action";
 import { toast } from "@/components/ui/toast";
+import { TruncatedLinkifiedText } from "@/components/TruncatedLinkifiedText";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -221,9 +222,11 @@ export function DeveloperMilestoneTimeline({
                   </div>
 
                   {milestone.description && (
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {milestone.description}
-                    </p>
+                    <TruncatedLinkifiedText
+                      text={milestone.description}
+                      limit={180}
+                      className="text-xs text-muted-foreground leading-relaxed break-words"
+                    />
                   )}
                 </div>
               </div>

@@ -23,6 +23,7 @@ import {
 import { toast } from "@/components/ui/toast";
 import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
 import { format } from "date-fns";
+import { TruncatedLinkifiedText } from "@/components/TruncatedLinkifiedText";
 
 interface CommunityHeaderProps {
   community: CommunityEntity;
@@ -322,9 +323,13 @@ export function CommunityHeader({ community, categories = [] }: CommunityHeaderP
         </div>
 
         {/* Description */}
-        <p className="text-sm text-foreground/90 leading-relaxed max-w-2xl mb-4">
-          {community.description || "A dedicated developer collective on VibeGrid."}
-        </p>
+        <div className="max-w-2xl mb-4">
+          <TruncatedLinkifiedText
+            text={community.description || "A dedicated developer collective on VibeGrid."}
+            limit={220}
+            className="text-sm text-foreground/90 leading-relaxed break-words"
+          />
+        </div>
 
         {/* Tech Stack Chips */}
         {community.techTags && community.techTags.length > 0 && (

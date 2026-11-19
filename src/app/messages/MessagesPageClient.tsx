@@ -49,6 +49,7 @@ import { UnifiedTabsBar } from "@/components/UnifiedTabsBar";
 import { uploadMediaAsset } from "@/lib/mediaClient";
 import { ImageLightboxModal } from "@/modules/messaging/presentation/components/ImageLightboxModal";
 import { ChatMessageParser, ChatMediaAttachment } from "@/modules/messaging/domain/ChatMessageParser";
+import { renderLinkifiedText } from "@/components/TruncatedLinkifiedText";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -1080,7 +1081,10 @@ export function MessagesPageClient() {
                           {/* Message Text */}
                           {parsed.text && (
                             <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-sm leading-relaxed max-w-full overflow-hidden">
-                              {parsed.text}
+                              {renderLinkifiedText(
+                                parsed.text,
+                                isMe ? "underline font-medium text-white/95 hover:text-white" : "text-primary hover:underline font-medium"
+                              )}
                             </div>
                           )}
 
