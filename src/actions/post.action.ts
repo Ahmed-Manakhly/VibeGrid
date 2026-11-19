@@ -424,6 +424,7 @@ export async function createComment(postId : string, content : string, parentId?
                     type: "comment_added",
                     postId,
                     authorId: userId,
+                    comment: result.value.comment,
                     timestamp: Date.now(),
                 });
                 await (cacheService as any).publish("realtime:feed", signalPayload);
@@ -457,6 +458,14 @@ export async function deleteComment(commentId: string) {
             const { cacheService } = await import("@/shared/infrastructure/di-container");
             if (cacheService && typeof (cacheService as any).delByPattern === "function") {
                 await (cacheService as any).delByPattern("feed:query:*");
+            }
+            if (cacheService && typeof (cacheService as any).publish === "function") {
+                const signalPayload = JSON.stringify({
+                    type: "comment_deleted",
+                    commentId,
+                    timestamp: Date.now(),
+                });
+                await (cacheService as any).publish("realtime:feed", signalPayload);
             }
         } catch (cacheErr: any) {
             logger.warn("Failed to invalidate feed cache on comment delete", { error: cacheErr?.message });

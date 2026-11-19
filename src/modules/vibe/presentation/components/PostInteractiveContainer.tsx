@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PostActions } from './PostActions';
 import { PostCommentsSection } from './PostCommentsSection';
+import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
 
 interface PostInteractiveContainerProps {
   postId: string;
@@ -55,6 +56,21 @@ export function PostInteractiveContainer({
   const [commentsCount, setCommentsCount] = useState<number>(
     initialCommentsCount ?? initialComments.length
   );
+  const { latestFeedSignal } = useRealtime();
+
+  // Listen to realtime comment updates for this post
+  useEffect(() => {
+    if (!latestFeedSignal || latestFeedSignal.postId !== postId) return;
+
+    if (latestFeedSignal.type === 'comment_added') {
+      // If parentId is null (top-level comment), increment top-level balloon counter
+      if (!latestFeedSignal.comment?.parentId) {
+        setCommentsCount((prev) => prev + 1);
+      }
+    } else if (latestFeedSignal.type === 'comment_deleted') {
+      setCommentsCount((prev) => Math.max(0, prev - 1));
+    }
+  }, [latestFeedSignal, postId]);
 
   const hasComments = initialComments && initialComments.length > 0;
   // Comments list should be visible if it is detail page, or if the post has existing comments, or if user opened the comment box

@@ -17,10 +17,11 @@ export interface NotificationSignal {
 }
 
 export interface FeedSignal {
-  type: 'new_content' | 'post_deleted' | 'post_updated';
+  type: 'new_content' | 'post_deleted' | 'post_updated' | 'comment_added' | 'comment_deleted';
   postId?: string;
   authorId?: string;
   communityId?: string;
+  comment?: any;
   timestamp?: number;
 }
 
@@ -233,11 +234,13 @@ export function useRealtimeSocket() {
 
         socket.on('feed:updated', (signal: FeedSignal) => {
           // Filter out author's own created vibes: the author already sees their vibe immediately
-          if (signal.authorId && currentUserId && signal.authorId === currentUserId) {
+          if (signal.type === 'new_content' && signal.authorId && currentUserId && signal.authorId === currentUserId) {
             return;
           }
           setLatestFeedSignal(signal);
-          toast.info('⚡ New vibes available in your feed');
+          if (signal.type === 'new_content') {
+            toast.info('⚡ New vibes available in your feed');
+          }
         });
 
         socket.on('message:new', (signal: DirectMessageSignal) => {

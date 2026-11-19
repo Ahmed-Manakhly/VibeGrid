@@ -8,6 +8,7 @@ import { UserAvatar } from '@/components/UserAvatar';
 import { SendIcon, LogInIcon } from 'lucide-react';
 import { CommentCard } from './CommentCard';
 import { useSession } from '@/components/auth/SessionProvider';
+import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
 import { getPostCommentsAction, createComment } from '@/actions/post.action';
 import { toast } from '@/components/ui/toast';
 
@@ -43,6 +44,53 @@ export function PostCommentsSection({
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const { latestFeedSignal } = useRealtime();
+
+  // Real-time live comments incoming (like chat message)
+  useEffect(() => {
+    if (!latestFeedSignal) return;
+
+    if (latestFeedSignal.type === 'comment_added' && latestFeedSignal.postId === postId && latestFeedSignal.comment) {
+      const incomingComment = latestFeedSignal.comment;
+      // Do not duplicate if this is the comment created locally by current user
+      setLocalComments((prev) => {
+        if (prev.some((c) => c.id === incomingComment.id)) {
+          return prev;
+        }
+        // If it's a top-level comment, prepend to local comments list
+        if (!incomingComment.parentId) {
+          return [incomingComment, ...prev];
+        }
+        // If it's a reply to an existing comment in view, append to replies
+        return prev.map((c) => {
+          if (c.id === incomingComment.parentId) {
+            const replies = c.replies || [];
+            if (replies.some((r: any) => r.id === incomingComment.id)) {
+              return c;
+            }
+            return {
+              ...c,
+              replies: [...replies, incomingComment],
+            };
+          }
+          return c;
+        });
+      });
+      setHasLoadedInitialBatch(true);
+    } else if (latestFeedSignal.type === 'comment_deleted') {
+      const deletedId = (latestFeedSignal as any).commentId;
+      if (deletedId) {
+        setLocalComments((prev) => 
+          prev
+            .filter((c) => c.id !== deletedId)
+            .map((c) => ({
+              ...c,
+              replies: (c.replies || []).filter((r: any) => r.id !== deletedId),
+            }))
+        );
+      }
+    }
+  }, [latestFeedSignal, postId]);
 
   // Sync initial comments if provided
   useEffect(() => {
@@ -135,7 +183,7 @@ export function PostCommentsSection({
   };
 
   return (
-    <div className="space-y-4 pt-4 border-t border-accent/20 bg-gradient-to-b from-accent/5 to-transparent p-3 sm:p-4 rounded-xl">
+    <div className="space-y-4 pt-4 border-t border-brand-gold/30 bg-gradient-to-b from-brand-gold/15 via-brand-gold/5 to-transparent backdrop-blur-md shadow-lg shadow-brand-gold/5 p-3 sm:p-4 rounded-2xl border-x border-b border-brand-gold/20">
       {/* Top Comment Input Box */}
       {(isDetailPage || showCommentInput) && (
         isAuthenticated ? (
