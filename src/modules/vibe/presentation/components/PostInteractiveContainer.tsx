@@ -58,6 +58,13 @@ export function PostInteractiveContainer({
   );
   const { latestFeedSignal } = useRealtime();
 
+  // Sync internal commentsCount when server revalidates or parent props update
+  useEffect(() => {
+    if (typeof initialCommentsCount === 'number') {
+      setCommentsCount(initialCommentsCount);
+    }
+  }, [initialCommentsCount]);
+
   // Listen to realtime comment updates for this post
   useEffect(() => {
     if (!latestFeedSignal || latestFeedSignal.postId !== postId) return;
