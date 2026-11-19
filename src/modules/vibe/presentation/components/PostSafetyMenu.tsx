@@ -147,10 +147,15 @@ export function PostSafetyMenu({
               type="button"
               onClick={handleToggleBookmark}
               disabled={isBookmarking}
-              className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-muted transition-colors text-foreground"
+              className="w-full text-left flex items-center justify-between px-3 py-2 text-xs rounded-lg hover:bg-muted transition-colors text-foreground"
             >
-              <BookmarkIcon className={`size-3.5 ${isBookmarked ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
-              <span>{isBookmarked ? 'Remove Bookmark' : 'Save to Bookmarks'}</span>
+              <div className="flex items-center gap-2">
+                <BookmarkIcon className={`size-3.5 ${isBookmarked ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
+                <span>{isBookmarked ? 'Remove Bookmark' : 'Save to Bookmarks'}</span>
+              </div>
+              {isBookmarking && (
+                <Loader2Icon className="size-3 animate-spin text-muted-foreground" />
+              )}
             </button>
             <button
               type="button"

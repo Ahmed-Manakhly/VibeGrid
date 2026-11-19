@@ -338,7 +338,8 @@ export async function toggleBookmark(postId : string){
             return {success : false, error : 'failed to toggle bookmark!'}
         }
 
-        await revalidateAllFeedPaths({ postId });
+        // Only revalidate the bookmarks page so other feed pages don't perform unnecessary full-page refreshes
+        revalidatePath('/bookmarks');
         return {success : true, isBookmarked: result.value.isBookmarked} ;
     } catch (error) {
         logger.error('failed to toggle bookmark!', error, { postId });
