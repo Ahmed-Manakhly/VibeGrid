@@ -94,10 +94,18 @@ export function PostCommentsSection({
     }
   }, [latestFeedSignal, postId]);
 
-  // Sync initial comments if provided
+  // Sync initial comments if provided without obliterating already loaded client comments
   useEffect(() => {
     if (initialComments && initialComments.length > 0) {
-      setLocalComments(initialComments);
+      setLocalComments((prev) => {
+        if (!prev || prev.length === 0) return initialComments;
+        const newMap = new Map(initialComments.map((c: any) => [c.id, c]));
+        // Keep updated state of existing comments, and append or prepend
+        const updated = prev.map((c: any) => newMap.get(c.id) || c);
+        const existingIds = new Set(prev.map((c: any) => c.id));
+        const brandNew = initialComments.filter((c: any) => !existingIds.has(c.id));
+        return [...brandNew, ...updated];
+      });
       setHasLoadedInitialBatch(true);
     }
   }, [initialComments]);
@@ -339,7 +347,7 @@ export function PostCommentsSection({
           >
             {isLoadingMore ? "Loading comments..." : "Show more comments ↓"}
           </button>
-        ) : !isDetailPage && remainingCommentsCount > 0 ? (
+        ) : remainingCommentsCount > 0 ? (
           <button
             type="button"
             onClick={handleFetchAllComments}
