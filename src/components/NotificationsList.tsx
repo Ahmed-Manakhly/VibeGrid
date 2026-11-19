@@ -6,7 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users, Loader2Icon, CheckCheck, Trash2 } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useCallback } from "react";
+import { useInView } from "react-intersection-observer";
 import { useRouter } from "next/navigation";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import { 
@@ -86,6 +87,7 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [cursor, setCursor] = useState<string | null>(initialCursor);
   const [loadingMore, setLoadingMore] = useState(false);
+  const { ref: observerRef, inView } = useInView({ threshold: 0.1 });
   const [isMarkingAll, startMarkingAll] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { latestNotification, setUnreadCount } = useRealtime();
@@ -102,7 +104,7 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
 
     const syncNotifications = async () => {
       try {
-        const data = await getNotifications({ limit: 20 });
+        const data = await getNotifications({ limit: 12 });
         if (data.success && data.notifications) {
           setNotifications(data.notifications as Notification[]);
           setCursor(data.nextCursor || null);
@@ -146,13 +148,17 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
     }
   };
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = useCallback(async () => {
     if (!cursor || loadingMore) return;
     setLoadingMore(true);
     try {
-      const data = await getNotifications({ limit: 20, cursor });
+      const data = await getNotifications({ limit: 12, cursor });
       if (data.success && data.notifications) {
-        setNotifications((prev) => [...prev, ...(data.notifications as Notification[])]);
+        setNotifications((prev) => {
+          const existingIds = new Set(prev.map((n) => n.id));
+          const fresh = (data.notifications as Notification[]).filter((n) => !existingIds.has(n.id));
+          return [...prev, ...fresh];
+        });
         setCursor(data.nextCursor || null);
       }
     } catch (err) {
@@ -160,7 +166,14 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
     } finally {
       setLoadingMore(false);
     }
-  };
+  }, [cursor, loadingMore]);
+
+  // Infinite Scroll Trigger
+  useEffect(() => {
+    if (inView && cursor && !loadingMore) {
+      handleLoadMore();
+    }
+  }, [inView, cursor, loadingMore, handleLoadMore]);
 
   const handleNotificationClick = async (notification: Notification) => {
     // 1. If unread, mark this specific notification as read in DB and update local state
@@ -300,18 +313,11 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
             ))
           )}
 
+          {/* Infinite Scroll Trigger Sentinel */}
           {cursor && (
-            <div className="p-4 flex justify-center border-t border-border/40">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                className="text-xs h-8 px-4 rounded-xl gap-2 font-mono"
-              >
-                {loadingMore && <Loader2Icon className="size-3 animate-spin" />}
-                <span>{loadingMore ? "Loading more..." : "Load older notifications"}</span>
-              </Button>
+            <div ref={observerRef} className="p-4 flex justify-center items-center gap-2 text-xs text-muted-foreground font-mono">
+              <Loader2Icon className="size-4 animate-spin text-primary" />
+              <span>Loading more notifications...</span>
             </div>
           )}
         </ScrollArea>

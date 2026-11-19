@@ -6,7 +6,7 @@ import { Bell } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function NotificationsPage() {
-  const result = await getNotifications({ limit: 20 });
+  const result = await getNotifications({ limit: 12 });
   const notifications = result.notifications || [];
   const nextCursor = result.nextCursor || null;
   const unreadCount = notifications.filter((n: any) => !n.read).length;
