@@ -16,8 +16,9 @@ import { TechDilemmaPollCard } from './TechDilemmaPollCard';
 import { EmbeddedQuotedPostCard } from '@/components/EmbeddedQuotedPostCard';
 import { RepeatIcon } from 'lucide-react';
 import { FollowButton } from '@/modules/social/presentation/components/FollowButton';
-import { PostExpandableText } from './PostExpandableText';
+import { PostExpandableText, renderLinkifiedText } from './PostExpandableText';
 import { PostLinkPreview } from './PostLinkPreview';
+import { PostCardHeaderSlot } from './PostCardHeaderSlot';
 
 type FeedResponse = Awaited<ReturnType<typeof getPosts>>;
 type post = FeedResponse['data'][number] & {
@@ -97,7 +98,7 @@ export function PostCard({
           </span>
         </div>
       )}
-      <div className="p-3 sm:p-5 space-y-3 sm:space-y-4">
+      <PostCardHeaderSlot postId={post.id} isDetailPage={isDetailPage} className="p-3 sm:p-5 space-y-3 sm:space-y-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center space-x-3 min-w-0 flex-1">
             <Link href={`/profile/${post.author.username}`} className="shrink-0">
@@ -155,16 +156,18 @@ export function PostCard({
 
         {(contentText || post.poll || post.techContext || structuredContent.codeBlock) && (
           <div className="space-y-3">
+            {/* 1. Text Content */}
             {contentText ? (
               isDetailPage ? (
                 <p className="text-[14px] sm:text-base text-foreground leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
-                  {contentText}
+                  {renderLinkifiedText(contentText)}
                 </p>
               ) : (
                 <PostExpandableText content={contentText} limit={200} />
               )
             ) : null}
 
+            {/* 2. Code Block */}
             {structuredContent.codeBlock && (
               <CodeBlockViewer
                 language={structuredContent.codeBlock.language}
@@ -172,6 +175,14 @@ export function PostCard({
               />
             )}
 
+            {/* 3. Media (Placed after Code and before Shipped Project / Poll per contract) */}
+            {!isTruncated && post.mediaUrl && (
+              <div className="pt-1">
+                <PostMediaContainer mediaUrl={post.mediaUrl} mediaType={post.mediaType} />
+              </div>
+            )}
+
+            {/* 4. Shipped Project */}
             {post.techContext && (post.postType === 'PROJECT_SHIP' || post.postType === 'ship' || post.techContext.isShip) && (
               <div className="pt-1">
                 <ProjectShipCard
@@ -184,6 +195,7 @@ export function PostCard({
               </div>
             )}
 
+            {/* 5. Dilemma Poll */}
             {post.poll && (
               <div className="pt-1">
                 <TechDilemmaPollCard poll={post.poll} />
@@ -204,11 +216,7 @@ export function PostCard({
             )}
           </div>
         )}
-      </div>
-
-      {!isTruncated && post.mediaUrl && (
-        <PostMediaContainer mediaUrl={post.mediaUrl} mediaType={post.mediaType} />
-      )}
+      </PostCardHeaderSlot>
 
       <div className="px-3 sm:px-5 mt-3 sm:mt-4 space-y-3 sm:space-y-4">
         {(post.category || post.vibe || (post.tags && post.tags.length > 0)) && (
@@ -274,8 +282,6 @@ export function PostCard({
           initialLikes={initialLikes}
           initialLiked={hasLiked}
           likesList={post.likes || []}
-          initialBookmarks={initialBookmarks}
-          initialBookmarked={hasBookmarked}
           initialReGrids={initialReGrids}
           initialReGridded={hasReGridded}
           initialComments={post.comments || []}

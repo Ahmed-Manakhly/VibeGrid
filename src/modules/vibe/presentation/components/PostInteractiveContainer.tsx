@@ -11,8 +11,6 @@ interface PostInteractiveContainerProps {
   initialLikes: number;
   initialLiked: boolean;
   likesList: any[];
-  initialBookmarks: number;
-  initialBookmarked: boolean;
   initialReGrids: number;
   initialReGridded: boolean;
   initialComments: any[];
@@ -43,8 +41,6 @@ export function PostInteractiveContainer({
   initialLikes,
   initialLiked,
   likesList,
-  initialBookmarks,
-  initialBookmarked,
   initialReGrids,
   initialReGridded,
   initialComments,
@@ -72,8 +68,6 @@ export function PostInteractiveContainer({
         initialLikes={initialLikes}
         initialLiked={initialLiked}
         likesList={likesList}
-        initialBookmarks={initialBookmarks}
-        initialBookmarked={initialBookmarked}
         initialReGrids={initialReGrids}
         initialReGridded={initialReGridded}
         commentsCount={commentsCount}

@@ -195,6 +195,10 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
         return { success: false, error: 'Post cannot be empty. Please enter some text, upload media, or add a poll.' };
     }
 
+    if (!quotedPostId && (!categoryId?.trim() || !vibeId?.trim())) {
+        return { success: false, error: 'Please select both a Category and a Vibe before dropping your vibe.' };
+    }
+
     const tags = tagsRaw ? tagsRaw.split(",").map(t => t.trim()).filter(Boolean) : undefined;
 
     try {

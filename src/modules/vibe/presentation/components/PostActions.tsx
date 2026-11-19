@@ -4,10 +4,10 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { HeartIcon, RepeatIcon, BookmarkIcon, MessageCircleIcon, MessageSquareQuote, Share2Icon } from 'lucide-react';
+import { HeartIcon, RepeatIcon, MessageCircleIcon, MessageSquareQuote, Share2Icon } from 'lucide-react';
 import { UserAvatar } from '@/components/UserAvatar';
 import { useSession } from '@/components/auth/SessionProvider';
-import { toggleLike, toggleBookmark, toggleReGrid, getPostLikersAction } from '@/actions/post.action';
+import { toggleLike, toggleReGrid, getPostLikersAction } from '@/actions/post.action';
 import { toast } from '@/components/ui/toast';
 import { QuoteVibeDialog } from '@/components/QuoteVibeDialog';
 import { ShareVibeDialog } from '@/components/ShareVibeDialog';
@@ -18,8 +18,6 @@ interface PostActionsProps {
   initialLikes: number;
   initialLiked: boolean;
   likesList: any[];
-  initialBookmarks: number;
-  initialBookmarked: boolean;
   initialReGrids: number;
   initialReGridded: boolean;
   commentsCount: number;
@@ -47,8 +45,6 @@ export function PostActions({
   initialLikes,
   initialLiked,
   likesList,
-  initialBookmarks,
-  initialBookmarked,
   initialReGrids,
   initialReGridded,
   commentsCount,
@@ -110,10 +106,6 @@ export function PostActions({
   const [optimisticLikes, setOptimisticLikes] = useState(initialLikes);
   const [isLiking, setIsLiking] = useState(false);
 
-  const [hasBookmarked, setHasBookmarked] = useState(initialBookmarked);
-  const [optimisticBookmarks, setOptimisticBookmarks] = useState(initialBookmarks);
-  const [isBookmarking, setIsBookmarking] = useState(false);
-
   const [hasReGridded, setHasReGridded] = useState(initialReGridded);
   const [optimisticReGrids, setOptimisticReGrids] = useState(initialReGrids);
   const [isReGridding, setIsReGridding] = useState(false);
@@ -133,30 +125,6 @@ export function PostActions({
       setHasLiked(initialLiked);
     } finally {
       setIsLiking(false);
-    }
-  };
-
-  const handleBookmark = async () => {
-    if (isBookmarking) return;
-    try {
-      setIsBookmarking(true);
-      const nextBookmarked = !hasBookmarked;
-      setHasBookmarked(nextBookmarked);
-      setOptimisticBookmarks((prev) => (hasBookmarked ? Math.max(0, prev - 1) : prev + 1));
-      const res = await toggleBookmark(postId);
-      if (!res?.success) {
-        setHasBookmarked(hasBookmarked);
-        setOptimisticBookmarks(initialBookmarks);
-        toast.error(res?.error || 'Failed to update bookmark');
-      } else {
-        toast.success(nextBookmarked ? 'Vibe saved to bookmarks' : 'Removed from bookmarks');
-      }
-    } catch {
-      setHasBookmarked(hasBookmarked);
-      setOptimisticBookmarks(initialBookmarks);
-      toast.error('Failed to update bookmark');
-    } finally {
-      setIsBookmarking(false);
     }
   };
 

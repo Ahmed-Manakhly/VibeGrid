@@ -82,6 +82,8 @@ export default function CreatPost({
 
     const [categories, setCategories] = useState<any[]>([]);
     const [vibes, setVibes] = useState<any[]>([]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+    const [selectedVibeId, setSelectedVibeId] = useState<string>("");
     const [userCommunities, setUserCommunities] = useState<any[]>([]);
     const [selectedCommunityId, setSelectedCommunityId] = useState<string>(defaultCommunityId || "");
     
@@ -113,6 +115,8 @@ export default function CreatPost({
             setPollQuestion("");
             setPollOptions(["", ""]);
             setPollDuration("24");
+            setSelectedCategoryId("");
+            setSelectedVibeId("");
             setShowImageUpload(false);
             setShowCodeBlock(false);
             setIsExpanded(false);
@@ -173,6 +177,8 @@ export default function CreatPost({
         setPollQuestion('');
         setPollOptions(["", ""]);
         setPollDuration("24");
+        setSelectedCategoryId("");
+        setSelectedVibeId("");
         formRef.current?.reset();
     };
 
@@ -212,9 +218,14 @@ export default function CreatPost({
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 pt-2 pb-2">
-                                <Select name="categoryId">
-                                    <SelectTrigger className="w-full sm:w-[140px] h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
-                                        <SelectValue placeholder="Category" />
+                                <Select
+                                    name="categoryId"
+                                    value={selectedCategoryId}
+                                    onValueChange={setSelectedCategoryId}
+                                    required
+                                >
+                                    <SelectTrigger className="w-full sm:w-[150px] h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
+                                        <SelectValue placeholder="Category *" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-background border-border/50 font-mono">
                                         {categories.map((c) => (
@@ -224,9 +235,14 @@ export default function CreatPost({
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                <Select name="vibeId">
-                                    <SelectTrigger className="w-full sm:w-[140px] h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
-                                        <SelectValue placeholder="Vibe" />
+                                <Select
+                                    name="vibeId"
+                                    value={selectedVibeId}
+                                    onValueChange={setSelectedVibeId}
+                                    required
+                                >
+                                    <SelectTrigger className="w-full sm:w-[150px] h-10 sm:h-8 text-sm bg-background text-muted-foreground border-border/50 hover:border-primary/50 transition-all font-mono rounded-xl">
+                                        <SelectValue placeholder="Vibe *" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-background border-border/50 font-mono">
                                         {vibes.map((v) => (
@@ -472,7 +488,7 @@ export default function CreatPost({
                                     <Button type="button" variant="ghost" className="text-muted-foreground hover:bg-transparent hover:text-foreground" onClick={handleCancel}>
                                         Cancel
                                     </Button>
-                                    <SubmitButton disabled={!contentVal.trim() && !imageUrl && !codeSnippet.trim() && !projectName.trim() && (!pollQuestion.trim() || pollOptions.filter(Boolean).length < 2)} />
+                                    <SubmitButton disabled={!selectedCategoryId || !selectedVibeId || (!contentVal.trim() && !imageUrl && !codeSnippet.trim() && !projectName.trim() && (!pollQuestion.trim() || pollOptions.filter(Boolean).length < 2))} />
                                 </div>
                             </div>
                         </>
