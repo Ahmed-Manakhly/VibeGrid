@@ -665,9 +665,8 @@ export async function getPostCommentsAction(params: {
         let nextCursor: string | null = null;
         let data = comments;
         if (comments.length > limit) {
-            const nextItem = comments.pop();
-            nextCursor = nextItem ? nextItem.id : null;
-            data = comments;
+            data = comments.slice(0, limit);
+            nextCursor = data[data.length - 1]?.id || null;
         }
 
         return {

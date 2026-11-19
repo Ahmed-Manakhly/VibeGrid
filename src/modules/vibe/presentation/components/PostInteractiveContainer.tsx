@@ -63,14 +63,18 @@ export function PostInteractiveContainer({
     if (!latestFeedSignal || latestFeedSignal.postId !== postId) return;
 
     if (latestFeedSignal.type === 'comment_added') {
-      // If parentId is null (top-level comment), increment top-level balloon counter
+      // If the comment was created by another user, increment balloon counter
+      // (author's own local comment addition is already incremented via onCommentCountChange)
+      if (latestFeedSignal.authorId && dbUserId && latestFeedSignal.authorId === dbUserId) {
+        return;
+      }
       if (!latestFeedSignal.comment?.parentId) {
         setCommentsCount((prev) => prev + 1);
       }
     } else if (latestFeedSignal.type === 'comment_deleted') {
       setCommentsCount((prev) => Math.max(0, prev - 1));
     }
-  }, [latestFeedSignal, postId]);
+  }, [latestFeedSignal, postId, dbUserId]);
 
   const hasComments = initialComments && initialComments.length > 0;
   // Comments list should be visible if it is detail page, or if the post has existing comments, or if user opened the comment box
