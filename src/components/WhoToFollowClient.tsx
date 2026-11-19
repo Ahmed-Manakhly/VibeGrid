@@ -40,16 +40,16 @@ export function WhoToFollowClient({ initialUsers }: WhoToFollowClientProps) {
       <CardContent>
         <div className="space-y-4">
           {users.map((user) => (
-            <div key={user.id} className="flex gap-2 items-center justify-between">
-              <div className="flex items-center gap-1">
-                <Link href={`/profile/${user.username}`}>
-                  <UserAvatar src={user.image} name={user.name} className="size-8 transition-all" />
+            <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2 rounded-xl hover:bg-secondary/20 transition-colors">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Link href={`/profile/${user.username}`} className="shrink-0">
+                  <UserAvatar src={user.image} name={user.name} className="size-9 transition-all hover:scale-105" />
                 </Link>
-                <div className="text-xs">
-                  <Link href={`/profile/${user.username}`} className="font-medium cursor-pointer hover:underline">
+                <div className="text-xs min-w-0">
+                  <Link href={`/profile/${user.username}`} className="font-semibold cursor-pointer hover:underline text-foreground block truncate">
                     {user.name}
                   </Link>
-                  <p className="text-muted-foreground">@{user.username}</p>
+                  <p className="text-muted-foreground text-[11px] truncate font-mono">@{user.username}</p>
                   {user.matchRationale && (
                     <span className="inline-block mt-0.5 text-[10px] font-medium text-primary/80 bg-primary/10 px-1.5 py-0.5 rounded">
                       {user.matchRationale}
@@ -57,10 +57,13 @@ export function WhoToFollowClient({ initialUsers }: WhoToFollowClientProps) {
                   )}
                 </div>
               </div>
-              <FollowButton
-                userId={user.id}
-                onFollowChange={(isFollowing) => handleFollowChange(user.id, isFollowing)}
-              />
+              <div className="self-end sm:self-center shrink-0">
+                <FollowButton
+                  userId={user.id}
+                  className="h-7 px-3 text-xs rounded-xl"
+                  onFollowChange={(isFollowing) => handleFollowChange(user.id, isFollowing)}
+                />
+              </div>
             </div>
           ))}
         </div>

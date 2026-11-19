@@ -94,7 +94,7 @@ export function CommunityMembersSidebar({
             const isFollowing = followingIds.has(member.userId);
 
             return (
-              <div key={member.id} className="flex items-center justify-between gap-2">
+              <div key={member.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1.5 rounded-xl hover:bg-secondary/20 transition-colors">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="relative shrink-0">
                     <Link href={`/profile/${member.user?.username || member.userId}`}>
@@ -133,7 +133,7 @@ export function CommunityMembersSidebar({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex items-center gap-1 self-end sm:self-center shrink-0">
                   {/* 1-Click Fast-Pass Direct Chat */}
                   <Button
                     variant="ghost"
