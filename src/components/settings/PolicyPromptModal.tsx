@@ -66,7 +66,7 @@ export function PolicyPromptModal() {
             variant="ghost"
             onClick={() => setOpen(false)}
             disabled={isPending}
-            className="rounded-xl text-xs"
+            className="rounded-xl text-xs h-auto py-2"
           >
             Review Later
           </Button>
@@ -74,17 +74,17 @@ export function PolicyPromptModal() {
             type="button"
             onClick={handleAccept}
             disabled={isPending}
-            className="btn-gradient text-white rounded-xl text-xs flex items-center gap-1.5"
+            className="btn-gradient text-white rounded-xl text-xs flex items-center justify-center gap-1.5 whitespace-normal h-auto py-2.5 px-4 text-center leading-snug"
           >
             {isPending ? (
               <>
-                <Loader2 className="size-3.5 animate-spin" />
+                <Loader2 className="size-3.5 animate-spin shrink-0" />
                 <span>Accepting...</span>
               </>
             ) : (
               <>
-                <ShieldCheck className="size-3.5" />
-                <span>I Accept Platform Policies & Terms</span>
+                <ShieldCheck className="size-3.5 shrink-0" />
+                <span className="break-words">I Accept Platform Policies & Terms</span>
               </>
             )}
           </Button>
