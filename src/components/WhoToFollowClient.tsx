@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import Link from "next/link";
 import { UserAvatar } from "./UserAvatar";
@@ -20,6 +20,28 @@ interface WhoToFollowClientProps {
 
 export function WhoToFollowClient({ initialUsers }: WhoToFollowClientProps) {
   const [users, setUsers] = useState<SuggestedUser[]>(initialUsers);
+
+  // Sync initialUsers if re-rendered
+  useEffect(() => {
+    setUsers(initialUsers);
+  }, [initialUsers]);
+
+  // Listen to global follow events anywhere on the page (e.g. from post cards)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleGlobalFollow = (event: Event) => {
+      const customEvent = event as CustomEvent<{ targetUserId: string; isFollowing: boolean }>;
+      if (customEvent.detail?.isFollowing) {
+        setUsers((prev) => prev.filter((u) => u.id !== customEvent.detail.targetUserId));
+      }
+    };
+
+    window.addEventListener("user_follow_changed", handleGlobalFollow);
+    return () => {
+      window.removeEventListener("user_follow_changed", handleGlobalFollow);
+    };
+  }, []);
 
   const handleFollowChange = (userId: string, isNowFollowing: boolean) => {
     // If user followed this suggested user at runtime, immediately remove from suggestions

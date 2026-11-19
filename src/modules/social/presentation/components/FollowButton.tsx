@@ -2,7 +2,7 @@
 
 import { toggleFollow } from "@/actions/user.action";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/toast";
 
 interface FollowButtonProps {
@@ -18,6 +18,28 @@ export function FollowButton({ targetUserId, userId, initialIsFollowing = false,
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  // Sync initialIsFollowing if parent re-renders with fresh data
+  useEffect(() => {
+    setIsFollowing(initialIsFollowing);
+  }, [initialIsFollowing]);
+
+  // Synchronize follow state globally across all button instances on the screen
+  useEffect(() => {
+    if (!effectiveUserId || typeof window === "undefined") return;
+
+    const handleFollowSync = (event: Event) => {
+      const customEvent = event as CustomEvent<{ targetUserId: string; isFollowing: boolean }>;
+      if (customEvent.detail?.targetUserId === effectiveUserId) {
+        setIsFollowing(customEvent.detail.isFollowing);
+      }
+    };
+
+    window.addEventListener("user_follow_changed", handleFollowSync);
+    return () => {
+      window.removeEventListener("user_follow_changed", handleFollowSync);
+    };
+  }, [effectiveUserId]);
 
   const handleFollowToggle = async () => {
     if (!effectiveUserId) return;
@@ -36,6 +58,16 @@ export function FollowButton({ targetUserId, userId, initialIsFollowing = false,
       if (onFollowChange) {
         onFollowChange(nextState);
       }
+
+      // Broadcast globally so all other buttons on the screen update instantly
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("user_follow_changed", {
+            detail: { targetUserId: effectiveUserId, isFollowing: nextState },
+          })
+        );
+      }
+
       toast.success(nextState ? "Tuned in to developer" : "Tuned out");
     } catch {
       toast.error("Failed to update follow status");
