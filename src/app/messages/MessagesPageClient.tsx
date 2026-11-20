@@ -315,6 +315,9 @@ export function MessagesPageClient() {
         setActiveConversationId(null);
         setMessages([]);
         setMobileTab("conversations");
+        if (typeof window !== "undefined") {
+          window.history.replaceState(null, "", "/messages");
+        }
       }
       setConvToDelete(null);
     } else {
@@ -392,9 +395,6 @@ export function MessagesPageClient() {
     if (res.success && res.conversations) {
       setConversations(res.conversations);
       setConvsNextCursor(res.nextCursor || null);
-      if (!activeConversationId && res.conversations.length > 0) {
-        setActiveConversationId(res.conversations[0].id);
-      }
     }
     setLoadingConversations(false);
   };
@@ -837,6 +837,9 @@ export function MessagesPageClient() {
                   onClick={() => {
                     setActiveConversationId(conv.id);
                     setMobileTab("chat");
+                    if (typeof window !== "undefined") {
+                      window.history.replaceState(null, "", `/messages?conversationId=${conv.id}`);
+                    }
                     // Persist mark-as-read in DB immediately
                     markConversationAsReadAction(conv.id).catch(() => {});
                     // Immediately zero out unread counter in local list upon switching
@@ -968,6 +971,9 @@ export function MessagesPageClient() {
                   onClick={() => {
                     setActiveConversationId(null);
                     setDeletingConversation(false);
+                    if (typeof window !== "undefined") {
+                      window.history.replaceState(null, "", "/messages");
+                    }
                   }}
                   title="Close conversation"
                 >
