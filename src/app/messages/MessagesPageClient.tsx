@@ -13,6 +13,7 @@ import {
   deleteMessageAction,
   deleteConversationAction,
   startConversationAction,
+  markConversationAsReadAction,
 } from "@/actions/messaging.action";
 import { getUserFollowingAction } from "@/actions/profile.action";
 import { toast } from "@/components/ui/toast";
@@ -466,6 +467,9 @@ export function MessagesPageClient() {
 
     // If message is for currently open conversation, append to list
     if (conversationId === activeConversationId) {
+      // Mark as read in server DB immediately for the active conversation
+      markConversationAsReadAction(conversationId).catch(() => {});
+
       setMessages((prev) => {
         if (prev.some((m) => m.id === messageId)) return prev;
         return [
@@ -772,6 +776,8 @@ export function MessagesPageClient() {
                   onClick={() => {
                     setActiveConversationId(conv.id);
                     setMobileTab("chat");
+                    // Persist mark-as-read in DB immediately
+                    markConversationAsReadAction(conv.id).catch(() => {});
                     // Immediately zero out unread counter in local list upon switching
                     setConversations((prev) => {
                       const next = prev.map((c) => (c.id === conv.id ? { ...c, unreadCount: 0 } : c));

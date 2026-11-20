@@ -268,6 +268,10 @@ export function useRealtimeSocket() {
           }
 
           setLatestDirectMessage(signal);
+          if (signal.senderId && currentUserId && signal.senderId === currentUserId) {
+            // Do not increment badge for sender's own echoed message
+            return;
+          }
           setUnreadMessagesCount((prev) => prev + 1);
           toast.info(`✉️ Message from ${signal.senderName || 'someone'}`);
         });

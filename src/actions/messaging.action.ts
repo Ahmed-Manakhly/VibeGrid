@@ -111,6 +111,26 @@ export async function deleteMessageAction(messageId: string, scope: 'FOR_ME' | '
   }
 }
 
+export async function markConversationAsReadAction(conversationId: string) {
+  try {
+    const session = await getCurrentSession();
+    if (!session.isAuthenticated || !session.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+    const currentUserId = await getDbUserId();
+    if (!currentUserId) {
+      return { success: false, error: "User not synced" };
+    }
+
+    const { messagingRepository } = await import("@/shared/infrastructure/di-container");
+    await messagingRepository.markConversationAsRead(conversationId, currentUserId);
+    return { success: true };
+  } catch (error: any) {
+    logger.error("Error in markConversationAsReadAction", error);
+    return { success: false, error: error.message || "Failed to mark conversation as read" };
+  }
+}
+
 export async function getConversationByIdAction(conversationId: string) {
   try {
     const session = await getCurrentSession();
