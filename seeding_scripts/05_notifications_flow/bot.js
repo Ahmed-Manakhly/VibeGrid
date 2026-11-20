@@ -93,7 +93,7 @@ async function runNotificationsFlow() {
     console.log(`[FLOW 05] Fetching notifications for ${userSession.username}...`);
     const notifRes = await userClient.get('/notifications');
 
-    if (!notifRes.ok || !notifRes.data?.success) {
+    if (!notifRes.ok || (!notifRes.data?.success && !Array.isArray(notifRes.data?.notifications))) {
       throw new Error(`FLOW 05 FAILED: Unable to fetch notifications for ${userSession.username} (HTTP ${notifRes.status}): ${JSON.stringify(notifRes.data || notifRes.rawBody)}`);
     }
 
