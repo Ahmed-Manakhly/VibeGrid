@@ -12,22 +12,22 @@ import {
   logger,
 } from "@/shared/infrastructure/di-container";
 
-export async function getConversationsAction() {
+export async function getConversationsAction(limit?: number, cursor?: string) {
   try {
     const session = await getCurrentSession();
     if (!session.isAuthenticated || !session.user) {
-      return { success: false, error: "Unauthorized", conversations: [] };
+      return { success: false, error: "Unauthorized", conversations: [], nextCursor: null };
     }
     const dbUserId = await getDbUserId();
     if (!dbUserId) {
-      return { success: false, error: "User not synced", conversations: [] };
+      return { success: false, error: "User not synced", conversations: [], nextCursor: null };
     }
 
-    const conversations = await getConversationsUseCase.execute(dbUserId);
-    return { success: true, conversations };
+    const result = await getConversationsUseCase.execute(dbUserId, limit, cursor);
+    return { success: true, ...result };
   } catch (error: any) {
     logger.error("Error in getConversationsAction", error);
-    return { success: false, error: error.message || "Failed to fetch conversations", conversations: [] };
+    return { success: false, error: error.message || "Failed to fetch conversations", conversations: [], nextCursor: null };
   }
 }
 

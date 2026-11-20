@@ -4,9 +4,9 @@ import { ConversationEntity, DirectMessageEntity } from "../domain/MessageEntiti
 export class GetConversationsUseCase {
   constructor(private readonly messagingRepo: IMessagingRepository) {}
 
-  async execute(userId: string): Promise<ConversationEntity[]> {
+  async execute(userId: string, limit?: number, cursor?: string): Promise<{ conversations: ConversationEntity[]; nextCursor: string | null }> {
     if (!userId) throw new Error("User ID is required");
-    return await this.messagingRepo.getUserConversations(userId);
+    return await this.messagingRepo.getUserConversations(userId, limit, cursor);
   }
 }
 

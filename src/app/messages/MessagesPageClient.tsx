@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+import { useInView } from "react-intersection-observer";
 import { useSession } from "@/components/auth/SessionProvider";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import {
@@ -288,24 +289,34 @@ export function MessagesPageClient() {
   const [deletingMessage, setDeletingMessage] = useState(false);
   const [deletingConversation, setDeletingConversation] = useState(false);
   const [showDeleteConvModal, setShowDeleteConvModal] = useState(false);
+  const [convToDelete, setConvToDelete] = useState<{ id: string; name: string } | null>(null);
   const [showBlockDialog, setShowBlockDialog] = useState(false);
   const [isBlocking, setIsBlocking] = useState(false);
   const [isConversationBlocked, setIsConversationBlocked] = useState(false);
 
+  // Conversations cursor pagination
+  const [convsNextCursor, setConvsNextCursor] = useState<string | null>(null);
+  const [loadingMoreConvs, setLoadingMoreConvs] = useState(false);
+  const { ref: convsSentinelRef, inView: convsInView } = useInView({ threshold: 0.1 });
+
   const confirmDeleteConversation = async () => {
-    if (!activeConversationId || deletingConversation) return;
+    const targetId = convToDelete?.id || activeConversationId;
+    if (!targetId || deletingConversation) return;
 
     setDeletingConversation(true);
-    const res = await deleteConversationAction(activeConversationId);
+    const res = await deleteConversationAction(targetId);
     setDeletingConversation(false);
     setShowDeleteConvModal(false);
 
     if (res.success) {
       toast.success("Conversation cleared from your list");
-      setConversations((prev) => prev.filter((c) => c.id !== activeConversationId));
-      setActiveConversationId(null);
-      setMessages([]);
-      setMobileTab("conversations");
+      setConversations((prev) => prev.filter((c) => c.id !== targetId));
+      if (activeConversationId === targetId) {
+        setActiveConversationId(null);
+        setMessages([]);
+        setMobileTab("conversations");
+      }
+      setConvToDelete(null);
     } else {
       toast.error(res.error || "Could not delete conversation");
     }
@@ -374,18 +385,41 @@ export function MessagesPageClient() {
     }
   };
 
-  // Load conversations list
+  // Load conversations list (cursor paginated)
   const loadConversations = async () => {
     setLoadingConversations(true);
-    const res = await getConversationsAction();
+    const res = await getConversationsAction(20);
     if (res.success && res.conversations) {
       setConversations(res.conversations);
+      setConvsNextCursor(res.nextCursor || null);
       if (!activeConversationId && res.conversations.length > 0) {
         setActiveConversationId(res.conversations[0].id);
       }
     }
     setLoadingConversations(false);
   };
+
+  const loadMoreConversations = async () => {
+    if (!convsNextCursor || loadingMoreConvs) return;
+    setLoadingMoreConvs(true);
+    const res = await getConversationsAction(20, convsNextCursor);
+    if (res.success && res.conversations) {
+      setConversations((prev) => {
+        const existingIds = new Set(prev.map((c) => c.id));
+        const newConvs = res.conversations.filter((c: any) => !existingIds.has(c.id));
+        return [...prev, ...newConvs];
+      });
+      setConvsNextCursor(res.nextCursor || null);
+    }
+    setLoadingMoreConvs(false);
+  };
+
+  // Infinite scroll trigger for conversations list
+  useEffect(() => {
+    if (convsInView && convsNextCursor && !loadingMoreConvs && !loadingConversations) {
+      loadMoreConversations();
+    }
+  }, [convsInView, convsNextCursor, loadingMoreConvs, loadingConversations]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -849,17 +883,42 @@ export function MessagesPageClient() {
                       <p className={`text-xs truncate ${hasUnread ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
                         {ChatMessageParser.getPreviewText(conv.latestMessage?.content)}
                       </p>
-                      {hasUnread && (
-                        <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center shrink-0">
-                          {conv.unreadCount}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {hasUnread && (
+                          <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                            {conv.unreadCount}
+                          </span>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setConvToDelete({
+                              id: conv.id,
+                              name: other?.name || other?.username || "this conversation",
+                            });
+                            setShowDeleteConvModal(true);
+                          }}
+                          title="Delete conversation"
+                        >
+                          <Trash2Icon className="size-3" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })
           ))}
+          {/* Infinite Scroll Sentinel for Conversations */}
+          <div ref={convsSentinelRef} className="h-2 w-full" />
+          {loadingMoreConvs && (
+            <div className="flex justify-center py-2">
+              <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -913,16 +972,6 @@ export function MessagesPageClient() {
                   title="Close conversation"
                 >
                   <XIcon className="size-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                  onClick={() => setShowDeleteConvModal(true)}
-                  disabled={deletingConversation}
-                  title="Delete conversation for me"
-                >
-                  {deletingConversation ? <Loader2Icon className="size-4 animate-spin" /> : <Trash2Icon className="size-4" />}
                 </Button>
               </div>
             </div>

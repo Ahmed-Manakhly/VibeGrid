@@ -139,7 +139,9 @@ export class PrismaMessagingRepository implements IMessagingRepository {
     };
   }
 
-  async getUserConversations(userId: string): Promise<ConversationEntity[]> {
+  async getUserConversations(userId: string, limit?: number, cursor?: string): Promise<{ conversations: ConversationEntity[]; nextCursor: string | null }> {
+    const take = limit && limit > 0 ? limit : 20;
+
     const conversations = await this.prisma.conversation.findMany({
       where: {
         participants: {
@@ -149,6 +151,9 @@ export class PrismaMessagingRepository implements IMessagingRepository {
           },
         },
       },
+      take: take + 1,
+      skip: cursor ? 1 : 0,
+      ...(cursor ? { cursor: { id: cursor } } : {}),
       orderBy: { updatedAt: "desc" },
       include: {
         participants: {
@@ -161,8 +166,12 @@ export class PrismaMessagingRepository implements IMessagingRepository {
       },
     });
 
-    return Promise.all(
-      conversations.map(async (conv: any) => {
+    const hasNextPage = conversations.length > take;
+    const pageItems = hasNextPage ? conversations.slice(0, take) : conversations;
+    const nextCursor = hasNextPage && pageItems.length > 0 ? pageItems[pageItems.length - 1].id : null;
+
+    const mapped = await Promise.all(
+      pageItems.map(async (conv: any) => {
         const participant = conv.participants.find((p: any) => p.userId === userId);
         const lastRead = participant ? participant.lastReadAt : new Date(0);
         const clearedAt = participant ? participant.clearedAt : null;
@@ -209,6 +218,11 @@ export class PrismaMessagingRepository implements IMessagingRepository {
         };
       })
     );
+
+    return {
+      conversations: mapped,
+      nextCursor,
+    };
   }
 
   async isParticipant(conversationId: string, userId: string): Promise<boolean> {
