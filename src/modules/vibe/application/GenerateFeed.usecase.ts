@@ -27,7 +27,7 @@ export class GenerateFeedUseCase {
         const cachedPostIds = await this.cacheService.get<string[]>(feedKey);
 
         if (cachedPostIds && cachedPostIds.length > 0) {
-          const hydratedPosts = await this.repo.getPostsByIds(cachedPostIds.slice(0, limit));
+          const hydratedPosts = await this.repo.getPostsByIds(cachedPostIds.slice(0, limit), userId);
           if (hydratedPosts.length > 0) {
             const nextCursor = hydratedPosts.length >= limit ? hydratedPosts[hydratedPosts.length - 1].id : null;
             return {

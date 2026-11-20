@@ -155,10 +155,11 @@ export function PostCommentsSection({
   }, [showCommentInput]);
 
   const handleLoadMore = async () => {
-    if (isLoadingMore || !nextCursor) return;
+    if (isLoadingMore) return;
+    const effectiveCursor = nextCursor || (localComments.length > 0 ? localComments[localComments.length - 1]?.id : undefined);
     try {
       setIsLoadingMore(true);
-      const res = await getPostCommentsAction({ postId, cursor: nextCursor, limit: 5, sort: commentSort });
+      const res = await getPostCommentsAction({ postId, cursor: effectiveCursor, limit: 5, sort: commentSort });
       if (res?.success && Array.isArray(res.data)) {
         setLocalComments((prev) => {
           const existingIds = new Set(prev.map((c) => c.id));

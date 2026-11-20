@@ -16,7 +16,8 @@ export class FeedQueryBuilder<T> {
   constructor(
     private modelDelegate: any,
     private params: Record<string, any>,
-    private config: FeedQueryConfig
+    private config: FeedQueryConfig,
+    customRelations?: any
   ) {
     this.limit = Math.min(Number(this.params.limit) || this.config.defaultLimit, 50);
 
@@ -24,7 +25,7 @@ export class FeedQueryBuilder<T> {
       where: { AND: [] },
       orderBy: this.config.defaultSort,
       take: this.limit + 1, // Fetch one extra to determine if there's a next page
-      include: this.config.defaultRelations,
+      include: customRelations || this.config.defaultRelations,
     };
   }
 

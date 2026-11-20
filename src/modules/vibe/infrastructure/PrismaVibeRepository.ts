@@ -3,7 +3,7 @@ import { Result, success, failure } from "@/shared/kernel/Result";
 import { PrismaClient } from "@prisma/client";
 import { ExplorePostsCriteria, ExplorePostsResult } from "../domain/ExplorePostsCriteria";
 import { FeedQueryBuilder } from "@/shared/infrastructure/persistence/query/FeedQueryBuilder";
-import { vibeFeedQueryConfig } from "./VibeFeedQueryConfig";
+import { vibeFeedQueryConfig, getVibeFeedRelations } from "./VibeFeedQueryConfig";
 
 export class PrismaVibeRepository implements IVibeRepository {
   constructor(private db: PrismaClient) {}
@@ -114,11 +114,11 @@ export class PrismaVibeRepository implements IVibeRepository {
     });
   }
 
-  async getPostsByIds(postIds: string[]): Promise<VibePost[]> {
+  async getPostsByIds(postIds: string[], viewerId?: string): Promise<VibePost[]> {
     if (!postIds || postIds.length === 0) return [];
     const posts = await this.db.post.findMany({
       where: { id: { in: postIds } },
-      include: vibeFeedQueryConfig.defaultRelations,
+      include: getVibeFeedRelations(viewerId),
     });
     const postMap = new Map(posts.map((p) => [p.id, p as unknown as VibePost]));
     return postIds.map((id) => postMap.get(id)).filter(Boolean) as VibePost[];
@@ -163,7 +163,7 @@ export class PrismaVibeRepository implements IVibeRepository {
           const targetIds = hasMore ? matchedPostIds.slice(0, limit) : matchedPostIds;
           const ids = targetIds.map((p) => p.id);
 
-          const posts = await this.getPostsByIds(ids);
+          const posts = await this.getPostsByIds(ids, params.userId);
           const nextCursor = hasMore && posts.length > 0 ? posts[posts.length - 1].id : null;
 
           return {
@@ -179,7 +179,8 @@ export class PrismaVibeRepository implements IVibeRepository {
     const queryBuilder = new FeedQueryBuilder<VibePost>(
       this.db.post,
       params,
-      vibeFeedQueryConfig
+      vibeFeedQueryConfig,
+      getVibeFeedRelations(params.userId)
     );
     return queryBuilder.execute();
   }
