@@ -76,6 +76,9 @@ const MESSAGES_MOBILE_TABS = [
 import { formatDistanceToNow } from "date-fns";
 import { CodeBlockViewer } from "@/modules/vibe/presentation/components/CodeBlockViewer";
 import { PostContentValueObject } from "@/modules/vibe/domain/PostContentValueObject";
+import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
+import { BlockConfirmationDialog } from "@/modules/safety/presentation/components/BlockConfirmationDialog";
+import { blockUserAction } from "@/actions/safety.action";
 
 export function MessagesPageClient() {
   const { user: currentUser, isAuthenticated } = useSession();
@@ -285,6 +288,8 @@ export function MessagesPageClient() {
   const [deletingMessage, setDeletingMessage] = useState(false);
   const [deletingConversation, setDeletingConversation] = useState(false);
   const [showDeleteConvModal, setShowDeleteConvModal] = useState(false);
+  const [showBlockDialog, setShowBlockDialog] = useState(false);
+  const [isBlocking, setIsBlocking] = useState(false);
   const [isConversationBlocked, setIsConversationBlocked] = useState(false);
 
   const confirmDeleteConversation = async () => {
@@ -347,10 +352,10 @@ export function MessagesPageClient() {
   };
 
   useEffect(() => {
-    if (isAuthenticated && sidebarTab === "online") {
+    if (isAuthenticated) {
       loadFollowedUsers();
     }
-  }, [isAuthenticated, sidebarTab, currentUser?.id]);
+  }, [isAuthenticated, currentUser?.id]);
 
   const handleStartDirectChat = async (targetUserId: string) => {
     const res = await startConversationAction(targetUserId);
@@ -942,33 +947,51 @@ export function MessagesPageClient() {
               {/* Persistent Identity Header Card (always rendered at top of history) */}
               {otherParticipant && (
                 <div className="flex flex-col items-center p-5 rounded-2xl bg-muted/20 border border-border/40 max-w-sm mx-auto w-full my-2 text-center shadow-xs">
-                  <div className="relative mb-2">
-                    <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-14 ring-2 ring-primary/20" />
+                  <Link
+                    href={`/profile/${otherParticipant.username || otherParticipant.id}`}
+                    className="relative mb-2 group hover:opacity-85 transition-opacity"
+                    title={`View @${otherParticipant.username}'s profile`}
+                  >
+                    <UserAvatar src={otherParticipant.image} name={otherParticipant.name} className="size-14 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all" />
                     {otherParticipant.id && onlineUsers.has(otherParticipant.id) && (
                       <span className="absolute bottom-0 right-0 size-3 rounded-full bg-emerald-500 ring-2 ring-background shadow-sm" />
                     )}
-                  </div>
-                  <h4 className="font-bold text-sm text-foreground">{otherParticipant.name || otherParticipant.username}</h4>
-                  <p className="text-[11px] text-muted-foreground font-mono mb-1.5">@{otherParticipant.username}</p>
+                  </Link>
+                  <Link
+                    href={`/profile/${otherParticipant.username || otherParticipant.id}`}
+                    className="hover:underline"
+                  >
+                    <h4 className="font-bold text-sm text-foreground">{otherParticipant.name || otherParticipant.username}</h4>
+                  </Link>
+                  <Link
+                    href={`/profile/${otherParticipant.username || otherParticipant.id}`}
+                    className="hover:underline"
+                  >
+                    <p className="text-[11px] text-muted-foreground font-mono mb-1.5">@{otherParticipant.username}</p>
+                  </Link>
                   {otherParticipant.bio && (
                     <p className="text-xs text-muted-foreground line-clamp-2 text-center mb-3 px-2">{otherParticipant.bio}</p>
                   )}
-                  <div className="flex items-center gap-2 mt-1">
-                    <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`}>
-                      <Button size="sm" variant="outline" className="text-xs h-7 px-3 rounded-lg font-medium">
-                        View Profile
-                      </Button>
-                    </Link>
+                  <div className="flex items-center gap-2 mt-2">
+                    <FollowButton
+                      targetUserId={otherParticipant.id}
+                      initialIsFollowing={followedUsers.some((u) => u.id === otherParticipant.id)}
+                      className="h-8 text-xs font-semibold rounded-lg px-3 shadow-xs"
+                      onFollowChange={(isFollowing) => {
+                        if (isFollowing) {
+                          setFollowedUsers((prev) => [...prev, otherParticipant]);
+                        } else {
+                          setFollowedUsers((prev) => prev.filter((u) => u.id !== otherParticipant.id));
+                        }
+                      }}
+                    />
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-xs h-7 px-2.5 text-destructive hover:bg-destructive/10 rounded-lg"
-                      onClick={() => {
-                        setActiveConversationId(null);
-                        setDeletingConversation(false);
-                      }}
+                      className="text-xs h-8 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-lg border border-destructive/20 font-medium transition-colors"
+                      onClick={() => setShowBlockDialog(true)}
                     >
-                      Hide Room
+                      Block
                     </Button>
                   </div>
                 </div>
@@ -1536,6 +1559,37 @@ export function MessagesPageClient() {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
+    {/* Universal Block Confirmation Dialog */}
+    {otherParticipant && (
+      <BlockConfirmationDialog
+        open={showBlockDialog}
+        onOpenChange={setShowBlockDialog}
+        username={otherParticipant.username}
+        isPending={isBlocking}
+        onConfirm={async () => {
+          try {
+            setIsBlocking(true);
+            const res = await blockUserAction(otherParticipant.id);
+            if (res.success) {
+              const evMsg = res.evictedCommunitiesCount && res.evictedCommunitiesCount > 0
+                ? ` and automatically exited ${res.evictedCommunitiesCount} of their guilds`
+                : "";
+              toast.success(`Blocked @${otherParticipant.username}${evMsg}`);
+              setShowBlockDialog(false);
+              setIsConversationBlocked(true);
+              setActiveConversationId(null);
+            } else {
+              toast.error(res.error || "Failed to block user");
+            }
+          } catch {
+            toast.error("Failed to block user");
+          } finally {
+            setIsBlocking(false);
+          }
+        }}
+      />
+    )}
     </div>
   );
 }
