@@ -407,11 +407,16 @@ export function MessagesPageClient() {
           return next;
         });
 
+        // Determine recipient ID directly from detailsRes or conversations
+        const targetRecipientId = detailsRes.success && detailsRes.conversation
+          ? detailsRes.conversation.participants.find((p: any) => p.userId !== currentUser?.id)?.userId
+          : conversations.find((c) => c.id === activeConversationId)?.participants.find((p: any) => p.userId !== currentUser?.id)?.user?.id;
+
         // Broadcast realtime message:seen event to counterparty
-        if (socket && otherParticipant?.id) {
+        if (socket && targetRecipientId) {
           socket.emit("message:seen", {
             conversationId: activeConversationId,
-            recipientUserId: otherParticipant.id,
+            recipientUserId: targetRecipientId,
           });
         }
       }
@@ -419,7 +424,7 @@ export function MessagesPageClient() {
     }
 
     loadMessages();
-  }, [activeConversationId]);
+  }, [activeConversationId, currentUser?.id]);
 
   // Listen for realtime message:seen events
   useEffect(() => {
@@ -878,6 +883,18 @@ export function MessagesPageClient() {
 
               {/* Conversation Actions */}
               <div className="flex items-center gap-1 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                  onClick={() => {
+                    setActiveConversationId(null);
+                    setDeletingConversation(false);
+                  }}
+                  title="Close conversation"
+                >
+                  <XIcon className="size-4" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
