@@ -464,11 +464,14 @@ export function MessagesPageClient() {
     if (!latestDirectMessage) return;
 
     const { conversationId, messageId, senderId, senderName, content: msgContent, createdAt } = latestDirectMessage;
+    const isSentByMe = Boolean(senderId && currentUser?.id && senderId === currentUser.id);
 
     // If message is for currently open conversation, append to list
     if (conversationId === activeConversationId) {
-      // Mark as read in server DB immediately for the active conversation
-      markConversationAsReadAction(conversationId).catch(() => {});
+      if (!isSentByMe) {
+        // Mark as read in server DB immediately for the active conversation
+        markConversationAsReadAction(conversationId).catch(() => {});
+      }
 
       setMessages((prev) => {
         if (prev.some((m) => m.id === messageId)) return prev;
@@ -497,7 +500,7 @@ export function MessagesPageClient() {
           ...conv,
           updatedAt: new Date(createdAt),
           latestMessage: { id: messageId, content: msgContent, createdAt: new Date(createdAt), senderId },
-          unreadCount: isCurrentActive ? 0 : (conv.unreadCount || 0) + 1,
+          unreadCount: isCurrentActive || isSentByMe ? 0 : (conv.unreadCount || 0) + 1,
         };
         const totalUnread = updated.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
         setUnreadMessagesCount(totalUnread);
@@ -509,7 +512,7 @@ export function MessagesPageClient() {
         return prev;
       }
     });
-  }, [latestDirectMessage, activeConversationId]);
+  }, [latestDirectMessage, activeConversationId, currentUser?.id]);
 
   // Handle typing signal from socket
   useEffect(() => {
