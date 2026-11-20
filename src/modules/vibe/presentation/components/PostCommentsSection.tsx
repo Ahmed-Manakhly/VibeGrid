@@ -156,14 +156,22 @@ export function PostCommentsSection({
 
   const handleLoadMore = async () => {
     if (isLoadingMore) return;
-    const effectiveCursor = nextCursor || (localComments.length > 0 ? localComments[localComments.length - 1]?.id : undefined);
     try {
       setIsLoadingMore(true);
-      const res = await getPostCommentsAction({ postId, cursor: effectiveCursor, limit: 5, sort: commentSort });
+      // If nextCursor exists, paginate with cursor; otherwise exclude all currently rendered top-level comment IDs to prevent skipping newer items
+      const existingIds = localComments.map((c) => c.id).filter(Boolean);
+      const res = await getPostCommentsAction({
+        postId,
+        cursor: nextCursor || undefined,
+        excludeIds: !nextCursor ? existingIds : undefined,
+        limit: 5,
+        sort: commentSort,
+      });
+
       if (res?.success && Array.isArray(res.data)) {
         setLocalComments((prev) => {
-          const existingIds = new Set(prev.map((c) => c.id));
-          const fresh = res.data.filter((c: any) => !existingIds.has(c.id));
+          const currentIdSet = new Set(prev.map((c) => c.id));
+          const fresh = res.data.filter((c: any) => !currentIdSet.has(c.id));
           return [...prev, ...fresh];
         });
         setNextCursor(res.nextCursor);

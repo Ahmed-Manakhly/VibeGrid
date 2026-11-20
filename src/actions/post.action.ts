@@ -666,11 +666,12 @@ export async function getPostLikersAction(postId: string) {
 export async function getPostCommentsAction(params: {
     postId: string;
     cursor?: string;
+    excludeIds?: string[];
     limit?: number;
     sort?: 'recent' | 'oldest' | 'mine';
 }) {
     try {
-        const { postId, cursor, limit = 5, sort = 'recent' } = params;
+        const { postId, cursor, excludeIds, limit = 5, sort = 'recent' } = params;
         const { prisma } = await import("@/shared/infrastructure/prisma");
         const currentUserId = await getDbUserId();
 
@@ -678,6 +679,10 @@ export async function getPostCommentsAction(params: {
             postId,
             parentId: null,
         };
+
+        if (Array.isArray(excludeIds) && excludeIds.length > 0) {
+            whereClause.id = { notIn: excludeIds };
+        }
 
         if (sort === 'mine' && currentUserId) {
             whereClause.OR = [
