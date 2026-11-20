@@ -19,11 +19,11 @@
   },
   "posts": {
     "post_01": {
-      "id": "cmwoqwavv0030o10152l5g32i",
+      "id": "cmwoqx9la004mo101oprxnv6o",
       "authorRef": "user_01",
       "authorId": "6b000b001fd39652032584e5",
       "content": "Excited to launch the new VibeGrid microservice architecture! #tech #microservices #vibegrid",
-      "imageUrl": "http://localhost:9000/vibegrid-media/media/6b000b001fd39652032584e5/ast_2347e0a3-2dbd-4d14-a141-7dd09955cd0f.png",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6b000b001fd39652032584e5/ast_0b40ebab-c756-4c53-a78c-4e081170aa88.png",
       "tags": [
         "tech",
         "microservices",
@@ -31,18 +31,18 @@
       ]
     },
     "post_02": {
-      "id": "cmwoqwb720036o1015y79pdxa",
+      "id": "cmwoqx9vj004so1015gqx2dpi",
       "authorRef": "user_02",
       "authorId": "6b000b011fd39652032584f1",
       "content": "Designing high-performance real-time data streams with Redis & RabbitMQ. #cloud #systemdesign",
-      "imageUrl": "http://localhost:9000/vibegrid-media/media/6b000b011fd39652032584f1/ast_280f102f-db55-4d4e-a588-5e3d82341430.png",
+      "imageUrl": "http://localhost:9000/vibegrid-media/media/6b000b011fd39652032584f1/ast_c2bb1796-cf1e-49e3-844a-b541f35e5eb2.png",
       "tags": [
         "cloud",
         "systemdesign"
       ]
     },
     "post_03": {
-      "id": "cmwoqwbg6003bo101rrjmx2bv",
+      "id": "cmwoqxa4e004xo101t1o0yi1c",
       "authorRef": "user_03",
       "authorId": "6b000b011fd39652032584fd",
       "content": "Automated seeding flow verification in progress. Everything running clean! #testing #automation",
