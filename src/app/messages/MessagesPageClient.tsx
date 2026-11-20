@@ -847,7 +847,7 @@ export function MessagesPageClient() {
                       return next;
                     });
                   }}
-                  className={`w-full p-3.5 flex items-center gap-3.5 text-left transition-all relative border-l-4 cursor-pointer ${
+                  className={`w-full p-3.5 flex items-center gap-3.5 text-left transition-all relative border-l-4 cursor-pointer group ${
                     isActive 
                       ? "bg-accent/15 border-l-primary shadow-sm" 
                       : "border-l-transparent hover:bg-muted/40"
@@ -892,7 +892,7 @@ export function MessagesPageClient() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="size-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                          className="size-7 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
                           onClick={(e) => {
                             e.stopPropagation();
                             setConvToDelete({
@@ -903,7 +903,7 @@ export function MessagesPageClient() {
                           }}
                           title="Delete conversation"
                         >
-                          <Trash2Icon className="size-3" />
+                          <Trash2Icon className="size-3.5" />
                         </Button>
                       </div>
                     </div>
