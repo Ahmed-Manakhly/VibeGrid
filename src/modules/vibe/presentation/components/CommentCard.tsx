@@ -138,6 +138,19 @@ export function CommentCard({
                 });
             }
         }
+        // 3. Real-time solution accepted or unmarked
+        if (
+            latestFeedSignal.type === 'solution_toggled' &&
+            latestFeedSignal.postId === postId
+        ) {
+            if (latestFeedSignal.isSolution) {
+                // If this comment was marked as the solution
+                setIsSolution(latestFeedSignal.commentId === comment.id);
+            } else {
+                // Solution unmarked across the question
+                setIsSolution(false);
+            }
+        }
     }, [latestFeedSignal, postId, comment.id, currentUserId]);
 
     const fetchLiveLikers = async () => {
@@ -334,7 +347,7 @@ export function CommentCard({
                     )}
 
                     {/* Row 2: Social Actions (Like, Reply, View/Hide Replies) */}
-                    <div className="flex items-center gap-2 mt-1 relative">
+                    <div className="flex items-center flex-wrap gap-2 mt-1 relative">
                         {/* Like button for comment / reply with Likers hover popup */}
                         <div
                             ref={likersPopupRef}
@@ -362,7 +375,9 @@ export function CommentCard({
 
                             {/* Who Liked Popup Tooltip */}
                             {showLikersModal && likesCount > 0 && (
-                                <div className="absolute bottom-full left-0 mb-1.5 z-40 min-w-[190px] max-w-[240px] p-2 rounded-xl bg-card/95 border border-border/80 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 pointer-events-auto">
+                                <div className={`absolute bottom-full mb-1.5 z-40 min-w-[190px] max-w-[240px] p-2 rounded-xl bg-card/95 border border-border/80 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 pointer-events-auto ${
+                                    isReply ? "left-0 sm:left-0 -translate-x-12 sm:translate-x-0" : "left-0"
+                                }`}>
                                     <div className="flex items-center justify-between border-b border-border/40 pb-1 mb-1">
                                         <p className="text-[9px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">
                                             Liked by ({likesCount})
@@ -434,7 +449,7 @@ export function CommentCard({
                             <button
                                 type="button"
                                 onClick={() => setShowAllReplies((prev) => !prev)}
-                                className="inline-flex items-center gap-0.5 text-[10px] leading-none whitespace-nowrap font-medium text-accent hover:underline transition-colors"
+                                className="inline-flex items-center gap-0.5 text-[10px] leading-relaxed break-words font-medium text-accent hover:underline transition-colors"
                             >
                                 <span>{showAllReplies ? "Hide older replies" : `View ${localReplies.length - 1} previous ${localReplies.length - 1 === 1 ? "reply" : "replies"}`}</span>
                             </button>

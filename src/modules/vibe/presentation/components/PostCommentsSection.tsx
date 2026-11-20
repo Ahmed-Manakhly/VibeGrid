@@ -11,6 +11,7 @@ import { useSession } from '@/components/auth/SessionProvider';
 import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
 import { getPostCommentsAction, createComment } from '@/actions/post.action';
 import { toast } from '@/components/ui/toast';
+import { useInView } from 'react-intersection-observer';
 
 interface PostCommentsSectionProps {
   postId: string;
@@ -47,6 +48,14 @@ export function PostCommentsSection({
   const [isCommenting, setIsCommenting] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { latestFeedSignal } = useRealtime();
+  const { ref: detailSentinelRef, inView: detailInView } = useInView({ threshold: 0.1 });
+
+  // Detail page infinite scroll sentinel listener
+  useEffect(() => {
+    if (isDetailPage && detailInView && nextCursor && !isLoadingMore) {
+      handleLoadMore();
+    }
+  }, [isDetailPage, detailInView, nextCursor, isLoadingMore]);
 
   // Real-time live comments incoming (like chat message)
   useEffect(() => {
@@ -342,24 +351,27 @@ export function PostCommentsSection({
           </div>
         )}
 
-        {/* Show More Comments Link / Button */}
+        {/* Show More Comments Link / Button (Batching 5 by 5) */}
         {nextCursor ? (
+          <>
+            <button
+              type="button"
+              onClick={handleLoadMore}
+              disabled={isLoadingMore}
+              className="text-xs font-semibold text-accent hover:underline transition-colors block py-1"
+            >
+              {isLoadingMore ? "Loading comments..." : "Show more comments (5 more) ↓"}
+            </button>
+            {isDetailPage && <div ref={detailSentinelRef} className="h-2 w-full" />}
+          </>
+        ) : remainingCommentsCount > 0 ? (
           <button
             type="button"
             onClick={handleLoadMore}
             disabled={isLoadingMore}
             className="text-xs font-semibold text-accent hover:underline transition-colors block py-1"
           >
-            {isLoadingMore ? "Loading comments..." : "Show more comments ↓"}
-          </button>
-        ) : remainingCommentsCount > 0 ? (
-          <button
-            type="button"
-            onClick={handleFetchAllComments}
-            disabled={isLoadingMore}
-            className="text-xs font-semibold text-accent hover:underline transition-colors block py-1"
-          >
-            {isLoadingMore ? "Loading comments..." : `Show all comments (${remainingCommentsCount} more) ↓`}
+            {isLoadingMore ? "Loading comments..." : `Show more comments (${Math.min(5, remainingCommentsCount)} more) ↓`}
           </button>
         ) : !isDetailPage && localComments.length > 5 ? (
           <Link

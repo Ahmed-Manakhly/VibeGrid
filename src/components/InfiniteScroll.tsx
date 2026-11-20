@@ -40,6 +40,22 @@ export function InfiniteScroll({
   const { latestFeedSignal, clearLatestFeedSignal } = useRealtime();
 
   const [prevSearchParams, setPrevSearchParams] = useState(searchParams.toString());
+  const [joinedCommunityIds, setJoinedCommunityIds] = useState<Set<string>>(new Set());
+
+  // Load joined communities if user is authenticated and this is a global feed
+  useEffect(() => {
+    if (!scopedCommunityId && dbUserId) {
+      import("@/actions/community.action").then(({ getUserCommunitiesAction }) => {
+        getUserCommunitiesAction(dbUserId)
+          .then((res) => {
+            if (res.success && Array.isArray(res.data)) {
+              setJoinedCommunityIds(new Set(res.data.map((c: any) => c.id)));
+            }
+          })
+          .catch(() => {});
+      });
+    }
+  }, [scopedCommunityId, dbUserId]);
 
   // Reconcile initialPosts when server revalidates or searchParams change
   useEffect(() => {
@@ -123,9 +139,12 @@ export function InfiniteScroll({
       return;
     }
 
-    // If this feed is global/explore (no scopedCommunityId), do not alert on community-exclusive vibes
+    // If this feed is global/explore (no scopedCommunityId) and the vibe belongs to a community:
+    // Only alert if the viewer is a joined member of that community
     if (!scopedCommunityId && latestFeedSignal.communityId) {
-      return;
+      if (!joinedCommunityIds.has(latestFeedSignal.communityId)) {
+        return;
+      }
     }
 
     if (latestFeedSignal.type === "new_content" || latestFeedSignal.type === "post_updated") {

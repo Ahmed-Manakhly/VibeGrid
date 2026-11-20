@@ -36,6 +36,7 @@ import { DeveloperBadgeList } from "@/modules/social/presentation/components/Dev
 import { Milestone, UserCheck, Users, UserPlus } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { BlockConfirmationDialog } from "@/modules/safety/presentation/components/BlockConfirmationDialog";
+import { ReportUserDialog } from "@/modules/safety/presentation/components/ReportUserDialog";
 import { toast } from "@/components/ui/toast";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
@@ -80,6 +81,7 @@ function ProfilePageClient({
     const isEditRequested = searchParams.get('edit') === 'true' || searchParams.get('complete') === 'true';
     const [showEditDialog, setShowEditDialog] = useState(isEditRequested);
     const [showBlockDialog, setShowBlockDialog] = useState(false);
+    const [showReportDialog, setShowReportDialog] = useState(false);
     const [isBlocking, setIsBlocking] = useState(false);
 
     useEffect(() => {
@@ -188,19 +190,7 @@ function ProfilePageClient({
                                                 variant="ghost"
                                                 size="sm"
                                                 className="flex-1 text-xs text-muted-foreground hover:text-destructive"
-                                                onClick={async () => {
-                                                    const reason = prompt(`Report @${user.username}. Reason (harassment, spam, etc.):`);
-                                                    if (reason) {
-                                                        const { createReportAction } = await import("@/actions/safety.action");
-                                                        const res = await createReportAction({
-                                                            targetType: "USER",
-                                                            targetId: user.id,
-                                                            reason,
-                                                        });
-                                                        if (res.success) toast.success("Report submitted successfully");
-                                                        else toast.error(res.error || "Failed to submit report");
-                                                    }
-                                                }}
+                                                onClick={() => setShowReportDialog(true)}
                                             >
                                                 <ShieldAlertIcon className="size-3 mr-1" />
                                                 Report
@@ -505,6 +495,12 @@ function ProfilePageClient({
                             setIsBlocking(false);
                         }
                     }}
+                />
+                <ReportUserDialog
+                    open={showReportDialog}
+                    onOpenChange={setShowReportDialog}
+                    targetUserId={user.id}
+                    username={user.username}
                 />
             </div>
         </div>

@@ -139,6 +139,7 @@ export class PrismaSocialRepository implements ISocialRepository {
       const matchedUsers = await this.db.user.findMany({
         where: {
           AND: [
+            { role: { not: UserRole.ADMIN } },
             blockedCondition,
             {
               OR: [

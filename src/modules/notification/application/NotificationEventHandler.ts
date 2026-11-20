@@ -15,6 +15,27 @@ export class NotificationEventHandler {
   private async dispatchRealtime(userId: string, notification: any) {
     if (this.cacheService && typeof (this.cacheService as any).publish === "function") {
       try {
+        let creatorName = undefined;
+        let creatorUsername = undefined;
+        if (notification.creator) {
+          creatorName = notification.creator.name;
+          creatorUsername = notification.creator.username;
+        } else if (notification.creatorId) {
+          try {
+            const { prisma } = require("@/shared/infrastructure/di-container");
+            const creator = await prisma.user.findUnique({
+              where: { id: notification.creatorId },
+              select: { name: true, username: true },
+            });
+            if (creator) {
+              creatorName = creator.name;
+              creatorUsername = creator.username;
+            }
+          } catch {
+            // Ignore optional name resolution
+          }
+        }
+
         const payload = JSON.stringify({
           userId,
           notification: {
@@ -22,6 +43,8 @@ export class NotificationEventHandler {
             type: notification.type,
             userId: notification.userId,
             creatorId: notification.creatorId,
+            creatorName,
+            creatorUsername,
             postId: notification.postId,
             commentId: notification.commenttId || notification.commentId,
             communityId: notification.communityId,

@@ -17,9 +17,10 @@ export interface NotificationSignal {
 }
 
 export interface FeedSignal {
-  type: 'new_content' | 'post_deleted' | 'post_updated' | 'comment_added' | 'comment_deleted' | 'like_toggled' | 'comment_like_toggled';
+  type: 'new_content' | 'post_deleted' | 'post_updated' | 'comment_added' | 'comment_deleted' | 'like_toggled' | 'comment_like_toggled' | 'solution_toggled';
   postId?: string;
   commentId?: string;
+  isSolution?: boolean;
   authorId?: string;
   communityId?: string;
   comment?: any;
@@ -236,7 +237,8 @@ export function useRealtimeSocket() {
           }
 
           if (data.type === 'FOLLOW') {
-            toast.success(`🎉 User ${data.creatorId} started following you!`);
+            const followerName = (data as any).creatorName || (data as any).creatorUsername || 'A developer';
+            toast.success(`🎉 ${followerName} started following you!`);
           } else if (data.type === 'LIKE') {
             toast.success(`❤️ Someone liked your post!`);
           } else if (data.type === 'COMMENT') {

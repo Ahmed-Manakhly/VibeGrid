@@ -9,6 +9,7 @@ import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users, Loader2Icon, CheckCh
 import { useEffect, useState, useTransition, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import { 
   markNotificationsAsRead, 
@@ -248,18 +249,29 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
                 }`}
               >
                 <div className="relative shrink-0 mt-0.5">
-                  <Avatar className="size-11 ring-1 ring-border">
-                    <AvatarImage src={notification.creator.image ?? "/avatar.png"} />
-                  </Avatar>
+                  <Link 
+                    href={`/profile/${notification.creator.username}`}
+                    onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                    className="block hover:opacity-85 transition-opacity"
+                    title={`View @${notification.creator.username}'s profile`}
+                  >
+                    <Avatar className="size-11 ring-1 ring-border">
+                      <AvatarImage src={notification.creator.image ?? "/avatar.png"} />
+                    </Avatar>
+                  </Link>
                   {getNotificationBadge(notification.type)}
                 </div>
 
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm leading-snug">
-                      <span className="font-bold text-foreground hover:underline">
+                      <Link
+                        href={`/profile/${notification.creator.username}`}
+                        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                        className="font-bold text-foreground hover:underline"
+                      >
                         {notification.creator.name ?? notification.creator.username}
-                      </span>
+                      </Link>
                       {" "}
                       <span className={!notification.read ? "text-foreground font-medium" : "text-muted-foreground"}>
                         {notification.type === "FOLLOW"

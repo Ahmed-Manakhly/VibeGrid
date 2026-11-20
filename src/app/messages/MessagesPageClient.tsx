@@ -772,6 +772,13 @@ export function MessagesPageClient() {
                   onClick={() => {
                     setActiveConversationId(conv.id);
                     setMobileTab("chat");
+                    // Immediately zero out unread counter in local list upon switching
+                    setConversations((prev) => {
+                      const next = prev.map((c) => (c.id === conv.id ? { ...c, unreadCount: 0 } : c));
+                      const totalUnread = next.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
+                      setUnreadMessagesCount(totalUnread);
+                      return next;
+                    });
                   }}
                   className={`w-full p-3.5 flex items-center gap-3.5 text-left transition-all relative border-l-4 cursor-pointer ${
                     isActive 

@@ -27,6 +27,22 @@ export async function acceptSolutionAction(questionId: string, answerCommentId: 
       await cacheService.delByPattern("timeline:*");
     }
 
+    // Broadcast solution_toggled via Redis realtime:feed
+    try {
+      if (cacheService && typeof (cacheService as any).publish === "function") {
+        const signalPayload = JSON.stringify({
+          type: "solution_toggled",
+          postId: questionId,
+          commentId: answerCommentId,
+          isSolution: true,
+          timestamp: Date.now(),
+        });
+        await (cacheService as any).publish("realtime:feed", signalPayload);
+      }
+    } catch (pubErr: any) {
+      logger.warn("Failed to publish solution_toggled event", { error: pubErr?.message });
+    }
+
     return {
       success: true,
       solvedAt: result.solvedAt,
@@ -58,6 +74,21 @@ export async function unacceptSolutionAction(questionId: string) {
     if (cacheService?.delByPattern) {
       await cacheService.delByPattern("feed:query:*");
       await cacheService.delByPattern("timeline:*");
+    }
+
+    // Broadcast solution_toggled via Redis realtime:feed
+    try {
+      if (cacheService && typeof (cacheService as any).publish === "function") {
+        const signalPayload = JSON.stringify({
+          type: "solution_toggled",
+          postId: questionId,
+          isSolution: false,
+          timestamp: Date.now(),
+        });
+        await (cacheService as any).publish("realtime:feed", signalPayload);
+      }
+    } catch (pubErr: any) {
+      logger.warn("Failed to publish solution_toggled event", { error: pubErr?.message });
     }
 
     return {
