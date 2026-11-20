@@ -865,17 +865,24 @@ export function MessagesPageClient() {
                     )}
                   </Link>
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-col gap-0.5">
-                      <Link
-                        href={`/profile/${other?.username || other?.id}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className={`text-sm truncate hover:underline ${isActive ? "font-bold text-foreground" : "font-semibold text-foreground/90"}`}
-                      >
-                        {other?.name || other?.username || "Developer"}
-                      </Link>
-                      {conv.latestMessage && (
-                        <span className="text-[10px] text-muted-foreground/80 font-mono">
-                          {formatDistanceToNow(new Date(conv.latestMessage.createdAt), { addSuffix: false })} ago
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                        <Link
+                          href={`/profile/${other?.username || other?.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className={`text-sm truncate hover:underline ${isActive ? "font-bold text-foreground" : "font-semibold text-foreground/90"}`}
+                        >
+                          {other?.name || other?.username || "Developer"}
+                        </Link>
+                        {conv.latestMessage && (
+                          <span className="text-[10px] text-muted-foreground/80 font-mono">
+                            {formatDistanceToNow(new Date(conv.latestMessage.createdAt), { addSuffix: false })} ago
+                          </span>
+                        )}
+                      </div>
+                      {hasUnread && (
+                        <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center shrink-0">
+                          {conv.unreadCount}
                         </span>
                       )}
                     </div>
@@ -883,29 +890,22 @@ export function MessagesPageClient() {
                       <p className={`text-xs truncate ${hasUnread ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
                         {ChatMessageParser.getPreviewText(conv.latestMessage?.content)}
                       </p>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {hasUnread && (
-                          <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                            {conv.unreadCount}
-                          </span>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setConvToDelete({
-                              id: conv.id,
-                              name: other?.name || other?.username || "this conversation",
-                            });
-                            setShowDeleteConvModal(true);
-                          }}
-                          title="Delete conversation"
-                        >
-                          <Trash2Icon className="size-3.5" />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-7 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConvToDelete({
+                            id: conv.id,
+                            name: other?.name || other?.username || "this conversation",
+                          });
+                          setShowDeleteConvModal(true);
+                        }}
+                        title="Delete conversation"
+                      >
+                        <Trash2Icon className="size-3.5" />
+                      </Button>
                     </div>
                   </div>
                 </div>
