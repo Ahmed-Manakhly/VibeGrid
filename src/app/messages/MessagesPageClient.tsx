@@ -112,6 +112,13 @@ export function MessagesPageClient() {
   const typingDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const activeConversationIdRef = useRef<string | null>(initialConvId);
+  const processedRealtimeMessageIdsRef = useRef<Set<string>>(new Set());
+
+  // Keep activeConversationIdRef always up to date
+  useEffect(() => {
+    activeConversationIdRef.current = activeConversationId;
+  }, [activeConversationId]);
 
   // Auto-resize textarea as content grows, and reset height when content is cleared
   useEffect(() => {
@@ -466,13 +473,20 @@ export function MessagesPageClient() {
 
   // Handle incoming realtime direct messages
   useEffect(() => {
-    if (!latestDirectMessage) return;
+    if (!latestDirectMessage || !latestDirectMessage.messageId) return;
+
+    // Deduplicate: each unique direct message from socket must only be processed ONCE
+    if (processedRealtimeMessageIdsRef.current.has(latestDirectMessage.messageId)) {
+      return;
+    }
+    processedRealtimeMessageIdsRef.current.add(latestDirectMessage.messageId);
 
     const { conversationId, messageId, senderId, senderName, content: msgContent, createdAt } = latestDirectMessage;
     const isSentByMe = Boolean(senderId && currentUser?.id && senderId === currentUser.id);
+    const currentActiveId = activeConversationIdRef.current;
 
     // If message is for currently open conversation, append to list
-    if (conversationId === activeConversationId) {
+    if (conversationId === currentActiveId) {
       if (!isSentByMe) {
         // Mark as read in server DB immediately for the active conversation
         markConversationAsReadAction(conversationId).catch(() => {});
@@ -500,7 +514,7 @@ export function MessagesPageClient() {
       if (idx !== -1) {
         const updated = [...prev];
         const conv = updated[idx];
-        const isCurrentActive = conversationId === activeConversationId;
+        const isCurrentActive = conversationId === currentActiveId;
         updated[idx] = {
           ...conv,
           updatedAt: new Date(createdAt),
@@ -517,7 +531,7 @@ export function MessagesPageClient() {
         return prev;
       }
     });
-  }, [latestDirectMessage, activeConversationId, currentUser?.id]);
+  }, [latestDirectMessage, currentUser?.id]);
 
   // Handle typing signal from socket
   useEffect(() => {
