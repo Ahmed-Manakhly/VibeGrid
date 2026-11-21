@@ -359,10 +359,12 @@ export default function CreatPost({
                                             <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">Tech Dilemma Poll</span>
                                         </div>
                                         <Select name="pollDurationHours" value={pollDuration} onValueChange={setPollDuration}>
-                                            <SelectTrigger className="w-[110px] h-7 text-xs bg-background/80 border-border/50 font-mono rounded-lg">
+                                            <SelectTrigger className="w-[130px] h-7 text-xs bg-background/80 border-border/50 font-mono rounded-lg">
                                                 <SelectValue placeholder="Duration" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-background border-border/50 font-mono">
+                                                <SelectItem value="5m">⚡ 5 Min (Testing)</SelectItem>
+                                                <SelectItem value="1">1 Hour</SelectItem>
                                                 <SelectItem value="24">24 Hours</SelectItem>
                                                 <SelectItem value="72">3 Days</SelectItem>
                                                 <SelectItem value="168">7 Days</SelectItem>

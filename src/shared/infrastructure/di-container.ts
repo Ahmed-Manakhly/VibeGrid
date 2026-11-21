@@ -209,3 +209,18 @@ export const gitHubRepoRepository = new CachedGitHubRepoRepository(cacheService,
 // Initialize Event Handlers
 export const notificationEventHandler = new NotificationEventHandler(notificationRepository, eventBus, cacheService);
 
+// Background Poll Expiration Watcher (checks every 10 seconds)
+if (typeof window === "undefined") {
+  const globalWithPollTimer = globalThis as typeof globalThis & { __pollExpiryTimer?: NodeJS.Timeout };
+  if (!globalWithPollTimer.__pollExpiryTimer) {
+    globalWithPollTimer.__pollExpiryTimer = setInterval(async () => {
+      try {
+        const { checkAndNotifyExpiredPolls } = await import("@/actions/post.action");
+        await checkAndNotifyExpiredPolls();
+      } catch {
+        // Non-blocking background check
+      }
+    }, 10000);
+  }
+}
+

@@ -11,7 +11,7 @@ export class PrismaPollRepository implements IPollRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
   async createPoll(input: CreatePollInput): Promise<Poll> {
-    const expiresAt = new Date(Date.now() + input.durationHours * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + Math.round(input.durationHours * 60 * 60 * 1000));
 
     const record = await this.prisma.poll.create({
       data: {

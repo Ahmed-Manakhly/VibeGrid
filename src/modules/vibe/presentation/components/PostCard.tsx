@@ -154,7 +154,7 @@ export function PostCard({
           </div>
         </div>
 
-        {(contentText || post.poll || post.techContext || structuredContent.codeBlock) && (
+        {(contentText || post.mediaUrl || post.poll || post.techContext || structuredContent.codeBlock) && (
           <div className="space-y-3">
             {/* 1. Text Content */}
             {contentText ? (

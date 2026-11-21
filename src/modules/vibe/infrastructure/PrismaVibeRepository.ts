@@ -27,7 +27,8 @@ export class PrismaVibeRepository implements IVibeRepository {
     if (data.communityId) postData.communityId = data.communityId;
 
     if (data.poll && data.poll.options && data.poll.options.length >= 2) {
-      const expiresAt = new Date(Date.now() + (data.poll.durationHours || 24) * 60 * 60 * 1000);
+      const durationHours = typeof data.poll.durationHours === 'number' ? data.poll.durationHours : 24;
+      const expiresAt = new Date(Date.now() + Math.round(durationHours * 60 * 60 * 1000));
       postData.postType = "DILEMMA_POLL";
       postData.poll = {
         create: {

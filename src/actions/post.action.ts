@@ -167,7 +167,7 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
     const isPoll = formData.get('isPoll') === 'true' || formData.get('isPoll') === 'on';
     const pollQuestion = formData.get('pollQuestion') as string;
     const pollOptionsRaw = formData.getAll('pollOption') as string[];
-    const pollDurationHours = parseInt(formData.get('pollDurationHours') as string || '24', 10);
+    const pollDurationRaw = ((formData.get('pollDurationHours') as string) || '24').trim();
 
     let pollData: any = undefined;
     if (isPoll) {
@@ -178,10 +178,30 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
         if (validOptions.length < 2) {
             return { success: false, error: 'A poll must have at least 2 non-empty options.' };
         }
+
+        // Strict duplicate option check (case-insensitive)
+        const seenOptions = new Set<string>();
+        for (const opt of validOptions) {
+            const normalized = opt.toLowerCase();
+            if (seenOptions.has(normalized)) {
+                return { success: false, error: `Poll options cannot contain duplicates. "${opt}" is repeated.` };
+            }
+            seenOptions.add(normalized);
+        }
+
+        // Support duration: "5m" = 5 minutes (testing), "1" = 1 hour, "24" = 24 hours, etc.
+        let durationHours = 24;
+        if (pollDurationRaw === '5m' || pollDurationRaw === '5min') {
+            durationHours = 5 / 60; // 5 minutes (0.08333 hours)
+        } else {
+            const parsed = parseFloat(pollDurationRaw);
+            durationHours = isNaN(parsed) || parsed <= 0 ? 24 : parsed;
+        }
+
         pollData = {
             question: pollQuestion.trim(),
             options: validOptions.slice(0, 4),
-            durationHours: isNaN(pollDurationHours) ? 24 : pollDurationHours,
+            durationHours,
         };
         postType = "DILEMMA_POLL";
     }
@@ -224,6 +244,9 @@ export async function createPostFormAction(prevState: any, formData: FormData) {
 //2//to get all posts
 export async function getPosts(params: ExplorePostsCriteria = {}) {
     try {
+        // Opportunistically check and notify any expired polls
+        checkAndNotifyExpiredPolls().catch(() => {});
+
         const userId = params.userId || (await getDbUserId()) || undefined;
 
         // Fetch bidirectional blocked user IDs to filter out blocked posts completely
@@ -561,6 +584,73 @@ export async function deletePost(postId : string){
     }
 }
 
+export async function checkAndNotifyExpiredPolls(): Promise<number> {
+    try {
+        const { prisma } = await import("@/shared/infrastructure/prisma");
+        const { notificationRepository, cacheService } = await import("@/shared/infrastructure/di-container");
+
+        const expiredPolls = await prisma.poll.findMany({
+            where: {
+                expiresAt: { lte: new Date() },
+                expiredNotified: false,
+            },
+            include: {
+                post: {
+                    select: {
+                        authorId: true,
+                        content: true,
+                    },
+                },
+            },
+            take: 20,
+        });
+
+        if (!expiredPolls || expiredPolls.length === 0) return 0;
+
+        for (const poll of expiredPolls) {
+            try {
+                await prisma.poll.update({
+                    where: { id: poll.id },
+                    data: { expiredNotified: true },
+                });
+
+                if (poll.post?.authorId) {
+                    const notif = await notificationRepository.create({
+                        userId: poll.post.authorId,
+                        creatorId: poll.post.authorId,
+                        type: "POLL_EXPIRED" as any,
+                        postId: poll.postId,
+                    });
+
+                    if (cacheService && typeof (cacheService as any).publish === "function") {
+                        const payload = JSON.stringify({
+                            userId: poll.post.authorId,
+                            notification: {
+                                id: notif.id,
+                                type: "POLL_EXPIRED",
+                                userId: poll.post.authorId,
+                                creatorId: poll.post.authorId,
+                                creatorName: "Tech Dilemma",
+                                creatorUsername: "poll",
+                                postId: poll.postId,
+                                isRead: false,
+                                createdAt: new Date().toISOString(),
+                            },
+                        });
+                        await (cacheService as any).publish("realtime:notification", payload);
+                    }
+                }
+            } catch (pErr) {
+                logger.error("Error sending poll expired notification for poll", pErr, { pollId: poll.id });
+            }
+        }
+        return expiredPolls.length;
+    } catch (e) {
+        logger.error("Error in checkAndNotifyExpiredPolls", e);
+        return 0;
+    }
+}
+
 export async function votePollAction(pollId: string, optionId: string) {
     try {
         const userId = await getDbUserId();
@@ -568,12 +658,77 @@ export async function votePollAction(pollId: string, optionId: string) {
             return { success: false, error: 'You must be logged in to vote.' };
         }
 
-        const { pollRepository, cacheService } = await import("@/shared/infrastructure/di-container");
+        const { pollRepository, cacheService, notificationRepository } = await import("@/shared/infrastructure/di-container");
+        const { prisma } = await import("@/shared/infrastructure/prisma");
         const result = await pollRepository.castVote({ pollId, optionId, userId });
 
         // Invalidate cached tallies
         await cacheService.delete(`poll:${pollId}:tallies`);
         revalidatePath('/');
+
+        // Find poll and associated post
+        const pollRecord = await prisma.poll.findUnique({
+            where: { id: pollId },
+            select: {
+                postId: true,
+                post: { select: { authorId: true } },
+            },
+        });
+
+        // Broadcast realtime:feed event for socket synchronization across all viewing clients
+        try {
+            if (cacheService && typeof (cacheService as any).publish === "function") {
+                const signalPayload = JSON.stringify({
+                    type: "poll_voted",
+                    postId: pollRecord?.postId,
+                    pollId,
+                    pollTallies: result.tallies,
+                    timestamp: Date.now(),
+                });
+                await (cacheService as any).publish("realtime:feed", signalPayload);
+            }
+        } catch (feedPubErr: any) {
+            logger.warn("Failed to broadcast poll_voted signal to realtime:feed", { error: feedPubErr?.message });
+        }
+
+        // Deliver notification to poll owner if voter is not the author
+        try {
+            if (pollRecord?.post?.authorId && pollRecord.post.authorId !== userId) {
+                const notif = await notificationRepository.create({
+                    userId: pollRecord.post.authorId,
+                    creatorId: userId,
+                    type: "POLL_VOTE" as any,
+                    postId: pollRecord.postId,
+                });
+
+                if (cacheService && typeof (cacheService as any).publish === "function") {
+                    const voter = await prisma.user.findUnique({
+                        where: { id: userId },
+                        select: { name: true, username: true },
+                    });
+                    const payload = JSON.stringify({
+                        userId: pollRecord.post.authorId,
+                        notification: {
+                            id: notif.id,
+                            type: "POLL_VOTE",
+                            userId: pollRecord.post.authorId,
+                            creatorId: userId,
+                            creatorName: voter?.name,
+                            creatorUsername: voter?.username,
+                            postId: pollRecord.postId,
+                            isRead: false,
+                            createdAt: new Date().toISOString(),
+                        },
+                    });
+                    await (cacheService as any).publish("realtime:notification", payload);
+                }
+            }
+        } catch (notifErr) {
+            logger.error("Failed to deliver poll vote notification", notifErr);
+        }
+
+        // Trigger background check for any expired polls
+        checkAndNotifyExpiredPolls().catch(() => {});
 
         return { success: true, tallies: result.tallies };
     } catch (error: any) {

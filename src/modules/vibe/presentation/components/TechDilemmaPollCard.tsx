@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { BarChart3, CheckCircle2, Clock, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { BarChart3, CheckCircle2, Clock, Trophy, Lock } from "lucide-react";
 import { votePollAction } from "@/actions/post.action";
 import { useSession } from "@/components/auth/SessionProvider";
+import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import { toast } from "@/components/ui/toast";
 
 export interface PollOptionUI {
@@ -22,6 +22,7 @@ export interface PollUI {
   expiresAt: string | Date;
   options: PollOptionUI[];
   votes?: Array<{ userId: string; optionId: string }>;
+  userVotedOptionId?: string | null;
 }
 
 interface TechDilemmaPollCardProps {
@@ -30,39 +31,115 @@ interface TechDilemmaPollCardProps {
 
 export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
   const { user, isAuthenticated } = useSession();
+  const { latestFeedSignal } = useRealtime();
 
-  // Find if current user already voted from initial props
-  const initialVotedOptionId =
-    user && poll.votes
-      ? poll.votes.find((v) => v.userId === user.id)?.optionId || null
-      : null;
+  // Normalize initial options with fallback to Prisma's _count.votes
+  const normalizedInitialOptions = useMemo<PollOptionUI[]>(() => {
+    return (poll.options || []).map((opt: any) => {
+      const count =
+        opt.votesCount !== undefined
+          ? opt.votesCount
+          : (opt._count?.votes ?? 0);
+      return {
+        id: opt.id,
+        text: opt.text,
+        index: opt.index,
+        votesCount: count,
+        percentage: opt.percentage,
+      };
+    });
+  }, [poll.options]);
+
+  // Find if current user already voted from initial props or poll object
+  const initialVotedOptionId = useMemo(() => {
+    if (poll.userVotedOptionId) return poll.userVotedOptionId;
+    if (user && poll.votes && Array.isArray(poll.votes)) {
+      return poll.votes.find((v) => v.userId === user.id)?.optionId || null;
+    }
+    return null;
+  }, [poll.userVotedOptionId, poll.votes, user]);
 
   const [votedOptionId, setVotedOptionId] = useState<string | null>(initialVotedOptionId);
-  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
+  const [options, setOptions] = useState<PollOptionUI[]>(normalizedInitialOptions);
+  const [totalVotes, setTotalVotes] = useState(() =>
+    normalizedInitialOptions.reduce((acc, opt) => acc + (opt.votesCount ?? 0), 0)
+  );
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Calculate initial tallies
-  const expiresDate = new Date(poll.expiresAt);
-  const isExpired = new Date() > expiresDate;
+  // Expiration and countdown state
+  const expiresDate = useMemo(() => new Date(poll.expiresAt), [poll.expiresAt]);
+  const [isExpired, setIsExpired] = useState(() => new Date() >= expiresDate);
+  const [timeStatus, setTimeStatus] = useState<string>("");
 
-  const rawTotalVotes = poll.options.reduce(
-    (acc, opt) => acc + (opt.votesCount ?? 0),
-    0
-  );
+  // Sync state if poll props change (e.g. feed re-fetch)
+  useEffect(() => {
+    setOptions(normalizedInitialOptions);
+    setTotalVotes(
+      normalizedInitialOptions.reduce((acc, opt) => acc + (opt.votesCount ?? 0), 0)
+    );
+  }, [normalizedInitialOptions]);
 
-  const [totalVotes, setTotalVotes] = useState(rawTotalVotes);
-  const [options, setOptions] = useState<PollOptionUI[]>(poll.options);
+  useEffect(() => {
+    if (initialVotedOptionId && !votedOptionId) {
+      setVotedOptionId(initialVotedOptionId);
+    }
+  }, [initialVotedOptionId, votedOptionId]);
+
+  // Realtime socket synchronization for live poll updates
+  useEffect(() => {
+    if (!latestFeedSignal) return;
+    if (
+      latestFeedSignal.type === "poll_voted" &&
+      (latestFeedSignal.pollId === poll.id || latestFeedSignal.postId === (poll as any).postId)
+    ) {
+      if (latestFeedSignal.pollTallies) {
+        setTotalVotes(latestFeedSignal.pollTallies.totalVotes);
+        setOptions(latestFeedSignal.pollTallies.options);
+      }
+    }
+  }, [latestFeedSignal, poll.id]);
+
+  // Realtime countdown and automatic expiration
+  useEffect(() => {
+    const updateExpiry = () => {
+      const now = new Date();
+      if (now >= expiresDate) {
+        setIsExpired(true);
+        setTimeStatus("Poll Closed • Final Results");
+      } else {
+        setIsExpired(false);
+        setTimeStatus(`Ends in ${formatDistanceToNow(expiresDate)}`);
+      }
+    };
+
+    updateExpiry();
+    const interval = setInterval(updateExpiry, 2000); // 2s precision for testing short expiry
+    return () => clearInterval(interval);
+  }, [expiresDate]);
 
   const hasVoted = Boolean(votedOptionId);
   const showResults = hasVoted || isExpired;
+
+  // Compute highest vote count to highlight the winner when closed
+  const maxVotes = useMemo(() => {
+    return Math.max(...options.map((o) => o.votesCount ?? 0), 0);
+  }, [options]);
 
   const handleVote = async (optionId: string) => {
     if (!isAuthenticated) {
       toast.error("Please log in to vote in tech dilemmas.");
       return;
     }
-    if (hasVoted || isExpired) return;
+    if (hasVoted) {
+      toast.info("You have already voted in this dilemma.");
+      return;
+    }
+    if (isExpired) {
+      toast.error("This poll has ended and is closed for voting.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -73,11 +150,15 @@ export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
         setVotedOptionId(optionId);
         setTotalVotes(res.tallies.totalVotes);
         setOptions(res.tallies.options);
+        toast.success("Vote recorded successfully!");
       } else {
         setError(res.error || "Failed to record vote.");
+        toast.error(res.error || "Failed to record vote.");
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+      const msg = err.message || "An unexpected error occurred.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -90,12 +171,20 @@ export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
           <BarChart3 className="size-3.5" />
           <span>Tech Dilemma Poll</span>
         </div>
-        <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-          <Clock className="size-3" />
-          <span>
-            {isExpired
-              ? "Final Results"
-              : `Ends in ${formatDistanceToNow(expiresDate)}`}
+        <div className="flex items-center gap-1 text-[11px] font-mono">
+          {isExpired ? (
+            <Lock className="size-3 text-amber-500" />
+          ) : (
+            <Clock className="size-3 text-muted-foreground" />
+          )}
+          <span
+            className={
+              isExpired
+                ? "text-amber-500 font-semibold"
+                : "text-muted-foreground"
+            }
+          >
+            {timeStatus}
           </span>
         </div>
       </div>
@@ -120,13 +209,16 @@ export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
               : 0;
 
           const isUserVote = votedOptionId === opt.id;
+          const isWinner = isExpired && maxVotes > 0 && count === maxVotes;
 
           if (showResults) {
             return (
               <div
                 key={opt.id}
                 className={`relative overflow-hidden rounded-lg border p-2.5 transition-all ${
-                  isUserVote
+                  isWinner
+                    ? "border-emerald-500/60 bg-emerald-500/10 font-semibold"
+                    : isUserVote
                     ? "border-primary/60 bg-primary/5 font-semibold"
                     : "border-border/60 bg-muted/30"
                 }`}
@@ -134,21 +226,35 @@ export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
                 {/* Progress bar background fill */}
                 <div
                   className={`absolute inset-y-0 left-0 transition-all duration-500 ${
-                    isUserVote ? "bg-primary/20" : "bg-muted-foreground/15"
+                    isWinner
+                      ? "bg-emerald-500/20"
+                      : isUserVote
+                      ? "bg-primary/20"
+                      : "bg-muted-foreground/15"
                   }`}
                   style={{ width: `${percentage}%` }}
                 />
 
                 <div className="relative flex items-center justify-between text-xs gap-2">
                   <span className="flex items-center gap-1.5 truncate">
-                    {isUserVote && (
+                    {isWinner && (
+                      <Trophy className="size-3.5 text-emerald-400 shrink-0" />
+                    )}
+                    {isUserVote && !isWinner && (
                       <CheckCircle2 className="size-3.5 text-primary shrink-0" />
                     )}
                     <span className="truncate">{opt.text}</span>
                   </span>
-                  <span className="font-mono text-xs text-muted-foreground shrink-0 font-medium">
-                    {percentage}%
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0 font-mono text-xs">
+                    {isWinner && (
+                      <span className="text-[10px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                        Winner
+                      </span>
+                    )}
+                    <span className="text-muted-foreground font-medium">
+                      {count} ({percentage}%)
+                    </span>
+                  </div>
                 </div>
               </div>
             );
@@ -159,9 +265,9 @@ export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
             <button
               key={opt.id}
               type="button"
-              disabled={loading}
+              disabled={loading || isExpired}
               onClick={() => handleVote(opt.id)}
-              className="w-full text-left p-2.5 rounded-lg border border-border/70 bg-card hover:border-primary/50 hover:bg-primary/5 transition text-xs font-medium flex items-center justify-between group"
+              className="w-full text-left p-2.5 rounded-lg border border-border/70 bg-card hover:border-primary/50 hover:bg-primary/5 transition text-xs font-medium flex items-center justify-between group disabled:opacity-50"
             >
               <span className="group-hover:text-primary transition">
                 {opt.text}
@@ -176,8 +282,12 @@ export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
         <span>
           {totalVotes} {totalVotes === 1 ? "vote" : "votes"}
         </span>
-        {!showResults && (
+        {isExpired ? (
+          <span className="text-amber-500 font-medium">Voting closed</span>
+        ) : !showResults ? (
           <span className="italic">Click an option to cast your vote</span>
+        ) : (
+          <span className="text-primary font-medium">Vote submitted</span>
         )}
       </div>
     </div>

@@ -201,6 +201,8 @@ enum NotificationType {
   COMMENT
   FOLLOW
   COMMUNITY_JOIN
+  POLL_VOTE
+  POLL_EXPIRED
 }
 
 model Category {
@@ -389,12 +391,13 @@ model DeveloperMilestone {
 }
 
 model Poll {
-  id          String       @id @default(cuid())
-  postId      String       @unique
-  question    String
-  expiresAt   DateTime
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id              String       @id @default(cuid())
+  postId          String       @unique
+  question        String
+  expiresAt       DateTime
+  expiredNotified Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
   post        Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
   options     PollOption[]
   votes       PollVote[]

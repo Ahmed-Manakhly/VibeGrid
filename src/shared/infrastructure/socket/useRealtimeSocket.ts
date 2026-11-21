@@ -17,8 +17,10 @@ export interface NotificationSignal {
 }
 
 export interface FeedSignal {
-  type: 'new_content' | 'post_deleted' | 'post_updated' | 'comment_added' | 'comment_deleted' | 'like_toggled' | 'comment_like_toggled' | 'solution_toggled';
+  type: 'new_content' | 'post_deleted' | 'post_updated' | 'comment_added' | 'comment_deleted' | 'like_toggled' | 'comment_like_toggled' | 'solution_toggled' | 'poll_voted';
   postId?: string;
+  pollId?: string;
+  pollTallies?: any;
   commentId?: string;
   isSolution?: boolean;
   authorId?: string;

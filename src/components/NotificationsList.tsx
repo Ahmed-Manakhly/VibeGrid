@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
-import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users, Loader2Icon, CheckCheck, Trash2 } from "lucide-react";
+import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users, Loader2Icon, CheckCheck, Trash2, BarChart3, Clock } from "lucide-react";
 import { useEffect, useState, useTransition, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
 import { useRouter } from "next/navigation";
@@ -77,6 +77,18 @@ const getNotificationBadge = (type: string) => {
       return (
         <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-background flex items-center justify-center">
           <Users className="size-3 stroke-[2.5]" />
+        </span>
+      );
+    case "POLL_VOTE":
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-violet-600 text-white shadow-md ring-2 ring-background flex items-center justify-center">
+          <BarChart3 className="size-3 stroke-[2.5]" />
+        </span>
+      );
+    case "POLL_EXPIRED":
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-amber-500 text-white shadow-md ring-2 ring-background flex items-center justify-center">
+          <Clock className="size-3 stroke-[2.5]" />
         </span>
       );
     default:
@@ -191,7 +203,7 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
       router.push(`/communities/${notification.community.slug}`);
     } else if (notification.type === "FOLLOW") {
       router.push(`/profile/${notification.creator.username}`);
-    } else if ((notification.type === "LIKE" || notification.type === "COMMENT") && notification.post?.id) {
+    } else if ((notification.type === "LIKE" || notification.type === "COMMENT" || notification.type === "POLL_VOTE" || notification.type === "POLL_EXPIRED") && notification.post?.id) {
       router.push(`/explore/${notification.post.id}`);
     } else {
       router.push(`/profile/${notification.creator.username}`);
@@ -280,6 +292,10 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
                           ? "liked your vibe"
                           : notification.type === "COMMUNITY_JOIN"
                           ? `joined your guild ${notification.community?.name ? `"${notification.community.name}"` : ""}`
+                          : notification.type === "POLL_VOTE"
+                          ? "voted in your tech dilemma poll"
+                          : notification.type === "POLL_EXPIRED"
+                          ? "your tech dilemma poll has closed. Tap to view final results!"
                           : "commented on your vibe"}
                       </span>
                     </p>
@@ -288,7 +304,7 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
                     )}
                   </div>
 
-                  {notification.post && (notification.type === "LIKE" || notification.type === "COMMENT") && (
+                  {notification.post && (notification.type === "LIKE" || notification.type === "COMMENT" || notification.type === "POLL_VOTE" || notification.type === "POLL_EXPIRED") && (
                     <div className="space-y-1.5">
                       <div className="text-xs text-muted-foreground rounded-xl p-2.5 bg-muted/40 border border-border/40 hover:bg-muted/60 transition-colors">
                         <TruncatedLinkifiedText 
