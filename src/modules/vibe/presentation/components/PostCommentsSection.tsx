@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { MentionTextarea } from '@/components/MentionTextarea';
 import { UserAvatar } from '@/components/UserAvatar';
 import { SendIcon, LogInIcon, ImageIcon, XIcon } from 'lucide-react';
 import { CommentCard } from './CommentCard';
@@ -258,11 +258,12 @@ export function PostCommentsSection({
             <div className="flex space-x-3 pb-3 border-b border-border/30">
               <UserAvatar src={user?.image} name={user?.name} className="size-8 flex-shrink-0" />
               <div className="flex-1 space-y-2">
-                <Textarea
+                <MentionTextarea
                   ref={textareaRef}
-                  placeholder="Drop a vibe or share an image..."
+                  placeholder="Drop a vibe or share an image... (type @ to mention)"
                   value={newComment}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
+                  postId={postId}
                   className="min-h-[70px] resize-none bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border text-xs"
                 />
 

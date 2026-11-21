@@ -8,7 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { formatRelativeTime } from "@/lib/utils";
 import { Trash2Icon, ReplyIcon, SendIcon, CheckCircle2, Heart, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { MentionTextarea } from '@/components/MentionTextarea';
 import { useSession } from '@/components/auth/SessionProvider';
 import { acceptSolutionAction, unacceptSolutionAction } from '@/actions/qa.action';
 import { TruncatedLinkifiedText } from '@/components/TruncatedLinkifiedText';
@@ -490,10 +490,11 @@ export function CommentCard({
             {/* Reply Input Box */}
             {showReplyForm && !isReply && (
                 <div className="ml-8 space-y-2 pt-2">
-                    <Textarea
-                        placeholder={`Replying to @${comment.author.username}...`}
+                    <MentionTextarea
+                        placeholder={`Replying to @${comment.author.username}... (type @ to mention)`}
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
+                        postId={comment.postId}
                         className="min-h-[60px] text-xs bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border"
                     />
 

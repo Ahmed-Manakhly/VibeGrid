@@ -7,6 +7,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import { MentionTextarea } from "@/components/MentionTextarea";
 import { Button } from "@/components/ui/button";
 import { ImageIcon, FilmIcon, Loader2Icon, SendIcon, CodeIcon, RocketIcon, BarChart3, Plus, Trash2 } from "lucide-react";
 import { createPostFormAction } from "@/actions/post.action";
@@ -206,9 +207,9 @@ export default function CreatPost({
                                     </Link>
                                     <span className="text-sm font-semibold sm:hidden">{displayName}</span>
                                 </div>
-                                <Textarea 
+                                <MentionTextarea 
                                     name="content"
-                                    placeholder="What's on your mind?" 
+                                    placeholder="What's on your mind? (type @ to mention a developer)" 
                                     value={contentVal} 
                                     onChange={(e) => setContentVal(e.target.value)}
                                     ref={textareaRef}

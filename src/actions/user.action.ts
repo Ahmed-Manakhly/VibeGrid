@@ -94,4 +94,118 @@ export async function toggleFollow(targetUserId: string) {
     }
 }
 
+export interface MentionCandidate {
+    id: string;
+    name: string | null;
+    username: string;
+    image: string | null;
+    badge?: "Author" | "Commenter" | "Following" | "Developer";
+}
+
+export async function getMentionSuggestionsAction(params: {
+    query?: string;
+    postId?: string;
+}): Promise<MentionCandidate[]> {
+    try {
+        const currentUserId = await getDbUserId();
+        const query = (params.query || "").trim().toLowerCase();
+        const { prisma } = await import("@/shared/infrastructure/prisma");
+
+        const candidatesMap = new Map<string, MentionCandidate>();
+
+        // 1. Thread participants (if postId is provided)
+        if (params.postId) {
+            const post = await prisma.post.findUnique({
+                where: { id: params.postId },
+                select: {
+                    author: { select: { id: true, name: true, username: true, image: true } },
+                    comments: {
+                        take: 20,
+                        orderBy: { createdAt: "desc" },
+                        select: {
+                            author: { select: { id: true, name: true, username: true, image: true } },
+                        },
+                    },
+                },
+            });
+
+            if (post?.author && post.author.id !== currentUserId) {
+                candidatesMap.set(post.author.id, {
+                    ...post.author,
+                    badge: "Author",
+                });
+            }
+
+            if (post?.comments) {
+                for (const c of post.comments) {
+                    if (c.author && c.author.id !== currentUserId && !candidatesMap.has(c.author.id)) {
+                        candidatesMap.set(c.author.id, {
+                            ...c.author,
+                            badge: "Commenter",
+                        });
+                    }
+                }
+            }
+        }
+
+        // 2. Friends / Followed users
+        if (currentUserId) {
+            const follows = await prisma.follows.findMany({
+                where: { followerId: currentUserId },
+                take: 30,
+                select: {
+                    following: { select: { id: true, name: true, username: true, image: true } },
+                },
+            });
+
+            for (const f of follows) {
+                if (f.following && !candidatesMap.has(f.following.id)) {
+                    candidatesMap.set(f.following.id, {
+                        ...f.following,
+                        badge: "Following",
+                    });
+                }
+            }
+        }
+
+        // 3. If query is provided, search global users matching query
+        if (query) {
+            const matched = await prisma.user.findMany({
+                where: {
+                    id: currentUserId ? { not: currentUserId } : undefined,
+                    OR: [
+                        { username: { contains: query, mode: "insensitive" } },
+                        { name: { contains: query, mode: "insensitive" } },
+                    ],
+                },
+                take: 10,
+                select: { id: true, name: true, username: true, image: true },
+            });
+
+            for (const u of matched) {
+                if (!candidatesMap.has(u.id)) {
+                    candidatesMap.set(u.id, {
+                        ...u,
+                        badge: "Developer",
+                    });
+                }
+            }
+        }
+
+        let list = Array.from(candidatesMap.values());
+        if (query) {
+            list = list.filter(
+                (c) =>
+                    c.username.toLowerCase().includes(query) ||
+                    (c.name && c.name.toLowerCase().includes(query))
+            );
+        }
+
+        return list.slice(0, 8);
+    } catch (err) {
+        logger.error("Error in getMentionSuggestionsAction", err);
+        return [];
+    }
+}
+
 
