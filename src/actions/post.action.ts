@@ -468,11 +468,11 @@ export async function toggleReGrid(postId : string){
 }
 
 //4//to create a comment or reply
-export async function createComment(postId : string, content : string, parentId?: string){
+export async function createComment(postId : string, content : string, parentId?: string, mediaUrl?: string, mediaType?: string){
     try {
         const userId = await getDbUserId() ;
         if(!userId) return { success: false, error: 'Unauthorized' };
-        if(!content) throw new Error('comment content is required!') ;
+        if(!content?.trim() && !mediaUrl) throw new Error('Comment content or image is required!') ;
 
         const isPolicyAccepted = await isCurrentUserPolicyAccepted();
         if (!isPolicyAccepted) {
@@ -483,7 +483,7 @@ export async function createComment(postId : string, content : string, parentId?
             };
         }
         
-        const result = await addCommentUseCase.execute(postId, userId, content, parentId);
+        const result = await addCommentUseCase.execute(postId, userId, content || '', parentId, mediaUrl, mediaType);
         if (!result.success) {
             return {success : false, error : 'failed to create a comment!'}
         }

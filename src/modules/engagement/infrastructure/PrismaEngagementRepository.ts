@@ -95,7 +95,7 @@ export class PrismaEngagementRepository implements IEngagementRepository {
     }
   }
 
-  async addComment(vibeId: string, userId: string, content: string, parentId?: string): Promise<Result<{ commentId: string; authorId: string, comment: any }>> {
+  async addComment(vibeId: string, userId: string, content: string, parentId?: string, mediaUrl?: string, mediaType?: string): Promise<Result<{ commentId: string; authorId: string, comment: any }>> {
     try {
       const post = await this.db.post.findUnique({
         where: { id: vibeId },
@@ -127,9 +127,15 @@ export class PrismaEngagementRepository implements IEngagementRepository {
           content, 
           authorId: userId, 
           postId: vibeId,
+          ...(mediaUrl ? { mediaUrl } : {}),
+          ...(mediaType ? { mediaType } : {}),
           ...(parentId ? { parentId } : {})
         },
-        include: { author: true }
+        include: {
+          author: { select: { id: true, name: true, username: true, image: true } },
+          likes: { select: { userId: true, user: { select: { id: true, name: true, username: true, image: true } } } },
+          _count: { select: { likes: true } },
+        }
       });
 
       return success({ commentId: newComment.id, authorId: post.authorId, comment: newComment });

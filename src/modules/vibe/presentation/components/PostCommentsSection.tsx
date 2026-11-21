@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { UserAvatar } from '@/components/UserAvatar';
-import { SendIcon, LogInIcon } from 'lucide-react';
+import { SendIcon, LogInIcon, ImageIcon, XIcon } from 'lucide-react';
 import { CommentCard } from './CommentCard';
+import ImageUpload from "@/components/ImageUpload";
 import { useSession } from '@/components/auth/SessionProvider';
 import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
 import { getPostCommentsAction, createComment } from '@/actions/post.action';
@@ -45,6 +46,8 @@ export function PostCommentsSection({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasLoadedInitialBatch, setHasLoadedInitialBatch] = useState(false);
   const [newComment, setNewComment] = useState('');
+  const [commentMediaUrl, setCommentMediaUrl] = useState('');
+  const [showCommentMediaUpload, setShowCommentMediaUpload] = useState(false);
   const [isCommenting, setIsCommenting] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { latestFeedSignal } = useRealtime();
@@ -184,13 +187,14 @@ export function PostCommentsSection({
   };
 
   const handleAddComment = async () => {
-    if (!newComment.trim() || isCommenting) return;
+    if ((!newComment.trim() && !commentMediaUrl) || isCommenting) return;
     const commentText = newComment;
+    const mediaUrl = commentMediaUrl || undefined;
 
     try {
       setIsCommenting(true);
 
-      const result = await createComment(postId, commentText);
+      const result = await createComment(postId, commentText, undefined, mediaUrl);
       if (result?.success && result.comment) {
         toast.success('Comment posted successfully');
         // Place own new comment at top of comments list without duplicating if socket already pushed it
@@ -202,6 +206,8 @@ export function PostCommentsSection({
         });
         onCommentCountChange?.(1);
         setNewComment('');
+        setCommentMediaUrl('');
+        setShowCommentMediaUpload(false);
       } else {
         toast.error(result?.error || 'Failed to create comment!');
         if (result?.requiresPolicy) {
@@ -251,20 +257,46 @@ export function PostCommentsSection({
           ) : (
             <div className="flex space-x-3 pb-3 border-b border-border/30">
               <UserAvatar src={user?.image} name={user?.name} className="size-8 flex-shrink-0" />
-              <div className="flex-1">
+              <div className="flex-1 space-y-2">
                 <Textarea
                   ref={textareaRef}
-                  placeholder="Drop a vibe..."
+                  placeholder="Drop a vibe or share an image..."
                   value={newComment}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)}
                   className="min-h-[70px] resize-none bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border text-xs"
                 />
-                <div className="flex justify-end mt-2">
+
+                {(showCommentMediaUpload || commentMediaUrl) && (
+                  <div className="p-2 border border-border/40 rounded-xl bg-card/40">
+                    <ImageUpload
+                      value={commentMediaUrl}
+                      onChange={(url) => {
+                        setCommentMediaUrl(url);
+                        if (!url) setShowCommentMediaUpload(false);
+                      }}
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowCommentMediaUpload(!showCommentMediaUpload)}
+                    className={`h-7 px-2.5 text-xs gap-1 rounded-lg transition-colors ${
+                      commentMediaUrl ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <ImageIcon className="size-3.5" />
+                    <span>{commentMediaUrl ? "Change Image" : "Image"}</span>
+                  </Button>
+
                   <Button
                     onClick={handleAddComment}
                     size="sm"
                     className="btn-gradient flex items-center gap-1.5 h-7 px-3 text-xs"
-                    disabled={!newComment.trim() || isCommenting}
+                    disabled={(!newComment.trim() && !commentMediaUrl) || isCommenting}
                   >
                     {isCommenting ? (
                       'Dropping...'

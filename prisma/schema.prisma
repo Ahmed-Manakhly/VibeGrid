@@ -110,6 +110,8 @@ enum PostType {
 model Comment {
   id               String          @id @default(cuid())
   content          String
+  mediaUrl         String?
+  mediaType        String?
   authorId         String
   postId           String
   parentId         String?

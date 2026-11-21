@@ -6,13 +6,15 @@ import { toast } from '@/components/ui/toast';
 import { UserAvatar } from '@/components/UserAvatar';
 import { formatDistanceToNow } from 'date-fns';
 import { formatRelativeTime } from "@/lib/utils";
-import { Trash2Icon, ReplyIcon, SendIcon, CheckCircle2, Heart } from 'lucide-react';
+import { Trash2Icon, ReplyIcon, SendIcon, CheckCircle2, Heart, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/components/auth/SessionProvider';
 import { acceptSolutionAction, unacceptSolutionAction } from '@/actions/qa.action';
 import { TruncatedLinkifiedText } from '@/components/TruncatedLinkifiedText';
 import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
+import { PostMediaContainer } from './PostMediaContainer';
+import ImageUpload from '@/components/ImageUpload';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,6 +51,8 @@ export function CommentCard({
 
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [replyContent, setReplyContent] = useState('');
+    const [replyMediaUrl, setReplyMediaUrl] = useState('');
+    const [showReplyMediaUpload, setShowReplyMediaUpload] = useState(false);
     const [isSubmittingReply, setIsSubmittingReply] = useState(false);
     const [localReplies, setLocalReplies] = useState<any[]>(comment.replies || []);
     const [showAllReplies, setShowAllReplies] = useState(false);
@@ -257,13 +261,14 @@ export function CommentCard({
     };
 
     const handleAddReply = async () => {
-        if (!replyContent.trim() || isSubmittingReply) return;
+        if ((!replyContent.trim() && !replyMediaUrl) || isSubmittingReply) return;
         const text = replyContent;
+        const mediaUrl = replyMediaUrl || undefined;
 
         try {
             setIsSubmittingReply(true);
 
-            const result = await createComment(postId, text, comment.id);
+            const result = await createComment(postId, text, comment.id, mediaUrl);
             if (result?.success && result.comment) {
                 toast.success('Reply posted successfully');
                 setLocalReplies((prev) => {
@@ -274,6 +279,8 @@ export function CommentCard({
                 });
                 setShowAllReplies(true);
                 setReplyContent('');
+                setReplyMediaUrl('');
+                setShowReplyMediaUpload(false);
                 setShowReplyForm(false);
             } else {
                 toast.error(result?.error || 'Failed to post reply');
@@ -311,6 +318,12 @@ export function CommentCard({
                     <div className="mt-0.5">
                         <TruncatedLinkifiedText text={comment.content} limit={160} className="text-sm break-words leading-relaxed text-foreground" />
                     </div>
+
+                    {comment.mediaUrl && (
+                        <div className="mt-2 max-w-sm rounded-xl overflow-hidden border border-border/40">
+                            <PostMediaContainer mediaUrl={comment.mediaUrl} mediaType={comment.mediaType || "IMAGE"} className="w-full max-h-60 object-contain rounded-xl" />
+                        </div>
+                    )}
                     
                     {/* Row 1: Solution Status & Author Management Controls */}
                     {(isSolution || (!isReply && isQuestionAuthor)) && (
@@ -483,24 +496,52 @@ export function CommentCard({
                         onChange={(e) => setReplyContent(e.target.value)}
                         className="min-h-[60px] text-xs bg-background border border-border/50 rounded-xl focus-visible:ring-1 focus-visible:ring-border"
                     />
-                    <div className="flex justify-end gap-2">
+
+                    {(showReplyMediaUpload || replyMediaUrl) && (
+                        <div className="p-2 border border-border/40 rounded-xl bg-card/40">
+                            <ImageUpload
+                                value={replyMediaUrl}
+                                onChange={(url) => {
+                                    setReplyMediaUrl(url);
+                                    if (!url) setShowReplyMediaUpload(false);
+                                }}
+                            />
+                        </div>
+                    )}
+
+                    <div className="flex items-center justify-between">
                         <Button
+                            type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => { setShowReplyForm(false); setReplyContent(''); }}
-                            className="text-xs h-7 px-3"
+                            onClick={() => setShowReplyMediaUpload(!showReplyMediaUpload)}
+                            className={`h-7 px-2 text-xs gap-1 rounded-lg ${
+                                replyMediaUrl ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"
+                            }`}
                         >
-                            Cancel
+                            <ImageIcon className="size-3" />
+                            <span>{replyMediaUrl ? "Change Image" : "Image"}</span>
                         </Button>
-                        <Button
-                            size="sm"
-                            onClick={handleAddReply}
-                            disabled={!replyContent.trim() || isSubmittingReply}
-                            className="btn-gradient text-xs h-7 px-3 flex items-center gap-1.5"
-                        >
-                            <SendIcon className="size-3" />
-                            <span>Reply</span>
-                        </Button>
+
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => { setShowReplyForm(false); setReplyContent(''); setReplyMediaUrl(''); setShowReplyMediaUpload(false); }}
+                                className="text-xs h-7 px-3"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={handleAddReply}
+                                disabled={(!replyContent.trim() && !replyMediaUrl) || isSubmittingReply}
+                                className="btn-gradient text-xs h-7 px-3 flex items-center gap-1.5"
+                            >
+                                <SendIcon className="size-3" />
+                                <span>Reply</span>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             )}
