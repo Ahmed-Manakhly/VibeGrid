@@ -1,17 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
-// Regex to capture full URLs for linkification
-const URL_REGEX = /(https?:\/\/[^\s<>"'{}|\\^`]+)/g;
+// Regex to capture full URLs, @mentions, and #hashtags
+const TOKEN_REGEX = /(https?:\/\/[^\s<>"'{}|\\^`]+|@[a-zA-Z0-9_]+|#[a-zA-Z0-9_]+)/g;
 
 /**
- * Render text with detected URLs converted to clickable blue links
+ * Render text with detected URLs, @mentions, and #hashtags converted to interactive links
  */
 export function renderLinkifiedText(text: string, linkClassName = "text-primary hover:underline font-medium break-all") {
   if (!text) return null;
-  const parts = text.split(URL_REGEX);
+  const parts = text.split(TOKEN_REGEX);
+
   return parts.map((part, index) => {
+    if (!part) return null;
+
+    // 1. External or internal HTTP/HTTPS URL
     if (part.match(/^https?:\/\//i)) {
       return (
         <a
@@ -26,6 +31,37 @@ export function renderLinkifiedText(text: string, linkClassName = "text-primary 
         </a>
       );
     }
+
+    // 2. User Mention (@username)
+    if (part.startsWith('@') && part.length > 1) {
+      const username = part.slice(1);
+      return (
+        <Link
+          key={index}
+          href={`/profile/${username}`}
+          onClick={(e) => e.stopPropagation()}
+          className="font-semibold text-primary hover:underline hover:text-primary/80 transition-colors"
+        >
+          {part}
+        </Link>
+      );
+    }
+
+    // 3. Hashtag (#tag)
+    if (part.startsWith('#') && part.length > 1) {
+      const tagSlug = part.slice(1).toLowerCase();
+      return (
+        <Link
+          key={index}
+          href={`/?tag=${tagSlug}`}
+          onClick={(e) => e.stopPropagation()}
+          className="font-medium text-emerald-400 hover:underline hover:text-emerald-300 transition-colors"
+        >
+          {part}
+        </Link>
+      );
+    }
+
     return part;
   });
 }
@@ -42,6 +78,8 @@ interface TruncatedLinkifiedTextProps {
 /**
  * Universal component for rich text across VibeGrid:
  * - Linkifies URLs to blue clickable anchors
+ * - Linkifies @username to developer profile links
+ * - Linkifies #hashtags to taxonomy tag discovery filters
  * - Truncates long text with in-place Show More / Show Less expansion (if enabled)
  */
 export function TruncatedLinkifiedText({
