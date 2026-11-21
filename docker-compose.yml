@@ -13,8 +13,8 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@vibegrid_postgres:5432/${POSTGRES_DB}?schema=public
       - REDIS_URL=redis://:${REDIS_PASSWORD}@vibegrid_redis:6379
       - LOG_DIR=/logs
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     networks:
       vibegrid_net:
         aliases:
