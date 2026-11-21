@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get('code');
 
   const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:3000';
-  const proto = req.headers.get('x-forwarded-proto') || 'http';
+  const proto = host.includes('localhost') ? 'http' : (req.headers.get('x-forwarded-proto') || 'https');
   const clientBaseUrl = `${proto}://${host}`;
 
   if (!code) {
