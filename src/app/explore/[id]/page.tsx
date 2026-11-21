@@ -28,7 +28,8 @@ export async function generateMetadata({ params }: { params: any }) {
   const description = post.content
     ? post.content.slice(0, 160).trim()
     : `Check out this vibe by @${post.author?.username} on VibeGrid.`;
-  const postImage = post.image || post.author?.image;
+  // 1st priority: post attached image, 2nd priority: author avatar, 3rd priority: default OG fallback
+  const postImage = (post as any).mediaUrl || post.image || post.author?.image;
 
   return generatePageMetadata({
     title: `${authorName}: "${titleSnippet}"`,
@@ -62,7 +63,7 @@ export default async function PostPage({ params }: { params: any }) {
     authorAvatar: post.author?.image,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
-    image: post.image,
+    image: (post as any).mediaUrl || post.image,
     likesCount: post._count?.likes,
     commentsCount: post._count?.comments,
   });

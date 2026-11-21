@@ -8,7 +8,7 @@ export const siteConfig = {
   description:
     "Real-time Tech Newsfeed / Developer Pulse. Drop a Vibe, tune in to developer discussions, join tech guilds, and share code snippets.",
   url: process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://www.vibegrid.manakhly.tech",
-  ogImage: "/icon-512.png",
+  ogImage: "/og-image.jpg",
   twitterCard: "summary_large_image" as const,
   twitterSite: "@vibegrid",
   twitterCreator: "@vibegrid",
@@ -204,6 +204,17 @@ export function generatePageMetadata({
       canonical: fullUrl,
     },
     category: siteConfig.category,
+    manifest: "/manifest.json",
+    icons: {
+      icon: [
+        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+        { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      ],
+      apple: [
+        { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      ],
+    },
   };
 }
 
