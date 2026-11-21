@@ -95,10 +95,13 @@ export function MessagesPageClient() {
   const [mobileTab, setMobileTab] = useState<"conversations" | "chat">("conversations");
   const [activeConversationId, setActiveConversationId] = useState<string | null>(initialConvId);
 
-  // Sync mobile tab if an initial conversation ID was passed in query params
+  // Sync mobile tab and active conversation if URL query changes
   useEffect(() => {
+    setActiveConversationId(initialConvId);
     if (initialConvId) {
       setMobileTab("chat");
+    } else {
+      setMobileTab("conversations");
     }
   }, [initialConvId]);
   const [messages, setMessages] = useState<any[]>([]);
@@ -395,6 +398,8 @@ export function MessagesPageClient() {
     if (res.success && res.conversations) {
       setConversations(res.conversations);
       setConvsNextCursor(res.nextCursor || null);
+      const totalUnread = res.conversations.reduce((acc: number, c: any) => acc + (c.unreadCount || 0), 0);
+      setUnreadMessagesCount(totalUnread);
     }
     setLoadingConversations(false);
   };
@@ -526,11 +531,6 @@ export function MessagesPageClient() {
 
     // If message is for currently open conversation, append to list
     if (conversationId === currentActiveId) {
-      if (!isSentByMe) {
-        // Mark as read in server DB immediately for the active conversation
-        markConversationAsReadAction(conversationId).catch(() => {});
-      }
-
       setMessages((prev) => {
         if (prev.some((m) => m.id === messageId)) return prev;
         return [
@@ -714,7 +714,16 @@ export function MessagesPageClient() {
       {/* Mobile/Tablet View Toggle Tabs (< lg) — Full width above columns */}
       <UnifiedTabsBar
         value={mobileTab}
-        onValueChange={(val) => setMobileTab(val as "conversations" | "chat")}
+        onValueChange={(val) => {
+          const nextTab = val as "conversations" | "chat";
+          setMobileTab(nextTab);
+          if (nextTab === "conversations") {
+            setActiveConversationId(null);
+            if (typeof window !== "undefined") {
+              window.history.replaceState(null, "", "/messages");
+            }
+          }
+        }}
         tabs={MESSAGES_MOBILE_TABS}
         className="lg:hidden mb-2"
       />
