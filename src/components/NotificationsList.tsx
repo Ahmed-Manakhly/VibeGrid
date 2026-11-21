@@ -237,16 +237,28 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
       markNotificationsAsRead([notification.id]).catch(console.error);
     }
 
-    // 2. Navigate to the relevant event page (/explore/[id] for vibes, /profile/[username] for follow, /communities/[slug] for community join)
+    // 2. Navigate to the relevant event page:
+    // Community join -> /communities/[slug]
     if (notification.type === "COMMUNITY_JOIN" && notification.community?.slug) {
       router.push(`/communities/${notification.community.slug}`);
-    } else if (notification.type === "FOLLOW") {
-      router.push(`/profile/${notification.creator.username}`);
-    } else if ((notification.type === "LIKE" || notification.type === "COMMENT" || notification.type === "POLL_VOTE" || notification.type === "POLL_EXPIRED") && notification.post?.id) {
-      router.push(`/explore/${notification.post.id}`);
-    } else {
-      router.push(`/profile/${notification.creator.username}`);
+      return;
     }
+
+    // Follow -> /profile/[username]
+    if (notification.type === "FOLLOW") {
+      router.push(`/profile/${notification.creator.username}`);
+      return;
+    }
+
+    // Any post/comment/reply/solution/mention notification -> /explore/[postId]
+    const targetPostId = notification.post?.id || (notification as any).postId;
+    if (targetPostId) {
+      router.push(`/explore/${targetPostId}`);
+      return;
+    }
+
+    // Fallback to creator profile
+    router.push(`/profile/${notification.creator.username}`);
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
