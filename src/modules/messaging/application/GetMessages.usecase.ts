@@ -25,9 +25,6 @@ export class GetMessagesUseCase {
     }
 
     const result = await this.messagingRepo.getMessages(conversationId, limit, beforeCursor, currentUserId);
-    
-    // Automatically mark conversation as read when user fetches messages
-    await this.messagingRepo.markConversationAsRead(conversationId, currentUserId);
 
     return result;
   }
