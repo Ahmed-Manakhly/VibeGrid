@@ -36,7 +36,7 @@ export class EnvConfigRepository {
       imgOriginCsr = process.env.IMG_BASE_CSR_DOCKER_DEV || '';
     } else if (envMode === 'production') {
       apiBaseUrl = process.env.BASE_API_URL_PROD || 'http://vibegrid_api_gateway:8000';
-      publicApiBaseUrl = process.env.BASE_API_URL_DEV || 'http://localhost:8000';
+      publicApiBaseUrl = process.env.PUBLIC_BASE_API_URL_PROD || process.env.NEXT_PUBLIC_API_URL || 'https://api.vibegrid.manakhly.tech';
       imgOriginSsr = process.env.IMG_BASE_SSR_PROD || '';
       imgOriginCsr = process.env.IMG_BASE_CSR_PROD || '';
     } else {
