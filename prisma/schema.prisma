@@ -205,6 +205,11 @@ enum NotificationType {
   COMMUNITY_JOIN
   POLL_VOTE
   POLL_EXPIRED
+  REPLY
+  COMMENT_LIKE
+  REGRID
+  SOLUTION_ACCEPTED
+  MENTION
 }
 
 model Category {

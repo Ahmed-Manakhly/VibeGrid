@@ -122,6 +122,15 @@ export class PrismaEngagementRepository implements IEngagementRepository {
         }
       }
 
+      let parentAuthorId: string | null = null;
+      if (parentId) {
+        const parentComment = await this.db.comment.findUnique({
+          where: { id: parentId },
+          select: { authorId: true },
+        });
+        parentAuthorId = parentComment?.authorId || null;
+      }
+
       const newComment = await this.db.comment.create({
         data: { 
           content, 
@@ -138,7 +147,7 @@ export class PrismaEngagementRepository implements IEngagementRepository {
         }
       });
 
-      return success({ commentId: newComment.id, authorId: post.authorId, comment: newComment });
+      return success({ commentId: newComment.id, authorId: post.authorId, parentAuthorId, comment: newComment });
     } catch (err) {
       return failure(new Error("failed to create comment"));
     }

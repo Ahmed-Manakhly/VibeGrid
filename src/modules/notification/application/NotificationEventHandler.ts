@@ -61,8 +61,11 @@ export class NotificationEventHandler {
 
   private setupListeners() {
     this.eventBus.subscribe("LikeToggledEvent", async (payload: any) => {
-      // Create a LIKE notification for the author
+      // Create a LIKE notification for author (skip if self-like)
       try {
+        if (!payload.authorId || !payload.likerId || payload.authorId === payload.likerId) {
+          return;
+        }
         const created = await this.repo.create({
           userId: payload.authorId,
           creatorId: payload.likerId,
@@ -79,8 +82,11 @@ export class NotificationEventHandler {
     });
 
     this.eventBus.subscribe("CommentAddedEvent", async (payload: any) => {
-      // Create a COMMENT notification for the author
+      // Create a COMMENT notification for the author (skip if self-comment)
       try {
+        if (!payload.authorId || !payload.commenterId || payload.authorId === payload.commenterId) {
+          return;
+        }
         const created = await this.repo.create({
           userId: payload.authorId,
           creatorId: payload.commenterId,
@@ -97,9 +103,55 @@ export class NotificationEventHandler {
       }
     });
 
-    this.eventBus.subscribe("UserFollowedEvent", async (payload: any) => {
-      // Create a FOLLOW notification for the user being followed
+    this.eventBus.subscribe("CommentRepliedEvent", async (payload: any) => {
+      // Create a REPLY notification for the parent comment author (skip if self-reply)
       try {
+        if (!payload.targetUserId || !payload.replierId || payload.targetUserId === payload.replierId) {
+          return;
+        }
+        const created = await this.repo.create({
+          userId: payload.targetUserId,
+          creatorId: payload.replierId,
+          type: NotificationType.REPLY,
+          postId: payload.vibeId,
+          commentId: payload.commentId,
+        });
+        await this.dispatchRealtime(payload.targetUserId, created);
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.info(`[NotificationEventHandler] REPLY notification created and emitted for user ${payload.targetUserId}`);
+      } catch (error) {
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.error("[NotificationEventHandler] Error creating REPLY notification", error);
+      }
+    });
+
+    this.eventBus.subscribe("ReGridCreatedEvent", async (payload: any) => {
+      // Create a REGRID notification for the post author (skip if self-regrid)
+      try {
+        if (!payload.authorId || !payload.regridderId || payload.authorId === payload.regridderId) {
+          return;
+        }
+        const created = await this.repo.create({
+          userId: payload.authorId,
+          creatorId: payload.regridderId,
+          type: NotificationType.REGRID,
+          postId: payload.vibeId,
+        });
+        await this.dispatchRealtime(payload.authorId, created);
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.info(`[NotificationEventHandler] REGRID notification created and emitted for user ${payload.authorId}`);
+      } catch (error) {
+        const { logger } = require("@/shared/infrastructure/di-container");
+        logger.error("[NotificationEventHandler] Error creating REGRID notification", error);
+      }
+    });
+
+    this.eventBus.subscribe("UserFollowedEvent", async (payload: any) => {
+      // Create a FOLLOW notification for the user being followed (skip if self-follow)
+      try {
+        if (!payload.followingId || !payload.followerId || payload.followingId === payload.followerId) {
+          return;
+        }
         const created = await this.repo.create({
           userId: payload.followingId,
           creatorId: payload.followerId,

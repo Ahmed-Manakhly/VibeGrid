@@ -105,6 +105,13 @@ export async function creatPost(
             logger.warn("Failed to publish realtime:feed event to Redis", { error: pubErr?.message });
         }
 
+        // Asynchronously notify any @mentioned developers in the vibe
+        if (result.value?.id && content) {
+            import("@/modules/notification/application/notifyMentionedUsers")
+                .then(({ notifyMentionedUsers }) => notifyMentionedUsers(content, userId, result.value.id))
+                .catch(() => {});
+        }
+
         return {success : true , post: result.value} ; 
     }catch (er: any){
         logger.error('failed to create a post!', er);
@@ -508,6 +515,13 @@ export async function createComment(postId : string, content : string, parentId?
             }
         } catch (cacheErr: any) {
             logger.warn("Failed to invalidate feed cache or publish comment event", { error: cacheErr?.message });
+        }
+
+        // Asynchronously notify any @mentioned developers in the comment
+        if (result.value?.comment?.id && content) {
+            import("@/modules/notification/application/notifyMentionedUsers")
+                .then(({ notifyMentionedUsers }) => notifyMentionedUsers(content, userId, postId, result.value.comment.id))
+                .catch(() => {});
         }
 
         return {success : true , comment: result.value.comment};
@@ -1003,6 +1017,46 @@ export async function toggleCommentLikeAction(commentId: string, postId: string)
             }
         } catch (pubErr: any) {
             logger.warn("Failed to publish comment_like_toggled event", { error: pubErr?.message });
+        }
+
+        // Dispatch COMMENT_LIKE notification when user likes another developer's comment
+        if (hasLiked) {
+            try {
+                const targetComment = await prisma.comment.findUnique({
+                    where: { id: commentId },
+                    select: { authorId: true, postId: true },
+                });
+                if (targetComment && targetComment.authorId && targetComment.authorId !== userId) {
+                    const { notificationRepository, cacheService } = await import("@/shared/infrastructure/di-container");
+                    const notif = await notificationRepository.create({
+                        userId: targetComment.authorId,
+                        creatorId: userId,
+                        type: "COMMENT_LIKE" as any,
+                        postId,
+                        commentId,
+                    });
+                    if (cacheService && typeof (cacheService as any).publish === "function") {
+                        const notifPayload = JSON.stringify({
+                            userId: targetComment.authorId,
+                            notification: {
+                                id: notif.id,
+                                type: "COMMENT_LIKE",
+                                userId: targetComment.authorId,
+                                creatorId: userId,
+                                creatorName: user?.name,
+                                creatorUsername: user?.username,
+                                postId,
+                                commentId,
+                                isRead: false,
+                                createdAt: new Date().toISOString(),
+                            },
+                        });
+                        await (cacheService as any).publish("realtime:notification", notifPayload);
+                    }
+                }
+            } catch (notifErr: any) {
+                logger.warn("Failed to create COMMENT_LIKE notification", { error: notifErr?.message });
+            }
         }
 
         return {

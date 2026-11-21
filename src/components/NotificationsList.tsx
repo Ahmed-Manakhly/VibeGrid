@@ -5,7 +5,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
-import { HeartIcon, MessageCircleIcon, UserPlusIcon, Users, Loader2Icon, CheckCheck, Trash2, BarChart3, Clock } from "lucide-react";
+import { 
+  HeartIcon, 
+  MessageCircleIcon, 
+  UserPlusIcon, 
+  Users, 
+  Loader2Icon, 
+  CheckCheck, 
+  Trash2, 
+  BarChart3, 
+  Clock,
+  CornerDownRight,
+  Repeat,
+  CheckCircle2,
+  AtSign
+} from "lucide-react";
 import { useEffect, useState, useTransition, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
 import { useRouter } from "next/navigation";
@@ -56,6 +70,7 @@ interface NotificationsListProps {
 const getNotificationBadge = (type: string) => {
   switch (type) {
     case "LIKE":
+    case "COMMENT_LIKE":
       return (
         <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-rose-600 text-white shadow-md ring-2 ring-background flex items-center justify-center">
           <HeartIcon className="size-3 fill-current" />
@@ -65,6 +80,30 @@ const getNotificationBadge = (type: string) => {
       return (
         <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-emerald-600 text-white shadow-md ring-2 ring-background flex items-center justify-center">
           <MessageCircleIcon className="size-3 fill-current" />
+        </span>
+      );
+    case "REPLY":
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-indigo-600 text-white shadow-md ring-2 ring-background flex items-center justify-center">
+          <CornerDownRight className="size-3 stroke-[2.5]" />
+        </span>
+      );
+    case "REGRID":
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-sky-500 text-white shadow-md ring-2 ring-background flex items-center justify-center">
+          <Repeat className="size-3 stroke-[2.5]" />
+        </span>
+      );
+    case "SOLUTION_ACCEPTED":
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-emerald-500 text-white shadow-md ring-2 ring-background flex items-center justify-center">
+          <CheckCircle2 className="size-3 stroke-[2.5]" />
+        </span>
+      );
+    case "MENTION":
+      return (
+        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-blue-500 text-white shadow-md ring-2 ring-background flex items-center justify-center">
+          <AtSign className="size-3 stroke-[2.5]" />
         </span>
       );
     case "FOLLOW":
@@ -290,6 +329,16 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
                           ? "started following you"
                           : notification.type === "LIKE"
                           ? "liked your vibe"
+                          : notification.type === "COMMENT_LIKE"
+                          ? "liked your comment"
+                          : notification.type === "REPLY"
+                          ? "replied to your comment"
+                          : notification.type === "REGRID"
+                          ? "re-gridded your vibe"
+                          : notification.type === "SOLUTION_ACCEPTED"
+                          ? "marked your answer as the verified solution! 🏆"
+                          : notification.type === "MENTION"
+                          ? (notification.comment ? "mentioned you in a comment" : "mentioned you in a vibe")
                           : notification.type === "COMMUNITY_JOIN"
                           ? `joined your guild ${notification.community?.name ? `"${notification.community.name}"` : ""}`
                           : notification.type === "POLL_VOTE"
@@ -304,7 +353,17 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
                     )}
                   </div>
 
-                  {notification.post && (notification.type === "LIKE" || notification.type === "COMMENT" || notification.type === "POLL_VOTE" || notification.type === "POLL_EXPIRED") && (
+                  {notification.post && (
+                    notification.type === "LIKE" || 
+                    notification.type === "COMMENT" || 
+                    notification.type === "COMMENT_LIKE" || 
+                    notification.type === "REPLY" || 
+                    notification.type === "REGRID" || 
+                    notification.type === "SOLUTION_ACCEPTED" || 
+                    notification.type === "MENTION" || 
+                    notification.type === "POLL_VOTE" || 
+                    notification.type === "POLL_EXPIRED"
+                  ) && (
                     <div className="space-y-1.5">
                       <div className="text-xs text-muted-foreground rounded-xl p-2.5 bg-muted/40 border border-border/40 hover:bg-muted/60 transition-colors">
                         <TruncatedLinkifiedText 
@@ -313,7 +372,7 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
                           className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
                         />
                       </div>
-                      {notification.type === "COMMENT" && notification.comment && (
+                      {(notification.type === "COMMENT" || notification.type === "REPLY" || notification.type === "COMMENT_LIKE" || notification.type === "SOLUTION_ACCEPTED" || (notification.type === "MENTION" && notification.comment)) && notification.comment && (
                         <div className="text-xs p-2.5 bg-primary/10 border border-primary/20 rounded-xl text-foreground font-medium">
                           <TruncatedLinkifiedText 
                             text={notification.comment.content} 
