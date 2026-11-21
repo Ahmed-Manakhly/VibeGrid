@@ -935,14 +935,6 @@ export function MessagesPageClient() {
           <>
             {/* Header */}
             <div className="p-3 sm:p-4 border-b flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden size-8"
-                onClick={() => setMobileTab("conversations")}
-              >
-                <ArrowLeftIcon className="size-4" />
-              </Button>
               {otherParticipant && (
                 <Link href={`/profile/${otherParticipant.username || otherParticipant.id}`} className="flex items-center gap-3 group min-w-0 flex-1">
                   <div className="relative shrink-0">

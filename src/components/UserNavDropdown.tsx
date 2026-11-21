@@ -10,7 +10,7 @@ import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
 
 export function UserNavDropdown() {
   const { user, logout } = useSession();
-  const { unreadCount } = useRealtime();
+  const { unreadCount, unreadMessagesCount } = useRealtime();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -78,9 +78,16 @@ export function UserNavDropdown() {
             <Link
               href="/messages"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
+              className="flex items-center justify-between px-3 py-2 text-sm rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
             >
-              <MessageSquare className="size-4" /> Messages
+              <div className="flex items-center gap-2.5">
+                <MessageSquare className="size-4" /> Messages
+              </div>
+              {unreadMessagesCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-emerald-500 text-[10px] font-bold text-white shadow-sm">
+                  {unreadMessagesCount > 99 ? '99+' : unreadMessagesCount}
+                </span>
+              )}
             </Link>
             <Link
               href="/communities"

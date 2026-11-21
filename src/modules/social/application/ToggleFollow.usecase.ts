@@ -34,6 +34,8 @@ export class ToggleFollowUseCase {
       const { RedisKeys } = await import("@/shared/infrastructure/cache/RedisKeys");
       const deletes: Promise<any>[] = [
         this.cacheService.delete(`social:suggested:${userId}`).catch(() => {}),
+        this.cacheService.delete(`social:suggested:${targetUserId}`).catch(() => {}),
+        this.cacheService.delete(`social:suggested:anonymous`).catch(() => {}),
         this.cacheService.delete(RedisKeys.user(userId)).catch(() => {}),
         this.cacheService.delete(RedisKeys.user(targetUserId)).catch(() => {}),
       ];
