@@ -14,6 +14,8 @@ export class PrismaProfileRepository implements IProfileRepository {
       },
       select: {
         id: true,
+        email: true,
+        role: true,
         name: true,
         username: true,
         bio: true,

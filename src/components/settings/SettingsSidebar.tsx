@@ -1,18 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, Laptop, Lock, AlertTriangle, Download, ArrowUpRight } from 'lucide-react';
+import { ShieldCheck, Laptop, Lock, Download, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface SettingsSidebarProps {
   user: {
     id: string;
-    email: string;
+    email?: string;
     username: string;
-    role: string;
-    createdAt: Date;
+    name?: string | null;
+    role?: string;
+    bio?: string | null;
+    location?: string | null;
+    website?: string | null;
+    techStack?: any;
+    isPolicyAccepted?: boolean;
+    createdAt: Date | string;
   };
 }
 
@@ -21,6 +27,28 @@ export function SettingsSidebar({ user }: SettingsSidebarProps) {
     month: 'short',
     year: 'numeric',
   });
+
+  const [deviceInfo, setDeviceInfo] = useState<string>('Linux • Verified Web Client');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const ua = navigator.userAgent;
+      let os = 'Linux';
+      if (ua.includes('Win')) os = 'Windows';
+      else if (ua.includes('Mac')) os = 'macOS';
+      else if (ua.includes('Linux')) os = 'Linux';
+      else if (ua.includes('Android')) os = 'Android';
+      else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+      let browser = 'Web Client';
+      if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+      else if (ua.includes('Edg')) browser = 'Edge';
+      else if (ua.includes('Firefox')) browser = 'Firefox';
+      else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+
+      setDeviceInfo(`${os} • ${browser}`);
+    }
+  }, []);
 
   return (
     <aside className="w-full lg:w-80 shrink-0 space-y-6">
@@ -38,12 +66,12 @@ export function SettingsSidebar({ user }: SettingsSidebarProps) {
         <CardContent className="space-y-3 pt-0">
           <div className="flex items-center justify-between py-1.5 border-b border-border/40 text-xs">
             <span className="text-muted-foreground">Auth Provider</span>
-            <span className="font-mono text-foreground font-medium">Session Active</span>
+            <span className="font-mono text-foreground font-medium text-[11px]">JWT • RS256 Active</span>
           </div>
           <div className="flex items-center justify-between py-1.5 border-b border-border/40 text-xs">
             <span className="text-muted-foreground">Role Clearance</span>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
-              {user.role}
+              {user.role || 'USER'}
             </span>
           </div>
           <div className="flex items-center justify-between py-1.5 border-b border-border/40 text-xs">
@@ -79,7 +107,7 @@ export function SettingsSidebar({ user }: SettingsSidebarProps) {
             <div className="min-w-0">
               <p className="font-medium text-foreground">Current Workstation</p>
               <p className="text-[11px] text-muted-foreground truncate">
-                Linux • Verified Web Client
+                {deviceInfo}
               </p>
             </div>
           </div>
@@ -100,13 +128,21 @@ export function SettingsSidebar({ user }: SettingsSidebarProps) {
             size="sm"
             className="w-full justify-start text-xs border-border/60 bg-secondary/30 text-foreground hover:bg-secondary hover:text-foreground active:bg-secondary/80 transition-colors shadow-sm"
             onClick={() => {
-              const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+              const exportPayload = {
                 id: user.id,
-                email: user.email,
+                email: user.email || 'N/A',
                 username: user.username,
-                role: user.role,
+                name: user.name || null,
+                role: user.role || 'USER',
+                bio: user.bio || null,
+                location: user.location || null,
+                website: user.website || null,
+                techStack: user.techStack || null,
+                isPolicyAccepted: Boolean(user.isPolicyAccepted),
+                memberSince: new Date(user.createdAt).toISOString(),
                 exportedAt: new Date().toISOString(),
-              }, null, 2));
+              };
+              const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
               const downloadAnchor = document.createElement('a');
               downloadAnchor.setAttribute("href", dataStr);
               downloadAnchor.setAttribute("download", `vibegrid_account_${user.username}.json`);
@@ -134,4 +170,3 @@ export function SettingsSidebar({ user }: SettingsSidebarProps) {
     </aside>
   );
 }
-
