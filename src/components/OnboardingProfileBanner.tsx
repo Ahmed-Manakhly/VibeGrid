@@ -63,6 +63,7 @@ export function OnboardingProfileBanner() {
     if (typeof window !== 'undefined') {
       window.addEventListener('interests_updated', handleInterestsUpdated);
       window.addEventListener('session_updated', handleInterestsUpdated);
+      window.addEventListener('policy-accepted-success', handleInterestsUpdated);
     }
 
     return () => {
@@ -70,6 +71,7 @@ export function OnboardingProfileBanner() {
       if (typeof window !== 'undefined') {
         window.removeEventListener('interests_updated', handleInterestsUpdated);
         window.removeEventListener('session_updated', handleInterestsUpdated);
+        window.removeEventListener('policy-accepted-success', handleInterestsUpdated);
       }
     };
   }, [shouldFetch, user?.username, user?.bio]);
@@ -192,13 +194,18 @@ export function OnboardingProfileBanner() {
 
               {!isPolicyAccepted && (
                 <div className="flex justify-end pt-1 sm:pt-0">
-                  <Link
-                    href="/settings?tab=policy"
-                    className="btn-gradient inline-flex items-center justify-center gap-1 px-3 py-1 rounded-xl font-semibold text-xs transition-all w-full sm:w-auto shadow-sm"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('open-policy-prompt'));
+                      }
+                    }}
+                    className="btn-gradient inline-flex items-center justify-center gap-1 px-3 py-1 rounded-xl font-semibold text-xs transition-all w-full sm:w-auto shadow-sm cursor-pointer"
                   >
                     <span>Accept</span>
                     <ArrowRight className="size-3" />
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>
