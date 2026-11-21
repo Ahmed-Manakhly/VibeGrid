@@ -450,13 +450,11 @@ export function MessagesPageClient() {
       if (res.success) {
         setMessages(res.messages || []);
         setNextCursor(res.nextCursor || null);
-        // Clear unread indicator locally for active conversation
-        setConversations((prev) => {
-          const next = prev.map((c) => (c.id === activeConversationId ? { ...c, unreadCount: 0 } : c));
-          const totalUnread = next.reduce((acc, c) => acc + (c.unreadCount || 0), 0);
-          setUnreadMessagesCount(totalUnread);
-          return next;
-        });
+        // NOTE: Do NOT zero out unread count here.
+        // Unread clearing must only happen when the user explicitly clicks
+        // a conversation card (handled in the onClick handler below).
+        // Zeroing here would clear badges immediately on URL-param load,
+        // which is the original bug.
 
         // Determine recipient ID directly from detailsRes or conversations
         const targetRecipientId = detailsRes.success && detailsRes.conversation
