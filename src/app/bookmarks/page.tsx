@@ -11,6 +11,13 @@ import { BookmarkIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
+import { generatePageMetadata } from "@/lib/seo";
+
+export const metadata = generatePageMetadata({
+  title: "Bookmarks",
+  description: "Saved developer vibes and code snippets",
+  noIndex: true,
+});
 
 async function BookmarksFeed({ dbUserId }: { dbUserId: string }) {
   const result = await getPosts({

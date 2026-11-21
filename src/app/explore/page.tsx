@@ -13,6 +13,22 @@ import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { Compass } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "../loading";
+import { generatePageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ searchParams }: { searchParams?: Promise<{ q?: string }> | { q?: string } }) {
+  const params = await searchParams;
+  const query = params?.q?.trim();
+  const title = query ? `Search: "${query}" | Explore Discussions` : "Explore Tech Discussions & Developer Vibes";
+  const description = query
+    ? `Search results for "${query}" across developer posts, code snippets, and tech discussions on VibeGrid.`
+    : "Discover trending developer vibes, tech discussions, code snippets, and software engineering debates.";
+
+  return generatePageMetadata({
+    title,
+    description,
+    url: query ? `/explore?q=${encodeURIComponent(query)}` : "/explore",
+  });
+}
 
 async function ExploreFeed({ params, dbUserId }: { params: any, dbUserId: string | null }) {
   const searchQuery = params?.q?.trim();

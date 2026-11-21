@@ -1,10 +1,12 @@
 import { RegisterForm } from '@/modules/auth/presentation/components/RegisterForm';
 import { AuthLayoutWrapper } from '@/components/auth/AuthLayoutWrapper';
+import { generatePageMetadata } from '@/lib/seo';
 
-export const metadata = {
-  title: 'Create Account | VibeGrid',
-  description: 'Join VibeGrid to create, connect, and share signals with your community.',
-};
+export const metadata = generatePageMetadata({
+  title: 'Create Developer Account',
+  description: 'Join VibeGrid to create developer vibes, connect with tech guilds, and share signals with the developer community.',
+  url: '/register',
+});
 
 interface RegisterPageProps {
   searchParams: Promise<{ email?: string; verify?: string }> | { email?: string; verify?: string };

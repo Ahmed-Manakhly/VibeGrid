@@ -7,11 +7,13 @@ import { MyCommunitiesSidebar } from "@/components/community/MyCommunitiesSideba
 import { TrendingSidebar } from "@/components/TrendingSidebar";
 import { PageHeader } from "@/components/PageHeader";
 import { Users } from "lucide-react";
+import { generatePageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Communities | VibeGrid",
-  description: "Developer hubs, tech circles, and builder ecosystems on VibeGrid",
-};
+export const metadata = generatePageMetadata({
+  title: "Developer Communities & Guilds",
+  description: "Discover and join developer communities, tech guilds, and open-source groups on VibeGrid.",
+  url: "/communities",
+});
 
 export default async function CommunitiesPage() {
   const [commResult, taxonomy, dbUserId] = await Promise.all([

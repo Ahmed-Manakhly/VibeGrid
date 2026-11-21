@@ -2,8 +2,15 @@ import { getNotifications } from "@/actions/notification.action";
 import { PageHeader } from "@/components/PageHeader";
 import { NotificationsList } from "@/components/NotificationsList";
 import { Bell } from "lucide-react";
+import { generatePageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = generatePageMetadata({
+  title: "Notifications",
+  description: "Developer activity, mentions, and notifications on VibeGrid",
+  noIndex: true,
+});
 
 export default async function NotificationsPage() {
   const result = await getNotifications({ limit: 12 });

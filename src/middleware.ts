@@ -61,12 +61,39 @@ export default async function middleware(req: NextRequest) {
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set('x-request-id', requestId);
 
-  // 0. Bypass static assets & Next.js internals
+  const lowerPathname = pathname.toLowerCase();
+
+  // 0.1 Edge Normalization: Casing redirect for search engine crawlers (/ROBOTS.TXT, /Sitemap.xml)
+  if (
+    (lowerPathname === '/robots.txt' && pathname !== '/robots.txt') ||
+    (lowerPathname === '/sitemap.xml' && pathname !== '/sitemap.xml') ||
+    (lowerPathname === '/manifest.json' && pathname !== '/manifest.json')
+  ) {
+    const canonicalUrl = req.nextUrl.clone();
+    canonicalUrl.pathname = lowerPathname;
+    return NextResponse.redirect(canonicalUrl, 301);
+  }
+
+  // 0.2 Canonical Path Redirect Shield (Legacy / Misspelled routes)
+  if (lowerPathname === '/posts' || lowerPathname === '/post') {
+    const canonicalUrl = req.nextUrl.clone();
+    canonicalUrl.pathname = '/explore';
+    return NextResponse.redirect(canonicalUrl, 301);
+  }
+  if (lowerPathname === '/community' || lowerPathname === '/guilds' || lowerPathname === '/guild') {
+    const canonicalUrl = req.nextUrl.clone();
+    canonicalUrl.pathname = '/communities';
+    return NextResponse.redirect(canonicalUrl, 301);
+  }
+
+  // 0.3 Bypass static assets & Next.js internals
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname.includes('.') ||
-    pathname === '/favicon.ico'
+    pathname === '/favicon.ico' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml'
   ) {
     const res = NextResponse.next({ request: { headers: requestHeaders } });
     res.headers.set('x-request-id', requestId);

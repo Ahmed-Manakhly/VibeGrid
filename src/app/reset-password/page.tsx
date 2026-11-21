@@ -1,11 +1,13 @@
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
 import { AuthLayoutWrapper } from '@/components/auth/AuthLayoutWrapper';
 import { Suspense } from 'react';
+import { generatePageMetadata } from '@/lib/seo';
 
-export const metadata = {
-  title: 'Reset Password | VibeGrid',
+export const metadata = generatePageMetadata({
+  title: 'Reset Password',
   description: 'Enter your OTP code and new password to restore account access.',
-};
+  noIndex: true,
+});
 
 export default function ResetPasswordPage() {
   return (

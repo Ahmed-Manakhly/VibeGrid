@@ -7,6 +7,11 @@ import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { CommunityMembersSidebar } from "@/components/community/CommunityMembersSidebar";
 import { MyCommunitiesSidebar } from "@/components/community/MyCommunitiesSidebar";
 import { TrendingSidebar } from "@/components/TrendingSidebar";
+import {
+  generatePageMetadata,
+  getCommunityStructuredData,
+  getBreadcrumbStructuredData,
+} from "@/lib/seo";
 
 interface CommunityPageProps {
   params: Promise<{
@@ -18,15 +23,19 @@ export async function generateMetadata({ params }: CommunityPageProps) {
   const { slug } = await params;
   const result = await getCommunityBySlugAction(slug);
   if (!result.success || !result.data) {
-    return {
-      title: "Community Not Found | VibeGrid",
-    };
+    return generatePageMetadata({
+      title: "Community Not Found",
+      noIndex: true,
+    });
   }
 
-  return {
-    title: `${result.data.name} | VibeGrid Community`,
-    description: result.data.description || `Developer hub for ${result.data.name} on VibeGrid`,
-  };
+  const community = result.data;
+  return generatePageMetadata({
+    title: `${community.name} Guild & Developer Hub`,
+    description: community.description || `Developer hub and guild for ${community.name} on VibeGrid.`,
+    image: community.bannerUrl || community.avatarUrl,
+    url: `/communities/${slug}`,
+  });
 }
 
 export default async function CommunitySlugPage({ params }: CommunityPageProps) {
@@ -61,30 +70,60 @@ export default async function CommunitySlugPage({ params }: CommunityPageProps) 
   const initialMembers = membersRes.success && membersRes.data ? membersRes.data : [];
   const categories = taxonomy?.categories || [];
 
+  const communityStructuredData = getCommunityStructuredData({
+    name: community.name,
+    slug: community.slug,
+    description: community.description,
+    avatarUrl: community.avatarUrl,
+    bannerUrl: community.bannerUrl,
+    memberCount: community._count?.members,
+    createdAt: community.createdAt,
+  });
+
+  const breadcrumbsStructuredData = getBreadcrumbStructuredData([
+    { name: "Home", url: "/" },
+    { name: "Communities", url: "/communities" },
+    { name: community.name, url: `/communities/${community.slug}` },
+  ]);
+
   return (
-    <MobileTabsLayout
-      feed={
-        <CommunitySpaceView
-          community={community}
-          initialPosts={initialPosts}
-          initialMembers={initialMembers}
-          dbUserId={dbUserId}
-          categories={categories}
+    <>
+      {communityStructuredData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(communityStructuredData) }}
         />
-      }
-      discovery={
-        <>
-          {community.isMember && (
-            <CommunityMembersSidebar
-              communityName={community.name}
-              members={initialMembers}
-              currentUserId={dbUserId}
-            />
-          )}
-          <MyCommunitiesSidebar userId={dbUserId} />
-          <TrendingSidebar />
-        </>
-      }
-    />
+      )}
+      {breadcrumbsStructuredData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsStructuredData) }}
+        />
+      )}
+      <MobileTabsLayout
+        feed={
+          <CommunitySpaceView
+            community={community}
+            initialPosts={initialPosts}
+            initialMembers={initialMembers}
+            dbUserId={dbUserId}
+            categories={categories}
+          />
+        }
+        discovery={
+          <>
+            {community.isMember && (
+              <CommunityMembersSidebar
+                communityName={community.name}
+                members={initialMembers}
+                currentUserId={dbUserId}
+              />
+            )}
+            <MyCommunitiesSidebar userId={dbUserId} />
+            <TrendingSidebar />
+          </>
+        }
+      />
+    </>
   );
 }

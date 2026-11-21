@@ -1,11 +1,13 @@
 import { Suspense } from "react";
 import { MessagesPageClient } from "./MessagesPageClient";
 import { Loader2Icon } from "lucide-react";
+import { generatePageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Messages | VibeGrid",
+export const metadata = generatePageMetadata({
+  title: "Messages",
   description: "Direct messaging between developers on VibeGrid",
-};
+  noIndex: true,
+});
 
 export default function MessagesPage() {
   return (

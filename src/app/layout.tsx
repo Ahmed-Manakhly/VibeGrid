@@ -14,6 +14,7 @@ import { bootstrap } from "@/lib/bootstrap";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { RootMainWrapper } from "@/components/RootMainWrapper";
 import { RealtimeProvider } from "@/shared/infrastructure/socket/RealtimeProvider";
+import { generatePageMetadata, getOrganizationStructuredData } from "@/lib/seo";
 
 bootstrap(); // Runs once on server startup
 
@@ -33,15 +34,19 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "VibeGrid",
-  description: "Real-time Tech Newsfeed / Developer Pulse. Drop a Vibe and Tune In.",
-};
+export const metadata: Metadata = generatePageMetadata();
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(getOrganizationStructuredData()),
+          }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${jetBrainsMono.variable} antialiased font-mono`} suppressHydrationWarning={true}>
         <SessionProvider>
           <RealtimeProvider>

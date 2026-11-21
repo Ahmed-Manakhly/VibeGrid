@@ -1,10 +1,12 @@
 import { LoginForm } from '@/modules/auth/presentation/components/LoginForm';
 import { AuthLayoutWrapper } from '@/components/auth/AuthLayoutWrapper';
+import { generatePageMetadata } from '@/lib/seo';
 
-export const metadata = {
-  title: 'Log In | VibeGrid',
-  description: 'Log in to your VibeGrid account to access your signal, profile, and community.',
-};
+export const metadata = generatePageMetadata({
+  title: 'Log In',
+  description: 'Log in to your VibeGrid account to access developer discussions, guilds, and code snippets.',
+  url: '/login',
+});
 
 interface LoginPageProps {
   searchParams: Promise<{ callbackUrl?: string }> | { callbackUrl?: string };

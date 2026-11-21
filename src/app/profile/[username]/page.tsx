@@ -14,16 +14,29 @@ import { notFound, redirect } from "next/navigation"; // not found fun from next
 import { trustSafetyRepository } from "@/shared/infrastructure/di-container";
 //-----------------
 import ProfilePageClient from "./ProfilePageClient";
+import {
+    generatePageMetadata,
+    getProfileStructuredData,
+    getBreadcrumbStructuredData,
+} from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> | { username: string } }) {
     const resolvedParams = await params;
     const user = await getProfileByUsername(resolvedParams.username);
-    if (!user) return;
+    if (!user) {
+        return generatePageMetadata({
+            title: "Developer Not Found",
+            noIndex: true,
+        });
+    }
 
-    return {
-        title: `${user.name ?? user.username}`, // show the name if ex, or use he isername instead
-        description: user.bio || `Check out ${user.username}'s profile.`, // if there is bio show it else show check ex-user profile
-    };
+    return generatePageMetadata({
+        title: `${user.name || user.username} (@${user.username})`,
+        description: user.bio || `Developer profile of ${user.name || user.username} on VibeGrid. Tune in to projects and contributions.`,
+        image: user.image,
+        url: `/profile/${user.username}`,
+        type: "profile",
+    });
 } //setting the meta tags based on the profile of the user
 
 async function ProfilePageServer({ params }: { params: Promise<{ username: string }> | { username: string } }) {
@@ -63,17 +76,45 @@ async function ProfilePageServer({ params }: { params: Promise<{ username: strin
         })(),
     ]);
 
+    const profileStructuredData = getProfileStructuredData({
+        username: user.username,
+        name: user.name,
+        bio: user.bio,
+        avatarUrl: user.image,
+        website: user.website,
+    });
+
+    const breadcrumbsStructuredData = getBreadcrumbStructuredData([
+        { name: "Home", url: "/" },
+        { name: "Developers", url: "/explore" },
+        { name: `@${user.username}`, url: `/profile/${user.username}` },
+    ]);
+
     return (
-        <ProfilePageClient
-        user={user}
-        postsResult={postsResult}
-        likedPostsResult={likedPostsResult}
-        isFollowing={isCurrentUserFollowing}
-        initialMilestones={initialMilestones}
-        userCommunities={userCommunities}
-        initialFollowers={followersRes.success ? followersRes.data : []}
-        initialFollowing={followingRes.success ? followingRes.data : []}
-        />
+        <>
+            {profileStructuredData && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(profileStructuredData) }}
+                />
+            )}
+            {breadcrumbsStructuredData && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsStructuredData) }}
+                />
+            )}
+            <ProfilePageClient
+                user={user}
+                postsResult={postsResult}
+                likedPostsResult={likedPostsResult}
+                isFollowing={isCurrentUserFollowing}
+                initialMilestones={initialMilestones}
+                userCommunities={userCommunities}
+                initialFollowers={followersRes.success ? followersRes.data : []}
+                initialFollowing={followingRes.success ? followingRes.data : []}
+            />
+        </>
     );
 }
 export default ProfilePageServer;
