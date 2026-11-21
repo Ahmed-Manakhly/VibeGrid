@@ -231,3 +231,4 @@ export const MentionTextarea = forwardRef<HTMLTextAreaElement, MentionTextareaPr
 );
 
 MentionTextarea.displayName = 'MentionTextarea';
+
