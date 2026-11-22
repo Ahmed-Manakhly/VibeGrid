@@ -19,7 +19,7 @@ const { HttpClient } = require('../shared/http');
 const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
 const SESSION_PATH = path.join(__dirname, '..', 'session_state.json');
 const FLOW_SESSION_PATH = path.join(__dirname, 'session_state.json');
-const FIXTURE_PATH = path.join(__dirname, '..', 'fixtures', 'sample_test.png');
+const FIXTURES_DIR = path.join(__dirname, '..', 'fixtures');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -55,7 +55,13 @@ async function runPostsMediaFlow() {
   const inputData = loadInput();
   const sessionData = loadSession();
   const env = inputData.env || { BFF_URL: 'http://localhost:3000/api', THROTTLE_MS: 300 };
-  const bffUrl = env.BFF_URL || 'http://localhost:3000/api';
+
+  // URL VAR FOR LOCAL (Host native / localhost)
+  // BFF_URL="http://localhost:3000/api"
+  // URL VAR FOR PROD (Container network / VPS)
+  // BFF_URL="https://www.vibegrid.manakhly.tech/api"
+  const bffUrl = process.env.API_URL || process.env.BFF_URL || env.BFF_URL || env.API_URL || 'http://localhost:3000/api';
+  console.log(`📡 Ingress API Target: ${bffUrl}`);
 
   // 1. Validate Prerequisite State
   const seedUsers = inputData.users || [];
@@ -118,15 +124,20 @@ async function runPostsMediaFlow() {
       continue;
     }
 
-    // Optional Media Upload
+    // Optional Real Media Upload
     let imageUrl = '';
-    if (pConfig.mediaFixture && fs.existsSync(FIXTURE_PATH)) {
-      console.log(`   📷 Uploading media fixture (${pConfig.mediaFixture})...`);
-      const fileBuf = fs.readFileSync(FIXTURE_PATH);
-      
+    const fixtureFileName = pConfig.mediaFixture || 'tech_feed_01.jpg';
+    const fixturePath = path.join(FIXTURES_DIR, fixtureFileName);
+
+    if (pConfig.mediaFixture && fs.existsSync(fixturePath)) {
+      console.log(`   📷 Uploading media fixture (${fixtureFileName})...`);
+      const fileBuf = fs.readFileSync(fixturePath);
+      const ext = path.extname(fixtureFileName).toLowerCase();
+      const mimeType = ext === '.png' ? 'image/png' : (ext === '.webp' ? 'image/webp' : 'image/jpeg');
+
       // Upload Intent
       const intentRes = await authorClient.post('/media/upload-intent', {
-        mimeType: 'image/png',
+        mimeType,
         fileSizeBytes: fileBuf.length,
         purpose: 'post_media',
       });
@@ -139,7 +150,7 @@ async function runPostsMediaFlow() {
           try {
             await fetch(uploadUrl, {
               method: 'PUT',
-              headers: { 'Content-Type': 'image/png' },
+              headers: { 'Content-Type': mimeType },
               body: fileBuf,
             });
           } catch (e) {

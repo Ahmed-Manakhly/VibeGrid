@@ -12,10 +12,44 @@
  * ==========================================================
  */
 
+const path = require('path');
+const fs = require('fs');
+
+// Try loading .env from root or cwd
+const candidateEnvPaths = [
+  path.resolve(__dirname, '../../.env'),
+  path.resolve(process.cwd(), '.env'),
+];
+for (const envPath of candidateEnvPaths) {
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+    break;
+  }
+}
+
 const { PrismaClient } = require('@prisma/client');
 const { execSync } = require('child_process');
 const Redis = require('ioredis');
-const prisma = new PrismaClient();
+
+// URL VAR FOR LOCAL (Host native / localhost)
+// DATABASE_URL="postgresql://vibegrid:secret@localhost:5432/vibegrid_db?schema=public"
+// REDIS_URL="redis://:secret@localhost:6379"
+// URL VAR FOR PROD (Container network / VPS)
+// DATABASE_URL="postgresql://vibegrid:secret@vibegrid_postgres:5432/vibegrid_db?schema=public"
+// REDIS_URL="redis://:secret@vibegrid_redis:6379"
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.error('❌ DATABASE_URL not found in .env');
+  process.exit(1);
+}
+
+const redisUrl = process.env.REDIS_URL;
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: { url: databaseUrl },
+  },
+});
 
 const confirmed = process.argv.includes('--confirm');
 
@@ -83,12 +117,13 @@ async function cleanAll() {
 
   // Invalidate Redis cache & Next.js cache
   try {
-    const redisUrl = process.env.REDIS_URL || 'redis://:VgRedis_R2026%23m4%24ZpQ%219wKx@localhost:6379';
-    const redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 1 });
-    await redis.connect();
-    await redis.flushdb();
-    console.log('   🧹 Flushed all Redis cache keys (feed, taxonomy, recommendations, suggestions)');
-    await redis.quit();
+    if (redisUrl) {
+      const redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 1 });
+      await redis.connect();
+      await redis.flushdb();
+      console.log('   🧹 Flushed all Redis cache keys (feed, taxonomy, recommendations, suggestions)');
+      await redis.quit();
+    }
   } catch (err) {
     console.warn(`   ⚠️ Notice: Redis cache flush skipped (${err.message})`);
   }

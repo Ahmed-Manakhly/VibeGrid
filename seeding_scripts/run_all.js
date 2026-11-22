@@ -19,6 +19,7 @@
 
 const { execSync } = require('child_process');
 const path = require('path');
+const config = require('./shared/config');
 
 const BASE = path.join(__dirname);
 
@@ -40,7 +41,15 @@ const requestedIds = args.filter((a) => /^\d{2}$/.test(a));
 function run(scriptPath) {
   const full = path.join(BASE, scriptPath);
   try {
-    execSync(`node "${full}"`, { stdio: 'inherit' });
+    execSync(`node "${full}"`, {
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        API_URL: config.apiUrl,
+        BFF_URL: config.apiUrl,
+        SEED_ENV: config.targetEnv,
+      },
+    });
   } catch (err) {
     console.error(`\n❌ Step failed: ${scriptPath}`);
     process.exit(1);
@@ -60,6 +69,7 @@ if (requestedIds.length > 0) {
 if (isReset) {
   console.log('╔════════════════════════════════════════════════════════╗');
   console.log('║  VibeGrid Seeding — FULL RESET (Reverse Order)         ║');
+  console.log(`║  Target: [${config.targetEnv.toUpperCase()}] ${config.apiUrl.padEnd(41)}║`);
   console.log('╚════════════════════════════════════════════════════════╝');
   const resetFlows = [...targetFlows].reverse();
   resetFlows.forEach((f, idx) => {
@@ -70,6 +80,7 @@ if (isReset) {
 } else {
   console.log('╔════════════════════════════════════════════════════════╗');
   console.log('║  VibeGrid Standalone HTTP Seeding — Orchestration      ║');
+  console.log(`║  Target: [${config.targetEnv.toUpperCase()}] ${config.apiUrl.padEnd(41)}║`);
   console.log('╚════════════════════════════════════════════════════════╝');
   targetFlows.forEach((f, idx) => {
     console.log(`\n[${idx + 1}/${targetFlows.length}] 🚀 Flow ${f.id}: ${f.name}`);

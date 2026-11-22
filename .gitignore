@@ -37,6 +37,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Seeding temporary session state
+# Seeding configuration & temporary session state
+seeding_scripts/.env
+seeding_scripts/.env.*
+!seeding_scripts/.env.example
 seeding_scripts/**/session_state.json
 seeding_scripts/session_state.json

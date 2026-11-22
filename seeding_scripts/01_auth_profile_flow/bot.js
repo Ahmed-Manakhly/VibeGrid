@@ -15,12 +15,32 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+
+// Try loading .env from root or cwd
+const candidateEnvPaths = [
+  path.resolve(__dirname, '../../.env'),
+  path.resolve(process.cwd(), '.env'),
+];
+for (const envPath of candidateEnvPaths) {
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+    break;
+  }
+}
+
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
+let prisma = null;
+try {
+  prisma = new PrismaClient();
+} catch (e) {
+  console.warn('⚠️ PrismaClient initialization notice:', e.message);
+}
 
+const ROOT_INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
+const LOCAL_INPUT_PATH = path.join(__dirname, 'data_input.json');
+const INPUT_PATH = fs.existsSync(ROOT_INPUT_PATH) ? ROOT_INPUT_PATH : LOCAL_INPUT_PATH;
 const REFERENCE_PATH = path.join(__dirname, 'data_reference.json');
-const INPUT_PATH = path.join(__dirname, 'data_input.json');
 const SESSION_PATH = path.join(__dirname, 'session_state.json');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -45,15 +65,16 @@ function saveSession(sessionData) {
 }
 
 async function verifyEmailViaApi(apiUrl, email) {
+  const seedOtp = process.env.SEED_OTP || process.env.FIXED_SEED_OTP || '123456';
   try {
     const res = await fetch(`${apiUrl}/auth/verify-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, otp: '123456', code: '123456' }),
+      body: JSON.stringify({ email, otp: seedOtp, code: seedOtp }),
     });
     const data = await res.json();
     if (res.ok) {
-      console.log(`   ✓ Email verified via API with fixed OTP`);
+      console.log(`   ✓ Email verified via API with seed OTP (${seedOtp})`);
     } else {
       console.warn(`   ⚠️ Email verification response:`, data);
     }
@@ -66,9 +87,16 @@ async function runAuthProfileFlow() {
   console.log('🚀 FLOW 01: Auth & Profile Seeding starting...\n');
 
   const queueData = loadQueue();
-  const env = queueData.env || { API_URL: 'http://localhost:8000/api', THROTTLE_MS: 300 };
-  const users = queueData.users || [];
+  const env = queueData.env || { API_URL: 'http://localhost:3000/api', BFF_URL: 'http://localhost:3000/api', THROTTLE_MS: 300 };
 
+  // URL VAR FOR LOCAL (Host native / localhost)
+  // BFF_URL="http://localhost:3000/api"
+  // URL VAR FOR PROD (Container network / VPS)
+  // BFF_URL="https://www.vibegrid.manakhly.tech/api"
+  const bffUrl = process.env.API_URL || process.env.BFF_URL || env.BFF_URL || env.API_URL || 'http://localhost:3000/api';
+  console.log(`📡 Ingress API Target: ${bffUrl}`);
+
+  const users = queueData.users || [];
   const sessions = {};
 
   for (const userConfig of users) {
@@ -77,7 +105,7 @@ async function runAuthProfileFlow() {
 
     // Step 1: Register User via HTTP API
     try {
-      const regRes = await fetch(`${env.API_URL}/auth/register`, {
+      const regRes = await fetch(`${bffUrl}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,13 +131,13 @@ async function runAuthProfileFlow() {
       }
     }
 
-    // Step 2: Verify email via HTTP API using fixed OTP (123456)
-    await verifyEmailViaApi(env.API_URL, email);
+    // Step 2: Verify email via HTTP API using fixed dev OTP (123456)
+    await verifyEmailViaApi(bffUrl, email);
 
     // Step 3: Login via HTTP API to authenticate and get session token
     let loginData = null;
     try {
-      const loginRes = await fetch(`${env.API_URL}/auth/login`, {
+      const loginRes = await fetch(`${bffUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -128,42 +156,47 @@ async function runAuthProfileFlow() {
     }
 
     const authUserId = loginData.user.id;
-
-    // Step 4: Bootstrap & Populate PostgreSQL User Profile
-    const existingPgUser = await prisma.user.findFirst({
-      where: { OR: [{ id: authUserId }, { email }, { username: profile.username }] },
-    });
-
     let finalUsername = profile.username;
 
-    if (existingPgUser) {
-      // Update profile
-      await prisma.user.update({
-        where: { id: existingPgUser.id },
-        data: {
-          name: profile.name,
-          username: profile.username,
-          bio: profile.bio,
-          location: profile.location,
-          website: profile.website,
-        },
-      });
-      finalUsername = existingPgUser.username;
-      console.log(`   ✓ Updated existing profile for ${profile.username}`);
-    } else {
-      // Create profile
-      await prisma.user.create({
-        data: {
-          id: authUserId,
-          email,
-          name: profile.name,
-          username: profile.username,
-          bio: profile.bio,
-          location: profile.location,
-          website: profile.website,
-        },
-      });
-      console.log(`   ✓ Created new profile for ${profile.username}`);
+    // Step 4: Bootstrap & Populate PostgreSQL User Profile (if DB is directly reachable)
+    if (prisma) {
+      try {
+        const existingPgUser = await prisma.user.findFirst({
+          where: { OR: [{ id: authUserId }, { email }, { username: profile.username }] },
+        });
+
+        if (existingPgUser) {
+          // Update profile
+          await prisma.user.update({
+            where: { id: existingPgUser.id },
+            data: {
+              name: profile.name,
+              username: profile.username,
+              bio: profile.bio,
+              location: profile.location,
+              website: profile.website,
+            },
+          });
+          finalUsername = existingPgUser.username;
+          console.log(`   ✓ Updated existing profile for ${profile.username}`);
+        } else {
+          // Create profile
+          await prisma.user.create({
+            data: {
+              id: authUserId,
+              email,
+              name: profile.name,
+              username: profile.username,
+              bio: profile.bio,
+              location: profile.location,
+              website: profile.website,
+            },
+          });
+          console.log(`   ✓ Created new profile for ${profile.username}`);
+        }
+      } catch (dbErr) {
+        console.log(`   ℹ Note: Direct Prisma profile enrichment skipped (${dbErr.message}). Profile bootstrapped via BFF.`);
+      }
     }
 
     sessions[userConfig.id] = {
@@ -187,5 +220,7 @@ runAuthProfileFlow()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    if (prisma) {
+      await prisma.$disconnect().catch(() => {});
+    }
   });

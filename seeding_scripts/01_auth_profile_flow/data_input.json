@@ -1,7 +1,7 @@
 {
   "_comment": "MASTER REFERENCE — Flow 01 Auth & Profile Data. Copy to data_input.json on reset.",
   "env": {
-    "API_URL": "http://localhost:8000/api",
+    "API_URL": "http://localhost:3000/api",
     "BFF_URL": "http://localhost:3000/api",
     "THROTTLE_MS": 300
   },

@@ -1,7 +1,7 @@
 {
   "_comment": "MASTER SEEDING INPUT CONTRACT — VibeGrid Standalone HTTP Seeding",
   "env": {
-    "API_URL": "http://localhost:8000/api",
+    "API_URL": "http://localhost:3000/api",
     "BFF_URL": "http://localhost:3000/api",
     "THROTTLE_MS": 300
   },
@@ -52,20 +52,21 @@
       "authorRef": "user_01",
       "content": "Excited to launch the new VibeGrid microservice architecture! #tech #microservices #vibegrid",
       "tags": ["tech", "microservices", "vibegrid"],
-      "mediaFixture": "sample_test.png"
+      "mediaFixture": "tech_feed_01.jpg"
     },
     {
       "id": "post_02",
       "authorRef": "user_02",
       "content": "Designing high-performance real-time data streams with Redis & RabbitMQ. #cloud #systemdesign",
       "tags": ["cloud", "systemdesign"],
-      "mediaFixture": "sample_test.png"
+      "mediaFixture": "tech_feed_02.jpg"
     },
     {
       "id": "post_03",
       "authorRef": "user_03",
       "content": "Automated seeding flow verification in progress. Everything running clean! #testing #automation",
-      "tags": ["testing", "automation"]
+      "tags": ["testing", "automation"],
+      "mediaFixture": "tech_feed_03.jpg"
     }
   ],
   "socialGraph": [
@@ -85,5 +86,59 @@
       { "userRef": "user_03", "postRef": "post_01", "content": "Verified from test runner! Looks rock solid." },
       { "userRef": "user_01", "postRef": "post_02", "content": "Redis stampede protection is working smoothly." }
     ]
-  }
+  },
+  "communities": [
+    {
+      "slug": "frontend-architects",
+      "name": "Frontend Architects",
+      "description": "Discussions on macro frontend architecture, micro-frontends, rendering patterns, Next.js performance, and high-signal design systems.",
+      "techTags": ["react", "nextjs", "typescript", "tailwind", "architecture"],
+      "rules": [
+        "Share production benchmarks and reproducible profiling traces.",
+        "Constructive technical debates on component boundaries.",
+        "No low-effort framework flame wars."
+      ]
+    },
+    {
+      "slug": "ai-engineers",
+      "name": "AI Engineers & Autonomous Agents",
+      "description": "Building production LLM agents, evals, vector pipelines, RAG topologies, and autonomous coding assistant workflows.",
+      "techTags": ["ai", "llm", "agents", "gemini", "rag", "typescript"],
+      "rules": [
+        "Focus on real agent architectures, evals, and system prompts.",
+        "Document token latency and cost trade-offs.",
+        "Open source and reproducible workflows encouraged."
+      ]
+    },
+    {
+      "slug": "rust-systems",
+      "name": "Rust & Low-Level Systems",
+      "description": "Memory safety, zero-cost abstractions, WebAssembly runtimes, high-throughput network engines, and kernel primitives.",
+      "techTags": ["rust", "systems", "wasm", "performance", "embedded"],
+      "rules": [
+        "Focus on idiomatic Rust, zero-copy pipelines, and unsafe audit notes.",
+        "Benchmarks must include compiler flags and target hardware."
+      ]
+    },
+    {
+      "slug": "devops-cloud-native",
+      "name": "DevOps & Cloud Native Tribe",
+      "description": "Infrastructure as code, Kubernetes topologies, container networks, GitOps pipelines, and zero-downtime reliability engineering.",
+      "techTags": ["devops", "kubernetes", "docker", "terraform", "ci-cd"],
+      "rules": [
+        "IaC configurations must follow immutable infrastructure principles.",
+        "Incident retrospectives and resilience patterns welcomed."
+      ]
+    },
+    {
+      "slug": "open-source-builders",
+      "name": "Open Source Builders",
+      "description": "Sharing open source releases, RFCs, governance models, maintainer playbooks, and collaborating on developer tools.",
+      "techTags": ["oss", "github", "maintainers", "community", "tools"],
+      "rules": [
+        "Show your work: link repositories with active READMEs and licenses.",
+        "Foster welcoming contributor onboarding."
+      ]
+    }
+  ]
 }

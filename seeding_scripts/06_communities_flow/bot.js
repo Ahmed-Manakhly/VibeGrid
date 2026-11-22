@@ -3,8 +3,38 @@
  * Seeds 5 foundational developer guilds with tags, rules, and initial memberships
  */
 
+const path = require('path');
+const fs = require('fs');
+
+// Try loading .env from root or cwd
+const candidateEnvPaths = [
+  path.resolve(__dirname, '../../.env'),
+  path.resolve(process.cwd(), '.env'),
+];
+for (const envPath of candidateEnvPaths) {
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+    break;
+  }
+}
+
 const { PrismaClient, CommunityRole } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+// URL VAR FOR LOCAL (Host native / localhost)
+// DATABASE_URL="postgresql://vibegrid:secret@localhost:5432/vibegrid_db?schema=public"
+// URL VAR FOR PROD (Container network / VPS)
+// DATABASE_URL="postgresql://vibegrid:secret@vibegrid_postgres:5432/vibegrid_db?schema=public"
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.error('❌ DATABASE_URL not found in .env');
+  process.exit(1);
+}
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: { url: databaseUrl },
+  },
+});
 
 const FOUNDATIONAL_COMMUNITIES = [
   {
@@ -61,16 +91,36 @@ const FOUNDATIONAL_COMMUNITIES = [
   },
 ];
 
+const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
+
+function loadCommunities() {
+  if (fs.existsSync(INPUT_PATH)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(INPUT_PATH, 'utf8'));
+      if (Array.isArray(data.communities) && data.communities.length > 0) {
+        return data.communities;
+      }
+    } catch (_) {}
+  }
+  return FOUNDATIONAL_COMMUNITIES;
+}
+
 async function seedCommunities() {
   console.log('🌱 [Flow 06] Seeding foundational developer communities...');
 
+  const communities = loadCommunities();
+
   // 1. Get or create a seed admin creator user
-  let creator = await prisma.user.findFirst();
+  const adminEmail = process.env.ADMIN_EMAIL;
+  let creator = adminEmail ? await prisma.user.findUnique({ where: { email: adminEmail } }) : await prisma.user.findFirst();
+  if (!creator) {
+    creator = await prisma.user.findFirst();
+  }
   if (!creator) {
     console.log('   Creating fallback creator user for communities...');
     creator = await prisma.user.create({
       data: {
-        email: 'creator@vibegrid.dev',
+        email: adminEmail || 'admin@vibegrid.manakhly.tech',
         username: 'guild_master',
         name: 'Guild Master',
         bio: 'Founding curator of VibeGrid developer communities.',
@@ -78,7 +128,7 @@ async function seedCommunities() {
     });
   }
 
-  for (const item of FOUNDATIONAL_COMMUNITIES) {
+  for (const item of communities) {
     const community = await prisma.community.upsert({
       where: { slug: item.slug },
       update: {

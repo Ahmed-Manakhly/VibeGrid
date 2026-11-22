@@ -50,7 +50,7 @@ export class EnvConfigRepository {
 
     // Browser client connects to same-origin in prod (wss://domain/socket.io/), or publicApiBaseUrl in dev
     const realtimeUrl = isProd
-      ? ''
+      ? (typeof window !== 'undefined' ? window.location.origin : '')
       : (publicApiBaseUrl || 'http://localhost:8000');
 
     return {

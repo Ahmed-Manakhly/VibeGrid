@@ -53,7 +53,12 @@ async function runSocialGraphFlow() {
   const inputData = loadInput();
   const sessionData = loadSession();
   const env = inputData.env || { BFF_URL: 'http://localhost:3000/api', THROTTLE_MS: 300 };
-  const bffUrl = env.BFF_URL || 'http://localhost:3000/api';
+  // URL VAR FOR LOCAL (Host native / localhost)
+  // BFF_URL="http://localhost:3000/api"
+  // URL VAR FOR PROD (Container network / VPS)
+  // BFF_URL="https://www.vibegrid.manakhly.tech/api"
+  const bffUrl = process.env.API_URL || process.env.BFF_URL || env.BFF_URL || env.API_URL || 'http://localhost:3000/api';
+  console.log(`📡 Ingress API Target: ${bffUrl}`);
 
   // 1. Validate Prerequisite State
   const seedUsers = inputData.users || [];

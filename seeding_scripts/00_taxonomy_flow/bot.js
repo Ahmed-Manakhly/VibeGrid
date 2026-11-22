@@ -11,11 +11,43 @@
  * ============================================================
  */
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 const fs = require('fs');
 const path = require('path');
+
+// Try loading .env from root or cwd
+const candidateEnvPaths = [
+  path.resolve(__dirname, '../../.env'),
+  path.resolve(process.cwd(), '.env'),
+];
+for (const envPath of candidateEnvPaths) {
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+    break;
+  }
+}
+
+const { PrismaClient } = require('@prisma/client');
 const Redis = require('ioredis');
+
+// URL VAR FOR LOCAL (Host native / localhost)
+// DATABASE_URL="postgresql://vibegrid:secret@localhost:5432/vibegrid_db?schema=public"
+// REDIS_URL="redis://:secret@localhost:6379"
+// URL VAR FOR PROD (Container network / VPS)
+// DATABASE_URL="postgresql://vibegrid:secret@vibegrid_postgres:5432/vibegrid_db?schema=public"
+// REDIS_URL="redis://:secret@vibegrid_redis:6379"
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.error('❌ DATABASE_URL not found in .env');
+  process.exit(1);
+}
+
+const redisUrl = process.env.REDIS_URL;
+
+const prisma = new PrismaClient({
+  datasources: {
+    db: { url: databaseUrl },
+  },
+});
 
 const REFERENCE_PATH = path.join(__dirname, 'data_reference.json');
 const INPUT_PATH = path.join(__dirname, 'data_input.json');
@@ -43,7 +75,10 @@ function saveQueue(data) {
 }
 
 async function invalidateTaxonomyCache() {
-  const redisUrl = process.env.REDIS_URL || 'redis://:VgRedis_R2026%23m4%24ZpQ%219wKx@localhost:6379';
+  if (!redisUrl) {
+    console.warn('   ⚠️ Notice: REDIS_URL not set in .env. Skipping Redis cache flush.');
+    return;
+  }
   let redis = null;
   try {
     redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 1 });
