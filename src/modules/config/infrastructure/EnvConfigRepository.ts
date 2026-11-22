@@ -48,8 +48,10 @@ export class EnvConfigRepository {
     const cleanCsr = imgOriginCsr ? (imgOriginCsr.endsWith('/') ? imgOriginCsr : `${imgOriginCsr}/`) : '';
     const imgOrigin = isServer ? cleanSsr : cleanCsr;
 
-    // Browser client connects to publicApiBaseUrl (http://localhost:8000 in dev, domain in prod)
-    const realtimeUrl = publicApiBaseUrl || 'http://localhost:8000';
+    // Browser client connects to same-origin in prod (wss://domain/socket.io/), or publicApiBaseUrl in dev
+    const realtimeUrl = isProd
+      ? ''
+      : (publicApiBaseUrl || 'http://localhost:8000');
 
     return {
       apiBaseUrl,
