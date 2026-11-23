@@ -94,14 +94,38 @@ async function runAuthProfileFlow() {
 
   // Pre-fetch available categories via Public HTTP (GET /api/feed/filters) for interest mapping
   let categoryMap = {};
+  let validCategoryIds = new Set();
+  const TOPIC_ALIASES = {
+    cloud: 'devops',
+    systems: 'system-design',
+    system: 'system-design',
+    ai: 'ai-ml',
+    ml: 'ai-ml',
+    databases: 'database',
+    architecture: 'system-design',
+    cleanarchitecture: 'system-design',
+    rust: 'tech',
+    performance: 'system-design',
+    apis: 'backend',
+    api: 'backend',
+    react: 'frontend',
+    nextjs: 'frontend',
+    kubernetes: 'devops',
+    realtime: 'tech',
+    distributed: 'system-design',
+    leadership: 'culture',
+    management: 'business',
+  };
+
   try {
     const filterRes = await fetch(`${bffUrl}/feed/filters`);
     if (filterRes.ok) {
       const filterData = await filterRes.json();
       const catList = filterData.categories || [];
       for (const cat of catList) {
-        categoryMap[cat.slug] = cat.id;
-        categoryMap[cat.name] = cat.id;
+        validCategoryIds.add(cat.id);
+        categoryMap[cat.slug.toLowerCase()] = cat.id;
+        categoryMap[cat.name.toLowerCase()] = cat.id;
         categoryMap[cat.id] = cat.id;
       }
     }
@@ -235,18 +259,27 @@ async function runAuthProfileFlow() {
 
     // Step 5: Assign Category Interests via HTTP API if provided
     const interests = userConfig.interests || profile.interests || [];
-    if (interests.length > 0) {
+    if (interests.length > 0 && validCategoryIds.size > 0) {
       try {
-        const targetCategoryIds = interests
-          .map((item) => categoryMap[item] || item)
-          .filter(Boolean);
+        const resolvedIds = interests
+          .map((item) => {
+            const raw = String(item).toLowerCase().trim();
+            const alias = TOPIC_ALIASES[raw] || raw;
+            const id = categoryMap[alias] || categoryMap[raw] || (validCategoryIds.has(item) ? item : null);
+            return id;
+          })
+          .filter((id) => id && validCategoryIds.has(id));
 
-        if (targetCategoryIds.length > 0) {
+        const uniqueCategoryIds = Array.from(new Set(resolvedIds));
+
+        if (uniqueCategoryIds.length > 0) {
           const intRes = await userClient.put('/social/interests', {
-            categoryIds: targetCategoryIds,
+            categoryIds: uniqueCategoryIds,
           });
           if (intRes.ok) {
-            console.log(`   ✓ Assigned ${targetCategoryIds.length} topic interest(s) for ${profile.username}`);
+            console.log(`   ✓ Assigned ${uniqueCategoryIds.length} topic interest(s) for ${profile.username}`);
+          } else {
+            console.warn(`   ⚠️ Interest update notice (${intRes.status}):`, intRes.data);
           }
         }
       } catch (intErr) {

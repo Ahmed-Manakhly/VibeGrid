@@ -13,8 +13,8 @@
       "name": "Omar Farooq",
       "interests": [
         "devops",
-        "cloud",
-        "systems"
+        "system-design",
+        "tech"
       ],
       "profile": {
         "name": "Omar Farooq",
@@ -31,9 +31,9 @@
       "password": "Password#2026!",
       "name": "Sarah Chen",
       "interests": [
-        "ai",
-        "systems",
-        "cloud"
+        "ai-ml",
+        "system-design",
+        "tech"
       ],
       "profile": {
         "name": "Sarah Chen",
@@ -50,9 +50,9 @@
       "password": "Password#2026!",
       "name": "Youssef El-Sayed",
       "interests": [
-        "rust",
-        "systems",
-        "performance"
+        "tech",
+        "system-design",
+        "backend"
       ],
       "profile": {
         "name": "Youssef El-Sayed",
@@ -69,9 +69,9 @@
       "password": "Password#2026!",
       "name": "Elena Rostova",
       "interests": [
-        "react",
-        "nextjs",
-        "frontend"
+        "frontend",
+        "design",
+        "tech"
       ],
       "profile": {
         "name": "Elena Rostova",
@@ -89,8 +89,8 @@
       "name": "Noah Mansour",
       "interests": [
         "devops",
-        "cloud",
-        "kubernetes"
+        "system-design",
+        "tech"
       ],
       "profile": {
         "name": "Noah Mansour",
@@ -107,9 +107,9 @@
       "password": "Password#2026!",
       "name": "Maya Lin",
       "interests": [
-        "architecture",
         "database",
-        "cloud"
+        "system-design",
+        "backend"
       ],
       "profile": {
         "name": "Maya Lin",
@@ -126,9 +126,9 @@
       "password": "Password#2026!",
       "name": "Zaid Al-Harbi",
       "interests": [
-        "architecture",
-        "cleanarchitecture",
-        "backend"
+        "backend",
+        "system-design",
+        "database"
       ],
       "profile": {
         "name": "Zaid Al-Harbi",
@@ -146,8 +146,8 @@
       "name": "Tariq Hassan",
       "interests": [
         "security",
-        "realtime",
-        "systems"
+        "devops",
+        "tech"
       ],
       "profile": {
         "name": "Tariq Hassan",
@@ -163,7 +163,7 @@
     {
       "id": "post_01",
       "authorRef": "user_01",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Automated Autonomous Agent Workflows: Building self-healing DAG orchestrators with dependency execution loops and token evaluation gates. #ai #agents #automation #architecture",
       "tags": [
         "ai",
@@ -177,7 +177,7 @@
     {
       "id": "post_02",
       "authorRef": "user_02",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Human-in-the-Loop AI vs Fully Autonomous Assembly: Why automated software factories still require structured Breakpoint checkpoints before production merges. #ai #systemdesign #humanintheloop",
       "tags": [
         "ai",
@@ -190,7 +190,7 @@
     {
       "id": "post_03",
       "authorRef": "user_03",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Automated Static Analysis & Neural AST Inspection: Catching memory leaks and concurrency race conditions in real-time before staging deployment. #ai #codequality #compilers #algorithms",
       "tags": [
         "ai",
@@ -204,7 +204,7 @@
     {
       "id": "post_04",
       "authorRef": "user_04",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Designing Spatial & Reactive UI Systems: Moving beyond flat dashboards into real-time observability telemetry and WebSocket live streaming. #frontend #observability #realtime #ui",
       "tags": [
         "frontend",
@@ -218,7 +218,7 @@
     {
       "id": "post_05",
       "authorRef": "user_02",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Hardware Acceleration & On-Device Embeddings: Moving from cloud API latency to local edge quantized models for instant semantic search. #ai #hardware #edge #performance",
       "tags": [
         "ai",
@@ -232,7 +232,7 @@
     {
       "id": "post_06",
       "authorRef": "user_01",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Network Isolation in Multi-Tenant Microservices: Docker internal network bridging vs host port exposure. Why binding only to internal networks eliminates port collisions. #docker #microservices #devops #networking",
       "tags": [
         "docker",
@@ -246,7 +246,7 @@
     {
       "id": "post_07",
       "authorRef": "user_03",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Developer productivity setup: Dual 4K vertical displays for terminal logs + horizontal IDE for Clean Architecture refactoring. #developer #setup #productivity #coding",
       "tags": [
         "developer",
@@ -260,7 +260,7 @@
     {
       "id": "post_08",
       "authorRef": "user_04",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "The modern engineering spectrum: SRE, DevOps, Frontend Architect, and AI Engineer. How our specialized team boundaries eliminate cognitive overload. #teamwork #engineering #culture #developers",
       "tags": [
         "teamwork",
@@ -274,7 +274,7 @@
     {
       "id": "post_09",
       "authorRef": "user_04",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "The Modern Frontend Toolchain in 2026: Balancing Next.js App Router, Tailwind design tokens, and TypeScript strict mode without bundle bloat. #frontend #react #nextjs #typescript",
       "tags": [
         "frontend",
@@ -288,7 +288,7 @@
     {
       "id": "post_10",
       "authorRef": "user_04",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Design System Inception: Conducted our cross-functional UI workshop mapping out dual-mode semantic tokens (light & dark parity) for VibeGrid. #designsystem #uiux #figma #collaboration",
       "tags": [
         "designsystem",
@@ -302,7 +302,7 @@
     {
       "id": "post_11",
       "authorRef": "user_05",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Sprint Retrospective: Migrating from chaotic sprints to strict Kitch PM vertical slicing. 100% test coverage and zero regressions in this release! #agile #sprint #engineering #management",
       "tags": [
         "agile",
@@ -316,7 +316,7 @@
     {
       "id": "post_12",
       "authorRef": "user_06",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Late night debugging session: Tracing an insidious Redis cache stampede under synthetic load. Singleflight mutex locking resolved the P99 latency spike! #redis #concurrency #debugging #performance",
       "tags": [
         "redis",
@@ -330,7 +330,7 @@
     {
       "id": "post_13",
       "authorRef": "user_07",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Polyglot Architecture Balance: Knowing when to choose C# .NET for high-throughput enterprise pipelines vs Node/TypeScript for rapid BFF APIs. #architecture #dotnet #polyglot #cloud",
       "tags": [
         "architecture",
@@ -344,7 +344,7 @@
     {
       "id": "post_14",
       "authorRef": "user_01",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Hero developers vs Hero processes: Building self-documenting codebases with living memory (CURRENT_STATE.md) so anyone on the team can step in without fear. #softwareengineering #bestpractices #onboarding",
       "tags": [
         "softwareengineering",
@@ -357,7 +357,7 @@
     {
       "id": "post_15",
       "authorRef": "user_02",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Graph Pipelines & Outbox Pattern: Visualizing event cascades across RabbitMQ message queues to guarantee eventual consistency. #eventdriven #rabbitmq #microservices #architecture",
       "tags": [
         "eventdriven",
@@ -371,7 +371,7 @@
     {
       "id": "post_16",
       "authorRef": "user_08",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Zero-Trust Microservices Security: Implementing AppArmor profiles, strict rate limiting, and dual JWT/session token rotation at the Nginx edge. #security #infosec #zerotrust #cybersecurity",
       "tags": [
         "security",
@@ -385,7 +385,7 @@
     {
       "id": "post_17",
       "authorRef": "user_07",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "The Complete Software Factory Lifecycle: Why skipping Planning and Design always leads to 10x tech debt in Maintenance. Clean Architecture from Day 1. #softwareengineering #lifecycle #devops",
       "tags": [
         "softwareengineering",
@@ -398,7 +398,7 @@
     {
       "id": "post_18",
       "authorRef": "user_01",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Software Engineer vs Developer: Thinking in systems, data flow, failure modes, and domain boundaries vs just churning out features. #systemdesign #engineering #architecture #mentorship",
       "tags": [
         "systemdesign",
@@ -412,7 +412,7 @@
     {
       "id": "post_19",
       "authorRef": "user_04",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Fullstack developer ergonomics: When your BFF, database schemas, and atomic design components share end-to-end TypeScript contracts. #typescript #fullstack #developer #productivity",
       "tags": [
         "typescript",
@@ -426,7 +426,7 @@
     {
       "id": "post_20",
       "authorRef": "user_05",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Realtime Socket Synchronization: Emitting targeted Redis pub/sub events on reactions and comments to trigger optimistic UI updates. #typescript #realtime #socketio #nextjs",
       "tags": [
         "typescript",
@@ -440,7 +440,7 @@
     {
       "id": "post_21",
       "authorRef": "user_03",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Algorithmic Precision: Benchmarking CPU cache locality in compiled languages. Struct vs Class memory allocations under high iteration loops. #algorithms #performance #computerscience #coding",
       "tags": [
         "algorithms",
@@ -454,7 +454,7 @@
     {
       "id": "post_22",
       "authorRef": "user_07",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Deep Focus Engineering: 4-hour uninterrupted coding blocks with lo-fi beats. The secret to implementing complex DDD domain models cleanly. #focus #productivity #softwareengineering #coding",
       "tags": [
         "focus",
@@ -468,7 +468,7 @@
     {
       "id": "post_23",
       "authorRef": "user_05",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Holistic Systems Thinking: Code is only 20% of software engineering. Networking, deployment automation, monitoring, and telemetry make the system thrive. #devops #systems #engineering #architecture",
       "tags": [
         "devops",
@@ -482,7 +482,7 @@
     {
       "id": "post_24",
       "authorRef": "user_05",
-      "postType": "POLL",
+      "postType": "DILEMMA_POLL",
       "content": "⚡ Tech Dilemma: For caching distributed user sessions across regional clusters with sub-5ms SLA, which pattern do you rely on in production?",
       "tags": [
         "systemdesign",
@@ -504,7 +504,7 @@
     {
       "id": "post_25",
       "authorRef": "user_04",
-      "postType": "POLL",
+      "postType": "DILEMMA_POLL",
       "content": "⚡ Frontend Dilemma: In Next.js App Router (RSC-first), what is your canonical approach for global client UI state?",
       "tags": [
         "react",
@@ -527,7 +527,7 @@
     {
       "id": "post_26",
       "authorRef": "user_03",
-      "postType": "POLL",
+      "postType": "DILEMMA_POLL",
       "content": "⚡ Concurrency Dilemma: Architecting high-throughput network gateways handling 50k concurrent requests/sec. Which runtime model wins?",
       "tags": [
         "concurrency",
@@ -549,7 +549,7 @@
     {
       "id": "post_27",
       "authorRef": "user_08",
-      "postType": "POLL",
+      "postType": "DILEMMA_POLL",
       "content": "⚡ Security Dilemma: Authenticating inter-service communications in a private Kubernetes cluster?",
       "tags": [
         "security",
@@ -625,7 +625,7 @@
     {
       "id": "post_31",
       "authorRef": "user_07",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Clean Architecture snippet: Decoupling domain use-cases from Prisma ORM via strict repository interfaces:\n\n```typescript\nexport interface IPostRepository {\n  findById(id: string): Promise<PostEntity | null>;\n  create(post: CreatePostDto): Promise<Result<PostEntity>>;\n  delete(id: string): Promise<Result<void>>;\n}\n```\n\nNo ORM imports in the application core. 100% unit-testable.",
       "tags": [
         "typescript",
@@ -636,7 +636,7 @@
     {
       "id": "post_32",
       "authorRef": "user_03",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Zero-copy byte parsing in Rust with `nom` and `bytes::Bytes`:\n\n```rust\npub fn parse_header(input: &[u8]) -> IResult<&[u8], PacketHeader> {\n    let (rest, (magic, version, len)) = tuple((tag(b\"VIBE\"), be_u8, be_u32))(input)?;\n    Ok((rest, PacketHeader { magic, version, len }))\n}\n```\n\nRuns at 8.2 GB/sec on modern hardware.",
       "tags": [
         "rust",
@@ -648,7 +648,7 @@
     {
       "id": "post_33",
       "authorRef": "user_08",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Atomic sliding-window rate limiter implementation with Redis sorted sets:\n\n```typescript\nconst now = Date.now();\nconst windowStart = now - windowMs;\nconst pipeline = redis.pipeline();\npipeline.zremrangebyscore(key, 0, windowStart);\npipeline.zadd(key, now, `${now}-${Math.random()}`);\npipeline.zcard(key);\npipeline.expire(key, Math.ceil(windowMs / 1000));\nconst results = await pipeline.exec();\n```\n\nProtects API endpoints with sub-millisecond overhead.",
       "tags": [
         "redis",
@@ -660,7 +660,7 @@
     {
       "id": "post_34",
       "authorRef": "user_05",
-      "postType": "DEFAULT",
+      "postType": "STANDARD",
       "content": "Three-Tier Nginx & Container Topology pattern: Never expose backend ports directly to the host. Use `expose: [\"8000\"]` and let the Edge Nginx reverse proxy route incoming traffic. This completely eliminates port collisions in multi-tenant VPS deployments! 🚀 #devops #docker #nginx",
       "tags": [
         "devops",

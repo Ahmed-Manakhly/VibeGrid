@@ -157,23 +157,52 @@ async function seedCommunities() {
   }
 
   // 3. Auto-join seeded users to all communities via POST /api/communities/[slug]/join
-  const users = sessionData.users || {};
-  const userKeys = Object.keys(users);
+  let rawData = {};
+  if (fs.existsSync(INPUT_PATH)) {
+    try {
+      rawData = JSON.parse(fs.readFileSync(INPUT_PATH, 'utf8'));
+    } catch (e) {}
+  }
+  const seedUsers = rawData.users || [];
+  if (seedUsers.length > 0) {
+    console.log(`\n👥 Auto-enrolling ${seedUsers.length} seed user(s) into communities via HTTP...`);
 
-  if (userKeys.length > 0) {
-    console.log(`\n👥 Auto-enrolling ${userKeys.length} seed user(s) into communities via HTTP...`);
+    // Authenticate each user to obtain session cookies
+    const userClients = [];
+    for (const u of seedUsers) {
+      try {
+        const uClient = new HttpClient(config.apiUrl);
+        const uLogin = await uClient.post('/auth/login', {
+          email: u.email,
+          password: u.password,
+        });
+        if (uLogin.ok && (uLogin.data?.success || uLogin.data?.user)) {
+          userClients.push({
+            id: u.id,
+            username: u.profile?.username || u.name,
+            client: uClient,
+          });
+        } else {
+          console.warn(`   ⚠️ Could not login user ${u.email}:`, uLogin.data?.error || uLogin.status);
+        }
+      } catch (logErr) {
+        console.warn(`   ⚠️ User login error for ${u.email}:`, logErr.message);
+      }
+    }
 
     for (const [slug, guild] of Object.entries(seededCommunities)) {
-      for (const [userKey, userSession] of Object.entries(users)) {
+      for (const { username, client } of userClients) {
         try {
-          const userClient = new HttpClient(config.apiUrl);
-          if (userSession.accessToken) {
-            userClient.setToken(userSession.accessToken);
-          }
-
-          const joinRes = await userClient.post(`/communities/${slug}/join`);
-          if (joinRes.ok || joinRes.status === 200 || joinRes.status === 201) {
-            console.log(`   ✓ ${userSession.username || userKey} joined ${guild.name}`);
+          const joinRes = await client.post(`/communities/${slug}/join`);
+          if (
+            joinRes.ok ||
+            joinRes.data?.success ||
+            joinRes.data?.message?.includes('already a member') ||
+            joinRes.data?.message?.includes('Already a member')
+          ) {
+            console.log(`   ✓ ${username} joined ${guild.name}`);
+          } else {
+            console.warn(`   ⚠️ ${username} join ${slug} response:`, joinRes.data);
           }
         } catch (joinErr) {
           // Non-fatal

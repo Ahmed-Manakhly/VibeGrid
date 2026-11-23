@@ -79,6 +79,8 @@ export async function POST(request: Request) {
 
     const parsedMediaType = mediaType ? (String(mediaType).toUpperCase() as any) : undefined;
 
+    const parsedPostType = postType === "DEFAULT" ? "STANDARD" : (postType === "POLL" ? "DILEMMA_POLL" : postType);
+
     const result = await createVibeUseCase.execute(
       content || "",
       targetMediaUrl || undefined,
@@ -89,14 +91,20 @@ export async function POST(request: Request) {
       categoryId,
       vibeId,
       techContext,
-      postType,
+      parsedPostType,
       poll,
       quotedPostId,
       communityId
     );
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error || "Failed to create post" }, { status: 400 });
+      const errMsg =
+        result.error instanceof Error
+          ? result.error.message
+          : typeof result.error === "string"
+          ? result.error
+          : JSON.stringify(result.error) || "Failed to create post";
+      return NextResponse.json({ error: errMsg }, { status: 400 });
     }
 
     return NextResponse.json({ success: true, post: result.value }, { status: 201 });

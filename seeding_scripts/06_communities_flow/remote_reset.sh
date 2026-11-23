@@ -31,3 +31,4 @@ fi
 echo "🔄 Executing Flow 06 (Communities) Remote Reset on ${VPS_HOST}..."
 ssh "${VPS_HOST}" "docker exec vibegrid_bff node seeding_scripts/06_communities_flow/reset.js"
 echo "✅ Flow 06 Remote Reset complete on ${VPS_HOST}."
+

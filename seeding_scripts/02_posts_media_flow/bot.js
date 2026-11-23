@@ -182,7 +182,12 @@ async function runPostsMediaFlow() {
       : undefined;
 
     // Create Post via HTTP API
-    const postType = pConfig.postType || (pConfig.poll ? 'POLL' : (pConfig.techContext ? 'QUESTION' : undefined));
+    let postType = pConfig.postType;
+    if (postType === 'DEFAULT') postType = 'STANDARD';
+    if (postType === 'POLL') postType = 'DILEMMA_POLL';
+    if (!postType) {
+      postType = pConfig.poll ? 'DILEMMA_POLL' : (pConfig.techContext ? 'QUESTION' : 'STANDARD');
+    }
     const createRes = await authorClient.post('/posts', {
       content: pConfig.content || '',
       mediaUrl: imageUrl || undefined,
