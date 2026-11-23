@@ -29,6 +29,24 @@ if [[ "${1:-}" != "--confirm" ]]; then
 fi
 
 echo "🔄 Executing Flow 02 (Posts) Remote Reset on ${VPS_HOST}..."
-ssh "${VPS_HOST}" "docker exec vibegrid_bff node seeding_scripts/02_posts_media_flow/reset.js"
+ssh "${VPS_HOST}" "docker exec vibegrid_bff node -e '
+const { PrismaClient } = require(\"@prisma/client\");
+const p = new PrismaClient();
+Promise.all([
+  p.bookmark.deleteMany({}),
+  p.pollVote.deleteMany({}),
+  p.pollOption.deleteMany({}),
+  p.poll.deleteMany({}),
+  p.reGrid.deleteMany({}),
+  p.like.deleteMany({}),
+  p.commentLike.deleteMany({}),
+  p.comment.deleteMany({}),
+  p.postTag.deleteMany({}),
+  p.post.deleteMany({})
+]).then(() => {
+  console.log(\"   ✅ Posts, polls, comments, and media links wiped from PostgreSQL\");
+  return p.\$disconnect();
+}).catch(e => { console.error(e); process.exit(1); });
+'"
 echo "✅ Flow 02 Remote Reset complete on ${VPS_HOST}."
 

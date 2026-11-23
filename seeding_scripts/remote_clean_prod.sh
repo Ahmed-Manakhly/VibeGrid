@@ -36,17 +36,98 @@ if [[ "${1:-}" != "--confirm" ]]; then
 fi
 
 echo "🔥 1/4 Cleaning MongoDB (Auth Service) inside vibegrid_auth..."
-ssh "${VPS_HOST}" "docker exec vibegrid_auth node scripts/clean_mongo.js --include-admins"
+ssh "${VPS_HOST}" "docker exec vibegrid_auth node -e '
+const mongoose = require(\"mongoose\");
+let uri = process.env.MONGO_URI;
+if (uri && uri.includes(\"@\") && uri.startsWith(\"mongodb://\")) {
+  const parts = uri.replace(\"mongodb://\", \"\").split(\"@\");
+  const creds = parts[0].split(\":\");
+  if (creds.length === 2) {
+    const user = encodeURIComponent(decodeURIComponent(creds[0]));
+    const pass = encodeURIComponent(decodeURIComponent(creds[1]));
+    uri = \`mongodb://\${user}:\${pass}@\${parts[1]}\`;
+  }
+}
+async function run() {
+  await mongoose.connect(uri);
+  const result = await mongoose.connection.collection(\"userauths\").deleteMany({});
+  console.log(\`   ✅ Auth Users — deleted \${result.deletedCount} document(s)\`);
+  await mongoose.disconnect();
+}
+run().catch(e => { console.error(\"❌ Error:\", e); process.exit(1); });
+'"
 
 echo "🔄 2/4 Restarting vibegrid_auth to re-seed bootstrap admins (ensureBootstrapUsers)..."
 ssh "${VPS_HOST}" "docker restart vibegrid_auth"
 sleep 3
 
 echo "🔥 3/4 Cleaning MongoDB (Media Service) inside vibegrid_media..."
-ssh "${VPS_HOST}" "docker exec vibegrid_media node scripts/clean_media_mongo.js"
+ssh "${VPS_HOST}" "docker exec vibegrid_media node -e '
+const mongoose = require(\"mongoose\");
+let uri = process.env.MONGO_URI;
+if (uri && uri.includes(\"@\") && uri.startsWith(\"mongodb://\")) {
+  const parts = uri.replace(\"mongodb://\", \"\").split(\"@\");
+  const creds = parts[0].split(\":\");
+  if (creds.length === 2) {
+    const user = encodeURIComponent(decodeURIComponent(creds[0]));
+    const pass = encodeURIComponent(decodeURIComponent(creds[1]));
+    uri = \`mongodb://\${user}:\${pass}@\${parts[1]}\`;
+  }
+}
+async function run() {
+  await mongoose.connect(uri);
+  const result = await mongoose.connection.collection(\"mediaassets\").deleteMany({});
+  console.log(\`   ✅ Media Assets — deleted \${result.deletedCount} document(s)\`);
+  await mongoose.disconnect();
+}
+run().catch(e => { console.error(\"❌ Error:\", e); process.exit(1); });
+'"
 
 echo "🔥 4/4 Cleaning PostgreSQL & Redis inside vibegrid_bff..."
-ssh "${VPS_HOST}" "docker exec vibegrid_bff node seeding_scripts/db_cleaners/clean_all.js --confirm"
+ssh "${VPS_HOST}" "docker exec vibegrid_bff node -e '
+const { PrismaClient } = require(\"@prisma/client\");
+const Redis = require(\"ioredis\");
+const prisma = new PrismaClient();
+const redis = new Redis(process.env.REDIS_URL);
+async function run() {
+  const adminEmail = process.env.ADMIN_EMAIL || \"admin@vibegrid.manakhly.tech\";
+  
+  await prisma.directMessage.deleteMany({});
+  await prisma.conversationParticipant.deleteMany({});
+  await prisma.conversation.deleteMany({});
+  await prisma.notifications.deleteMany({});
+  await prisma.bookmark.deleteMany({});
+  await prisma.pollVote.deleteMany({});
+  await prisma.pollOption.deleteMany({});
+  await prisma.poll.deleteMany({});
+  await prisma.reGrid.deleteMany({});
+  await prisma.like.deleteMany({});
+  await prisma.commentLike.deleteMany({});
+  await prisma.comment.deleteMany({});
+  await prisma.postTag.deleteMany({});
+  await prisma.tagFollow.deleteMany({});
+  await prisma.tag.deleteMany({});
+  await prisma.post.deleteMany({});
+  await prisma.communityMember.deleteMany({});
+  await prisma.community.deleteMany({});
+  await prisma.userInterest.deleteMany({});
+  await prisma.follows.deleteMany({});
+  await prisma.userBlock.deleteMany({});
+  await prisma.userReport.deleteMany({});
+  await prisma.developerMilestone.deleteMany({});
+  await prisma.outboxEvent.deleteMany({});
+
+  const u = await prisma.user.deleteMany({ where: { email: { not: adminEmail } } });
+  console.log(\`   ✅ PostgreSQL non-admin users wiped: \${u.count}\`);
+  
+  await redis.flushall();
+  console.log(\"   ✅ Redis cache flushed\");
+
+  await prisma.\$disconnect();
+  await redis.quit();
+}
+run().catch(e => { console.error(\"❌ Error:\", e); process.exit(1); });
+'"
 
 echo "=========================================================="
 echo "✅ All production databases wiped and reset successfully!"
