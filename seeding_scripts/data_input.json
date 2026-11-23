@@ -11,12 +11,14 @@
       "email": "developer_01@vibegrid.manakhly.tech",
       "password": "Password#2026!",
       "name": "Alex Rivera",
+      "interests": ["frontend", "devops", "cloud"],
       "profile": {
         "name": "Alex Rivera",
         "username": "alex_rivera",
-        "bio": "Building production systems & microservices with clean architecture.",
+        "bio": "Staff Infrastructure Engineer. Passionate about distributed systems, Next.js, and clean microservice architectures.",
         "location": "Cairo, Egypt",
-        "website": "https://vibegrid.manakhly.tech"
+        "website": "https://vibegrid.manakhly.tech",
+        "avatarFixture": "avatar_01.jpg"
       }
     },
     {
@@ -24,25 +26,29 @@
       "email": "creator_02@vibegrid.manakhly.tech",
       "password": "Password#2026!",
       "name": "Sarah Chen",
+      "interests": ["ai", "systems", "cloud"],
       "profile": {
         "name": "Sarah Chen",
         "username": "sarah_chen",
-        "bio": "Full-stack cloud architectures & real-time tech streams.",
-        "location": "Remote",
-        "website": "https://vibegrid.manakhly.tech"
+        "bio": "Autonomous AI Agent Researcher & Distributed Systems Architect. Building low-latency LLM agent pipelines.",
+        "location": "San Francisco, CA",
+        "website": "https://vibegrid.manakhly.tech",
+        "avatarFixture": "avatar_02.jpg"
       }
     },
     {
       "id": "user_03",
       "email": "tester_03@vibegrid.manakhly.tech",
       "password": "Password#2026!",
-      "name": "Grid Tester",
+      "name": "David Miller",
+      "interests": ["rust", "systems", "devops"],
       "profile": {
-        "name": "Grid Tester",
-        "username": "grid_tester",
-        "bio": "Automated test agent checking signals & posts.",
-        "location": "The Grid",
-        "website": "https://vibegrid.manakhly.tech"
+        "name": "David Miller",
+        "username": "david_miller",
+        "bio": "Systems programmer & Rustacean. Zero-cost abstractions, Linux kernel primitives, and high-performance networking.",
+        "location": "Berlin, Germany",
+        "website": "https://vibegrid.manakhly.tech",
+        "avatarFixture": "avatar_03.jpg"
       }
     }
   ],
@@ -50,28 +56,55 @@
     {
       "id": "post_01",
       "authorRef": "user_01",
-      "content": "Excited to launch the new VibeGrid microservice architecture! #tech #microservices #vibegrid",
-      "tags": ["tech", "microservices", "vibegrid"],
-      "mediaFixture": "tech_feed_01.jpg"
+      "postType": "DEFAULT",
+      "content": "Excited to unveil VibeGrid's new 3-tier Nginx topology and isolated internal microservice networks! Production latency dropped by 45%. #tech #microservices #devops",
+      "tags": ["tech", "microservices", "devops"],
+      "mediaFixture": "tech_feed_01.jpg",
+      "communityRef": "devops-cloud-native"
     },
     {
       "id": "post_02",
       "authorRef": "user_02",
-      "content": "Designing high-performance real-time data streams with Redis & RabbitMQ. #cloud #systemdesign",
-      "tags": ["cloud", "systemdesign"],
-      "mediaFixture": "tech_feed_02.jpg"
+      "postType": "POLL",
+      "content": "⚡ Tech Dilemma: For caching distributed user sessions across regional clusters with sub-5ms SLA, which pattern do you rely on in production?",
+      "tags": ["systemdesign", "cloud", "architecture"],
+      "poll": {
+        "question": "Which distributed session caching strategy do you trust most?",
+        "options": [
+          "Redis Sentinel with read-replicas & cache warming",
+          "Stateless JWT with short TTL + refresh rotation",
+          "Distributed Dragonfly / KeyDB cluster",
+          "Edge Cloudflare KV / DynamoDB Global Tables"
+        ],
+        "durationHours": 72
+      },
+      "communityRef": "ai-engineers"
     },
     {
       "id": "post_03",
       "authorRef": "user_03",
-      "content": "Automated seeding flow verification in progress. Everything running clean! #testing #automation",
-      "tags": ["testing", "automation"],
-      "mediaFixture": "tech_feed_03.jpg"
+      "postType": "QUESTION",
+      "content": "🦀 Rust vs TypeScript: Handling concurrent SSE streams with zero memory leaks under 10k connections. How are you managing backpressure?",
+      "tags": ["rust", "performance", "realtime"],
+      "techContext": {
+        "language": "Rust",
+        "framework": "Tokio / Axum",
+        "topic": "Backpressure & SSE Connection Pooling"
+      },
+      "communityRef": "rust-systems"
+    },
+    {
+      "id": "post_04",
+      "authorRef": "user_01",
+      "postType": "DEFAULT",
+      "content": "Clean Architecture snippet: Decoupling use-cases from Prisma ORM via domain repository interfaces:\n\n```typescript\nexport interface IPostRepository {\n  findById(id: string): Promise<PostEntity | null>;\n  create(post: CreatePostDto): Promise<Result<PostEntity>>;\n}\n```\n\nZero reverse dependencies guaranteed.",
+      "tags": ["typescript", "cleanarchitecture", "patterns"]
     }
   ],
   "socialGraph": [
     { "followerRef": "user_01", "targetRef": "user_02" },
     { "followerRef": "user_01", "targetRef": "user_03" },
+    { "followerRef": "user_02", "targetRef": "user_01" },
     { "followerRef": "user_02", "targetRef": "user_03" },
     { "followerRef": "user_03", "targetRef": "user_01" }
   ],
@@ -79,14 +112,63 @@
     "likes": [
       { "userRef": "user_02", "postRef": "post_01" },
       { "userRef": "user_03", "postRef": "post_01" },
-      { "userRef": "user_01", "postRef": "post_02" }
+      { "userRef": "user_01", "postRef": "post_02" },
+      { "userRef": "user_03", "postRef": "post_02" },
+      { "userRef": "user_01", "postRef": "post_03" }
     ],
     "comments": [
-      { "userRef": "user_02", "postRef": "post_01", "content": "Awesome setup! Great to see clean architecture in action." },
-      { "userRef": "user_03", "postRef": "post_01", "content": "Verified from test runner! Looks rock solid." },
-      { "userRef": "user_01", "postRef": "post_02", "content": "Redis stampede protection is working smoothly." }
+      {
+        "id": "comment_01",
+        "userRef": "user_02",
+        "postRef": "post_01",
+        "content": "Awesome setup! Great to see clean architecture and Docker network isolation in action."
+      },
+      {
+        "id": "comment_02",
+        "userRef": "user_01",
+        "postRef": "post_01",
+        "parentCommentRef": "comment_01",
+        "content": "Thanks Sarah! The API gateway internal expose pattern completely eliminated port conflicts."
+      },
+      {
+        "id": "comment_03",
+        "userRef": "user_01",
+        "postRef": "post_03",
+        "content": "In Tokio, bounding your `mpsc::channel(buffer)` to 256 messages per socket with `poll_ready` backpressure yields rock solid stability."
+      }
+    ],
+    "pollVotes": [
+      { "userRef": "user_01", "postRef": "post_02", "optionIndex": 1 },
+      { "userRef": "user_03", "postRef": "post_02", "optionIndex": 0 }
+    ],
+    "acceptedSolutions": [
+      {
+        "authorRef": "user_03",
+        "postRef": "post_03",
+        "commentRef": "comment_03"
+      }
+    ],
+    "regrids": [
+      { "userRef": "user_02", "postRef": "post_01" },
+      { "userRef": "user_03", "postRef": "post_04" }
     ]
   },
+  "bookmarks": [
+    { "userRef": "user_01", "postRef": "post_02" },
+    { "userRef": "user_02", "postRef": "post_03" },
+    { "userRef": "user_03", "postRef": "post_04" }
+  ],
+  "conversations": [
+    {
+      "id": "conv_01",
+      "participantRefs": ["user_01", "user_02"],
+      "messages": [
+        { "senderRef": "user_01", "content": "Hey Sarah, have you checked the benchmark traces for the new rate limiter?" },
+        { "senderRef": "user_02", "content": "Yes Alex! Redis sliding window algorithm is holding under 2ms P99 even under synthetic load." },
+        { "senderRef": "user_01", "content": "Phenomenal! Let's get the PR merged into staging today." }
+      ]
+    }
+  ],
   "communities": [
     {
       "slug": "frontend-architects",

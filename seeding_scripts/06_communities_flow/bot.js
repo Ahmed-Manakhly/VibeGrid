@@ -168,7 +168,50 @@ async function seedCommunities() {
     console.log(`   --> Guild ready: /c/${community.slug} (${community.name})`);
   }
 
-  console.log('✅ [Flow 06] Developer communities seeded successfully!\n');
+  // Save communities to session_state.json so downstream flows can scope posts to them
+  const sessionPath = path.join(__dirname, '..', 'session_state.json');
+  let sessionData = {};
+  if (fs.existsSync(sessionPath)) {
+    try {
+      sessionData = JSON.parse(fs.readFileSync(sessionPath, 'utf8'));
+    } catch (_) {}
+  }
+
+  sessionData.communities = sessionData.communities || {};
+  const dbCommunities = await prisma.community.findMany();
+  for (const c of dbCommunities) {
+    sessionData.communities[c.slug] = {
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+    };
+  }
+
+  // Ensure all registered seed users join communities as members
+  const seedUserKeys = Object.keys(sessionData).filter((k) => sessionData[k]?.userId);
+  for (const uKey of seedUserKeys) {
+    const uId = sessionData[uKey].userId;
+    for (const c of dbCommunities) {
+      await prisma.communityMember.upsert({
+        where: {
+          userId_communityId: {
+            userId: uId,
+            communityId: c.id,
+          },
+        },
+        update: {},
+        create: {
+          userId: uId,
+          communityId: c.id,
+          role: CommunityRole.MEMBER,
+        },
+      });
+    }
+  }
+
+  fs.writeFileSync(sessionPath, JSON.stringify(sessionData, null, 2));
+
+  console.log('✅ [Flow 06] Developer communities seeded successfully & members enrolled!\n');
 }
 
 seedCommunities()

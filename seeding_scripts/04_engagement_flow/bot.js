@@ -124,8 +124,8 @@ async function runEngagementFlow() {
     await sleep(env.THROTTLE_MS || 300);
   }
 
-  // 4. Seed Comments
-  console.log('\n[FLOW 04] Seeding Post Comments...');
+  // 4. Seed Comments (including threaded replies)
+  console.log('\n[FLOW 04] Seeding Post Comments & Threaded Discussions...');
   for (const commentSpec of engagementConfig.comments || []) {
     const userClient = userClients[commentSpec.userRef];
     const postSession = sessionData.posts[commentSpec.postRef];
@@ -135,9 +135,22 @@ async function runEngagementFlow() {
       throw new Error(`FLOW 04 FAILED: Invalid reference for comment: user=${commentSpec.userRef}, post=${commentSpec.postRef}`);
     }
 
+    // Resolve parent comment ID for threaded replies
+    let parentId = undefined;
+    if (commentSpec.parentCommentRef) {
+      const parentComment = sessionData.engagement.comments.find(
+        (c) => c.commentRef === commentSpec.parentCommentRef || c.id === commentSpec.parentCommentRef
+      );
+      if (parentComment && parentComment.commentId) {
+        parentId = parentComment.commentId;
+        console.log(`   ↳ Replying to comment ${parentComment.commentId.substring(0, 8)}...`);
+      }
+    }
+
     console.log(`   💬 User ${userSession.username} commenting on post ${postSession.id.substring(0, 8)}...`);
     const commentRes = await userClient.post(`/posts/${postSession.id}/comments`, {
       content: commentSpec.content,
+      parentId,
     });
 
     if (!commentRes.ok || !commentRes.data?.success) {
@@ -148,21 +161,85 @@ async function runEngagementFlow() {
     console.log(`   ✓ Comment created successfully (ID: ${createdComment?.id || 'OK'})`);
 
     sessionData.engagement.comments.push({
+      commentRef: commentSpec.id || commentSpec.commentRef || `comment_${sessionData.engagement.comments.length + 1}`,
       userRef: commentSpec.userRef,
       userId: userSession.userId,
       postRef: commentSpec.postRef,
       postId: postSession.id,
       content: commentSpec.content,
       commentId: createdComment?.id || null,
+      parentId: parentId || null,
     });
 
     await sleep(env.THROTTLE_MS || 300);
   }
 
-  // 5. Seed Re-Grids (Post Amplification)
+  // 5. Seed Poll Votes on Tech Dilemmas
+  sessionData.engagement.pollVotes = [];
+  if (Array.isArray(engagementConfig.pollVotes) && engagementConfig.pollVotes.length > 0) {
+    console.log('\n[FLOW 04] Seeding Poll Votes on Tech Dilemmas...');
+    for (const voteSpec of engagementConfig.pollVotes) {
+      const userClient = userClients[voteSpec.userRef];
+      const postSession = sessionData.posts[voteSpec.postRef];
+      const userSession = sessionData[voteSpec.userRef];
+
+      if (userClient && postSession) {
+        console.log(`   🗳️ User ${userSession.username} voting option index [${voteSpec.optionIndex}] on post ${postSession.id.substring(0, 8)}...`);
+        const voteRes = await userClient.post(`/posts/${postSession.id}/poll/vote`, {
+          optionIndex: voteSpec.optionIndex,
+        });
+
+        if (!voteRes.ok) {
+          console.warn(`   ⚠️ Poll vote notice:`, voteRes.data || voteRes.rawBody);
+        } else {
+          console.log(`   ✓ Vote recorded successfully`);
+          sessionData.engagement.pollVotes.push({
+            userRef: voteSpec.userRef,
+            postRef: voteSpec.postRef,
+            optionIndex: voteSpec.optionIndex,
+          });
+        }
+        await sleep(env.THROTTLE_MS || 300);
+      }
+    }
+  }
+
+  // 6. Seed Accepted Solutions on Technical Q&A
+  sessionData.engagement.acceptedSolutions = [];
+  if (Array.isArray(engagementConfig.acceptedSolutions) && engagementConfig.acceptedSolutions.length > 0) {
+    console.log('\n[FLOW 04] Seeding Accepted Solutions on Technical Q&A...');
+    for (const solSpec of engagementConfig.acceptedSolutions) {
+      const authorClient = userClients[solSpec.authorRef || solSpec.userRef];
+      const postSession = sessionData.posts[solSpec.postRef];
+      const targetComment = sessionData.engagement.comments.find(
+        (c) => c.commentRef === solSpec.commentRef || c.commentId === solSpec.commentRef
+      );
+
+      if (authorClient && postSession && targetComment?.commentId) {
+        console.log(`   ✅ Question author marking comment ${targetComment.commentId.substring(0, 8)} as accepted solution...`);
+        const solRes = await authorClient.post(`/posts/${postSession.id}/solution`, {
+          commentId: targetComment.commentId,
+        });
+
+        if (!solRes.ok) {
+          console.warn(`   ⚠️ Accept solution notice:`, solRes.data || solRes.rawBody);
+        } else {
+          console.log(`   ✓ Accepted solution marked successfully`);
+          sessionData.engagement.acceptedSolutions.push({
+            postRef: solSpec.postRef,
+            commentRef: solSpec.commentRef,
+            commentId: targetComment.commentId,
+          });
+        }
+        await sleep(env.THROTTLE_MS || 300);
+      }
+    }
+  }
+
+  // 7. Seed Re-Grids (Post Amplification)
   console.log('\n[FLOW 04] Seeding Re-Grids (Post Amplification)...');
   sessionData.engagement.regrids = [];
-  const regridSpecs = [
+  const regridSpecs = engagementConfig.regrids || [
     { userRef: 'creator_02', postRef: 'post_01' },
     { userRef: 'tester_03', postRef: 'post_01' },
   ];

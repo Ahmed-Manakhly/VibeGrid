@@ -54,12 +54,27 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { content, mediaUrl, imageUrl, image, mediaType, tags, categoryId, vibeId } = body;
+    const {
+      content,
+      mediaUrl,
+      imageUrl,
+      image,
+      mediaType,
+      tags,
+      mood,
+      categoryId,
+      vibeId,
+      techContext,
+      postType,
+      poll,
+      quotedPostId,
+      communityId,
+    } = body;
 
     const targetMediaUrl = mediaUrl || imageUrl || image;
 
-    if (!content?.trim() && !targetMediaUrl) {
-      return NextResponse.json({ error: "Post content or media required" }, { status: 400 });
+    if (!content?.trim() && !targetMediaUrl && !poll) {
+      return NextResponse.json({ error: "Post content, media, or poll required" }, { status: 400 });
     }
 
     const parsedMediaType = mediaType ? (String(mediaType).toUpperCase() as any) : undefined;
@@ -70,9 +85,14 @@ export async function POST(request: Request) {
       parsedMediaType,
       session.user.id,
       tags,
-      undefined,
+      mood,
       categoryId,
-      vibeId
+      vibeId,
+      techContext,
+      postType,
+      poll,
+      quotedPostId,
+      communityId
     );
 
     if (!result.success) {

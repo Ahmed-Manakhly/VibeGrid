@@ -18,12 +18,19 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { content } = body;
+    const { content, parentId, mediaUrl, mediaType } = body;
     if (!content?.trim()) {
       return NextResponse.json({ error: "Comment content is required" }, { status: 400 });
     }
 
-    const result = await addCommentUseCase.execute(postId, session.user.id, content);
+    const result = await addCommentUseCase.execute(
+      postId,
+      session.user.id,
+      content,
+      parentId,
+      mediaUrl,
+      mediaType
+    );
     return NextResponse.json(result);
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to add comment" }, { status: 500 });

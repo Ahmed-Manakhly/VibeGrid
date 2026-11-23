@@ -171,12 +171,28 @@ async function runPostsMediaFlow() {
       }
     }
 
+    // Resolve Community ID if communityRef specified
+    const communityId = pConfig.communityRef
+      ? (sessionData.communities?.[pConfig.communityRef]?.id || pConfig.communityId)
+      : undefined;
+
+    // Resolve Quoted Post ID if quotedPostRef specified
+    const quotedPostId = pConfig.quotedPostRef
+      ? (sessionData.posts?.[pConfig.quotedPostRef]?.id || pConfig.quotedPostId)
+      : undefined;
+
     // Create Post via HTTP API
+    const postType = pConfig.postType || (pConfig.poll ? 'POLL' : (pConfig.techContext ? 'QUESTION' : undefined));
     const createRes = await authorClient.post('/posts', {
-      content: pConfig.content,
+      content: pConfig.content || '',
       mediaUrl: imageUrl || undefined,
       mediaType: imageUrl ? 'IMAGE' : undefined,
       tags: pConfig.tags,
+      postType,
+      techContext: pConfig.techContext,
+      poll: pConfig.poll,
+      communityId,
+      quotedPostId,
     });
 
     if (!createRes.ok || !createRes.data?.success) {
@@ -184,13 +200,17 @@ async function runPostsMediaFlow() {
     }
 
     const createdPost = createRes.data.post;
-    console.log(`   ✓ Created post (ID: ${createdPost.id})`);
+    console.log(`   ✓ Created ${postType || 'vibe'} post (ID: ${createdPost.id})`);
 
     sessionData.posts[pConfig.id] = {
       id: createdPost.id,
       authorRef: pConfig.authorRef,
       authorId: authorSession.userId,
       content: createdPost.content,
+      postType: createdPost.postType || postType || 'DEFAULT',
+      pollId: createdPost.poll?.id || null,
+      pollOptions: createdPost.poll?.options || null,
+      communityId: communityId || null,
       imageUrl: createdPost.imageUrl || imageUrl || null,
       tags: createdPost.tags || pConfig.tags || [],
     };

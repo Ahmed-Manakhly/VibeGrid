@@ -207,6 +207,37 @@ async function runAuthProfileFlow() {
       accessToken: loginData.tokens?.accessToken || loginData.accessToken,
     };
 
+    // Step 5: Assign Category Interests via HTTP API if provided
+    const interests = userConfig.interests || profile.interests || [];
+    if (interests.length > 0) {
+      try {
+        let targetCategoryIds = [];
+        if (prisma) {
+          const categories = await prisma.category.findMany({
+            where: { OR: [{ slug: { in: interests } }, { id: { in: interests } }, { name: { in: interests } }] },
+            select: { id: true },
+          });
+          targetCategoryIds = categories.map((c) => c.id);
+        }
+
+        if (targetCategoryIds.length > 0) {
+          const token = sessions[userConfig.id].accessToken;
+          await fetch(`${bffUrl}/social/interests`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Cookie: `accessToken=${token}`,
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ categoryIds: targetCategoryIds }),
+          });
+          console.log(`   ✓ Assigned ${targetCategoryIds.length} topic interest(s) for ${finalUsername}`);
+        }
+      } catch (intErr) {
+        console.warn(`   ⚠️ Interest assignment notice:`, intErr.message);
+      }
+    }
+
     await sleep(env.THROTTLE_MS || 300);
   }
 

@@ -24,13 +24,14 @@ const config = require('./shared/config');
 const BASE = path.join(__dirname);
 
 const FLOWS = [
-  { id: '00', name: 'Taxonomy (Categories, Vibes)', bot: '00_taxonomy_flow/bot.js',      reset: '00_taxonomy_flow/reset.js',      independent: true },
-  { id: '01', name: 'Auth & Profiles',              bot: '01_auth_profile_flow/bot.js',   reset: '01_auth_profile_flow/reset.js',   independent: false },
-  { id: '02', name: 'Posts & Media',                bot: '02_posts_media_flow/bot.js',    reset: '02_posts_media_flow/reset.js',    independent: false },
-  { id: '03', name: 'Social Graph (Follows)',       bot: '03_social_graph_flow/bot.js',   reset: '03_social_graph_flow/reset.js',   independent: false },
-  { id: '04', name: 'Engagement (Likes, Comments)', bot: '04_engagement_flow/bot.js',    reset: '04_engagement_flow/reset.js',    independent: false },
-  { id: '05', name: 'Notifications Verification',   bot: '05_notifications_flow/bot.js',   reset: '05_notifications_flow/reset.js',   independent: false },
-  { id: '06', name: 'Developer Communities Hub',    bot: '06_communities_flow/bot.js',     reset: '06_communities_flow/reset.js',     independent: false },
+  { id: '00', name: 'Taxonomy (Categories, Vibes)',                      bot: '00_taxonomy_flow/bot.js',        reset: '00_taxonomy_flow/reset.js',        independent: true },
+  { id: '01', name: 'Auth, Profiles & Topic Interests',                  bot: '01_auth_profile_flow/bot.js',     reset: '01_auth_profile_flow/reset.js',     independent: false },
+  { id: '06', name: 'Developer Communities & Guilds',                    bot: '06_communities_flow/bot.js',      reset: '06_communities_flow/reset.js',      independent: false },
+  { id: '02', name: 'Rich Posts, Polls, Code & Q&A Discussions',        bot: '02_posts_media_flow/bot.js',      reset: '02_posts_media_flow/reset.js',      independent: false },
+  { id: '03', name: 'Dense Social Graph (Follows)',                     bot: '03_social_graph_flow/bot.js',     reset: '03_social_graph_flow/reset.js',     independent: false },
+  { id: '04', name: 'Engagement (Likes, Replies, Dilemma Votes, Q&A)',  bot: '04_engagement_flow/bot.js',      reset: '04_engagement_flow/reset.js',      independent: false },
+  { id: '05', name: 'Social Signals (Bookmarks) & Notifications',        bot: '05_notifications_flow/bot.js',   reset: '05_notifications_flow/reset.js',   independent: false },
+  { id: '07', name: 'Direct Messaging & Conversations (1-on-1)',         bot: '07_messages_flow/bot.js',        reset: '07_messages_flow/reset.js',        independent: false },
 ];
 
 const args = process.argv.slice(2);

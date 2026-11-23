@@ -57,7 +57,7 @@ describe('Engagement Domain — Social Completion (Bookmarks & Replies) Tests', 
       const res = await useCase.execute('vibe_post_1', 'user_2', 'This is a reply', 'parent_comment_99');
 
       expect(res.success).toBe(true);
-      expect(mockEngagementRepo.addComment).toHaveBeenCalledWith('vibe_post_1', 'user_2', 'This is a reply', 'parent_comment_99');
+      expect(mockEngagementRepo.addComment).toHaveBeenCalledWith('vibe_post_1', 'user_2', 'This is a reply', 'parent_comment_99', undefined, undefined);
       expect(mockEventBus.publish).toHaveBeenCalledWith(
         'CommentAddedEvent',
         expect.objectContaining({
