@@ -28,20 +28,13 @@ for (const envPath of candidateEnvPaths) {
   }
 }
 
-const { PrismaClient } = require('@prisma/client');
-
-let prisma = null;
-try {
-  prisma = new PrismaClient();
-} catch (e) {
-  console.warn('⚠️ PrismaClient initialization notice:', e.message);
-}
-
 const ROOT_INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
 const LOCAL_INPUT_PATH = path.join(__dirname, 'data_input.json');
 const INPUT_PATH = fs.existsSync(ROOT_INPUT_PATH) ? ROOT_INPUT_PATH : LOCAL_INPUT_PATH;
 const REFERENCE_PATH = path.join(__dirname, 'data_reference.json');
 const SESSION_PATH = path.join(__dirname, 'session_state.json');
+const FIXTURES_DIR = path.join(__dirname, '..', 'fixtures');
+const { HttpClient } = require('../shared/http');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -99,6 +92,23 @@ async function runAuthProfileFlow() {
   const users = queueData.users || [];
   const sessions = {};
 
+  // Pre-fetch available categories via Public HTTP (GET /api/feed/filters) for interest mapping
+  let categoryMap = {};
+  try {
+    const filterRes = await fetch(`${bffUrl}/feed/filters`);
+    if (filterRes.ok) {
+      const filterData = await filterRes.json();
+      const catList = filterData.categories || [];
+      for (const cat of catList) {
+        categoryMap[cat.slug] = cat.id;
+        categoryMap[cat.name] = cat.id;
+        categoryMap[cat.id] = cat.id;
+      }
+    }
+  } catch (fErr) {
+    console.warn('⚠️ Notice: Could not pre-fetch feed filters for categories:', fErr.message);
+  }
+
   for (const userConfig of users) {
     const { email, password, name, profile } = userConfig;
     console.log(`[FLOW 01] Processing user: ${email}...`);
@@ -136,74 +146,90 @@ async function runAuthProfileFlow() {
 
     // Step 3: Login via HTTP API to authenticate and get session token
     let loginData = null;
+    const userClient = new HttpClient(bffUrl);
     try {
-      const loginRes = await fetch(`${bffUrl}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const loginRes = await userClient.post('/auth/login', { email, password });
+      const loginJson = loginRes.data || {};
 
-      const loginJson = await loginRes.json();
-      if (!loginRes.ok || !loginJson.data) {
-        throw new Error(`Login failed for ${email}: ${JSON.stringify(loginJson)}`);
+      if (!loginRes.ok || (!loginJson.data && !loginJson.user && !loginJson.success)) {
+        throw new Error(`Login failed for ${email}: ${JSON.stringify(loginJson || loginRes.rawBody)}`);
       }
 
-      loginData = loginJson.data;
+      loginData = loginJson.data || loginJson;
       console.log(`   ✓ User authenticated successfully via HTTP API`);
     } catch (err) {
       console.error(`   ❌ Login error:`, err.message);
       throw err;
     }
 
-    const authUserId = loginData.user.id;
+    const authUserId = loginData.user?.id || loginData.id;
     let finalUsername = profile.username;
 
-    // Step 4: Bootstrap & Populate PostgreSQL User Profile (if DB is directly reachable)
-    if (prisma) {
-      try {
-        const existingPgUser = await prisma.user.findFirst({
-          where: { OR: [{ id: authUserId }, { email }, { username: profile.username }] },
-        });
+    // Step 3.5: Upload Avatar Fixture via Media Service if specified
+    let avatarUrl = profile.image || '';
+    if (profile.avatarFixture) {
+      const fixturePath = path.join(FIXTURES_DIR, profile.avatarFixture);
+      if (fs.existsSync(fixturePath)) {
+        try {
+          console.log(`   📷 Uploading avatar fixture (${profile.avatarFixture})...`);
+          const fileBuf = fs.readFileSync(fixturePath);
+          const ext = path.extname(profile.avatarFixture).toLowerCase();
+          const mimeType = ext === '.png' ? 'image/png' : (ext === '.webp' ? 'image/webp' : 'image/jpeg');
 
-        if (existingPgUser) {
-          // Update profile
-          await prisma.user.update({
-            where: { id: existingPgUser.id },
-            data: {
-              name: profile.name,
-              username: profile.username,
-              bio: profile.bio,
-              location: profile.location,
-              website: profile.website,
-            },
+          const intentRes = await userClient.post('/media/upload-intent', {
+            type: 'AVATAR',
+            filename: profile.avatarFixture,
+            mimeType,
+            sizeBytes: fileBuf.length,
           });
-          finalUsername = existingPgUser.username;
-          console.log(`   ✓ Updated existing profile for ${profile.username}`);
-        } else {
-          // Create profile
-          await prisma.user.create({
-            data: {
-              id: authUserId,
-              email,
-              name: profile.name,
-              username: profile.username,
-              bio: profile.bio,
-              location: profile.location,
-              website: profile.website,
-            },
-          });
-          console.log(`   ✓ Created new profile for ${profile.username}`);
+
+          if (intentRes.ok && intentRes.data?.data) {
+            const { assetId, uploadUrl } = intentRes.data.data;
+            if (uploadUrl) {
+              await fetch(uploadUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': mimeType },
+                body: fileBuf,
+              });
+            }
+
+            const confirmRes = await userClient.post('/media/confirm-upload', { assetId });
+            if (confirmRes.ok && confirmRes.data?.data) {
+              avatarUrl = confirmRes.data.data.publicUrl || confirmRes.data.data.mediaUrl || '';
+              console.log(`   ✓ Avatar uploaded & confirmed: ${avatarUrl}`);
+            }
+          }
+        } catch (avErr) {
+          console.warn(`   ⚠️ Avatar upload notice:`, avErr.message);
         }
-      } catch (dbErr) {
-        console.log(`   ℹ Note: Direct Prisma profile enrichment skipped (${dbErr.message}). Profile bootstrapped via BFF.`);
       }
+    }
+
+    // Step 4: Enrich Profile via Public HTTP Ingress (PUT /api/profile)
+    try {
+      const profileUpdateRes = await userClient.put('/profile', {
+        name: profile.name,
+        username: profile.username,
+        bio: profile.bio,
+        location: profile.location,
+        website: profile.website,
+        image: avatarUrl || undefined,
+      });
+      if (profileUpdateRes.ok) {
+        console.log(`   ✓ Profile updated via HTTP for ${profile.username}`);
+      } else {
+        console.warn(`   ⚠️ Profile update returned status ${profileUpdateRes.status}`);
+      }
+    } catch (profErr) {
+      console.warn(`   ⚠️ Profile update via HTTP notice:`, profErr.message);
     }
 
     sessions[userConfig.id] = {
       userId: authUserId,
       email,
-      username: finalUsername,
+      username: profile.username,
       name: profile.name,
+      avatarUrl: avatarUrl || null,
       accessToken: loginData.tokens?.accessToken || loginData.accessToken,
     };
 
@@ -211,27 +237,17 @@ async function runAuthProfileFlow() {
     const interests = userConfig.interests || profile.interests || [];
     if (interests.length > 0) {
       try {
-        let targetCategoryIds = [];
-        if (prisma) {
-          const categories = await prisma.category.findMany({
-            where: { OR: [{ slug: { in: interests } }, { id: { in: interests } }, { name: { in: interests } }] },
-            select: { id: true },
-          });
-          targetCategoryIds = categories.map((c) => c.id);
-        }
+        const targetCategoryIds = interests
+          .map((item) => categoryMap[item] || item)
+          .filter(Boolean);
 
         if (targetCategoryIds.length > 0) {
-          const token = sessions[userConfig.id].accessToken;
-          await fetch(`${bffUrl}/social/interests`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Cookie: `accessToken=${token}`,
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ categoryIds: targetCategoryIds }),
+          const intRes = await userClient.put('/social/interests', {
+            categoryIds: targetCategoryIds,
           });
-          console.log(`   ✓ Assigned ${targetCategoryIds.length} topic interest(s) for ${finalUsername}`);
+          if (intRes.ok) {
+            console.log(`   ✓ Assigned ${targetCategoryIds.length} topic interest(s) for ${profile.username}`);
+          }
         }
       } catch (intErr) {
         console.warn(`   ⚠️ Interest assignment notice:`, intErr.message);
@@ -249,9 +265,4 @@ runAuthProfileFlow()
   .catch((err) => {
     console.error('\n❌ FLOW 01 Failed:', err.message);
     process.exit(1);
-  })
-  .finally(async () => {
-    if (prisma) {
-      await prisma.$disconnect().catch(() => {});
-    }
   });

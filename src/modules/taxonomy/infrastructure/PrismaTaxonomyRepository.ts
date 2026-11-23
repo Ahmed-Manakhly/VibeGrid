@@ -94,14 +94,18 @@ export class PrismaTaxonomyRepository implements ITaxonomyRepository {
   }
 
   async createCategory(data: { name: string; slug: string; emoji?: string }): Promise<Category> {
-    return this.db.category.create({
-      data,
+    return this.db.category.upsert({
+      where: { slug: data.slug },
+      update: data,
+      create: data,
     });
   }
 
   async createVibe(data: { key: string; label: string }): Promise<Vibe> {
-    return this.db.vibe.create({
-      data,
+    return this.db.vibe.upsert({
+      where: { key: data.key },
+      update: data,
+      create: data,
     });
   }
 }

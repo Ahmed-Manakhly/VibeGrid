@@ -59,6 +59,9 @@ const redisUrl = process.env.REDIS_URL;
 
 const vpsSshHost = process.env.VPS_SSH_HOST || process.env.VPS_HOST;
 
+const adminEmail = process.env.ADMIN_EMAIL;
+const adminPassword = process.env.ADMIN_PASSWORD;
+
 module.exports = {
   targetEnv: isProd ? 'prod' : 'local',
   isProd,
@@ -66,4 +69,6 @@ module.exports = {
   databaseUrl,
   redisUrl,
   vpsSshHost,
+  adminEmail,
+  adminPassword,
 };

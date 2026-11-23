@@ -1,10 +1,11 @@
 /**
- * FLOW 00 — Taxonomy & Categories Bot (Standard Millensys Pattern)
+ * FLOW 00 — Taxonomy & Categories Bot (Pure Standalone HTTP Ingress)
  * ============================================================
- * - Reference: data_reference.json (Master immutable reference)
- * - Working queue: data_input.json (Auto-created if missing)
- * - Idempotency: Successfully seeded records are removed from data_input.json
- * - Cache invalidation: Flushes Redis taxonomy cache upon completion
+ * - Simulates real Platform Admin behavior strictly over public HTTP.
+ * - Authenticates via POST /api/auth/login using ADMIN_EMAIL & ADMIN_PASSWORD.
+ * - Seeds Categories via POST /api/taxonomy/categories
+ * - Seeds Vibes via POST /api/taxonomy/vibes
+ * - ZERO direct database or Prisma access: 100% environment parity (local dev & remote VPS).
  *
  * Usage:
  *   node seeding_scripts/00_taxonomy_flow/bot.js
@@ -13,44 +14,16 @@
 
 const fs = require('fs');
 const path = require('path');
+const config = require('../shared/config');
+const { HttpClient } = require('../shared/http');
 
-// Try loading .env from root or cwd
-const candidateEnvPaths = [
-  path.resolve(__dirname, '../../.env'),
-  path.resolve(process.cwd(), '.env'),
-];
-for (const envPath of candidateEnvPaths) {
-  if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
-    break;
-  }
-}
+const ROOT_INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
+const LOCAL_INPUT_PATH = path.join(__dirname, 'data_input.json');
+const INPUT_PATH = fs.existsSync(ROOT_INPUT_PATH) ? ROOT_INPUT_PATH : LOCAL_INPUT_PATH;
 
-const { PrismaClient } = require('@prisma/client');
-const Redis = require('ioredis');
-
-// URL VAR FOR LOCAL (Host native / localhost)
-// DATABASE_URL="postgresql://vibegrid:secret@localhost:5432/vibegrid_db?schema=public"
-// REDIS_URL="redis://:secret@localhost:6379"
-// URL VAR FOR PROD (Container network / VPS)
-// DATABASE_URL="postgresql://vibegrid:secret@vibegrid_postgres:5432/vibegrid_db?schema=public"
-// REDIS_URL="redis://:secret@vibegrid_redis:6379"
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) {
-  console.error('❌ DATABASE_URL not found in .env');
-  process.exit(1);
-}
-
-const redisUrl = process.env.REDIS_URL;
-
-const prisma = new PrismaClient({
-  datasources: {
-    db: { url: databaseUrl },
-  },
-});
-
-const REFERENCE_PATH = path.join(__dirname, 'data_reference.json');
-const INPUT_PATH = path.join(__dirname, 'data_input.json');
+const ROOT_REF_PATH = path.join(__dirname, '..', 'data_reference.json');
+const LOCAL_REF_PATH = path.join(__dirname, 'data_reference.json');
+const REFERENCE_PATH = fs.existsSync(ROOT_REF_PATH) ? ROOT_REF_PATH : LOCAL_REF_PATH;
 
 function loadQueue() {
   if (!fs.existsSync(INPUT_PATH)) {
@@ -74,108 +47,134 @@ function saveQueue(data) {
   fs.writeFileSync(INPUT_PATH, JSON.stringify(data, null, 2));
 }
 
-async function invalidateTaxonomyCache() {
-  if (!redisUrl) {
-    console.warn('   ⚠️ Notice: REDIS_URL not set in .env. Skipping Redis cache flush.');
-    return;
-  }
-  let redis = null;
-  try {
-    redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 1 });
-    await redis.connect();
-    
-    // Invalidate taxonomy and feed filters cache keys
-    const keys = await redis.keys('cache:tags:*');
-    if (keys.length > 0) {
-      await redis.del(...keys);
-    }
-    await redis.del('cache:tags:all');
-    console.log('   🧹 Flushed Redis taxonomy cache keys');
-  } catch (err) {
-    console.warn(`   ⚠️ Notice: Redis cache invalidation skipped (${err.message})`);
-  } finally {
-    if (redis) {
-      redis.disconnect();
-    }
-  }
-}
-
 async function seedTaxonomy() {
-  console.log('🌱 FLOW 00: Seeding Taxonomy (Categories & Vibes)...');
+  console.log('🌱 FLOW 00: Seeding Taxonomy (Categories & Vibes) via Pure HTTP REST Ingress...');
+  console.log(`   Ingress Target: [${config.targetEnv.toUpperCase()}] ${config.apiUrl}`);
+
+  const adminEmail = config.adminEmail || process.env.ADMIN_EMAIL;
+  const adminPassword = config.adminPassword || process.env.ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) {
+    throw new Error(
+      '❌ Missing ADMIN_EMAIL or ADMIN_PASSWORD.\n' +
+      '   Please configure them in seeding_scripts/.env to match the Auth service bootstrap admin.'
+    );
+  }
 
   const queue = loadQueue();
   const categories = queue.categories || [];
   const vibes = queue.vibes || [];
 
   if (categories.length === 0 && vibes.length === 0) {
-    console.log('✨ All taxonomy records are already seeded! (data_input.json is empty)');
+    console.log('✨ All taxonomy records are already seeded! (data_input.json queue empty)');
     console.log('💡 To re-seed, run: node seeding_scripts/00_taxonomy_flow/reset.js\n');
     return;
   }
 
-  // 1. Seed Categories (Process and remove completed items)
+  // 1. Authenticate as Platform Admin via Public HTTP Ingress
+  console.log(`🔐 Authenticating as Platform Admin (${adminEmail})...`);
+  const adminClient = new HttpClient(config.apiUrl);
+  const loginRes = await adminClient.post('/auth/login', {
+    email: adminEmail,
+    password: adminPassword,
+  });
+
+  if (!loginRes.ok) {
+    throw new Error(
+      `❌ Admin authentication failed (HTTP ${loginRes.status}): ${JSON.stringify(loginRes.data || loginRes.rawBody)}\n` +
+      '   Ensure the Auth service is running and bootstrap admin credentials are valid.'
+    );
+  }
+
+  console.log('   ✓ Admin authenticated successfully.');
+
+  // 2. Seed Categories via POST /api/taxonomy/categories
   let catSuccessCount = 0;
   const remainingCategories = [];
 
   for (const cat of categories) {
     try {
-      await prisma.category.upsert({
-        where: { slug: cat.slug },
-        update: cat,
-        create: cat,
-      });
-      catSuccessCount++;
+      const res = await adminClient.post('/taxonomy/categories', {
+        name: cat.name,
+        slug: cat.slug,
+        emoji: cat.emoji,
+      }, { maxRetries: 0 });
+
+      const isSeededOrExists =
+        res.ok ||
+        res.status === 201 ||
+        res.status === 200 ||
+        res.status === 409 ||
+        (res.data?.error && String(res.data.error).includes('Unique constraint'));
+
+      if (isSeededOrExists) {
+        catSuccessCount++;
+      } else {
+        console.error(`   ❌ Failed to seed category "${cat.name}" (HTTP ${res.status}):`, res.data?.error || res.rawBody);
+        remainingCategories.push(cat);
+      }
     } catch (err) {
-      console.error(`   ❌ Failed to seed category "${cat.name}":`, err.message);
-      remainingCategories.push(cat);
+      if (err.message?.includes('Unique constraint')) {
+        catSuccessCount++;
+      } else {
+        console.error(`   ❌ Failed to seed category "${cat.name}":`, err.message);
+        remainingCategories.push(cat);
+      }
     }
   }
+
   queue.categories = remainingCategories;
   saveQueue(queue);
 
   if (catSuccessCount > 0) {
-    console.log(`   ✅ Categories — seeded/updated ${catSuccessCount} records`);
+    console.log(`   ✅ Categories — verified/seeded ${catSuccessCount} records over HTTP`);
   }
 
-  // 2. Seed Vibes (Process and remove completed items)
+  // 3. Seed Vibes via POST /api/taxonomy/vibes
   let vibeSuccessCount = 0;
   const remainingVibes = [];
 
   for (const vibe of vibes) {
     try {
-      await prisma.vibe.upsert({
-        where: { key: vibe.key },
-        update: vibe,
-        create: vibe,
-      });
-      vibeSuccessCount++;
+      const res = await adminClient.post('/taxonomy/vibes', {
+        key: vibe.key,
+        label: vibe.label,
+      }, { maxRetries: 0 });
+
+      const isSeededOrExists =
+        res.ok ||
+        res.status === 201 ||
+        res.status === 200 ||
+        res.status === 409 ||
+        (res.data?.error && String(res.data.error).includes('Unique constraint'));
+
+      if (isSeededOrExists) {
+        vibeSuccessCount++;
+      } else {
+        console.error(`   ❌ Failed to seed vibe "${vibe.label}" (HTTP ${res.status}):`, res.data?.error || res.rawBody);
+        remainingVibes.push(vibe);
+      }
     } catch (err) {
-      console.error(`   ❌ Failed to seed vibe "${vibe.key}":`, err.message);
-      remainingVibes.push(vibe);
+      if (err.message?.includes('Unique constraint')) {
+        vibeSuccessCount++;
+      } else {
+        console.error(`   ❌ Failed to seed vibe "${vibe.label}":`, err.message);
+        remainingVibes.push(vibe);
+      }
     }
   }
+
   queue.vibes = remainingVibes;
   saveQueue(queue);
 
   if (vibeSuccessCount > 0) {
-    console.log(`   ✅ Vibes — seeded/updated ${vibeSuccessCount} records`);
+    console.log(`   ✅ Vibes — seeded/updated ${vibeSuccessCount} records over HTTP`);
   }
 
-  // 3. Invalidate Redis Cache
-  await invalidateTaxonomyCache();
-
-  if (remainingCategories.length === 0 && remainingVibes.length === 0) {
-    console.log('🎉 Flow 00: Taxonomy seeding complete! data_input.json cleared.\n');
-  } else {
-    console.log(`⚠️ Flow 00: Completed with ${remainingCategories.length} categories and ${remainingVibes.length} vibes remaining in data_input.json.\n`);
-  }
+  console.log('🎉 FLOW 00 Taxonomy completed via 100% Pure HTTP Ingress.\n');
 }
 
-seedTaxonomy()
-  .catch((e) => {
-    console.error('❌ Flow 00 failed:', e.message);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+seedTaxonomy().catch((err) => {
+  console.error('\n❌ FLOW 00 Seeding Failed:', err.message);
+  process.exit(1);
+});

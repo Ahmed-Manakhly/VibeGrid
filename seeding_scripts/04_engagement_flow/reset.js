@@ -1,21 +1,54 @@
 /**
- * FLOW 04 — Reset Script
+ * FLOW 04 — Reset Script (Local & Containerized Execution)
  * ============================================================
- * Cleans up engagement references from session_state.json.
+ * Local Execution: Directly connects to PostgreSQL via Prisma.
+ * Remote VPS Execution: Use remote_reset.sh to execute inside vibegrid_bff container via SSH.
  *
- * Usage:
- *   node seeding_scripts/04_engagement_flow/reset.js
+ * Removes seeded likes, comments, and poll votes, and clears session_state.json.
  * ============================================================
  */
 
 const fs = require('fs');
 const path = require('path');
 
+const candidateEnvPaths = [
+  path.resolve(__dirname, '../../.env'),
+  path.resolve(process.cwd(), '.env'),
+];
+for (const envPath of candidateEnvPaths) {
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+    break;
+  }
+}
+
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
 const SESSION_PATH = path.join(__dirname, '..', 'session_state.json');
 const FLOW_SESSION_PATH = path.join(__dirname, 'session_state.json');
 
-function resetFlow04() {
+async function resetFlow04() {
   console.log('🔄 Resetting Flow 04 (Engagement)...');
+
+  try {
+    let userIds = [];
+    if (fs.existsSync(SESSION_PATH)) {
+      const session = JSON.parse(fs.readFileSync(SESSION_PATH, 'utf8'));
+      if (session.users) {
+        userIds = Object.values(session.users).map((u) => u.userId).filter(Boolean);
+      }
+    }
+
+    if (userIds.length > 0) {
+      const delVotes = await prisma.pollVote.deleteMany({ where: { userId: { in: userIds } } });
+      const delLikes = await prisma.like.deleteMany({ where: { userId: { in: userIds } } });
+      const delComments = await prisma.comment.deleteMany({ where: { authorId: { in: userIds } } });
+      console.log(`   ✅ Deleted engagement from PostgreSQL: ${delLikes.count} like(s), ${delComments.count} comment(s), ${delVotes.count} vote(s).`);
+    }
+  } catch (err) {
+    console.warn(`   ⚠️ Direct DB deletion skipped/failed (${err.message}).`);
+  }
 
   if (fs.existsSync(SESSION_PATH)) {
     const session = JSON.parse(fs.readFileSync(SESSION_PATH, 'utf8'));
@@ -30,6 +63,7 @@ function resetFlow04() {
   }
 
   console.log('   ✓ Cleared engagement session references.');
+  await prisma.$disconnect();
 }
 
 resetFlow04();

@@ -72,6 +72,12 @@ if (isReset) {
   console.log('║  VibeGrid Seeding — FULL RESET (Reverse Order)         ║');
   console.log(`║  Target: [${config.targetEnv.toUpperCase()}] ${config.apiUrl.padEnd(41)}║`);
   console.log('╚════════════════════════════════════════════════════════╝');
+  if (config.isProd) {
+    console.log('💡 Note: Local reset.js scripts execute directly against local DB.');
+    console.log('   To reset against the remote VPS, execute the flow remote scripts over SSH:');
+    console.log('   e.g. bash seeding_scripts/01_auth_profile_flow/remote_reset.sh --confirm');
+    console.log('   Or for full remote wipe: bash seeding_scripts/remote_clean_prod.sh --confirm\n');
+  }
   const resetFlows = [...targetFlows].reverse();
   resetFlows.forEach((f, idx) => {
     console.log(`\n[${idx + 1}/${resetFlows.length}] 🔄 Resetting Flow ${f.id}: ${f.name}`);

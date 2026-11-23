@@ -1,21 +1,59 @@
 /**
- * FLOW 03 — Reset Script
+ * FLOW 03 — Reset Script (Local & Containerized Execution)
  * ============================================================
- * Cleans up social graph references from session_state.json.
+ * Local Execution: Directly connects to PostgreSQL via Prisma.
+ * Remote VPS Execution: Use remote_reset.sh to execute inside vibegrid_bff container via SSH.
  *
- * Usage:
- *   node seeding_scripts/03_social_graph_flow/reset.js
+ * Removes seeded follow relationships and clears session_state.json.
  * ============================================================
  */
 
 const fs = require('fs');
 const path = require('path');
 
+const candidateEnvPaths = [
+  path.resolve(__dirname, '../../.env'),
+  path.resolve(process.cwd(), '.env'),
+];
+for (const envPath of candidateEnvPaths) {
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+    break;
+  }
+}
+
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
 const SESSION_PATH = path.join(__dirname, '..', 'session_state.json');
 const FLOW_SESSION_PATH = path.join(__dirname, 'session_state.json');
 
-function resetFlow03() {
+async function resetFlow03() {
   console.log('🔄 Resetting Flow 03 (Social Graph)...');
+
+  try {
+    let userIds = [];
+    if (fs.existsSync(SESSION_PATH)) {
+      const session = JSON.parse(fs.readFileSync(SESSION_PATH, 'utf8'));
+      if (session.users) {
+        userIds = Object.values(session.users).map((u) => u.userId).filter(Boolean);
+      }
+    }
+
+    if (userIds.length > 0) {
+      const del = await prisma.follows.deleteMany({
+        where: {
+          OR: [
+            { followerId: { in: userIds } },
+            { followingId: { in: userIds } },
+          ],
+        },
+      });
+      console.log(`   ✅ Deleted ${del.count} seeded Follow relationships from PostgreSQL.`);
+    }
+  } catch (err) {
+    console.warn(`   ⚠️ Direct DB deletion skipped/failed (${err.message}).`);
+  }
 
   if (fs.existsSync(SESSION_PATH)) {
     const session = JSON.parse(fs.readFileSync(SESSION_PATH, 'utf8'));
@@ -30,6 +68,7 @@ function resetFlow03() {
   }
 
   console.log('   ✓ Cleared social graph session references.');
+  await prisma.$disconnect();
 }
 
 resetFlow03();

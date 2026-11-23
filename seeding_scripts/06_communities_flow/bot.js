@@ -1,72 +1,53 @@
 /**
- * Flow 06 — Developer Communities Seeding
- * Seeds 5 foundational developer guilds with tags, rules, and initial memberships
+ * Flow 06 — Developer Communities Seeding (Pure Standalone HTTP Ingress)
+ * ============================================================
+ * - Simulates real Admin / Creator creating developer guilds over public HTTP.
+ * - Authenticates as Admin via POST /api/auth/login.
+ * - Seeds Communities via POST /api/communities
+ * - Auto-joins seeded users via POST /api/communities/[slug]/join
+ * - Caches community metadata in session_state.json for downstream flows.
+ * - ZERO direct database or Prisma access: 100% environment parity (local dev & remote VPS).
+ *
+ * Usage:
+ *   node seeding_scripts/06_communities_flow/bot.js
+ * ============================================================
  */
 
 const path = require('path');
 const fs = require('fs');
-
-// Try loading .env from root or cwd
-const candidateEnvPaths = [
-  path.resolve(__dirname, '../../.env'),
-  path.resolve(process.cwd(), '.env'),
-];
-for (const envPath of candidateEnvPaths) {
-  if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
-    break;
-  }
-}
-
-const { PrismaClient, CommunityRole } = require('@prisma/client');
-
-// URL VAR FOR LOCAL (Host native / localhost)
-// DATABASE_URL="postgresql://vibegrid:secret@localhost:5432/vibegrid_db?schema=public"
-// URL VAR FOR PROD (Container network / VPS)
-// DATABASE_URL="postgresql://vibegrid:secret@vibegrid_postgres:5432/vibegrid_db?schema=public"
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) {
-  console.error('❌ DATABASE_URL not found in .env');
-  process.exit(1);
-}
-
-const prisma = new PrismaClient({
-  datasources: {
-    db: { url: databaseUrl },
-  },
-});
+const config = require('../shared/config');
+const { HttpClient } = require('../shared/http');
 
 const FOUNDATIONAL_COMMUNITIES = [
   {
-    slug: 'frontend-architects',
-    name: 'Frontend Architects',
-    description: 'Discussions on macro frontend architecture, micro-frontends, rendering patterns, Next.js performance, and high-signal design systems.',
-    techTags: ['react', 'nextjs', 'typescript', 'tailwind', 'architecture'],
+    slug: 'backend-guild',
+    name: 'Backend Architecture Guild',
+    description: 'High-throughput microservices, Clean Architecture, DDD, PostgreSQL concurrency, and API gateway engineering.',
+    techTags: ['nodejs', 'postgresql', 'redis', 'clean-architecture', 'ddd'],
     rules: [
-      'Share production benchmarks and reproducible profiling traces.',
-      'Constructive technical debates on component boundaries.',
-      'No low-effort framework flame wars.',
+      'Share production profiling benchmarks and architecture RFCs.',
+      'Constructive debate on domain boundaries.',
+      'No flame wars.',
     ],
   },
   {
-    slug: 'ai-engineers',
-    name: 'AI Engineers & Autonomous Agents',
-    description: 'Building production LLM agents, evals, vector pipelines, RAG topologies, and autonomous coding assistant workflows.',
-    techTags: ['ai', 'llm', 'agents', 'gemini', 'rag', 'typescript'],
+    slug: 'fullstack-collective',
+    name: 'Full-Stack Collective',
+    description: 'Modern full-stack systems: Next.js 14 App Router, Server Actions, TypeScript, React Server Components, and scalable state.',
+    techTags: ['nextjs', 'react', 'typescript', 'server-actions', 'bff'],
     rules: [
-      'Focus on real agent architectures, evals, and system prompts.',
-      'Document token latency and cost trade-offs.',
-      'Open source and reproducible workflows encouraged.',
+      'Document trade-offs between SSR, RSC, and client components.',
+      'Include reproducible snippets for technical questions.',
     ],
   },
   {
-    slug: 'rust-systems',
-    name: 'Rust & Low-Level Systems',
-    description: 'Memory safety, zero-cost abstractions, WebAssembly runtimes, high-throughput network engines, and kernel primitives.',
-    techTags: ['rust', 'systems', 'wasm', 'performance', 'embedded'],
+    slug: 'frontend-craft',
+    name: 'Frontend Craft & Design',
+    description: 'Design systems, atomic components, Tailwind CSS, accessibility, micro-animations, and fluid responsive layouts.',
+    techTags: ['frontend', 'css', 'design-systems', 'tailwind', 'ui-ux'],
     rules: [
-      'Focus on idiomatic Rust, zero-copy pipelines, and unsafe audit notes.',
-      'Benchmarks must include compiler flags and target hardware.',
+      'Show live demos or component links.',
+      'Light/Dark mode parity required on featured styles.',
     ],
   },
   {
@@ -79,19 +60,10 @@ const FOUNDATIONAL_COMMUNITIES = [
       'Incident retrospectives and resilience patterns welcomed.',
     ],
   },
-  {
-    slug: 'open-source-builders',
-    name: 'Open Source Builders',
-    description: 'Sharing open source releases, RFCs, governance models, maintainer playbooks, and collaborating on developer tools.',
-    techTags: ['oss', 'github', 'maintainers', 'community', 'tools'],
-    rules: [
-      'Show your work: link repositories with active READMEs and licenses.',
-      'Foster welcoming contributor onboarding.',
-    ],
-  },
 ];
 
 const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
+const SESSION_PATH = path.join(__dirname, '..', 'session_state.json');
 
 function loadCommunities() {
   if (fs.existsSync(INPUT_PATH)) {
@@ -100,123 +72,124 @@ function loadCommunities() {
       if (Array.isArray(data.communities) && data.communities.length > 0) {
         return data.communities;
       }
-    } catch (_) {}
+    } catch (e) {
+      // Fallback
+    }
   }
   return FOUNDATIONAL_COMMUNITIES;
 }
 
-async function seedCommunities() {
-  console.log('🌱 [Flow 06] Seeding foundational developer communities...');
-
-  const communities = loadCommunities();
-
-  // 1. Get or create a seed admin creator user
-  const adminEmail = process.env.ADMIN_EMAIL;
-  let creator = adminEmail ? await prisma.user.findUnique({ where: { email: adminEmail } }) : await prisma.user.findFirst();
-  if (!creator) {
-    creator = await prisma.user.findFirst();
-  }
-  if (!creator) {
-    console.log('   Creating fallback creator user for communities...');
-    creator = await prisma.user.create({
-      data: {
-        email: adminEmail || 'admin@vibegrid.manakhly.tech',
-        username: 'guild_master',
-        name: 'Guild Master',
-        bio: 'Founding curator of VibeGrid developer communities.',
-      },
-    });
-  }
-
-  for (const item of communities) {
-    const community = await prisma.community.upsert({
-      where: { slug: item.slug },
-      update: {
-        name: item.name,
-        description: item.description,
-        techTags: item.techTags,
-        rules: item.rules,
-      },
-      create: {
-        slug: item.slug,
-        name: item.name,
-        description: item.description,
-        techTags: item.techTags,
-        rules: item.rules,
-        creatorId: creator.id,
-      },
-    });
-
-    // Ensure creator is ADMIN member
-    await prisma.communityMember.upsert({
-      where: {
-        userId_communityId: {
-          userId: creator.id,
-          communityId: community.id,
-        },
-      },
-      update: {
-        role: CommunityRole.ADMIN,
-      },
-      create: {
-        userId: creator.id,
-        communityId: community.id,
-        role: CommunityRole.ADMIN,
-      },
-    });
-
-    console.log(`   --> Guild ready: /c/${community.slug} (${community.name})`);
-  }
-
-  // Save communities to session_state.json so downstream flows can scope posts to them
-  const sessionPath = path.join(__dirname, '..', 'session_state.json');
-  let sessionData = {};
-  if (fs.existsSync(sessionPath)) {
+function loadSession() {
+  if (fs.existsSync(SESSION_PATH)) {
     try {
-      sessionData = JSON.parse(fs.readFileSync(sessionPath, 'utf8'));
-    } catch (_) {}
+      return JSON.parse(fs.readFileSync(SESSION_PATH, 'utf8'));
+    } catch (e) {
+      return {};
+    }
+  }
+  return {};
+}
+
+function saveSession(data) {
+  fs.writeFileSync(SESSION_PATH, JSON.stringify(data, null, 2));
+}
+
+async function seedCommunities() {
+  console.log('🏛️  FLOW 06: Seeding Communities & Guild Memberships via Pure HTTP REST Ingress...');
+  console.log(`   Ingress Target: [${config.targetEnv.toUpperCase()}] ${config.apiUrl}`);
+
+  const adminEmail = config.adminEmail || process.env.ADMIN_EMAIL;
+  const adminPassword = config.adminPassword || process.env.ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) {
+    throw new Error(
+      '❌ Missing ADMIN_EMAIL or ADMIN_PASSWORD in seeding_scripts/.env\n' +
+      '   Communities creation requires authenticated creator/admin session.'
+    );
   }
 
-  sessionData.communities = sessionData.communities || {};
-  const dbCommunities = await prisma.community.findMany();
-  for (const c of dbCommunities) {
-    sessionData.communities[c.slug] = {
-      id: c.id,
-      slug: c.slug,
-      name: c.name,
-    };
+  // 1. Authenticate as Platform Admin / Creator via Public HTTP Ingress
+  console.log(`🔐 Authenticating as Community Creator (${adminEmail})...`);
+  const adminClient = new HttpClient(config.apiUrl);
+  const loginRes = await adminClient.post('/auth/login', {
+    email: adminEmail,
+    password: adminPassword,
+  });
+
+  if (!loginRes.ok) {
+    throw new Error(
+      `❌ Creator authentication failed (HTTP ${loginRes.status}): ${JSON.stringify(loginRes.data || loginRes.rawBody)}\n` +
+      '   Ensure the Auth service is running and bootstrap admin credentials are valid.'
+    );
   }
 
-  // Ensure all registered seed users join communities as members
-  const seedUserKeys = Object.keys(sessionData).filter((k) => sessionData[k]?.userId);
-  for (const uKey of seedUserKeys) {
-    const uId = sessionData[uKey].userId;
-    for (const c of dbCommunities) {
-      await prisma.communityMember.upsert({
-        where: {
-          userId_communityId: {
-            userId: uId,
-            communityId: c.id,
-          },
-        },
-        update: {},
-        create: {
-          userId: uId,
-          communityId: c.id,
-          role: CommunityRole.MEMBER,
-        },
+  console.log('   ✓ Creator authenticated successfully.');
+
+  const sessionData = loadSession();
+  const communitiesToSeed = loadCommunities();
+  const seededCommunities = {};
+
+  // 2. Create Communities via POST /api/communities
+  for (const item of communitiesToSeed) {
+    try {
+      const res = await adminClient.post('/communities', {
+        name: item.name,
+        slug: item.slug,
+        description: item.description,
+        techTags: item.techTags,
+        rules: item.rules,
       });
+
+      if (res.ok && res.data?.data) {
+        const guild = res.data.data;
+        seededCommunities[item.slug] = {
+          id: guild.id,
+          name: guild.name,
+          slug: guild.slug,
+        };
+        console.log(`   ✅ Community created/verified: ${guild.name} (${guild.slug})`);
+      } else {
+        console.warn(`   ⚠️ Community creation note for "${item.name}":`, res.data?.error || res.rawBody);
+      }
+    } catch (err) {
+      console.error(`   ❌ Failed to seed community "${item.name}":`, err.message);
     }
   }
 
-  fs.writeFileSync(sessionPath, JSON.stringify(sessionData, null, 2));
+  // 3. Auto-join seeded users to all communities via POST /api/communities/[slug]/join
+  const users = sessionData.users || {};
+  const userKeys = Object.keys(users);
 
-  console.log('✅ [Flow 06] Developer communities seeded successfully & members enrolled!\n');
+  if (userKeys.length > 0) {
+    console.log(`\n👥 Auto-enrolling ${userKeys.length} seed user(s) into communities via HTTP...`);
+
+    for (const [slug, guild] of Object.entries(seededCommunities)) {
+      for (const [userKey, userSession] of Object.entries(users)) {
+        try {
+          const userClient = new HttpClient(config.apiUrl);
+          if (userSession.accessToken) {
+            userClient.setToken(userSession.accessToken);
+          }
+
+          const joinRes = await userClient.post(`/communities/${slug}/join`);
+          if (joinRes.ok || joinRes.status === 200 || joinRes.status === 201) {
+            console.log(`   ✓ ${userSession.username || userKey} joined ${guild.name}`);
+          }
+        } catch (joinErr) {
+          // Non-fatal
+        }
+      }
+    }
+  }
+
+  // 4. Update session state with community mappings
+  sessionData.communities = seededCommunities;
+  saveSession(sessionData);
+
+  console.log('\n🎉 FLOW 06 Communities completed via 100% Pure HTTP Ingress.\n');
 }
 
-seedCommunities()
-  .catch((err) => {
-    console.error('❌ Error seeding communities:', err);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+seedCommunities().catch((err) => {
+  console.error('\n❌ FLOW 06 Seeding Failed:', err.message);
+  process.exit(1);
+});
