@@ -1267,6 +1267,131 @@
       ]
     }
   ],
-  "categories": [],
-  "vibes": []
+  "categories": [
+    {
+      "name": "Tech",
+      "slug": "tech",
+      "emoji": "💻"
+    },
+    {
+      "name": "AI & ML",
+      "slug": "ai-ml",
+      "emoji": "🤖"
+    },
+    {
+      "name": "Backend",
+      "slug": "backend",
+      "emoji": "⚙️"
+    },
+    {
+      "name": "Frontend",
+      "slug": "frontend",
+      "emoji": "🎨"
+    },
+    {
+      "name": "DevOps",
+      "slug": "devops",
+      "emoji": "🚀"
+    },
+    {
+      "name": "Database",
+      "slug": "database",
+      "emoji": "💾"
+    },
+    {
+      "name": "System Design",
+      "slug": "system-design",
+      "emoji": "🏗️"
+    },
+    {
+      "name": "Security",
+      "slug": "security",
+      "emoji": "🛡️"
+    },
+    {
+      "name": "Business",
+      "slug": "business",
+      "emoji": "💼"
+    },
+    {
+      "name": "Culture",
+      "slug": "culture",
+      "emoji": "🌍"
+    },
+    {
+      "name": "Design",
+      "slug": "design",
+      "emoji": "📐"
+    },
+    {
+      "name": "Lifestyle",
+      "slug": "lifestyle",
+      "emoji": "🌿"
+    },
+    {
+      "name": "Mobile",
+      "slug": "mobile",
+      "emoji": "📱"
+    },
+    {
+      "name": "Productivity",
+      "slug": "productivity",
+      "emoji": "⚡"
+    },
+    {
+      "name": "Startups",
+      "slug": "startups",
+      "emoji": "🔥"
+    }
+  ],
+  "vibes": [
+    {
+      "key": "building",
+      "label": "💻 Building"
+    },
+    {
+      "key": "shipping",
+      "label": "🚀 Shipping"
+    },
+    {
+      "key": "learning",
+      "label": "📚 Learning"
+    },
+    {
+      "key": "debugging",
+      "label": "🐛 Debugging"
+    },
+    {
+      "key": "exploring",
+      "label": "🔍 Exploring"
+    },
+    {
+      "key": "questioning",
+      "label": "❓ Questioning"
+    },
+    {
+      "key": "sharing",
+      "label": "📢 Sharing"
+    },
+    {
+      "key": "celebrating",
+      "label": "🎉 Celebrating"
+    },
+    {
+      "key": "brainstorming",
+      "label": "💡 Brainstorming"
+    },
+    {
+      "key": "ranting",
+      "label": "🤬 Ranting"
+    },
+    {
+      "key": "reviewing",
+      "label": "👀 Reviewing"
+    },
+    {
+      "key": "announcing",
+      "label": "📣 Announcing"
+    }
+  ]
 }

@@ -116,9 +116,12 @@ async function run() {
   await prisma.userReport.deleteMany({});
   await prisma.developerMilestone.deleteMany({});
   await prisma.outboxEvent.deleteMany({});
+  await prisma.vibe.deleteMany({});
+  await prisma.category.deleteMany({});
 
   const u = await prisma.user.deleteMany({ where: { email: { not: adminEmail } } });
   console.log(\`   ✅ PostgreSQL non-admin users wiped: \${u.count}\`);
+  console.log(\"   ✅ PostgreSQL Taxonomy (Categories & Vibes) wiped\");
   
   await redis.flushall();
   console.log(\"   ✅ Redis cache flushed\");

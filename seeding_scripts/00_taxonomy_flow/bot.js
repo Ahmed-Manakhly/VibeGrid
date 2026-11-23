@@ -62,8 +62,24 @@ async function seedTaxonomy() {
   }
 
   const queue = loadQueue();
-  const categories = queue.categories || [];
-  const vibes = queue.vibes || [];
+  let categories = queue.categories || [];
+  let vibes = queue.vibes || [];
+
+  if (categories.length === 0 && vibes.length === 0) {
+    if (fs.existsSync(REFERENCE_PATH)) {
+      try {
+        const refData = JSON.parse(fs.readFileSync(REFERENCE_PATH, 'utf8'));
+        queue.categories = refData.categories || [];
+        queue.vibes = refData.vibes || [];
+        saveQueue(queue);
+        categories = queue.categories;
+        vibes = queue.vibes;
+        console.log('📋 Auto-replenished taxonomy queue from data_reference.json');
+      } catch (e) {
+        // Fallback
+      }
+    }
+  }
 
   if (categories.length === 0 && vibes.length === 0) {
     console.log('✨ All taxonomy records are already seeded! (data_input.json queue empty)');
