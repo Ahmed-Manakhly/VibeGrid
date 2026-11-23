@@ -35,13 +35,17 @@ if [[ "${1:-}" != "--confirm" ]]; then
   exit 1
 fi
 
-echo "🔥 1/3 Cleaning MongoDB (Auth Service) inside vibegrid_auth..."
+echo "🔥 1/4 Cleaning MongoDB (Auth Service) inside vibegrid_auth..."
 ssh "${VPS_HOST}" "docker exec vibegrid_auth node scripts/clean_mongo.js --include-admins"
 
-echo "🔥 2/3 Cleaning MongoDB (Media Service) inside vibegrid_media..."
+echo "🔄 2/4 Restarting vibegrid_auth to re-seed bootstrap admins (ensureBootstrapUsers)..."
+ssh "${VPS_HOST}" "docker restart vibegrid_auth"
+sleep 3
+
+echo "🔥 3/4 Cleaning MongoDB (Media Service) inside vibegrid_media..."
 ssh "${VPS_HOST}" "docker exec vibegrid_media node scripts/clean_media_mongo.js"
 
-echo "🔥 3/3 Cleaning PostgreSQL & Redis inside vibegrid_bff..."
+echo "🔥 4/4 Cleaning PostgreSQL & Redis inside vibegrid_bff..."
 ssh "${VPS_HOST}" "docker exec vibegrid_bff node seeding_scripts/db_cleaners/clean_all.js --confirm"
 
 echo "=========================================================="
