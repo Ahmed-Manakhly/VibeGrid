@@ -60,8 +60,8 @@ class HttpClient {
       body = null,
       headers = {},
       authBearer = null,
-      timeoutMs = 10000,
-      maxRetries = 3,
+      timeoutMs = 30000,
+      maxRetries = 5,
       retryDelayMs = 500,
     } = options;
 
@@ -84,7 +84,7 @@ class HttpClient {
     let attempt = 0;
     let lastError = null;
 
-    while (attempt <= maxRetries) {
+    while (attempt < maxRetries) {
       attempt++;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -130,8 +130,8 @@ class HttpClient {
           cookies: new Map(this.cookies),
         };
 
-        if (!res.ok && TRANSIENT_STATUS_CODES.has(res.status) && attempt <= maxRetries) {
-          console.warn(`⚠️ [HTTP ${method} ${url}] Transient error ${res.status}. Retrying (${attempt}/${maxRetries}) in ${retryDelayMs}ms...`);
+        if (!res.ok && TRANSIENT_STATUS_CODES.has(res.status) && attempt < maxRetries) {
+          console.warn(`⚠️ [HTTP ${method} ${url}] Transient error ${res.status}. Retrying (${attempt}/${maxRetries - 1}) in ${retryDelayMs}ms...`);
           await sleep(retryDelayMs * attempt);
           continue;
         }
@@ -143,8 +143,8 @@ class HttpClient {
         lastError = err;
         const isAbort = err.name === 'AbortError';
 
-        if ((isAbort || err.message.includes('fetch failed')) && attempt <= maxRetries) {
-          console.warn(`⚠️ [HTTP ${method} ${url}] Network/Timeout error (${err.message}). Retrying (${attempt}/${maxRetries}) in ${retryDelayMs}ms...`);
+        if ((isAbort || err.message.includes('fetch failed')) && attempt < maxRetries) {
+          console.warn(`⚠️ [HTTP ${method} ${url}] Network/Timeout error (${err.message}). Retrying (${attempt}/${maxRetries - 1}) in ${retryDelayMs}ms...`);
           await sleep(retryDelayMs * attempt);
           continue;
         }
@@ -153,7 +153,7 @@ class HttpClient {
       }
     }
 
-    throw new Error(`[HTTP FAIL] ${method} ${url} failed after ${maxRetries} retries: ${lastError?.message || 'Unknown error'}`);
+    throw new Error(`[HTTP FAIL] ${method} ${url} failed after ${maxRetries - 1} retries: ${lastError?.message || 'Unknown error'}`);
   }
 
   get(path, options = {}) {

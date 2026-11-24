@@ -28,25 +28,38 @@ if [[ "${1:-}" != "--confirm" ]]; then
   exit 1
 fi
 
-# Encode reference data & session state if present
-REF_B64=""
-if [[ -n "${SEED_REF_B64:-}" ]]; then
-  REF_B64="${SEED_REF_B64}"
-elif [[ -f "${ROOT_SEEDING_DIR}/data_reference.json" ]]; then
-  REF_B64=$(base64 -w 0 < "${ROOT_SEEDING_DIR}/data_reference.json" 2>/dev/null || base64 < "${ROOT_SEEDING_DIR}/data_reference.json" | tr -d '\r\n')
-fi
-
-SESS_B64=""
-if [[ -n "${SEED_SESS_B64:-}" ]]; then
-  SESS_B64="${SEED_SESS_B64}"
-elif [[ -f "${ROOT_SEEDING_DIR}/session_state.json" ]]; then
-  SESS_B64=$(base64 -w 0 < "${ROOT_SEEDING_DIR}/session_state.json" 2>/dev/null || base64 < "${ROOT_SEEDING_DIR}/session_state.json" | tr -d '\r\n')
-elif [[ -f "${SCRIPT_DIR}/session_state.json" ]]; then
-  SESS_B64=$(base64 -w 0 < "${SCRIPT_DIR}/session_state.json" 2>/dev/null || base64 < "${SCRIPT_DIR}/session_state.json" | tr -d '\r\n')
-fi
-
 echo "🔄 Executing 00_taxonomy_flow Remote Reset on ${VPS_HOST}..."
-ssh "${VPS_HOST}" "docker exec -i -e SEED_REF_B64='${REF_B64}' -e SEED_SESS_B64='${SESS_B64}' vibegrid_bff node -" < "${SCRIPT_DIR}/reset.js"
+
+# Step 1: Upload JSON data files and reset.js to VPS via scp (filenames only — no ARG_MAX issue)
+echo "   📤 Uploading data files to VPS..."
+scp -o StrictHostKeyChecking=no \
+  "${ROOT_SEEDING_DIR}/data_reference.json" \
+  "${VPS_HOST}:/tmp/vg_data_reference.json"
+
+if [[ -f "${ROOT_SEEDING_DIR}/session_state.json" ]]; then
+  scp -o StrictHostKeyChecking=no \
+    "${ROOT_SEEDING_DIR}/session_state.json" \
+    "${VPS_HOST}:/tmp/vg_session_state.json"
+fi
+
+scp -o StrictHostKeyChecking=no \
+  "${SCRIPT_DIR}/reset.js" \
+  "${VPS_HOST}:/tmp/vg_reset_flow.js"
+
+# Step 2: SSH to VPS — base64-encode locally on VPS (no cross-machine large arg), copy into container, run, cleanup
+ssh -o StrictHostKeyChecking=no "${VPS_HOST}" '
+  REF_B64=$(base64 -w 0 < /tmp/vg_data_reference.json 2>/dev/null || base64 < /tmp/vg_data_reference.json | tr -d "\r\n")
+  SESS_B64=""
+  [ -f /tmp/vg_session_state.json ] && \
+    SESS_B64=$(base64 -w 0 < /tmp/vg_session_state.json 2>/dev/null || base64 < /tmp/vg_session_state.json | tr -d "\r\n")
+  docker cp /tmp/vg_reset_flow.js vibegrid_bff:/tmp/vg_reset_flow.js
+  docker exec \
+    -e "SEED_REF_B64=${REF_B64}" \
+    -e "SEED_SESS_B64=${SESS_B64}" \
+    vibegrid_bff node /tmp/vg_reset_flow.js
+  docker exec vibegrid_bff rm -f /tmp/vg_reset_flow.js
+  rm -f /tmp/vg_data_reference.json /tmp/vg_session_state.json /tmp/vg_reset_flow.js
+'
 echo "✅ 00_taxonomy_flow Remote Reset complete on ${VPS_HOST}."
 
 # Replenish Flow 00 slice in local data_input.json

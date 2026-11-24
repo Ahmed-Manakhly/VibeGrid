@@ -48,20 +48,6 @@ if [[ "${1:-}" != "--confirm" ]]; then
   exit 1
 fi
 
-# Encode data_reference.json and session_state.json into base64 environment variables
-REF_B64=""
-if [[ -f "${SCRIPT_DIR}/data_reference.json" ]]; then
-  REF_B64=$(base64 -w 0 < "${SCRIPT_DIR}/data_reference.json" 2>/dev/null || base64 < "${SCRIPT_DIR}/data_reference.json" | tr -d '\r\n')
-fi
-
-SESS_B64=""
-if [[ -f "${SCRIPT_DIR}/session_state.json" ]]; then
-  SESS_B64=$(base64 -w 0 < "${SCRIPT_DIR}/session_state.json" 2>/dev/null || base64 < "${SCRIPT_DIR}/session_state.json" | tr -d '\r\n')
-fi
-
-export SEED_REF_B64="${REF_B64}"
-export SEED_SESS_B64="${SESS_B64}"
-
 FLOWS=(
   "07_messages_flow"
   "05_notifications_flow"
@@ -100,9 +86,15 @@ rm -f "${SCRIPT_DIR}/session_state.json"
 rm -f "${SCRIPT_DIR}"/*_flow/session_state.json 2>/dev/null || true
 echo "🧹 Cleaned local session_state.json files"
 
-# Invalidate/flush Redis cache on remote VPS (zero hardcoded credentials)
+# Flush Redis with explicit password from local .env (not VPS environment)
 echo "🧹 Flushing Redis cache on remote VPS..."
-ssh -o StrictHostKeyChecking=no "${VPS_HOST}" "if [ -n \"\${REDIS_PASSWORD:-}\" ]; then docker exec vibegrid_redis redis-cli -a \"\${REDIS_PASSWORD}\" flushdb 2>/dev/null; else docker exec vibegrid_redis redis-cli flushdb 2>/dev/null; fi || true" || true
+if [[ -n "${REDIS_PASSWORD:-}" ]]; then
+  ssh -o StrictHostKeyChecking=no "${VPS_HOST}" \
+    "docker exec vibegrid_redis redis-cli -a '${REDIS_PASSWORD}' flushdb 2>/dev/null || true" || true
+else
+  ssh -o StrictHostKeyChecking=no "${VPS_HOST}" \
+    "docker exec vibegrid_redis redis-cli flushdb 2>/dev/null || true" || true
+fi
 
 echo ""
 echo "=========================================================="
