@@ -116,6 +116,10 @@ async function runPostsMediaFlow() {
 
   sessionData.posts = sessionData.posts || {};
   const seedPosts = inputData.posts || [];
+  if (seedPosts.length === 0) {
+    console.log('✨ All posts are already seeded! (data_input.json queue empty)');
+    return;
+  }
 
   for (const pConfig of seedPosts) {
     console.log(`[FLOW 02] Processing post seed ${pConfig.id}...`);
@@ -141,6 +145,9 @@ async function runPostsMediaFlow() {
         imageUrl: existing.imageUrl || null,
         tags: existing.tags || pConfig.tags || [],
       };
+      // Pop existing post from consumable queue
+      inputData.posts = inputData.posts.filter((p) => p.id !== pConfig.id);
+      fs.writeFileSync(INPUT_PATH, JSON.stringify(inputData, null, 2));
       continue;
     }
 
@@ -251,6 +258,10 @@ async function runPostsMediaFlow() {
       imageUrl: createdPost.imageUrl || imageUrl || null,
       tags: createdPost.tags || pConfig.tags || [],
     };
+
+    // Pop seeded post from consumable queue
+    inputData.posts = inputData.posts.filter((p) => p.id !== pConfig.id);
+    fs.writeFileSync(INPUT_PATH, JSON.stringify(inputData, null, 2));
 
     await sleep(env.THROTTLE_MS || 300);
   }

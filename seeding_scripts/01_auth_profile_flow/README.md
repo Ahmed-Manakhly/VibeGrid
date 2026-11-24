@@ -1,15 +1,22 @@
-# Flow 01 — Auth & Profile Seeding
+# Flow 01 — Auth, Profiles & Topic Interests Seeding
 
 ## Overview
-Exercises real HTTP/API boundaries to register users, verify emails, authenticate, and populate PostgreSQL user profiles.
+Automates persona registration, email verification with seed OTP bypass, MinIO avatar fixture uploads, profile details updating, and topic interests assignment via HTTP API ingress.
 
 ## Scope
-- Registers 3 test users (`aelmnakhly@gmail.com`, `manakhly.tech@gmail.com`, `seed_tester@vibegrid.com`).
-- Preserves Admin user.
-- Saves authentication tokens to `session_state.json`.
+- **8 Realistic Developer Personas:** Defined in `data_reference.json` / `data_input.json`.
+- **Media Ingress:** Uploads real WebP avatar fixtures to MinIO via `/api/media/upload-intent`.
+- **Topics:** Maps developer tech interests to categories via `PUT /api/social/interests`.
+- **Session State:** Saves user IDs, access tokens, and usernames to `session_state.json` for downstream flows (02–07).
 
-## Usage
+## Execution
+
 ```bash
-node seeding_scripts/01_auth_profile_flow/bot.js
-node seeding_scripts/01_auth_profile_flow/reset.js
+# Forward Seeding (HTTP)
+node seeding_scripts/01_auth_profile_flow/bot.js        # Local
+node seeding_scripts/01_auth_profile_flow/bot.js prod   # Remote VPS
+
+# Targeted Bot Reset (Deletes only Flow 01 bot users, refills queue)
+node seeding_scripts/01_auth_profile_flow/reset.js                     # Local (Prisma)
+bash seeding_scripts/01_auth_profile_flow/remote_reset.sh --confirm   # Remote VPS (SSH/Docker)
 ```

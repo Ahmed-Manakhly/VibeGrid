@@ -148,6 +148,12 @@ async function runMessagesFlow() {
 
       await sleep(env.THROTTLE_MS || 300);
     }
+
+    // Pop seeded conversation from consumable queue
+    if (Array.isArray(inputData.conversations)) {
+      inputData.conversations = inputData.conversations.filter((c) => c.id !== convSpec.id);
+      fs.writeFileSync(INPUT_PATH, JSON.stringify(inputData, null, 2));
+    }
   }
 
   saveSession(sessionData);

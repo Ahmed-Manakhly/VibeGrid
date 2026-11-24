@@ -127,6 +127,10 @@ async function seedCommunities() {
 
   const sessionData = loadSession();
   const communitiesToSeed = loadCommunities();
+  if (communitiesToSeed.length === 0) {
+    console.log('✨ All communities are already seeded! (data_input.json queue empty)');
+    return;
+  }
   const seededCommunities = {};
 
   // 2. Create Communities via POST /api/communities
@@ -148,6 +152,17 @@ async function seedCommunities() {
           slug: guild.slug,
         };
         console.log(`   ✅ Community created/verified: ${guild.name} (${guild.slug})`);
+
+        // Pop seeded community from consumable queue
+        if (fs.existsSync(INPUT_PATH)) {
+          try {
+            const rawQueue = JSON.parse(fs.readFileSync(INPUT_PATH, 'utf8'));
+            if (Array.isArray(rawQueue.communities)) {
+              rawQueue.communities = rawQueue.communities.filter((c) => c.slug !== item.slug);
+              fs.writeFileSync(INPUT_PATH, JSON.stringify(rawQueue, null, 2));
+            }
+          } catch (e) {}
+        }
       } else {
         console.warn(`   ⚠️ Community creation note for "${item.name}":`, res.data?.error || res.rawBody);
       }

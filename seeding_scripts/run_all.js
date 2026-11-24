@@ -19,6 +19,7 @@
 
 const { execSync } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 const config = require('./shared/config');
 
 const BASE = path.join(__dirname);
@@ -74,16 +75,27 @@ if (isReset) {
   console.log('╚════════════════════════════════════════════════════════╝');
   if (config.isProd) {
     console.log('💡 Note: Local reset.js scripts execute directly against local DB.');
-    console.log('   To reset against the remote VPS, execute the flow remote scripts over SSH:');
-    console.log('   e.g. bash seeding_scripts/01_auth_profile_flow/remote_reset.sh --confirm');
-    console.log('   Or for full remote wipe: bash seeding_scripts/remote_clean_prod.sh --confirm\n');
+    console.log('   To reset against the remote VPS over SSH, run:');
+    console.log('   bash seeding_scripts/remote_reset_all.sh --confirm\n');
   }
   const resetFlows = [...targetFlows].reverse();
   resetFlows.forEach((f, idx) => {
     console.log(`\n[${idx + 1}/${resetFlows.length}] 🔄 Resetting Flow ${f.id}: ${f.name}`);
     run(f.reset);
   });
-  console.log('\n✅ All targeted flows reset.\n');
+
+  const refPath = path.join(BASE, 'data_reference.json');
+  const inPath = path.join(BASE, 'data_input.json');
+  const sessPath = path.join(BASE, 'session_state.json');
+  if (fs.existsSync(refPath)) {
+    fs.copyFileSync(refPath, inPath);
+    console.log('\n📋 Master data_input.json replenished from data_reference.json');
+  }
+  if (fs.existsSync(sessPath)) {
+    fs.unlinkSync(sessPath);
+    console.log('🧹 Cleaned session_state.json');
+  }
+  console.log('\n✅ All targeted flows reset and input queue refilled.\n');
 } else {
   console.log('╔════════════════════════════════════════════════════════╗');
   console.log('║  VibeGrid Standalone HTTP Seeding — Orchestration      ║');

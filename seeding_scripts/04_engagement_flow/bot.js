@@ -92,6 +92,16 @@ async function runEngagementFlow() {
   }
 
   const engagementConfig = inputData.engagement || { likes: [], comments: [] };
+  const hasEngagement = (engagementConfig.likes?.length || 0) +
+    (engagementConfig.comments?.length || 0) +
+    (engagementConfig.pollVotes?.length || 0) +
+    (engagementConfig.acceptedSolutions?.length || 0) +
+    (engagementConfig.regrids?.length || 0);
+
+  if (hasEngagement === 0) {
+    console.log('✨ All engagement interactions are already seeded! (data_input.json queue empty)');
+    return;
+  }
   sessionData.engagement = { likes: [], comments: [] };
 
   // 3. Seed Likes
@@ -266,6 +276,18 @@ async function runEngagementFlow() {
       }
       await sleep(env.THROTTLE_MS || 300);
     }
+  }
+
+  // Pop engagement items from consumable queue
+  if (inputData.engagement) {
+    inputData.engagement = {
+      likes: [],
+      comments: [],
+      pollVotes: [],
+      acceptedSolutions: [],
+      regrids: [],
+    };
+    fs.writeFileSync(INPUT_PATH, JSON.stringify(inputData, null, 2));
   }
 
   saveSession(sessionData);

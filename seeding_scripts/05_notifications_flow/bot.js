@@ -114,6 +114,11 @@ async function runNotificationsFlow() {
         await sleep(env.THROTTLE_MS || 300);
       }
     }
+    // Pop bookmarks from consumable queue
+    inputData.bookmarks = [];
+    fs.writeFileSync(INPUT_PATH, JSON.stringify(inputData, null, 2));
+  } else {
+    console.log('   ℹ No bookmarks to seed in data_input.json (already seeded or empty).');
   }
 
   // 4. Query & Verify Notifications for Each Seed User

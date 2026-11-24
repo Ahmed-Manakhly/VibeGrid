@@ -60,6 +60,22 @@ async function resetFlow04() {
   }
 
   console.log('   ✓ Cleared engagement session references.');
+
+  // Replenish engagement slice in data_input.json
+  const REFERENCE_PATH = path.join(__dirname, '..', 'data_reference.json');
+  const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
+  if (fs.existsSync(REFERENCE_PATH) && fs.existsSync(INPUT_PATH)) {
+    try {
+      const ref = JSON.parse(fs.readFileSync(REFERENCE_PATH, 'utf8'));
+      const inp = JSON.parse(fs.readFileSync(INPUT_PATH, 'utf8'));
+      if (ref.engagement) {
+        inp.engagement = ref.engagement;
+        fs.writeFileSync(INPUT_PATH, JSON.stringify(inp, null, 2));
+        console.log('   📋 Replenished engagement in data_input.json from data_reference.json');
+      }
+    } catch (e) {}
+  }
+
   await prisma.$disconnect();
 }
 

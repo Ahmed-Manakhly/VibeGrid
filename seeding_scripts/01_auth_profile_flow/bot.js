@@ -88,6 +88,10 @@ async function runAuthProfileFlow() {
   console.log(`📡 Ingress API Target: ${bffUrl}`);
 
   const users = queueData.users || [];
+  if (users.length === 0) {
+    console.log('✨ All persona users are already seeded! (data_input.json queue empty)');
+    return;
+  }
   const sessions = {};
 
   // Pre-fetch available categories via Public HTTP (GET /api/feed/filters) for interest mapping
@@ -287,6 +291,10 @@ async function runAuthProfileFlow() {
         console.warn(`   ⚠️ Interest assignment notice:`, intErr.message);
       }
     }
+
+    // Pop seeded user from consumable queue
+    queueData.users = queueData.users.filter((u) => u.email !== email);
+    saveQueue(queueData);
 
     await sleep(env.THROTTLE_MS || 300);
   }

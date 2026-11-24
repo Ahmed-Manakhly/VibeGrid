@@ -88,6 +88,10 @@ async function runSocialGraphFlow() {
 
   // 3. Process Social Graph Relationships
   const relationships = inputData.socialGraph || [];
+  if (relationships.length === 0) {
+    console.log('✨ All social graph follows are already seeded! (data_input.json queue empty)');
+    return;
+  }
   sessionData.socialGraph = [];
 
   for (const rel of relationships) {
@@ -117,6 +121,12 @@ async function runSocialGraphFlow() {
       targetRef: rel.targetRef,
       targetUserId: targetSession.userId,
     });
+
+    // Pop seeded relationship from consumable queue
+    inputData.socialGraph = inputData.socialGraph.filter(
+      (r) => !(r.followerRef === rel.followerRef && r.targetRef === rel.targetRef)
+    );
+    fs.writeFileSync(INPUT_PATH, JSON.stringify(inputData, null, 2));
 
     await sleep(env.THROTTLE_MS || 300);
   }

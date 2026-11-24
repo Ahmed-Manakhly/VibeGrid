@@ -1,15 +1,17 @@
 /**
- * DB Cleaner — ALL TABLES (Full Wipe)
- * ==========================================================
- * ⚠️  DANGER: Deletes EVERYTHING except the ADMIN user.
+ * RAW DATABASE WIPER — PostgreSQL & Redis (Bare Metal Nuclear Wipe)
+ * ==============================================================================
+ * ⚠️  DANGER / DISASTER RECOVERY:
+ * This script is a RAW INFRASTRUCTURE CLEANER, NOT A SEEDING RESET.
+ * It deletes ALL rows from ALL 27 PostgreSQL tables and flushes all Redis keys.
+ * It wipes real human manual data as well as bot data.
  *
- * Deletion order: leaf nodes first, then parents.
- * Admin is preserved (role = ADMIN).
+ * It is completely decoupled from data_input.json and data_reference.json.
  *
  * Usage:
- *   node seeding_scripts/db_cleaners/clean_all.js
- *   node seeding_scripts/db_cleaners/clean_all.js --confirm
- * ==========================================================
+ *   node seeding_scripts/raw_db_wipers/wipe_postgres_redis.js --confirm
+ *   node seeding_scripts/raw_db_wipers/wipe_postgres_redis.js --confirm --include-admins
+ * ==============================================================================
  */
 
 const path = require('path');
@@ -69,15 +71,19 @@ function ensureSchemaPushed() {
   }
 }
 
-async function cleanAll() {
+async function wipeRawDb() {
   if (!confirmed) {
-    console.log('⚠️  WARNING: This will DELETE ALL DATA from ALL tables (except Admin).\n');
-    console.log('   Re-run with --confirm to proceed:\n');
-    console.log('   node seeding_scripts/db_cleaners/clean_all.js --confirm\n');
+    console.log('==============================================================================');
+    console.log('⚠️  WARNING: NUCLEAR DATABASE WIPE (PostgreSQL & Redis)');
+    console.log('   This will permanently TRUNCATE ALL 27 TABLES and FLUSH ALL CACHES.');
+    console.log('   All real user accounts, posts, comments, and messages will be DESTROYED.');
+    console.log('   Re-run with --confirm to proceed:');
+    console.log('   node seeding_scripts/raw_db_wipers/wipe_postgres_redis.js --confirm');
+    console.log('==============================================================================\n');
     return;
   }
 
-  console.log('🔥 FULL DB WIPE — starting (leaf tables first)...\n');
+  console.log('🔥 NUCLEAR POSTGRESQL & REDIS WIPE — starting (leaf tables first)...\n');
 
   const steps = [
     // 1. Direct Messaging
@@ -110,7 +116,7 @@ async function cleanAll() {
     // 6. Social & Interests
     ['UserInterest',            () => prisma.userInterest.deleteMany({})],
     ['Follows',                 () => prisma.follows.deleteMany({})],
-    // 7. Taxonomy (Leaf nodes now that Post and UserInterest are gone)
+    // 7. Taxonomy
     ['Category',                () => prisma.category.deleteMany({})],
     ['Vibe',                    () => prisma.vibe.deleteMany({})],
     // 8. Users
@@ -137,9 +143,9 @@ async function cleanAll() {
     }
   }
 
-  console.log(`\n🔥 Full wipe complete. ${includeAdmins ? 'ALL users deleted (including Admins).' : 'Admin account preserved.'}\n`);
+  console.log(`\n🔥 PostgreSQL wipe complete. ${includeAdmins ? 'ALL users deleted (including Admins).' : 'Admin account preserved.'}\n`);
 
-  // Invalidate Redis cache & Next.js cache
+  // Invalidate Redis cache
   try {
     if (redisUrl) {
       const redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 1 });
@@ -151,10 +157,9 @@ async function cleanAll() {
   } catch (err) {
     console.warn(`   ⚠️ Notice: Redis cache flush skipped (${err.message})`);
   }
-
-  console.log('   ➡️  Next: node seeding_scripts/00_taxonomy_flow/bot.js\n');
 }
 
-cleanAll()
+wipeRawDb()
   .catch(e => { console.error('❌', e.message); process.exit(1); })
   .finally(() => prisma.$disconnect());
+

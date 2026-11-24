@@ -25,9 +25,9 @@ Seeder bots interact with the platform strictly as external HTTP automation clie
 4. **Cross-Flow Session State Persistence (`session_state.json`):**
    * Preserves JWT tokens, session cookies, user IDs, post IDs, poll IDs, and community IDs across flows so downstream bots reuse state without re-authenticating or guessing IDs.
 
-5. **Local vs. Remote Database Resets & Cleaners:**
-   * **Local Resets:** Run directly via Prisma / Docker CLI (`node seeding_scripts/<flow>/reset.js` or `db_cleaners/clean_all.js`) because database ports are directly accessible on `localhost`.
-   * **Remote VPS Resets:** Run via dedicated SSH bash scripts (`bash seeding_scripts/<flow>/remote_reset.sh --confirm` or `remote_clean_prod.sh --confirm`) using `VPS_SSH_HOST` configured in `seeding_scripts/.env`.
+5. **Strict Separation of Bot Resets vs. Raw Nuclear DB Wipers:**
+   * **Targeted Bot Resets:** Run via `node seeding_scripts/reset_all.js` (local) or `bash seeding_scripts/remote_reset_all.sh --confirm` (remote VPS over SSH). Deletes **only bot fixtures**, preserves manual UI users, and refills `data_input.json`.
+   * **Raw Nuclear Database Wipers:** Run via `node seeding_scripts/raw_db_wipers/wipe_postgres_redis.js --confirm` (local) or `bash seeding_scripts/raw_db_wipers/remote_wipe_raw_db.sh --confirm` (remote VPS over SSH). Destroys **100% of all data down to bare metal**. Fully isolated inside `raw_db_wipers/`.
 
 ---
 
@@ -109,13 +109,14 @@ node seeding_scripts/05_notifications_flow/bot.js
 node seeding_scripts/07_messages_flow/bot.js
 ```
 
-### 3. Local Reset Scripts (Direct DB / Docker Access)
+### 3. Targeted Bot-Only Reset Scripts (Prisma — Preserves Manual UI Data & Refills Queue)
 
 ```bash
-# Reset all flows in reverse order
-node seeding_scripts/run_all.js reset
+# Local execution: Reset all bot flows in reverse order & refill data_input.json:
+node seeding_scripts/reset_all.js
+# (or: node seeding_scripts/run_all.js reset)
 
-# Reset individual flows
+# Local execution: Reset individual bot flows:
 node seeding_scripts/00_taxonomy_flow/reset.js
 node seeding_scripts/01_auth_profile_flow/reset.js
 node seeding_scripts/06_communities_flow/reset.js
@@ -124,12 +125,11 @@ node seeding_scripts/03_social_graph_flow/reset.js
 node seeding_scripts/04_engagement_flow/reset.js
 node seeding_scripts/05_notifications_flow/reset.js
 node seeding_scripts/07_messages_flow/reset.js
-```
 
-### 4. Remote VPS Reset Scripts (Over SSH)
+# Remote execution on VPS over SSH: Reset all bot flows in reverse order & refill local queue:
+bash seeding_scripts/remote_reset_all.sh --confirm
 
-```bash
-# Per-flow remote resets on VPS
+# Remote execution on VPS over SSH: Reset individual bot flows:
 bash seeding_scripts/00_taxonomy_flow/remote_reset.sh --confirm
 bash seeding_scripts/01_auth_profile_flow/remote_reset.sh --confirm
 bash seeding_scripts/06_communities_flow/remote_reset.sh --confirm
@@ -138,16 +138,27 @@ bash seeding_scripts/03_social_graph_flow/remote_reset.sh --confirm
 bash seeding_scripts/04_engagement_flow/remote_reset.sh --confirm
 bash seeding_scripts/05_notifications_flow/remote_reset.sh --confirm
 bash seeding_scripts/07_messages_flow/remote_reset.sh --confirm
+```
 
-# Full multi-database production clean (MongoDB + PostgreSQL + Redis):
-bash seeding_scripts/remote_clean_prod.sh --confirm
+---
+
+### 4. Raw Infrastructure Database Wipers (Disaster Recovery — 100% Nuclear Wipe)
+
+> **⚠️ WARNING:** These scripts destroy **100% of all data** across all datastores (real human manual accounts, bot personas, posts, chats, media metadata). They have zero connection to `data_input.json`.
+
+```bash
+# Local raw nuclear wipe (PostgreSQL & Redis):
+node seeding_scripts/raw_db_wipers/wipe_postgres_redis.js --confirm
+
+# Remote full-stack production wipe over SSH (MongoDB Auth + Media + PostgreSQL + Redis):
+bash seeding_scripts/raw_db_wipers/remote_wipe_raw_db.sh --confirm
 ```
 
 ---
 
 ## Data & Session Contract
 
-- **`seeding_scripts/data_reference.json`**: Master immutable data specification (8 personas, 34 rich posts, 4 polls, 3 Q&A, 4 code snippets).
-- **`seeding_scripts/data_input.json`**: Active consumable working queue.
+- **`seeding_scripts/data_reference.json`**: Master immutable data specification (8 personas, 34 rich posts, 4 polls, 3 Q&A, 4 code snippets). **Read-only.**
+- **`seeding_scripts/data_input.json`**: Active consumable working queue. **Items pop upon successful seeding.**
 - **`seeding_scripts/session_state.json`**: Cross-flow runtime session state cache.
 - **`seeding_scripts/fixtures/`**: Real tech imagery uploaded directly to MinIO storage.
