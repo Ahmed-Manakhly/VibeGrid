@@ -76,8 +76,8 @@ VPS_SSH_HOST=root@your-vps-ip
 SEED_OTP=123456
 
 # Bootstrap Platform Admin Credentials (MUST match ADMIN_EMAIL & ADMIN_PASSWORD in services/auth/.env)
-ADMIN_EMAIL=admin@vibegrid.manakhly.tech
-ADMIN_PASSWORD=V1b3Gr1d_Adm!n2026
+ADMIN_EMAIL=admin@your-domain.com
+ADMIN_PASSWORD=your_admin_password_here
 ```
 
 ---
