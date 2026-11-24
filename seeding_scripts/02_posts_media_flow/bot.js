@@ -14,6 +14,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const config = require('../shared/config');
 const { HttpClient } = require('../shared/http');
 
 const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
@@ -56,15 +57,15 @@ async function runPostsMediaFlow() {
   const sessionData = loadSession();
   const env = inputData.env || { BFF_URL: 'http://localhost:3000/api', THROTTLE_MS: 300 };
 
-  // URL VAR FOR LOCAL (Host native / localhost)
-  // BFF_URL="http://localhost:3000/api"
-  // URL VAR FOR PROD (Container network / VPS)
-  // BFF_URL="https://www.vibegrid.manakhly.tech/api"
-  const bffUrl = process.env.API_URL || process.env.BFF_URL || env.BFF_URL || env.API_URL || 'http://localhost:3000/api';
+  const bffUrl = config.apiUrl || process.env.API_URL || process.env.BFF_URL || env.BFF_URL || env.API_URL || 'http://localhost:3000/api';
   console.log(`📡 Ingress API Target: ${bffUrl}`);
 
   // 1. Validate Prerequisite State
-  const seedUsers = inputData.users || [];
+  const seedUsers = config.getSeedUsers ? config.getSeedUsers(inputData) : (inputData.users || []);
+  if (seedUsers.length === 0) {
+    throw new Error('FLOW 02 FAILED: No seed users found in data_input.json or data_reference.json.');
+  }
+
   for (const u of seedUsers) {
     if (!sessionData[u.id] || !sessionData[u.id].userId) {
       throw new Error(`FLOW 02 FAILED: Missing prerequisite user session for ${u.id} (${u.email}). Please execute Flow 01 first.`);
@@ -86,25 +87,31 @@ async function runPostsMediaFlow() {
     }
 
     userClients[u.id] = client;
-    console.log(`   ✓ Authenticated ${u.profile.username} via HTTP API`);
+    console.log(`   ✓ Authenticated ${u.profile?.username || u.name} via HTTP API`);
   }
 
   // 2.5 Resolve Taxonomy Maps (Categories & Vibes) via /feed/filters
   const primaryClient = Object.values(userClients)[0];
+  if (!primaryClient) {
+    throw new Error('FLOW 02 FAILED: No authenticated user clients available.');
+  }
+
   const categoryMap = {};
   const vibeMap = {};
   try {
     const filtersRes = await primaryClient.get('/feed/filters');
     if (filtersRes.ok && filtersRes.data) {
-      (filtersRes.data.categories || []).forEach((c) => {
-        categoryMap[c.slug] = c.id;
-        categoryMap[c.name.toLowerCase()] = c.id;
+      const cats = filtersRes.data.categories || filtersRes.data.data?.categories || [];
+      const vibes = filtersRes.data.vibes || filtersRes.data.data?.vibes || [];
+      cats.forEach((c) => {
+        if (c.slug) categoryMap[c.slug] = c.id;
+        if (c.name) categoryMap[c.name.toLowerCase()] = c.id;
       });
-      (filtersRes.data.vibes || []).forEach((v) => {
-        vibeMap[v.key] = v.id;
-        vibeMap[v.name.toLowerCase()] = v.id;
+      vibes.forEach((v) => {
+        if (v.key) vibeMap[v.key] = v.id;
+        if (v.name) vibeMap[v.name.toLowerCase()] = v.id;
       });
-      console.log(`   ✓ Loaded ${Object.keys(categoryMap).length / 2} categories and ${Object.keys(vibeMap).length / 2} vibes for post attribution.`);
+      console.log(`   ✓ Loaded ${cats.length} categories and ${vibes.length} vibes for post attribution.`);
     }
   } catch (e) {
     console.warn('   ⚠️ Could not fetch feed filters for taxonomy mapping:', e.message);
@@ -203,6 +210,15 @@ async function runPostsMediaFlow() {
       ? (sessionData.communities?.[pConfig.communityRef]?.id || pConfig.communityId)
       : undefined;
 
+    // Ensure author is enrolled in target community before posting
+    if (communityId && pConfig.communityRef) {
+      try {
+        await authorClient.post(`/communities/${pConfig.communityRef}/join`);
+      } catch (e) {
+        // Non-fatal if already joined
+      }
+    }
+
     // Resolve Quoted Post ID if quotedPostRef specified
     const quotedPostId = pConfig.quotedPostRef
       ? (sessionData.posts?.[pConfig.quotedPostRef]?.id || pConfig.quotedPostId)
@@ -272,7 +288,7 @@ async function runPostsMediaFlow() {
   if (!verifyRes.ok) {
     throw new Error(`FLOW 02 FAILED: Unable to verify post feed retrieval (HTTP ${verifyRes.status})`);
   }
-  const feedVibes = verifyRes.data?.vibes || [];
+  const feedVibes = verifyRes.data?.data || verifyRes.data?.vibes || [];
   console.log(`   ✓ Feed retrievable via HTTP API (${feedVibes.length} total posts)`);
 
   saveSession(sessionData);

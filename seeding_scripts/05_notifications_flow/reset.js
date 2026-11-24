@@ -34,6 +34,10 @@ async function resetFlow05() {
       const session = JSON.parse(fs.readFileSync(SESSION_PATH, 'utf8'));
       if (session.users) {
         userIds = Object.values(session.users).map((u) => u.userId).filter(Boolean);
+      } else {
+        userIds = Object.entries(session)
+          .filter(([k, v]) => k.startsWith('user_') && v && v.userId)
+          .map(([, v]) => v.userId);
       }
     }
 

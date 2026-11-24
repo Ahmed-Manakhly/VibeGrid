@@ -14,6 +14,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const config = require('../shared/config');
 const { HttpClient } = require('../shared/http');
 
 const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
@@ -55,11 +56,15 @@ async function runMessagesFlow() {
   const sessionData = loadSession();
   const env = inputData.env || { BFF_URL: 'http://localhost:3000/api', THROTTLE_MS: 300 };
 
-  const bffUrl = process.env.API_URL || process.env.BFF_URL || env.BFF_URL || env.API_URL || 'http://localhost:3000/api';
+  const bffUrl = config.apiUrl || process.env.API_URL || process.env.BFF_URL || env.BFF_URL || env.API_URL || 'http://localhost:3000/api';
   console.log(`📡 Ingress API Target: ${bffUrl}`);
 
   // 1. Validate Prerequisite State
-  const seedUsers = inputData.users || [];
+  const seedUsers = config.getSeedUsers ? config.getSeedUsers(inputData) : (inputData.users || []);
+  if (seedUsers.length === 0) {
+    throw new Error('FLOW 07 FAILED: No seed users found in data_input.json or data_reference.json.');
+  }
+
   for (const u of seedUsers) {
     if (!sessionData[u.id] || !sessionData[u.id].userId) {
       throw new Error(`FLOW 07 FAILED: Missing prerequisite user session for ${u.id}. Please execute Flow 01 first.`);
@@ -81,7 +86,7 @@ async function runMessagesFlow() {
     }
 
     userClients[u.id] = client;
-    console.log(`   ✓ Authenticated ${u.profile.username} via HTTP API`);
+    console.log(`   ✓ Authenticated ${u.profile?.username || u.name} via HTTP API`);
   }
 
   sessionData.conversations = sessionData.conversations || {};

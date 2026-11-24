@@ -127,11 +127,26 @@ async function seedCommunities() {
 
   const sessionData = loadSession();
   const communitiesToSeed = loadCommunities();
-  if (communitiesToSeed.length === 0) {
-    console.log('✨ All communities are already seeded! (data_input.json queue empty)');
-    return;
+  const seededCommunities = { ...(sessionData.communities || {}) };
+
+  // 1.5 Pre-fetch existing communities from server for idempotency
+  try {
+    const listRes = await adminClient.get('/communities');
+    const existingList = listRes.ok && listRes.data?.data?.communities
+      ? listRes.data.data.communities
+      : (Array.isArray(listRes.data?.data) ? listRes.data.data : []);
+    for (const c of existingList) {
+      if (c && c.slug) {
+        seededCommunities[c.slug] = {
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+        };
+      }
+    }
+  } catch (e) {
+    // Non-fatal
   }
-  const seededCommunities = {};
 
   // 2. Create Communities via POST /api/communities
   for (const item of communitiesToSeed) {
@@ -178,7 +193,7 @@ async function seedCommunities() {
       rawData = JSON.parse(fs.readFileSync(INPUT_PATH, 'utf8'));
     } catch (e) {}
   }
-  const seedUsers = rawData.users || [];
+  const seedUsers = config.getSeedUsers ? config.getSeedUsers(rawData) : (rawData.users || []);
   if (seedUsers.length > 0) {
     console.log(`\n👥 Auto-enrolling ${seedUsers.length} seed user(s) into communities via HTTP...`);
 

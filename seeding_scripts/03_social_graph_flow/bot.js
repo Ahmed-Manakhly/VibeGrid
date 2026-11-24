@@ -13,6 +13,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const config = require('../shared/config');
 const { HttpClient } = require('../shared/http');
 
 const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
@@ -53,15 +54,15 @@ async function runSocialGraphFlow() {
   const inputData = loadInput();
   const sessionData = loadSession();
   const env = inputData.env || { BFF_URL: 'http://localhost:3000/api', THROTTLE_MS: 300 };
-  // URL VAR FOR LOCAL (Host native / localhost)
-  // BFF_URL="http://localhost:3000/api"
-  // URL VAR FOR PROD (Container network / VPS)
-  // BFF_URL="https://www.vibegrid.manakhly.tech/api"
-  const bffUrl = process.env.API_URL || process.env.BFF_URL || env.BFF_URL || env.API_URL || 'http://localhost:3000/api';
+  const bffUrl = config.apiUrl || process.env.API_URL || process.env.BFF_URL || env.BFF_URL || env.API_URL || 'http://localhost:3000/api';
   console.log(`📡 Ingress API Target: ${bffUrl}`);
 
   // 1. Validate Prerequisite State
-  const seedUsers = inputData.users || [];
+  const seedUsers = config.getSeedUsers ? config.getSeedUsers(inputData) : (inputData.users || []);
+  if (seedUsers.length === 0) {
+    throw new Error('FLOW 03 FAILED: No seed users found in data_input.json or data_reference.json.');
+  }
+
   for (const u of seedUsers) {
     if (!sessionData[u.id] || !sessionData[u.id].userId) {
       throw new Error(`FLOW 03 FAILED: Missing prerequisite user session for ${u.id} (${u.email}). Please execute Flow 01 first.`);
@@ -83,7 +84,7 @@ async function runSocialGraphFlow() {
     }
 
     userClients[u.id] = client;
-    console.log(`   ✓ Authenticated ${u.profile.username} via HTTP API`);
+    console.log(`   ✓ Authenticated ${u.profile?.username || u.name} via HTTP API`);
   }
 
   // 3. Process Social Graph Relationships

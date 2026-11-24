@@ -62,6 +62,27 @@ const vpsSshHost = process.env.VPS_SSH_HOST || process.env.VPS_HOST;
 const adminEmail = process.env.ADMIN_EMAIL;
 const adminPassword = process.env.ADMIN_PASSWORD;
 
+function getSeedUsers(inputData) {
+  if (inputData && Array.isArray(inputData.users) && inputData.users.length > 0) {
+    return inputData.users;
+  }
+  const candidatePaths = [
+    path.resolve(__dirname, '../data_reference.json'),
+    path.resolve(__dirname, '../data_input.json'),
+  ];
+  for (const p of candidatePaths) {
+    if (fs.existsSync(p)) {
+      try {
+        const parsed = JSON.parse(fs.readFileSync(p, 'utf8'));
+        if (Array.isArray(parsed.users) && parsed.users.length > 0) {
+          return parsed.users;
+        }
+      } catch (e) {}
+    }
+  }
+  return [];
+}
+
 module.exports = {
   targetEnv: isProd ? 'prod' : 'local',
   isProd,
@@ -71,4 +92,5 @@ module.exports = {
   vpsSshHost,
   adminEmail,
   adminPassword,
+  getSeedUsers,
 };
