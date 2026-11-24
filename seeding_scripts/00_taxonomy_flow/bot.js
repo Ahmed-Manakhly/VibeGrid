@@ -167,6 +167,14 @@ async function seedTaxonomy() {
     console.log(`   ✅ Vibes — seeded/updated ${vibeSuccessCount} records over HTTP`);
   }
 
+  if (categories.length > 0 && catSuccessCount === 0) {
+    throw new Error(`FLOW 00 FAILED: 0 of ${categories.length} categories could be verified or seeded.`);
+  }
+
+  if (vibes.length > 0 && vibeSuccessCount === 0) {
+    throw new Error(`FLOW 00 FAILED: 0 of ${vibes.length} vibes could be verified or seeded.`);
+  }
+
   // Invalidate taxonomy Redis cache
   await deleteCacheKey('cache:tags:all');
 

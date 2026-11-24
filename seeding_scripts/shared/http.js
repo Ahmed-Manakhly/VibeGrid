@@ -83,8 +83,9 @@ class HttpClient {
 
     let attempt = 0;
     let lastError = null;
+    const maxAttempts = 1 + Math.max(0, maxRetries);
 
-    while (attempt < maxRetries) {
+    while (attempt < maxAttempts) {
       attempt++;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -130,8 +131,8 @@ class HttpClient {
           cookies: new Map(this.cookies),
         };
 
-        if (!res.ok && TRANSIENT_STATUS_CODES.has(res.status) && attempt < maxRetries) {
-          console.warn(`⚠️ [HTTP ${method} ${url}] Transient error ${res.status}. Retrying (${attempt}/${maxRetries - 1}) in ${retryDelayMs}ms...`);
+        if (!res.ok && TRANSIENT_STATUS_CODES.has(res.status) && attempt < maxAttempts) {
+          console.warn(`⚠️ [HTTP ${method} ${url}] Transient error ${res.status}. Retrying (${attempt}/${maxAttempts - 1}) in ${retryDelayMs}ms...`);
           await sleep(retryDelayMs * attempt);
           continue;
         }
@@ -143,8 +144,8 @@ class HttpClient {
         lastError = err;
         const isAbort = err.name === 'AbortError';
 
-        if ((isAbort || err.message.includes('fetch failed')) && attempt < maxRetries) {
-          console.warn(`⚠️ [HTTP ${method} ${url}] Network/Timeout error (${err.message}). Retrying (${attempt}/${maxRetries - 1}) in ${retryDelayMs}ms...`);
+        if ((isAbort || err.message.includes('fetch failed')) && attempt < maxAttempts) {
+          console.warn(`⚠️ [HTTP ${method} ${url}] Network/Timeout error (${err.message}). Retrying (${attempt}/${maxAttempts - 1}) in ${retryDelayMs}ms...`);
           await sleep(retryDelayMs * attempt);
           continue;
         }
@@ -153,7 +154,7 @@ class HttpClient {
       }
     }
 
-    throw new Error(`[HTTP FAIL] ${method} ${url} failed after ${maxRetries - 1} retries: ${lastError?.message || 'Unknown error'}`);
+    throw new Error(`[HTTP FAIL] ${method} ${url} failed after ${attempt - 1} retries: ${lastError?.message || 'Unknown error'}`);
   }
 
   get(path, options = {}) {
