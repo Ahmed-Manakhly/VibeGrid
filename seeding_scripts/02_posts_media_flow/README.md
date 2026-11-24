@@ -31,3 +31,4 @@ node seeding_scripts/02_posts_media_flow/bot.js prod   # Remote VPS
 node seeding_scripts/02_posts_media_flow/reset.js                     # Local (Prisma)
 bash seeding_scripts/02_posts_media_flow/remote_reset.sh --confirm   # Remote VPS (SSH/Docker stdin)
 ```
+

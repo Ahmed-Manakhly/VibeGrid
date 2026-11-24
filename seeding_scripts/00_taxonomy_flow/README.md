@@ -24,3 +24,4 @@ node seeding_scripts/00_taxonomy_flow/bot.js prod   # Remote VPS
 node seeding_scripts/00_taxonomy_flow/reset.js                     # Local (Prisma)
 bash seeding_scripts/00_taxonomy_flow/remote_reset.sh --confirm   # Remote VPS (SSH/Docker stdin)
 ```
+
