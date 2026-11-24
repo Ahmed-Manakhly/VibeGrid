@@ -22,11 +22,15 @@ Seeder bots interact with the platform strictly as external HTTP automation clie
    * `data_reference.json`: The immutable master specification and ground truth.
    * `data_input.json`: The active working queue consumed during execution (automatically restored from reference if missing).
 
-4. **Cross-Flow Session State Persistence (`session_state.json`):**
+4. **Robust HTTP Client & Retry Policy (`shared/http.js`):**
+   * Default timeout of 30,000ms with 5 max retry slots for transient network spikes (`500`, `502`, `503`, `504`, `AbortError`).
+   * Guaranteed initial execution floor (`maxAttempts = 1 + Math.max(0, maxRetries)`) ensuring `maxRetries: 0` fires exactly 1 attempt.
+
+5. **Cross-Flow Session State Persistence (`session_state.json`):**
    * Preserves JWT tokens, session cookies, user IDs, post IDs, poll IDs, and community IDs across flows so downstream bots reuse state without re-authenticating or guessing IDs.
 
-5. **Strict Separation of Bot Resets vs. Raw Nuclear DB Wipers:**
-   * **Targeted Bot Resets:** Run via `node seeding_scripts/reset_all.js` (local) or `bash seeding_scripts/remote_reset_all.sh --confirm` (remote VPS over SSH). Deletes **only bot fixtures**, preserves manual UI users, and refills `data_input.json`.
+6. **Strict Separation of Bot Resets vs. Raw Nuclear DB Wipers:**
+   * **Targeted Bot Resets:** Run via `node seeding_scripts/reset_all.js` (local) or `bash seeding_scripts/remote_reset_all.sh --confirm` (remote VPS over SSH stdin). Deletes **only bot fixtures**, preserves manual UI users, and refills `data_input.json`. Large payloads are uploaded via `scp` to avoid `ARG_MAX` shell limits, while scripts run in container `WORKDIR /app` preserving module resolution.
    * **Raw Nuclear Database Wipers:** Run via `node seeding_scripts/raw_db_wipers/wipe_postgres_redis.js --confirm` (local) or `bash seeding_scripts/raw_db_wipers/remote_wipe_raw_db.sh --confirm` (remote VPS over SSH). Destroys **100% of all data down to bare metal**. Fully isolated inside `raw_db_wipers/`.
 
 ---
