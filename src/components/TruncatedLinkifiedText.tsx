@@ -49,11 +49,11 @@ export function renderLinkifiedText(text: string, linkClassName = "text-primary 
 
     // 3. Hashtag (#tag)
     if (part.startsWith('#') && part.length > 1) {
-      const tagSlug = part.slice(1).toLowerCase();
+      const tagSlug = encodeURIComponent(part.slice(1).toLowerCase());
       return (
         <Link
           key={index}
-          href={`/?tag=${tagSlug}`}
+          href={`/explore?tag=${tagSlug}`}
           onClick={(e) => e.stopPropagation()}
           className="font-medium text-emerald-400 hover:underline hover:text-emerald-300 transition-colors"
         >
