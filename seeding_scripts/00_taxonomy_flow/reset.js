@@ -22,6 +22,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 const { PrismaClient } = require('@prisma/client');
+const { deleteCacheKey } = require('../shared/redis');
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -68,6 +69,9 @@ async function resetTaxonomy() {
       console.warn('   ⚠️ Could not replenish data_input.json:', e.message);
     }
   }
+
+  // Invalidate taxonomy Redis cache
+  await deleteCacheKey('cache:tags:all');
 
   console.log('✅ Flow 00 Reset complete.\n');
 }

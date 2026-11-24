@@ -47,11 +47,15 @@ export class GenerateFeedUseCase {
     if (this.cacheService && !cursor && !userId) {
       const allowedKey = allowedCommunityIds ? allowedCommunityIds.sort().join(',') : 'all';
       const cacheKey = `feed:query:${communityId || 'none'}:${allowedKey}:${tag || 'all'}:${category || 'all'}:${vibe || 'all'}:${search || 'none'}:${limit}`;
-      rawResult = await this.cacheService.getOrSet(
-        cacheKey,
-        () => this.repo.getFeed(params),
-        { ttlSeconds: 60, enableJitter: true }
-      );
+      const cached = await this.cacheService.get<ExplorePostsResult<VibePost>>(cacheKey);
+      if (cached && cached.data && cached.data.length > 0) {
+        rawResult = cached;
+      } else {
+        rawResult = await this.repo.getFeed(params);
+        if (rawResult.data && rawResult.data.length > 0) {
+          await this.cacheService.set(cacheKey, rawResult, 60);
+        }
+      }
     } else {
       rawResult = await this.repo.getFeed(params);
     }

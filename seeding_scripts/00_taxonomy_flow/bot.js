@@ -16,6 +16,7 @@ const fs = require('fs');
 const path = require('path');
 const config = require('../shared/config');
 const { HttpClient } = require('../shared/http');
+const { deleteCacheKey } = require('../shared/redis');
 
 const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
 const REFERENCE_PATH = path.join(__dirname, '..', 'data_reference.json');
@@ -59,22 +60,6 @@ async function seedTaxonomy() {
   const queue = loadQueue();
   let categories = queue.categories || [];
   let vibes = queue.vibes || [];
-
-  if (categories.length === 0 && vibes.length === 0) {
-    if (fs.existsSync(REFERENCE_PATH)) {
-      try {
-        const refData = JSON.parse(fs.readFileSync(REFERENCE_PATH, 'utf8'));
-        queue.categories = refData.categories || [];
-        queue.vibes = refData.vibes || [];
-        saveQueue(queue);
-        categories = queue.categories;
-        vibes = queue.vibes;
-        console.log('📋 Auto-replenished taxonomy queue from data_reference.json');
-      } catch (e) {
-        // Fallback
-      }
-    }
-  }
 
   if (categories.length === 0 && vibes.length === 0) {
     console.log('✨ All taxonomy records are already seeded! (data_input.json queue empty)');
@@ -181,6 +166,9 @@ async function seedTaxonomy() {
   if (vibeSuccessCount > 0) {
     console.log(`   ✅ Vibes — seeded/updated ${vibeSuccessCount} records over HTTP`);
   }
+
+  // Invalidate taxonomy Redis cache
+  await deleteCacheKey('cache:tags:all');
 
   console.log('🎉 FLOW 00 Taxonomy completed via 100% Pure HTTP Ingress.\n');
 }

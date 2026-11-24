@@ -18,6 +18,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { flushAllCache } = require('./shared/redis');
 
 const BASE_DIR = path.join(__dirname);
 const REFERENCE_PATH = path.join(BASE_DIR, 'data_reference.json');
@@ -75,6 +76,9 @@ async function main() {
     fs.unlinkSync(SESSION_PATH);
     console.log('🧹 Cleaned root session_state.json');
   }
+
+  // Flush Redis cache
+  await flushAllCache();
 
   console.log('\n══════════════════════════════════════════════════════════════════');
   console.log('🎉 Master Bot Reset Complete! All bot data cleared, queue refilled.');

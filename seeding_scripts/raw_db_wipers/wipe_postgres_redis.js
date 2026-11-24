@@ -37,7 +37,7 @@ if (!process.env.DATABASE_URL) {
 
 const { PrismaClient } = require('@prisma/client');
 const { execSync } = require('child_process');
-const Redis = require('ioredis');
+const { flushAllCache } = require('../shared/redis');
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -146,17 +146,7 @@ async function wipeRawDb() {
   console.log(`\n🔥 PostgreSQL wipe complete. ${includeAdmins ? 'ALL users deleted (including Admins).' : 'Admin account preserved.'}\n`);
 
   // Invalidate Redis cache
-  try {
-    if (redisUrl) {
-      const redis = new Redis(redisUrl, { lazyConnect: true, maxRetriesPerRequest: 1 });
-      await redis.connect();
-      await redis.flushdb();
-      console.log('   🧹 Flushed all Redis cache keys (feed, taxonomy, recommendations, suggestions)');
-      await redis.quit();
-    }
-  } catch (err) {
-    console.warn(`   ⚠️ Notice: Redis cache flush skipped (${err.message})`);
-  }
+  await flushAllCache();
 }
 
 wipeRawDb()

@@ -83,6 +83,10 @@ rm -f "${SCRIPT_DIR}/session_state.json"
 rm -f "${SCRIPT_DIR}"/*_flow/session_state.json 2>/dev/null || true
 echo "🧹 Cleaned local session_state.json files"
 
+# Invalidate/flush Redis cache on remote VPS
+echo "🧹 Flushing Redis cache on remote VPS..."
+ssh -o StrictHostKeyChecking=no "${VPS_HOST}" "docker exec vibegrid_bff node -e 'try { require(\"./seeding_scripts/shared/redis\").flushAllCache(); } catch(e) {}' 2>/dev/null || docker exec vibegrid_redis redis-cli flushdb 2>/dev/null || true" || true
+
 echo ""
 echo "=========================================================="
 echo "🎉 Remote Bot Reset Complete on VPS!"

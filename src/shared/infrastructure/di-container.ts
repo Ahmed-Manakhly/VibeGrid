@@ -164,8 +164,8 @@ export const isFollowingUseCase = new IsFollowingUseCase(socialRepository);
 // Taxonomy
 export const getTaxonomyUseCase = new GetTaxonomyUseCase(taxonomyRepository, cacheService);
 export const getTrendingTagsUseCase = new GetTrendingTagsUseCase(taxonomyRepository);
-export const createCategoryUseCase = new CreateCategoryUseCase(taxonomyRepository);
-export const createVibeTaxonomyUseCase = new CreateVibeTaxonomyUseCase(taxonomyRepository);
+export const createCategoryUseCase = new CreateCategoryUseCase(taxonomyRepository, cacheService);
+export const createVibeTaxonomyUseCase = new CreateVibeTaxonomyUseCase(taxonomyRepository, cacheService);
 
 // QA Module
 export const qaRepository = new PrismaQARepository(prisma);
