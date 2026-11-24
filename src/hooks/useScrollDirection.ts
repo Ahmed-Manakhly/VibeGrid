@@ -71,3 +71,4 @@ export function useScrollDirection({
 
   return { isVisible, scrollDirection, setIsVisible };
 }
+
