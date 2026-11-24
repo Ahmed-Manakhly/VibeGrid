@@ -31,29 +31,19 @@ function Navbar() {
     <header
       className={cn(
         "sticky top-0 z-50 flex flex-col w-full transition-transform duration-300 ease-out will-change-transform",
-        (isVisible || isMobileSearchOpen) ? "translate-y-0" : "-translate-y-full"
+        (isVisible || isMobileSearchOpen) ? "translate-y-0" : "max-lg:-translate-y-full"
       )}
     >
       <div className="nav-glass flex h-16 items-center gap-4 px-4 sm:px-6 lg:px-9">
         {/* Mobile In-Place Search Bar */}
         {isMobileSearchOpen ? (
-          <div className="flex lg:hidden items-center w-full gap-2 animate-in fade-in duration-200">
-            <button
-              type="button"
-              onClick={() => setIsMobileSearchOpen(false)}
-              className="icon-button p-2 text-muted-foreground hover:text-foreground shrink-0"
-              aria-label="Close search"
-            >
-              <ArrowLeft className="size-5" />
-            </button>
-            <div className="flex-1 min-w-0">
-              <SearchForm
-                variant="mobile"
-                autoFocus
-                onClose={() => setIsMobileSearchOpen(false)}
-                onSearchSubmit={() => setIsMobileSearchOpen(false)}
-              />
-            </div>
+          <div className="flex lg:hidden items-center w-full animate-in fade-in duration-200">
+            <SearchForm
+              variant="mobile"
+              autoFocus
+              onClose={() => setIsMobileSearchOpen(false)}
+              onSearchSubmit={() => setIsMobileSearchOpen(false)}
+            />
           </div>
         ) : null}
 

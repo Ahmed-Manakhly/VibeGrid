@@ -3,6 +3,7 @@
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { cn } from '@/lib/utils';
 
 export interface TabItem {
@@ -28,11 +29,16 @@ export function UnifiedTabsBar({
   className,
   tabsListClassName,
 }: UnifiedTabsBarProps) {
+  const { isVisible } = useScrollDirection({ threshold: 12, topOffset: 60 });
+
   return (
     <div
       className={cn(
         'w-full py-1 bg-transparent backdrop-blur-md mb-4',
-        sticky && 'sticky top-16 z-30',
+        sticky && cn(
+          'sticky z-30 transition-[top] duration-300 ease-out will-change-[top]',
+          isVisible ? 'top-16' : 'top-0 lg:top-16'
+        ),
         className
       )}
     >

@@ -203,25 +203,28 @@ export function SearchForm({
               value={query}
               onFocus={() => matchingUsers.length > 0 && setShowDropdown(true)}
               onChange={(e) => setQuery(e.target.value)}
-              className="h-10 w-full rounded-xl border border-border/50 bg-background/80 pl-10 pr-9 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-accent/50" 
+              className="h-10 w-full rounded-xl border border-border/50 bg-background/80 pl-10 pr-10 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-accent/50" 
               placeholder={placeholder} 
               aria-label={placeholder} 
             />
-            {query ? (
+            {onClose ? (
               <button
                 type="button"
-                onClick={clearQuery}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
-                aria-label="Clear search"
+                onClick={() => {
+                  clearQuery();
+                  onClose();
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 transition-colors"
+                aria-label="Close search"
               >
                 <X className="size-4" />
               </button>
-            ) : onClose ? (
+            ) : query ? (
               <button
                 type="button"
-                onClick={onClose}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
-                aria-label="Close search"
+                onClick={clearQuery}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 transition-colors"
+                aria-label="Clear search"
               >
                 <X className="size-4" />
               </button>

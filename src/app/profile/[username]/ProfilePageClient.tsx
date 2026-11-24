@@ -28,6 +28,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
 import { EditProfileModal } from "@/modules/social/presentation/components/EditProfileModal";
 import { startConversationAction } from "@/actions/messaging.action";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { cn } from "@/lib/utils";
 import {
     DeveloperMilestoneTimeline,
     SerializedMilestone,
@@ -73,6 +75,7 @@ function ProfilePageClient({
     initialFollowers = [],
     initialFollowing = [],
 }: ProfilePageClientProps) {
+    const { isVisible: isHeaderVisible } = useScrollDirection({ threshold: 12, topOffset: 60 });
     const { user: currentUser, isAuthenticated } = useSession();
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -285,7 +288,10 @@ function ProfilePageClient({
 
                 <div className="w-full min-w-0 flex-1">
                     <Tabs defaultValue="posts" className="w-full">
-                        <div className="sticky top-16 z-30 py-1 bg-transparent backdrop-blur-md mb-4">
+                        <div className={cn(
+                            "sticky z-30 py-1 bg-transparent backdrop-blur-md mb-4 transition-[top] duration-300 ease-out will-change-[top]",
+                            isHeaderVisible ? "top-16" : "top-0 lg:top-16"
+                        )}>
                             <TabsList className="w-full flex items-center justify-start flex-wrap border-b border-border/50 bg-transparent p-0 rounded-none h-auto gap-x-4 sm:gap-x-6 gap-y-1">
                                 <TabsTrigger
                                     value="posts"

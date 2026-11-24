@@ -10,6 +10,8 @@ import { SecuritySettingsForm } from '@/modules/auth/presentation/components/Sec
 import { PlatformPolicyCenter } from '@/components/settings/PlatformPolicyCenter';
 import { SettingsSidebar } from '@/components/settings/SettingsSidebar';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { cn } from '@/lib/utils';
 
 interface SettingsPageClientProps {
   user: {
@@ -29,6 +31,7 @@ interface SettingsPageClientProps {
 export default function SettingsPageClient({ user }: SettingsPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isVisible: isHeaderVisible } = useScrollDirection({ threshold: 12, topOffset: 60 });
   const requestedTab = searchParams.get('tab');
   const validTabs = ['personalization', 'profile', 'security', 'policy'];
   
@@ -60,7 +63,10 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         <div className="w-full min-w-0 flex-1">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <div className="sticky top-16 z-30 py-1 bg-transparent backdrop-blur-md mb-6">
+            <div className={cn(
+              "sticky z-30 py-1 bg-transparent backdrop-blur-md mb-6 transition-[top] duration-300 ease-out will-change-[top]",
+              isHeaderVisible ? "top-16" : "top-0 lg:top-16"
+            )}>
               <TabsList className="w-full flex items-center justify-start flex-wrap border-b border-border/50 bg-transparent p-0 rounded-none h-auto gap-x-4 sm:gap-x-6 gap-y-1">
                 <TabsTrigger
                   value="personalization"
