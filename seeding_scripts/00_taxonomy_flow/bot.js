@@ -17,13 +17,8 @@ const path = require('path');
 const config = require('../shared/config');
 const { HttpClient } = require('../shared/http');
 
-const ROOT_INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
-const LOCAL_INPUT_PATH = path.join(__dirname, 'data_input.json');
-const INPUT_PATH = fs.existsSync(ROOT_INPUT_PATH) ? ROOT_INPUT_PATH : LOCAL_INPUT_PATH;
-
-const ROOT_REF_PATH = path.join(__dirname, '..', 'data_reference.json');
-const LOCAL_REF_PATH = path.join(__dirname, 'data_reference.json');
-const REFERENCE_PATH = fs.existsSync(ROOT_REF_PATH) ? ROOT_REF_PATH : LOCAL_REF_PATH;
+const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
+const REFERENCE_PATH = path.join(__dirname, '..', 'data_reference.json');
 
 function loadQueue() {
   if (!fs.existsSync(INPUT_PATH)) {
@@ -32,7 +27,7 @@ function loadQueue() {
     }
     const refData = fs.readFileSync(REFERENCE_PATH, 'utf8');
     fs.writeFileSync(INPUT_PATH, refData);
-    console.log('📋 Initialized data_input.json from data_reference.json');
+    console.log('📋 Initialized data_input.json from master data_reference.json');
   }
 
   try {

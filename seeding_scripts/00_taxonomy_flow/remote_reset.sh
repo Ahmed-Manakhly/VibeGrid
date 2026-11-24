@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# FLOW 00 — Remote Taxonomy Reset (VPS Execution over SSH)
-# Wipes Categories, Vibes, Tags, PostTags inside vibegrid_bff on VPS
+# 00_TAXONOMY_FLOW — Remote Reset (VPS Execution over SSH)
+# Runs the canonical reset.js directly inside vibegrid_bff container
 # ==============================================================================
 set -euo pipefail
 
@@ -18,7 +18,6 @@ VPS_HOST="${VPS_SSH_HOST:-${VPS_HOST:-}}"
 
 if [[ -z "${VPS_HOST}" ]]; then
   echo "❌ Error: VPS SSH Host is not configured."
-  echo "   Please set VPS_SSH_HOST in seeding_scripts/.env or export VPS_HOST='user@your-vps-ip'."
   exit 1
 fi
 
@@ -28,21 +27,6 @@ if [[ "${1:-}" != "--confirm" ]]; then
   exit 1
 fi
 
-echo "🔄 Executing Flow 00 (Taxonomy) Remote Reset on ${VPS_HOST}..."
-ssh "${VPS_HOST}" "docker exec vibegrid_bff node -e '
-const { PrismaClient } = require(\"@prisma/client\");
-const p = new PrismaClient();
-Promise.all([
-  p.postTag.deleteMany({}),
-  p.tagFollow.deleteMany({}),
-  p.tag.deleteMany({}),
-  p.userInterest.deleteMany({}),
-  p.vibe.deleteMany({}),
-  p.category.deleteMany({})
-]).then(() => {
-  console.log(\"   ✅ Flow 00: Taxonomy, Vibes & Tags wiped from PostgreSQL\");
-  return p.\$disconnect();
-}).catch(e => { console.error(e); process.exit(1); });
-'"
-echo "✅ Flow 00 Remote Reset complete on ${VPS_HOST}."
-
+echo "🔄 Executing 00_taxonomy_flow Remote Reset on ${VPS_HOST}..."
+ssh "${VPS_HOST}" "docker exec -i vibegrid_bff node -" < "${SCRIPT_DIR}/reset.js"
+echo "✅ 00_taxonomy_flow Remote Reset complete on ${VPS_HOST}."

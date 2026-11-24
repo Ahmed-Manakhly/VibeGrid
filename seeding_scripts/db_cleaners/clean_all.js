@@ -15,15 +15,21 @@
 const path = require('path');
 const fs = require('fs');
 
-// Try loading .env from root or cwd
-const candidateEnvPaths = [
-  path.resolve(__dirname, '../../.env'),
-  path.resolve(process.cwd(), '.env'),
-];
-for (const envPath of candidateEnvPaths) {
-  if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
-    break;
+// Try loading .env from root or cwd if DATABASE_URL is not already set
+if (!process.env.DATABASE_URL) {
+  const candidateEnvPaths = [
+    path.resolve(__dirname, '../../.env'),
+    path.resolve(process.cwd(), '.env'),
+  ];
+  for (const envPath of candidateEnvPaths) {
+    if (fs.existsSync(envPath)) {
+      try {
+        require('dotenv').config({ path: envPath });
+        break;
+      } catch (e) {
+        // dotenv not installed (e.g. production container)
+      }
+    }
   }
 }
 
@@ -31,15 +37,9 @@ const { PrismaClient } = require('@prisma/client');
 const { execSync } = require('child_process');
 const Redis = require('ioredis');
 
-// URL VAR FOR LOCAL (Host native / localhost)
-// DATABASE_URL="postgresql://vibegrid:secret@localhost:5432/vibegrid_db?schema=public"
-// REDIS_URL="redis://:secret@localhost:6379"
-// URL VAR FOR PROD (Container network / VPS)
-// DATABASE_URL="postgresql://vibegrid:secret@vibegrid_postgres:5432/vibegrid_db?schema=public"
-// REDIS_URL="redis://:secret@vibegrid_redis:6379"
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
-  console.error('❌ DATABASE_URL not found in .env');
+  console.error('❌ DATABASE_URL not found in environment');
   process.exit(1);
 }
 
@@ -52,6 +52,8 @@ const prisma = new PrismaClient({
 });
 
 const confirmed = process.argv.includes('--confirm');
+const includeAdmins = process.argv.includes('--include-admins');
+const adminEmail = process.env.ADMIN_EMAIL || 'admin@vibegrid.manakhly.tech';
 
 function ensureSchemaPushed() {
   try {
@@ -78,19 +80,41 @@ async function cleanAll() {
   console.log('🔥 FULL DB WIPE — starting (leaf tables first)...\n');
 
   const steps = [
-    // Leaf nodes (no outbound FKs to other tables)
-    ['Notifications',  () => prisma.notifications.deleteMany({})],
-    ['Like',           () => prisma.like.deleteMany({})],
-    ['PostTag',        () => prisma.postTag.deleteMany({})],
-    ['Comment',        () => prisma.comment.deleteMany({})],
-    ['Post',           () => prisma.post.deleteMany({})],
-    ['Follows',        () => prisma.follows.deleteMany({})],
-    // Orphaned taxonomy leaf nodes
-    ['Tag',            () => prisma.tag.deleteMany({})],
-    ['Category',       () => prisma.category.deleteMany({})],
-    ['Vibe',           () => prisma.vibe.deleteMany({})],
-    // Users (Leaf-level entity that connects to everything else)
-    ['User',           () => prisma.user.deleteMany({})],
+    // 1. Direct Messaging
+    ['DirectMessage',           () => prisma.directMessage.deleteMany({})],
+    ['ConversationParticipant', () => prisma.conversationParticipant.deleteMany({})],
+    ['Conversation',            () => prisma.conversation.deleteMany({})],
+    // 2. Notifications, Bookmarks, Moderation
+    ['Notifications',           () => prisma.notifications.deleteMany({})],
+    ['Bookmark',                () => prisma.bookmark.deleteMany({})],
+    ['UserBlock',               () => prisma.userBlock.deleteMany({})],
+    ['UserReport',              () => prisma.userReport.deleteMany({})],
+    ['DeveloperMilestone',      () => prisma.developerMilestone.deleteMany({})],
+    ['OutboxEvent',             () => prisma.outboxEvent.deleteMany({})],
+    // 3. Polls & Engagement
+    ['PollVote',                () => prisma.pollVote.deleteMany({})],
+    ['PollOption',              () => prisma.pollOption.deleteMany({})],
+    ['Poll',                    () => prisma.poll.deleteMany({})],
+    ['ReGrid',                  () => prisma.reGrid.deleteMany({})],
+    ['CommentLike',             () => prisma.commentLike.deleteMany({})],
+    ['Comment',                 () => prisma.comment.deleteMany({})],
+    ['Like',                    () => prisma.like.deleteMany({})],
+    // 4. Tags & Posts
+    ['PostTag',                 () => prisma.postTag.deleteMany({})],
+    ['TagFollow',               () => prisma.tagFollow.deleteMany({})],
+    ['Tag',                     () => prisma.tag.deleteMany({})],
+    ['Post',                    () => prisma.post.deleteMany({})],
+    // 5. Communities
+    ['CommunityMember',         () => prisma.communityMember.deleteMany({})],
+    ['Community',               () => prisma.community.deleteMany({})],
+    // 6. Social & Interests
+    ['UserInterest',            () => prisma.userInterest.deleteMany({})],
+    ['Follows',                 () => prisma.follows.deleteMany({})],
+    // 7. Taxonomy (Leaf nodes now that Post and UserInterest are gone)
+    ['Category',                () => prisma.category.deleteMany({})],
+    ['Vibe',                    () => prisma.vibe.deleteMany({})],
+    // 8. Users
+    ['User',                    () => includeAdmins ? prisma.user.deleteMany({}) : prisma.user.deleteMany({ where: { email: { not: adminEmail } } })],
   ];
 
   for (const [label, fn] of steps) {
@@ -113,7 +137,7 @@ async function cleanAll() {
     }
   }
 
-  console.log('\n🔥 Full wipe complete. Admin account preserved.\n');
+  console.log(`\n🔥 Full wipe complete. ${includeAdmins ? 'ALL users deleted (including Admins).' : 'Admin account preserved.'}\n`);
 
   // Invalidate Redis cache & Next.js cache
   try {

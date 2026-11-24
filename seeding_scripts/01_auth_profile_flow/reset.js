@@ -13,8 +13,8 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-const REFERENCE_PATH = path.join(__dirname, 'data_reference.json');
-const INPUT_PATH = path.join(__dirname, 'data_input.json');
+const REFERENCE_PATH = path.join(__dirname, '..', 'data_reference.json');
+const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
 const SESSION_PATH = path.join(__dirname, 'session_state.json');
 
 async function resetAuthProfileFlow() {
@@ -50,9 +50,21 @@ async function resetAuthProfileFlow() {
   }
   console.log(`   ✅ Deleted seeded User auth credentials from MongoDB.`);
 
-  // 3. Reset input queue and session files
-  if (fs.existsSync(INPUT_PATH)) fs.unlinkSync(INPUT_PATH);
+  // 3. Replenish users in input queue and reset session file
+  if (fs.existsSync(REFERENCE_PATH) && fs.existsSync(INPUT_PATH)) {
+    try {
+      const refData = JSON.parse(fs.readFileSync(REFERENCE_PATH, 'utf8'));
+      const inputData = JSON.parse(fs.readFileSync(INPUT_PATH, 'utf8'));
+      inputData.users = JSON.parse(JSON.stringify(refData.users || []));
+      fs.writeFileSync(INPUT_PATH, JSON.stringify(inputData, null, 2));
+      console.log('   📋 Replenished users in master data_input.json from data_reference.json');
+    } catch (e) {
+      console.warn('   ⚠️ Could not replenish users in data_input.json:', e.message);
+    }
+  }
   if (fs.existsSync(SESSION_PATH)) fs.unlinkSync(SESSION_PATH);
+  const rootSession = path.join(__dirname, '..', 'session_state.json');
+  if (fs.existsSync(rootSession)) fs.unlinkSync(rootSession);
 
   console.log('✅ FLOW 01 Reset complete.\n');
 }

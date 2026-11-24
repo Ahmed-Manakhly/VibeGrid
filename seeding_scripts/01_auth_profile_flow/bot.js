@@ -28,10 +28,8 @@ for (const envPath of candidateEnvPaths) {
   }
 }
 
-const ROOT_INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
-const LOCAL_INPUT_PATH = path.join(__dirname, 'data_input.json');
-const INPUT_PATH = fs.existsSync(ROOT_INPUT_PATH) ? ROOT_INPUT_PATH : LOCAL_INPUT_PATH;
-const REFERENCE_PATH = path.join(__dirname, 'data_reference.json');
+const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
+const REFERENCE_PATH = path.join(__dirname, '..', 'data_reference.json');
 const SESSION_PATH = path.join(__dirname, 'session_state.json');
 const FIXTURES_DIR = path.join(__dirname, '..', 'fixtures');
 const { HttpClient } = require('../shared/http');
@@ -201,10 +199,9 @@ async function runAuthProfileFlow() {
           const mimeType = ext === '.png' ? 'image/png' : (ext === '.webp' ? 'image/webp' : 'image/jpeg');
 
           const intentRes = await userClient.post('/media/upload-intent', {
-            type: 'AVATAR',
-            filename: profile.avatarFixture,
             mimeType,
-            sizeBytes: fileBuf.length,
+            fileSizeBytes: fileBuf.length,
+            purpose: 'avatar',
           });
 
           if (intentRes.ok && intentRes.data?.data) {
@@ -221,7 +218,11 @@ async function runAuthProfileFlow() {
             if (confirmRes.ok && confirmRes.data?.data) {
               avatarUrl = confirmRes.data.data.publicUrl || confirmRes.data.data.mediaUrl || '';
               console.log(`   ✓ Avatar uploaded & confirmed: ${avatarUrl}`);
+            } else {
+              console.warn(`   ⚠️ Avatar confirm-upload notice:`, confirmRes.data || confirmRes.rawBody);
             }
+          } else {
+            console.warn(`   ⚠️ Avatar upload-intent notice:`, intentRes.data || intentRes.rawBody);
           }
         } catch (avErr) {
           console.warn(`   ⚠️ Avatar upload notice:`, avErr.message);

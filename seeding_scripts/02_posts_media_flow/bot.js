@@ -89,8 +89,28 @@ async function runPostsMediaFlow() {
     console.log(`   ✓ Authenticated ${u.profile.username} via HTTP API`);
   }
 
-  // 3. Fetch Existing Posts for Idempotency Check
+  // 2.5 Resolve Taxonomy Maps (Categories & Vibes) via /feed/filters
   const primaryClient = Object.values(userClients)[0];
+  const categoryMap = {};
+  const vibeMap = {};
+  try {
+    const filtersRes = await primaryClient.get('/feed/filters');
+    if (filtersRes.ok && filtersRes.data) {
+      (filtersRes.data.categories || []).forEach((c) => {
+        categoryMap[c.slug] = c.id;
+        categoryMap[c.name.toLowerCase()] = c.id;
+      });
+      (filtersRes.data.vibes || []).forEach((v) => {
+        vibeMap[v.key] = v.id;
+        vibeMap[v.name.toLowerCase()] = v.id;
+      });
+      console.log(`   ✓ Loaded ${Object.keys(categoryMap).length / 2} categories and ${Object.keys(vibeMap).length / 2} vibes for post attribution.`);
+    }
+  } catch (e) {
+    console.warn('   ⚠️ Could not fetch feed filters for taxonomy mapping:', e.message);
+  }
+
+  // 3. Fetch Existing Posts for Idempotency Check
   const feedRes = await primaryClient.get('/posts');
   const existingPosts = feedRes.ok && Array.isArray(feedRes.data?.vibes) ? feedRes.data.vibes : [];
 
@@ -181,6 +201,16 @@ async function runPostsMediaFlow() {
       ? (sessionData.posts?.[pConfig.quotedPostRef]?.id || pConfig.quotedPostId)
       : undefined;
 
+    // Resolve Category ID
+    const categoryId = pConfig.categoryRef
+      ? (categoryMap[pConfig.categoryRef] || categoryMap[String(pConfig.categoryRef).toLowerCase()] || pConfig.categoryId)
+      : pConfig.categoryId;
+
+    // Resolve Vibe ID
+    const vibeId = pConfig.vibeRef
+      ? (vibeMap[pConfig.vibeRef] || vibeMap[String(pConfig.vibeRef).toLowerCase()] || pConfig.vibeId)
+      : pConfig.vibeId;
+
     // Create Post via HTTP API
     let postType = pConfig.postType;
     if (postType === 'DEFAULT') postType = 'STANDARD';
@@ -194,6 +224,8 @@ async function runPostsMediaFlow() {
       mediaType: imageUrl ? 'IMAGE' : undefined,
       tags: pConfig.tags,
       postType,
+      categoryId: categoryId || undefined,
+      vibeId: vibeId || undefined,
       techContext: pConfig.techContext,
       poll: pConfig.poll,
       communityId,

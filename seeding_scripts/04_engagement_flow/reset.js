@@ -16,10 +16,7 @@ const candidateEnvPaths = [
   path.resolve(process.cwd(), '.env'),
 ];
 for (const envPath of candidateEnvPaths) {
-  if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
-    break;
-  }
+  if (fs.existsSync(envPath)) { try { require('dotenv').config({ path: envPath }); break; } catch (e) {} }
 }
 
 const { PrismaClient } = require('@prisma/client');

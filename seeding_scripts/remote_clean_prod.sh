@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # VibeGrid Production Multi-Database Remote Cleaner
-# Executes clean scripts inside isolated containers on the VPS over SSH
+# Executes canonical clean scripts inside isolated containers on the VPS over SSH:
+#   1. Auth Service:    node scripts/clean_mongo.js --include-admins (vibegrid_auth)
+#   2. Media Service:   node scripts/clean_media_mongo.js (vibegrid_media)
+#   3. BFF Service:     node seeding_scripts/db_cleaners/clean_all.js --confirm (vibegrid_bff)
 # ==============================================================================
 set -euo pipefail
 
@@ -35,102 +38,27 @@ if [[ "${1:-}" != "--confirm" ]]; then
   exit 1
 fi
 
-echo "🔥 1/4 Cleaning MongoDB (Auth Service) inside vibegrid_auth..."
-ssh "${VPS_HOST}" "docker exec vibegrid_auth node -e '
-const mongoose = require(\"mongoose\");
-let uri = process.env.MONGO_URI;
-if (uri && uri.includes(\"@\") && uri.startsWith(\"mongodb://\")) {
-  const parts = uri.replace(\"mongodb://\", \"\").split(\"@\");
-  const creds = parts[0].split(\":\");
-  if (creds.length === 2) {
-    const user = encodeURIComponent(decodeURIComponent(creds[0]));
-    const pass = encodeURIComponent(decodeURIComponent(creds[1]));
-    uri = \`mongodb://\${user}:\${pass}@\${parts[1]}\`;
-  }
-}
-async function run() {
-  await mongoose.connect(uri);
-  const result = await mongoose.connection.collection(\"userauths\").deleteMany({});
-  console.log(\`   ✅ Auth Users — deleted \${result.deletedCount} document(s)\`);
-  await mongoose.disconnect();
-}
-run().catch(e => { console.error(\"❌ Error:\", e); process.exit(1); });
-'"
+echo "🔥 1/4 Cleaning MongoDB (Auth Service) via scripts/clean_mongo.js..."
+ssh "${VPS_HOST}" "docker exec vibegrid_auth node scripts/clean_mongo.js --include-admins"
 
 echo "🔄 2/4 Restarting vibegrid_auth to re-seed bootstrap admins (ensureBootstrapUsers)..."
 ssh "${VPS_HOST}" "docker restart vibegrid_auth"
 sleep 3
 
-echo "🔥 3/4 Cleaning MongoDB (Media Service) inside vibegrid_media..."
-ssh "${VPS_HOST}" "docker exec vibegrid_media node -e '
-const mongoose = require(\"mongoose\");
-let uri = process.env.MONGO_URI;
-if (uri && uri.includes(\"@\") && uri.startsWith(\"mongodb://\")) {
-  const parts = uri.replace(\"mongodb://\", \"\").split(\"@\");
-  const creds = parts[0].split(\":\");
-  if (creds.length === 2) {
-    const user = encodeURIComponent(decodeURIComponent(creds[0]));
-    const pass = encodeURIComponent(decodeURIComponent(creds[1]));
-    uri = \`mongodb://\${user}:\${pass}@\${parts[1]}\`;
-  }
-}
-async function run() {
-  await mongoose.connect(uri);
-  const result = await mongoose.connection.collection(\"mediaassets\").deleteMany({});
-  console.log(\`   ✅ Media Assets — deleted \${result.deletedCount} document(s)\`);
-  await mongoose.disconnect();
-}
-run().catch(e => { console.error(\"❌ Error:\", e); process.exit(1); });
-'"
+echo "🔥 3/4 Cleaning MongoDB (Media Service) via scripts/clean_media_mongo.js..."
+ssh "${VPS_HOST}" "docker exec vibegrid_media node scripts/clean_media_mongo.js"
 
-echo "🔥 4/4 Cleaning PostgreSQL & Redis inside vibegrid_bff..."
-ssh "${VPS_HOST}" "docker exec vibegrid_bff node -e '
-const { PrismaClient } = require(\"@prisma/client\");
-const Redis = require(\"ioredis\");
-const prisma = new PrismaClient();
-const redis = new Redis(process.env.REDIS_URL);
-async function run() {
-  const adminEmail = process.env.ADMIN_EMAIL || \"admin@vibegrid.manakhly.tech\";
-  
-  await prisma.directMessage.deleteMany({});
-  await prisma.conversationParticipant.deleteMany({});
-  await prisma.conversation.deleteMany({});
-  await prisma.notifications.deleteMany({});
-  await prisma.bookmark.deleteMany({});
-  await prisma.pollVote.deleteMany({});
-  await prisma.pollOption.deleteMany({});
-  await prisma.poll.deleteMany({});
-  await prisma.reGrid.deleteMany({});
-  await prisma.like.deleteMany({});
-  await prisma.commentLike.deleteMany({});
-  await prisma.comment.deleteMany({});
-  await prisma.postTag.deleteMany({});
-  await prisma.tagFollow.deleteMany({});
-  await prisma.tag.deleteMany({});
-  await prisma.post.deleteMany({});
-  await prisma.communityMember.deleteMany({});
-  await prisma.community.deleteMany({});
-  await prisma.userInterest.deleteMany({});
-  await prisma.follows.deleteMany({});
-  await prisma.userBlock.deleteMany({});
-  await prisma.userReport.deleteMany({});
-  await prisma.developerMilestone.deleteMany({});
-  await prisma.outboxEvent.deleteMany({});
-  await prisma.vibe.deleteMany({});
-  await prisma.category.deleteMany({});
+echo "🔥 4/4 Cleaning PostgreSQL & Redis (BFF) via seeding_scripts/db_cleaners/clean_all.js..."
+ssh "${VPS_HOST}" "docker exec -i vibegrid_bff node - --confirm --include-admins" < "${SCRIPT_DIR}/db_cleaners/clean_all.js"
 
-  const u = await prisma.user.deleteMany({ where: { email: { not: adminEmail } } });
-  console.log(\`   ✅ PostgreSQL non-admin users wiped: \${u.count}\`);
-  console.log(\"   ✅ PostgreSQL Taxonomy (Categories & Vibes) wiped\");
-  
-  await redis.flushall();
-  console.log(\"   ✅ Redis cache flushed\");
+# Replenish local consumable data_input.json from master data_reference.json
+if [[ -f "${SCRIPT_DIR}/data_reference.json" ]]; then
+  cp "${SCRIPT_DIR}/data_reference.json" "${SCRIPT_DIR}/data_input.json"
+  echo "📋 Master data_input.json replenished from data_reference.json"
+fi
 
-  await prisma.\$disconnect();
-  await redis.quit();
-}
-run().catch(e => { console.error(\"❌ Error:\", e); process.exit(1); });
-'"
+# Clean local session state files
+rm -f "${SCRIPT_DIR}/session_state.json" "${SCRIPT_DIR}"/*/session_state.json
 
 echo "=========================================================="
 echo "✅ All production databases wiped and reset successfully!"
