@@ -12,6 +12,8 @@ const fs = require('fs');
 if (!process.env.DATABASE_URL) {
   const candidateEnvPaths = [
     path.resolve(__dirname, '../../.env'),
+    path.resolve(__dirname, '../.env'),
+    path.resolve(process.cwd(), 'seeding_scripts/.env'),
     path.resolve(process.cwd(), '.env'),
   ];
   for (const envPath of candidateEnvPaths) {
@@ -22,6 +24,29 @@ if (!process.env.DATABASE_URL) {
 }
 
 const { PrismaClient } = require('@prisma/client');
+
+function loadReferenceData() {
+  if (process.env.SEED_REF_B64) {
+    try {
+      const decoded = Buffer.from(process.env.SEED_REF_B64, 'base64').toString('utf8');
+      return JSON.parse(decoded);
+    } catch (e) {
+      console.warn('⚠️ Failed to parse SEED_REF_B64:', e.message);
+    }
+  }
+  const candidatePaths = [
+    path.join(__dirname, '..', 'data_reference.json'),
+    path.join(__dirname, 'data_reference.json'),
+    path.join(process.cwd(), 'seeding_scripts', 'data_reference.json'),
+    path.join(process.cwd(), 'data_reference.json'),
+  ];
+  for (const p of candidatePaths) {
+    if (fs.existsSync(p)) {
+      try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch (e) {}
+    }
+  }
+  return {};
+}
 
 async function deleteTaxonomyCache() {
   try {
@@ -83,22 +108,16 @@ async function resetTaxonomy() {
   console.log(`   ✅ Categories reset (${catR.count} deleted)`);
   console.log(`   ✅ Vibes reset (${vibeR.count} deleted)`);
 
-  const path = require('path');
-  const fs = require('fs');
+  const refData = loadReferenceData();
   const INPUT_PATH = path.join(__dirname, '..', 'data_input.json');
-  const REFERENCE_PATH = path.join(__dirname, '..', 'data_reference.json');
 
-  if (fs.existsSync(REFERENCE_PATH)) {
+  if (refData.categories && fs.existsSync(INPUT_PATH)) {
     try {
-      const refData = JSON.parse(fs.readFileSync(REFERENCE_PATH, 'utf8'));
-      let inputData = {};
-      if (fs.existsSync(INPUT_PATH)) {
-        inputData = JSON.parse(fs.readFileSync(INPUT_PATH, 'utf8'));
-      }
+      const inputData = JSON.parse(fs.readFileSync(INPUT_PATH, 'utf8'));
       inputData.categories = JSON.parse(JSON.stringify(refData.categories || []));
       inputData.vibes = JSON.parse(JSON.stringify(refData.vibes || []));
       fs.writeFileSync(INPUT_PATH, JSON.stringify(inputData, null, 2));
-      console.log('   📋 Replenished categories & vibes in master data_input.json from data_reference.json');
+      console.log('   📋 Replenished categories & vibes in master data_input.json from reference data');
     } catch (e) {
       console.warn('   ⚠️ Could not replenish data_input.json:', e.message);
     }

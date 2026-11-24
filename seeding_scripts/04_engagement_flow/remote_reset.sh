@@ -28,8 +28,25 @@ if [[ "${1:-}" != "--confirm" ]]; then
   exit 1
 fi
 
+# Encode reference data & session state if present
+REF_B64=""
+if [[ -n "${SEED_REF_B64:-}" ]]; then
+  REF_B64="${SEED_REF_B64}"
+elif [[ -f "${ROOT_SEEDING_DIR}/data_reference.json" ]]; then
+  REF_B64=$(base64 -w 0 < "${ROOT_SEEDING_DIR}/data_reference.json" 2>/dev/null || base64 < "${ROOT_SEEDING_DIR}/data_reference.json" | tr -d '\r\n')
+fi
+
+SESS_B64=""
+if [[ -n "${SEED_SESS_B64:-}" ]]; then
+  SESS_B64="${SEED_SESS_B64}"
+elif [[ -f "${ROOT_SEEDING_DIR}/session_state.json" ]]; then
+  SESS_B64=$(base64 -w 0 < "${ROOT_SEEDING_DIR}/session_state.json" 2>/dev/null || base64 < "${ROOT_SEEDING_DIR}/session_state.json" | tr -d '\r\n')
+elif [[ -f "${SCRIPT_DIR}/session_state.json" ]]; then
+  SESS_B64=$(base64 -w 0 < "${SCRIPT_DIR}/session_state.json" 2>/dev/null || base64 < "${SCRIPT_DIR}/session_state.json" | tr -d '\r\n')
+fi
+
 echo "🔄 Executing 04_engagement_flow Remote Reset on ${VPS_HOST}..."
-ssh "${VPS_HOST}" "docker exec -i vibegrid_bff node -" < "${SCRIPT_DIR}/reset.js"
+ssh "${VPS_HOST}" "docker exec -i -e SEED_REF_B64='${REF_B64}' -e SEED_SESS_B64='${SESS_B64}' vibegrid_bff node -" < "${SCRIPT_DIR}/reset.js"
 echo "✅ 04_engagement_flow Remote Reset complete on ${VPS_HOST}."
 
 # Replenish Flow 04 slice in local data_input.json
