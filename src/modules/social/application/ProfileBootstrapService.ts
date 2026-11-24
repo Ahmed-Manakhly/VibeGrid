@@ -64,13 +64,34 @@ export class ProfileBootstrapService {
       const existingUser = await authRepo.getUserById(userId);
       if (existingUser) return existingUser;
     } else {
-      const existingUser = await prisma.user.findUnique({
-        where: { id: userId },
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: userId },
+            { email },
+          ],
+        },
       });
+
       if (existingUser) {
+        // If Auth service ID changed (e.g. after Auth DB wipe/reseed), sync the ID in PostgreSQL
+        if (existingUser.id !== userId) {
+          try {
+            await prisma.$executeRawUnsafe(
+              `UPDATE "User" SET id = $1, role = $2 WHERE email = $3`,
+              userId,
+              (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') ? 'ADMIN' : existingUser.role,
+              email
+            );
+            existingUser.id = userId;
+          } catch (e) {
+            // Ignore if foreign key constraints defer the update
+          }
+        }
+
         if (isPolicyAccepted && !existingUser.isPolicyAccepted) {
           return await prisma.user.update({
-            where: { id: userId },
+            where: { id: existingUser.id },
             data: {
               isPolicyAccepted: true,
               policyAcceptedAt: new Date(),
