@@ -85,7 +85,7 @@ echo "🧹 Cleaned local session_state.json files"
 
 # Invalidate/flush Redis cache on remote VPS
 echo "🧹 Flushing Redis cache on remote VPS..."
-ssh -o StrictHostKeyChecking=no "${VPS_HOST}" "docker exec vibegrid_bff node -e 'try { require(\"./seeding_scripts/shared/redis\").flushAllCache(); } catch(e) {}' 2>/dev/null || docker exec vibegrid_redis redis-cli flushdb 2>/dev/null || true" || true
+ssh -o StrictHostKeyChecking=no "${VPS_HOST}" "docker exec vibegrid_redis redis-cli -a 'VgRedis_R2026#m4\$ZpQ!9wKx' flushdb 2>/dev/null || docker exec vibegrid_redis redis-cli flushdb 2>/dev/null || true" || true
 
 echo ""
 echo "=========================================================="

@@ -37,7 +37,44 @@ if (!process.env.DATABASE_URL) {
 
 const { PrismaClient } = require('@prisma/client');
 const { execSync } = require('child_process');
-const { flushAllCache } = require('../shared/redis');
+const Redis = require('ioredis');
+
+function getRedisConfig() {
+  const rawUrl = process.env.REDIS_URL;
+  const rawPass = process.env.REDIS_PASSWORD;
+  const decodedPassword = rawPass ? decodeURIComponent(rawPass) : undefined;
+
+  let host = 'localhost';
+  let port = 6379;
+  let password = decodedPassword;
+
+  if (rawUrl) {
+    try {
+      const sanitizedUrl = rawUrl.replace(/\$\{REDIS_PASSWORD\}/g, encodeURIComponent(decodedPassword || ''));
+      const parsed = new URL(sanitizedUrl);
+      host = parsed.hostname || 'localhost';
+      port = parseInt(parsed.port || '6379', 10);
+      if (!password && parsed.password) {
+        password = decodeURIComponent(parsed.password);
+      }
+    } catch (e) {}
+  }
+
+  return { host, port, password, lazyConnect: true, maxRetriesPerRequest: 1 };
+}
+
+async function flushAllRedis() {
+  try {
+    const config = getRedisConfig();
+    const redis = new Redis(config);
+    await redis.connect();
+    await redis.flushdb();
+    console.log('   🧹 Flushed all Redis cache keys (feed, taxonomy, recommendations, suggestions)');
+    await redis.quit();
+  } catch (err) {
+    console.warn(`   ⚠️ Notice: Redis cache flush skipped (${err.message})`);
+  }
+}
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -146,7 +183,7 @@ async function wipeRawDb() {
   console.log(`\n🔥 PostgreSQL wipe complete. ${includeAdmins ? 'ALL users deleted (including Admins).' : 'Admin account preserved.'}\n`);
 
   // Invalidate Redis cache
-  await flushAllCache();
+  await flushAllRedis();
 }
 
 wipeRawDb()

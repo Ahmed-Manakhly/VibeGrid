@@ -22,7 +22,41 @@ if (!process.env.DATABASE_URL) {
 }
 
 const { PrismaClient } = require('@prisma/client');
-const { deleteCacheKey } = require('../shared/redis');
+
+async function deleteTaxonomyCache() {
+  try {
+    const Redis = require('ioredis');
+    const rawUrl = process.env.REDIS_URL;
+    const rawPass = process.env.REDIS_PASSWORD;
+    const decodedPassword = rawPass ? decodeURIComponent(rawPass) : undefined;
+
+    let host = 'localhost';
+    let port = 6379;
+    let password = decodedPassword;
+
+    if (rawUrl) {
+      try {
+        const sanitizedUrl = rawUrl.replace(/\$\{REDIS_PASSWORD\}/g, encodeURIComponent(decodedPassword || ''));
+        const parsed = new URL(sanitizedUrl);
+        host = parsed.hostname || 'localhost';
+        port = parseInt(parsed.port || '6379', 10);
+        if (!password && parsed.password) {
+          password = decodeURIComponent(parsed.password);
+        }
+      } catch (e) {}
+    }
+
+    const redis = new Redis({ host, port, password, lazyConnect: true, maxRetriesPerRequest: 1 });
+    await redis.connect();
+    const deleted = await redis.del('cache:tags:all');
+    if (deleted > 0) {
+      console.log('   🧹 Invalidated Redis cache key: "cache:tags:all"');
+    }
+    await redis.quit();
+  } catch (err) {
+    // Non-blocking in case Redis is not reachable
+  }
+}
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -71,7 +105,7 @@ async function resetTaxonomy() {
   }
 
   // Invalidate taxonomy Redis cache
-  await deleteCacheKey('cache:tags:all');
+  await deleteTaxonomyCache();
 
   console.log('✅ Flow 00 Reset complete.\n');
 }
