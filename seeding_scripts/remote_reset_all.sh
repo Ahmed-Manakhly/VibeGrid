@@ -86,15 +86,18 @@ rm -f "${SCRIPT_DIR}/session_state.json"
 rm -f "${SCRIPT_DIR}"/*_flow/session_state.json 2>/dev/null || true
 echo "🧹 Cleaned local session_state.json files"
 
-# Flush Redis with explicit password from local .env (not VPS environment)
+# Invalidate/flush Redis cache on remote VPS dynamically extracting password if required
 echo "🧹 Flushing Redis cache on remote VPS..."
-if [[ -n "${REDIS_PASSWORD:-}" ]]; then
-  ssh -o StrictHostKeyChecking=no "${VPS_HOST}" \
-    "docker exec vibegrid_redis redis-cli -a '${REDIS_PASSWORD}' flushdb 2>/dev/null || true" || true
-else
-  ssh -o StrictHostKeyChecking=no "${VPS_HOST}" \
-    "docker exec vibegrid_redis redis-cli flushdb 2>/dev/null || true" || true
-fi
+ssh -o StrictHostKeyChecking=no "${VPS_HOST}" '
+  REDIS_PW=$(docker inspect vibegrid_redis --format="{{range .Config.Cmd}}{{println .}}{{end}}" 2>/dev/null | grep -A1 -- "--requirepass" | tail -n 1)
+  if [ -n "$REDIS_PW" ]; then
+    docker exec vibegrid_redis redis-cli -a "$REDIS_PW" flushdb 2>/dev/null || true
+  elif [ -n "${REDIS_PASSWORD:-}" ]; then
+    docker exec vibegrid_redis redis-cli -a "${REDIS_PASSWORD}" flushdb 2>/dev/null || true
+  else
+    docker exec vibegrid_redis redis-cli flushdb 2>/dev/null || true
+  fi
+' || true
 
 echo ""
 echo "=========================================================="

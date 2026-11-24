@@ -30,7 +30,7 @@ fi
 
 echo "🔄 Executing 01_auth_profile_flow Remote Reset on ${VPS_HOST}..."
 
-# Step 1: Upload JSON data files and reset.js to VPS via scp (filenames only — no ARG_MAX issue)
+# Step 1: Upload only DATA files to VPS via scp (small filenames, no ARG_MAX issue)
 echo "   📤 Uploading data files to VPS..."
 scp -o StrictHostKeyChecking=no \
   "${ROOT_SEEDING_DIR}/data_reference.json" \
@@ -42,24 +42,19 @@ if [[ -f "${ROOT_SEEDING_DIR}/session_state.json" ]]; then
     "${VPS_HOST}:/tmp/vg_session_state.json"
 fi
 
-scp -o StrictHostKeyChecking=no \
-  "${SCRIPT_DIR}/reset.js" \
-  "${VPS_HOST}:/tmp/vg_reset_flow.js"
-
-# Step 2: SSH to VPS — base64-encode locally on VPS (no cross-machine large arg), copy into container, run, cleanup
+# Step 2: SSH to VPS — base64-encode data files there (local to VPS, no cross-machine arg overflow)
+# Then pipe reset.js via stdin to `node -` so __dirname = /app (container WORKDIR) ✓
 ssh -o StrictHostKeyChecking=no "${VPS_HOST}" '
   REF_B64=$(base64 -w 0 < /tmp/vg_data_reference.json 2>/dev/null || base64 < /tmp/vg_data_reference.json | tr -d "\r\n")
   SESS_B64=""
   [ -f /tmp/vg_session_state.json ] && \
     SESS_B64=$(base64 -w 0 < /tmp/vg_session_state.json 2>/dev/null || base64 < /tmp/vg_session_state.json | tr -d "\r\n")
-  docker cp /tmp/vg_reset_flow.js vibegrid_bff:/tmp/vg_reset_flow.js
-  docker exec \
+  docker exec -i \
     -e "SEED_REF_B64=${REF_B64}" \
     -e "SEED_SESS_B64=${SESS_B64}" \
-    vibegrid_bff node /tmp/vg_reset_flow.js
-  docker exec vibegrid_bff rm -f /tmp/vg_reset_flow.js
-  rm -f /tmp/vg_data_reference.json /tmp/vg_session_state.json /tmp/vg_reset_flow.js
-'
+    vibegrid_bff node -
+  rm -f /tmp/vg_data_reference.json /tmp/vg_session_state.json
+' < "${SCRIPT_DIR}/reset.js"
 echo "✅ 01_auth_profile_flow Remote Reset complete on ${VPS_HOST}."
 
 # Replenish Flow 01 slice in local data_input.json
