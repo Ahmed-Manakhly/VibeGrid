@@ -5,9 +5,9 @@ import Link from "next/link";
 import { UserAvatar } from "./UserAvatar";
 import { useSidebar } from "./SidebarContext";
 import { MobileDropVibeButton } from "./DropVibeButtons";
-import { CustomSignOutButton } from "./CustomSignOutButton";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
-
+import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { cn } from "@/lib/utils";
 import { usePathname } from 'next/navigation';
 
 export function MobileBottomBar() {
@@ -15,6 +15,7 @@ export function MobileBottomBar() {
   const { toggle } = useSidebar();
   const { unreadCount, unreadMessagesCount } = useRealtime();
   const pathname = usePathname();
+  const { isVisible } = useScrollDirection({ threshold: 12, topOffset: 60 });
 
   const isAuthRoute = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'].some(path => pathname.startsWith(path));
   if (isAuthRoute || isLoading) return null;
@@ -22,7 +23,13 @@ export function MobileBottomBar() {
   const displayName = user?.name || user?.email.split('@')[0] || 'User';
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 nav-glass flex h-16 items-center justify-around px-8 sm:px-12 pb-safe border-t border-border/50">
+    <div
+      className={cn(
+        "lg:hidden fixed bottom-0 left-0 right-0 z-50 nav-glass flex h-16 items-center justify-around px-8 sm:px-12 pb-safe border-t border-border/50",
+        "transition-transform duration-300 ease-out will-change-transform",
+        isVisible ? "translate-y-0" : "translate-y-full"
+      )}
+    >
       {isAuthenticated ? (
         <>
           <MobileDropVibeButton />

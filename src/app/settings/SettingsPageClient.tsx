@@ -60,7 +60,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         <div className="w-full min-w-0 flex-1">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <div className="sticky top-[118px] lg:top-16 z-30 py-1 bg-transparent backdrop-blur-md mb-6">
+            <div className="sticky top-16 z-30 py-1 bg-transparent backdrop-blur-md mb-6">
               <TabsList className="w-full flex items-center justify-start flex-wrap border-b border-border/50 bg-transparent p-0 rounded-none h-auto gap-x-4 sm:gap-x-6 gap-y-1">
                 <TabsTrigger
                   value="personalization"

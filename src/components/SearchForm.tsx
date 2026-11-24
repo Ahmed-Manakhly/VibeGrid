@@ -10,6 +10,9 @@ interface SearchFormProps {
   variant?: "inline" | "hero" | "mobile";
   className?: string;
   placeholder?: string;
+  autoFocus?: boolean;
+  onSearchSubmit?: () => void;
+  onClose?: () => void;
 }
 
 interface UserSearchResult {
@@ -24,6 +27,9 @@ export function SearchForm({
   variant = "inline",
   className = "",
   placeholder = "Search vibes, people...",
+  autoFocus = false,
+  onSearchSubmit,
+  onClose,
 }: SearchFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -85,8 +91,10 @@ export function SearchForm({
     if (query.trim()) {
       router.push(`/explore?q=${encodeURIComponent(query.trim())}`);
       if (variant !== "hero") setQuery("");
+      onSearchSubmit?.();
     } else if (variant === "hero") {
       router.push("/explore");
+      onSearchSubmit?.();
     }
   };
 
@@ -115,7 +123,10 @@ export function SearchForm({
               <Link
                 key={user.id}
                 href={`/profile/${user.username}`}
-                onClick={() => setShowDropdown(false)}
+                onClick={() => {
+                  setShowDropdown(false);
+                  onClose?.();
+                }}
                 className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/70 transition-colors group"
               >
                 <UserAvatar src={user.image} name={displayName} className="size-8 shrink-0" />
@@ -181,29 +192,40 @@ export function SearchForm({
   if (variant === "mobile") {
     return (
       <div ref={containerRef} className={`relative w-full ${className}`}>
-        <form onSubmit={handleSearch} className="nav-glass lg:hidden px-4 sm:px-6 py-2 border-t-0 shadow-none rounded-none !bg-background/95">
-          <div className="relative w-full">
-            <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-1">
+        <form onSubmit={handleSearch} className="w-full">
+          <div className="relative w-full flex items-center">
+            <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-1" aria-label="Search">
               <Search className="size-4 text-muted-foreground cursor-pointer hover:text-accent transition-colors" />
             </button>
             <input 
               type="text"
+              autoFocus={autoFocus}
               value={query}
               onFocus={() => matchingUsers.length > 0 && setShowDropdown(true)}
               onChange={(e) => setQuery(e.target.value)}
-              className="h-10 w-full rounded-xl border border-border/50 bg-background pl-10 pr-8 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-border" 
+              className="h-10 w-full rounded-xl border border-border/50 bg-background/80 pl-10 pr-9 text-sm outline-none transition focus:border-border focus:ring-1 focus:ring-accent/50" 
               placeholder={placeholder} 
               aria-label={placeholder} 
             />
-            {query && (
+            {query ? (
               <button
                 type="button"
                 onClick={clearQuery}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+                aria-label="Clear search"
               >
-                <X className="size-3.5" />
+                <X className="size-4" />
               </button>
-            )}
+            ) : onClose ? (
+              <button
+                type="button"
+                onClick={onClose}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+                aria-label="Close search"
+              >
+                <X className="size-4" />
+              </button>
+            ) : null}
           </div>
         </form>
         {renderDropdown()}

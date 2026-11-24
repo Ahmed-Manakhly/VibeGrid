@@ -3,7 +3,7 @@ import { MarkAsReadUseCase } from "../MarkAsRead.usecase";
 import { INotificationRepository } from "../../domain/INotificationRepository";
 
 describe("Notification Module Use Cases", () => {
-  let mockRepo: jest.Mocked<INotificationRepository>;
+  let mockRepo: jest.Mocked<Required<INotificationRepository>>;
 
   beforeEach(() => {
     mockRepo = {

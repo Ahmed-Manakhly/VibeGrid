@@ -32,7 +32,7 @@ export function UnifiedTabsBar({
     <div
       className={cn(
         'w-full py-1 bg-transparent backdrop-blur-md mb-4',
-        sticky && 'sticky top-[118px] lg:top-16 z-30',
+        sticky && 'sticky top-16 z-30',
         className
       )}
     >
