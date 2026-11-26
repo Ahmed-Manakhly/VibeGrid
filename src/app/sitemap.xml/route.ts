@@ -1,8 +1,18 @@
 import { siteConfig } from '@/lib/seo';
 import { prisma } from '@/shared/infrastructure/prisma';
+import { logger } from '@/shared/infrastructure/di-container';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+
+function escapeXml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
 export async function GET() {
   const baseUrl = siteConfig.url;
@@ -49,7 +59,7 @@ export async function GET() {
       });
     });
   } catch (error) {
-    console.error('[Sitemap] Failed to fetch dynamic posts:', error);
+    logger.error('[Sitemap] Failed to fetch dynamic posts', error);
   }
 
   // 3. Dynamic Communities / Guilds
@@ -68,7 +78,7 @@ export async function GET() {
       });
     });
   } catch (error) {
-    console.error('[Sitemap] Failed to fetch dynamic communities:', error);
+    logger.error('[Sitemap] Failed to fetch dynamic communities', error);
   }
 
   // 4. Dynamic Developer Profiles
@@ -90,7 +100,7 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.error('[Sitemap] Failed to fetch dynamic users:', error);
+    logger.error('[Sitemap] Failed to fetch dynamic users', error);
   }
 
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -98,7 +108,7 @@ export async function GET() {
 ${urls
   .map(
     (u) => `  <url>
-    <loc>${u.url}</loc>
+    <loc>${escapeXml(u.url)}</loc>
     <lastmod>${u.lastModified.toISOString()}</lastmod>
     <changefreq>${u.changeFrequency}</changefreq>
     <priority>${u.priority.toFixed(1)}</priority>

@@ -1,5 +1,6 @@
 import {
   siteConfig,
+  getOgMediaBase,
   isValidOgImagePath,
   resolveOgImageUrl,
   generatePageMetadata,
@@ -57,6 +58,27 @@ describe('VibeGrid SEO & Social Graph Engine', () => {
       expect(resolved).toContain('banners/tech.png');
       expect(resolved).not.toContain('/public/public/');
     });
+
+    it('should prioritize IMG_BASE_CSR_PROD and fall back to IMG_BASE_SSR_PROD', () => {
+      const prevCsr = process.env.IMG_BASE_CSR_PROD;
+      const prevSsr = process.env.IMG_BASE_SSR_PROD;
+      try {
+        process.env.IMG_BASE_CSR_PROD = 'https://vibegrid.manakhly.tech/vibegrid-media';
+        process.env.IMG_BASE_SSR_PROD = 'http://vibegrid_minio:9000/vibegrid-media/';
+        expect(getOgMediaBase()).toBe('https://vibegrid.manakhly.tech/vibegrid-media/');
+        expect(resolveOgImageUrl('avatars/dev.png')).toBe(
+          'https://vibegrid.manakhly.tech/vibegrid-media/avatars/dev.png'
+        );
+
+        delete process.env.IMG_BASE_CSR_PROD;
+        expect(getOgMediaBase()).toBe('http://vibegrid_minio:9000/vibegrid-media/');
+      } finally {
+        if (prevCsr === undefined) delete process.env.IMG_BASE_CSR_PROD;
+        else process.env.IMG_BASE_CSR_PROD = prevCsr;
+        if (prevSsr === undefined) delete process.env.IMG_BASE_SSR_PROD;
+        else process.env.IMG_BASE_SSR_PROD = prevSsr;
+      }
+    });
   });
 
   describe('generatePageMetadata', () => {
@@ -87,6 +109,23 @@ describe('VibeGrid SEO & Social Graph Engine', () => {
       });
       expect((meta.robots as any)?.index).toBe(false);
       expect((meta.robots as any)?.follow).toBe(false);
+    });
+
+    it('should include both 1200x630 and 1:1 512x512 WhatsApp OG image entries', () => {
+      const meta = generatePageMetadata({ title: 'WhatsApp Preview Test' });
+      const images = meta.openGraph?.images as Array<{
+        url: string;
+        width?: number;
+        height?: number;
+      }>;
+      expect(Array.isArray(images)).toBe(true);
+      expect(images.length).toBe(2);
+      expect(images[0]).toMatchObject({ width: 1200, height: 630 });
+      expect(images[1]).toMatchObject({
+        width: 512,
+        height: 512,
+      });
+      expect(images[1].url).toContain('/icon-512x512.png');
     });
   });
 
@@ -130,7 +169,7 @@ describe('VibeGrid SEO & Social Graph Engine', () => {
 
       const ld = getCommunityStructuredData(comm);
       expect(ld).not.toBeNull();
-      expect(ld?.['@type']).toBe('Community');
+      expect(ld?.['@type']).toBe('Organization');
       expect(ld?.name).toBe('TypeScript Wizards');
       expect(ld?.url).toContain('/communities/typescript-wizards');
     });

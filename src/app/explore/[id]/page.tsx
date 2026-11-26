@@ -92,6 +92,11 @@ export default async function PostPage({ params }: { params: any }) {
         showMobileTabs={true}
         feed={
           <div className="pt-4 max-w-2xl mx-auto w-full">
+            <h1 className="sr-only">
+              {post.content
+                ? `${post.author?.name || post.author?.username || "Developer"}: ${post.content.slice(0, 80)}`
+                : `Vibe by ${post.author?.name || post.author?.username || "Developer"}`}
+            </h1>
             <BackButton />
             <PostCard post={post} dbUserId={dbUserId} isDetailPage={true} />
           </div>

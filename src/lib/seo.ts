@@ -3,11 +3,25 @@ import type { Metadata } from 'next';
 // ============================================================================
 // 1. Site Configuration & Brand Constants
 // ============================================================================
+function resolveSiteUrl(): string {
+  const publicProdUrl =
+    process.env.BASE_API_URL_PROD && /^https:\/\/(?!vibegrid_)/i.test(process.env.BASE_API_URL_PROD)
+      ? process.env.BASE_API_URL_PROD
+      : undefined;
+
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    publicProdUrl ||
+    "https://www.vibegrid.manakhly.tech"
+  ).replace(/\/$/, '');
+}
+
 export const siteConfig = {
   name: "VibeGrid",
   description:
     "Real-time Tech Newsfeed / Developer Pulse. Drop a Vibe, tune in to developer discussions, join tech guilds, and share code snippets.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://www.vibegrid.manakhly.tech",
+  url: resolveSiteUrl(),
   ogImage: "/og-image.jpg",
   twitterCard: "summary_large_image" as const,
   twitterSite: "@vibegrid",
@@ -45,11 +59,15 @@ export const siteConfig = {
  * WhatsApp, Facebook, LinkedIn require strictly absolute HTTPS URLs.
  */
 export function getOgMediaBase(): string {
-  const prod = process.env.IMG_BASE_API_PROD || process.env.NEXT_PUBLIC_MEDIA_URL;
+  const prod =
+    process.env.IMG_BASE_CSR_PROD ||
+    process.env.IMG_BASE_SSR_PROD ||
+    process.env.IMG_BASE_API_PROD ||
+    process.env.NEXT_PUBLIC_MEDIA_URL;
   if (prod && /^https?:\/\//i.test(prod)) {
     return prod.endsWith('/') ? prod : `${prod}/`;
   }
-  const site = (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || siteConfig.url).replace(/\/$/, '');
+  const site = resolveSiteUrl() || siteConfig.url.replace(/\/$/, '');
   return `${site}/`;
 }
 
@@ -69,7 +87,7 @@ export function isValidOgImagePath(path?: string | null): boolean {
  * Compliant with WhatsApp, LinkedIn, Twitter/X, and Facebook Open Graph standards.
  */
 export function resolveOgImageUrl(image?: string | null): string {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || siteConfig.url).replace(/\/$/, '');
+  const siteUrl = resolveSiteUrl() || siteConfig.url.replace(/\/$/, '');
   const fallback = process.env.OG_DEFAULT_IMAGE_URL || `${siteUrl}${siteConfig.ogImage}`;
 
   if (!isValidOgImagePath(image)) {
@@ -153,6 +171,13 @@ export function generatePageMetadata({
     alt: fullTitle,
   };
 
+  const squareOgImageEntry = {
+    url: `${siteConfig.url.replace(/\/$/, '')}/icon-512x512.png`,
+    width: 512,
+    height: 512,
+    alt: `${fullTitle} (Square)`,
+  };
+
   const validOpenGraphTypes = ["website", "article", "book", "profile"] as const;
   const normalizedType = validOpenGraphTypes.includes(type as any) ? type : "website";
 
@@ -188,7 +213,7 @@ export function generatePageMetadata({
       title: fullTitle,
       description: fullDescription,
       siteName: siteConfig.name,
-      images: [ogImageEntry],
+      images: [ogImageEntry, squareOgImageEntry],
       ...(publishedTime && { publishedTime }),
       ...(modifiedTime && { modifiedTime }),
     },
@@ -347,7 +372,7 @@ export function getCommunityStructuredData(community: {
   const image = resolveOgImageUrl(community.bannerUrl || community.avatarUrl);
 
   return generateStructuredData({
-    type: "Community",
+    type: "Organization",
     data: {
       name: community.name,
       description: community.description || `${community.name} Guild on VibeGrid`,
