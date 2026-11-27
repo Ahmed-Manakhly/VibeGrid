@@ -1,0 +1,65 @@
+{
+  "en": {
+    "directory": {
+      "eyebrow": "BUILDER NETWORKS",
+      "title": "Developer Communities",
+      "subtitle": "Discover tech circles, engineering guilds, and framework ecosystems built for high-signal code sharing.",
+      "searchPlaceholder": "Search engineering guilds, stacks, topics...",
+      "allCategories": "All Categories",
+      "createGuild": "Create Guild",
+      "membersCount": "members",
+      "postsCount": "vibes"
+    },
+    "space": {
+      "allGuilds": "All Guilds",
+      "joinGuild": "Join Guild",
+      "joined": "Joined Guild",
+      "joining": "Joining...",
+      "leaveGuild": "Leave Guild",
+      "manageGuild": "Manage Guild",
+      "changeBanner": "Change Banner",
+      "changeAvatar": "Change Avatar",
+      "feedTab": "Feed",
+      "aboutTab": "About",
+      "membersTab": "Members",
+      "discussionsTab": "Discussions",
+      "joinToPost": "Join Guild to Post",
+      "joinToPostDesc": "You must be a member of this guild to share vibes and participate in discussions.",
+      "noVibes": "No Vibes in this Guild Yet",
+      "noVibesDesc": "Be the first developer to start a technical discussion in this space.",
+      "member": "Member",
+      "moderator": "Moderator",
+      "admin": "Admin",
+      "owner": "Owner",
+      "removeMember": "Remove Member",
+      "changeRole": "Change Role"
+    },
+    "actions": {
+      "join": "Join",
+      "joined": "Joined",
+      "leave": "Leave",
+      "leftToast": "Left community",
+      "joinedToast": "Joined community"
+    },
+    "createDialog": {
+      "title": "Create Developer Guild",
+      "description": "Launch a specialized community for your stack, framework, or architectural focus.",
+      "button": "Create Community",
+      "nameLabel": "Guild Name",
+      "namePlaceholder": "e.g. Distributed Systems & Rust",
+      "slugLabel": "Guild Slug",
+      "slugPlaceholder": "distributed-systems-rust",
+      "descLabel": "Description",
+      "descPlaceholder": "What is the purpose and engineering focus of this guild?",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "Select a category",
+      "tagsLabel": "Tech Tags (comma separated)",
+      "tagsPlaceholder": "rust, grpc, raft, concurrency",
+      "rulesLabel": "Guild Rules (one per line)",
+      "rulesPlaceholder": "1. Keep discussions code & architecture centric\n2. Be respectful and constructive",
+      "cancel": "Cancel",
+      "create": "Create Guild",
+      "creating": "Creating..."
+    }
+  }
+}

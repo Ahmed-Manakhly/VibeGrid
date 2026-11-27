@@ -13,6 +13,7 @@ import {
 import { FileTextIcon, HeartIcon, Milestone, UserCheck, Users, UserPlus } from "lucide-react";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/copy";
 
 interface ProfileFollowUser {
   id: string;
@@ -70,42 +71,42 @@ export function ProfileTabsSection({
               className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
             >
               <FileTextIcon className="size-4 shrink-0" />
-              <span>Posts</span>
+              <span>{t("profile.tabs.posts", "Posts")}</span>
             </TabsTrigger>
             <TabsTrigger
               value="timeline"
               className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
             >
               <Milestone className="size-4 shrink-0" />
-              <span>Timeline</span>
+              <span>{t("profile.tabs.timeline", "Timeline")}</span>
             </TabsTrigger>
             <TabsTrigger
               value="likes"
               className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
             >
               <HeartIcon className="size-4 shrink-0" />
-              <span>Likes</span>
+              <span>{t("profile.tabs.likes", "Likes")}</span>
             </TabsTrigger>
             <TabsTrigger
               value="guilds"
               className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
             >
               <Users className="size-4 shrink-0" />
-              <span>Guilds ({userCommunities.length})</span>
+              <span>{t("profile.tabs.guilds", "Guilds")} ({userCommunities.length})</span>
             </TabsTrigger>
             <TabsTrigger
               value="followers"
               className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
             >
               <UserCheck className="size-4 shrink-0" />
-              <span>Followers ({followersCount})</span>
+              <span>{t("profile.tabs.followers", "Followers")} ({followersCount})</span>
             </TabsTrigger>
             <TabsTrigger
               value="following"
               className="flex items-center gap-1.5 sm:gap-2 py-2.5 px-1 text-sm font-semibold text-muted-foreground border-b-2 border-transparent rounded-none bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none transition-all shrink-0"
             >
               <UserPlus className="size-4 shrink-0" />
-              <span>Following ({followingCount})</span>
+              <span>{t("profile.tabs.following", "Following")} ({followingCount})</span>
             </TabsTrigger>
           </TabsList>
         </div>
@@ -143,11 +144,7 @@ export function ProfileTabsSection({
         <TabsContent value="guilds" className="mt-6">
           {userCommunities.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground text-sm">
-              No guilds joined yet. Explore the{" "}
-              <Link href="/communities" className="text-primary hover:underline">
-                Guilds Directory
-              </Link>
-              .
+              {t("profile.empty.noGuilds", "No guilds joined yet. Explore the Guilds Directory.")}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -185,7 +182,7 @@ export function ProfileTabsSection({
         <TabsContent value="followers" className="mt-6">
           {initialFollowers.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground text-sm">
-              No followers yet.
+              {t("profile.empty.noFollowers", "No followers yet.")}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -229,7 +226,7 @@ export function ProfileTabsSection({
         <TabsContent value="following" className="mt-6">
           {initialFollowing.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground text-sm">
-              Not following anyone yet.
+              {t("profile.empty.noFollowing", "Not following anyone yet.")}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

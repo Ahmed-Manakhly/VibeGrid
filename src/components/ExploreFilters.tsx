@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { t } from "@/lib/copy";
 
 export function ExploreFilters() {
   const searchParams = useSearchParams();
@@ -50,7 +51,7 @@ export function ExploreFilters() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Categories</h3>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">{t("feed.filters.categories")}</h3>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter("category", null)}
@@ -58,7 +59,7 @@ export function ExploreFilters() {
               !currentCategory ? "topic-pill-active" : "bg-card"
             }`}
           >
-            All
+            {t("feed.filters.all")}
           </button>
           {categories.map((c) => (
             <button
@@ -75,7 +76,7 @@ export function ExploreFilters() {
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Vibes</h3>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">{t("feed.filters.vibes")}</h3>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter("vibe", null)}
@@ -83,7 +84,7 @@ export function ExploreFilters() {
               !currentVibe ? "topic-pill-active" : "bg-card"
             }`}
           >
-            Any
+            {t("feed.filters.all")}
           </button>
           {vibes.map((v) => (
             <button
@@ -100,7 +101,7 @@ export function ExploreFilters() {
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Tags</h3>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">{t("feed.filters.tags")}</h3>
         {isTagsLoading ? (
           <p className="text-sm text-muted-foreground px-2">Loading...</p>
         ) : (

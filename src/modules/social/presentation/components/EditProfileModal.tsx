@@ -20,6 +20,7 @@ import { useSession } from '@/components/auth/SessionProvider';
 import { usePathname, useRouter } from 'next/navigation';
 import { useInput } from '@/shared/presentation/hooks/useInput';
 import { validateUsername, validateRequired, validateUrl } from '@/shared/utils/validation';
+import { t } from '@/lib/copy';
 
 interface EditProfileModalProps {
   user: {
@@ -197,7 +198,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] sm:w-[92vw] max-w-[620px] max-h-[90vh] sm:max-h-[88vh] flex flex-col p-4 sm:p-7 overflow-hidden rounded-3xl border border-white/60 dark:border-white/10 bg-card/95 backdrop-blur-2xl shadow-2xl">
         <DialogHeader className="shrink-0 pb-3 border-b border-border/40">
-          <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">Edit Profile</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">{t("profile.editModal.title")}</DialogTitle>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 py-3 sm:py-4 px-1 pr-2 sm:pr-3 min-w-0">
           <div className="flex flex-col items-center gap-3">
@@ -214,7 +215,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username">{t("profile.editModal.usernameLabel")}</Label>
             <Input
               id="username"
               name="username"
@@ -229,7 +230,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="name">Display Name</Label>
+            <Label htmlFor="name">{t("profile.editModal.displayNameLabel")}</Label>
             <Input
               id="name"
               name="name"
@@ -244,7 +245,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
+            <Label htmlFor="bio">{t("profile.editModal.bioLabel")}</Label>
             <Textarea
               id="bio"
               name="bio"
@@ -255,7 +256,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location">{t("profile.editModal.locationLabel")}</Label>
             <Input
               id="location"
               name="location"
@@ -265,7 +266,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="website">Website</Label>
+            <Label htmlFor="website">{t("profile.editModal.websiteLabel")}</Label>
             <Input
               id="website"
               name="website"
@@ -374,7 +375,7 @@ export function EditProfileModal({ user, open, onOpenChange }: EditProfileModalP
             </Button>
           </DialogClose>
           <Button onClick={handleEditSubmit} disabled={isUploading || isSubmitting} className="w-full sm:w-auto">
-            {isUploading || isSubmitting ? 'Saving...' : 'Save Changes'}
+            {isUploading || isSubmitting ? t("profile.editModal.saving") : t("profile.editModal.saveButton")}
           </Button>
         </div>
       </DialogContent>

@@ -13,6 +13,7 @@ import { Share2Icon, CopyIcon, SendIcon, CheckIcon, Loader2Icon, MessageSquareIc
 import { getConversationsAction, sendMessageAction } from '@/actions/messaging.action';
 import { toast } from '@/components/ui/toast';
 import { useSession } from '@/components/auth/SessionProvider';
+import { t } from '@/lib/copy';
 
 interface ShareVibeDialogProps {
   isOpen: boolean;
@@ -113,7 +114,7 @@ export function ShareVibeDialog({
         <DialogHeader>
           <DialogTitle className="text-base font-bold flex items-center gap-2">
             <Share2Icon className="size-4 text-primary" />
-            <span>Share Vibe</span>
+            <span>{t("feed.shareDialog.title")}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -128,12 +129,12 @@ export function ShareVibeDialog({
               {hasCopied ? (
                 <>
                   <CheckIcon className="size-4 text-emerald-400" />
-                  <span>Link Copied</span>
+                  <span>{t("feed.shareDialog.linkCopied")}</span>
                 </>
               ) : (
                 <>
                   <CopyIcon className="size-4 text-muted-foreground" />
-                  <span>Copy Link</span>
+                  <span>{t("feed.shareDialog.copyLink")}</span>
                 </>
               )}
             </button>
@@ -145,7 +146,7 @@ export function ShareVibeDialog({
                 className="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-border/60 bg-muted/30 hover:bg-muted/70 transition-colors text-xs font-medium text-foreground px-4"
               >
                 <Share2Icon className="size-4 text-muted-foreground" />
-                <span>More</span>
+                <span>{t("feed.shareDialog.nativeShare")}</span>
               </button>
             )}
           </div>
@@ -153,7 +154,7 @@ export function ShareVibeDialog({
           {/* Send in Direct Message List */}
           <div className="space-y-2 pt-2 border-t border-border/40">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
-              Send in Direct Message
+              {t("feed.shareDialog.sendInDirectSignal")}
             </p>
 
             {isLoading ? (
@@ -164,7 +165,7 @@ export function ShareVibeDialog({
             ) : conversations.length === 0 ? (
               <div className="text-center py-6 text-xs text-muted-foreground">
                 <MessageSquareIcon className="size-6 mx-auto mb-1 opacity-40" />
-                <p>No active conversations yet.</p>
+                <p>{t("feed.shareDialog.noConversations")}</p>
               </div>
             ) : (
               <div className="max-h-56 overflow-y-auto space-y-1 pr-1">
@@ -207,12 +208,12 @@ export function ShareVibeDialog({
                         ) : isSent ? (
                           <span className="flex items-center gap-1">
                             <CheckIcon className="size-3 text-emerald-400" />
-                            Sent
+                            {t("feed.shareDialog.sent")}
                           </span>
                         ) : (
                           <span className="flex items-center gap-1">
                             <SendIcon className="size-3" />
-                            Send
+                            {t("feed.shareDialog.send")}
                           </span>
                         )}
                       </Button>

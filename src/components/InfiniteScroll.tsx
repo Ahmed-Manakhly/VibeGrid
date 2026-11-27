@@ -6,6 +6,7 @@ import PostCard from "@/modules/vibe/presentation/components/PostCard";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import { ArrowUpIcon, RotateCw } from "lucide-react";
+import { t } from "@/lib/copy";
 
 interface InfiniteScrollProps {
   initialPosts: any[];
@@ -300,7 +301,7 @@ export function InfiniteScroll({
             {loading ? (
                <div className="w-5 h-5 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin"></div>
             ) : (
-               "Load More"
+               t("feed.feedList.loadMore")
             )}
           </button>
         </div>
@@ -308,15 +309,15 @@ export function InfiniteScroll({
       
       {!nextCursor && posts.length > 0 && (
         <p className="text-center text-muted-foreground text-sm mt-8 pb-8">
-          You've reached the end of the feed.
+          {t("feed.feedList.reachedEnd")}
         </p>
       )}
       
       {posts.length === 0 && (
         <div className="text-center py-20">
           <div className="text-4xl mb-4">🌵</div>
-          <h3 className="text-xl font-medium text-foreground mb-2">No vibes found</h3>
-          <p className="text-muted-foreground">Try adjusting your search or filters.</p>
+          <h3 className="text-xl font-medium text-foreground mb-2">{t("feed.feedList.noVibesFound")}</h3>
+          <p className="text-muted-foreground">{t("feed.feedList.adjustFilters")}</p>
         </div>
       )}
     </div>

@@ -24,6 +24,7 @@ import { toast } from "@/components/ui/toast";
 import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
 import { format } from "date-fns";
 import { TruncatedLinkifiedText } from "@/components/TruncatedLinkifiedText";
+import { t } from "@/lib/copy";
 
 interface CommunityHeaderProps {
   community: CommunityEntity;
@@ -157,7 +158,7 @@ export function CommunityHeader({ community, categories = [] }: CommunityHeaderP
           className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/80 hover:bg-background border border-border/50 text-xs font-medium text-foreground backdrop-blur-sm transition-all shadow-sm"
         >
           <ArrowLeft className="size-3.5" />
-          <span>All Guilds</span>
+          <span>{t("communities.space.allGuilds")}</span>
         </Link>
 
         {/* Change Banner Overlay Button (Visible to Creator / Admin) */}

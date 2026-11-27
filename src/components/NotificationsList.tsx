@@ -33,6 +33,7 @@ import {
 } from "@/actions/notification.action";
 import { TruncatedLinkifiedText } from "@/components/TruncatedLinkifiedText";
 import { toast } from "@/components/ui/toast";
+import { t } from "@/lib/copy";
 
 type Notification = {
   id: string;
@@ -267,7 +268,7 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
     <Card className="border border-border/60 bg-card/80 backdrop-blur-xl w-full rounded-2xl shadow-sm overflow-hidden">
       <CardHeader className="border-b bg-card/40 px-3.5 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <CardTitle className="text-sm sm:text-lg font-bold truncate shrink-0">Notifications</CardTitle>
+          <CardTitle className="text-sm sm:text-lg font-bold truncate shrink-0">{t("notifications.header.title")}</CardTitle>
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {unreadCount > 0 ? (
               <Button
@@ -282,11 +283,11 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
                 ) : (
                   <CheckCheck className="size-3 sm:size-3.5" />
                 )}
-                <span>Mark all as read</span>
+                <span>{t("notifications.actions.markAllRead")}</span>
               </Button>
             ) : (
               <span className="text-[10px] sm:text-xs text-muted-foreground font-mono whitespace-nowrap">
-                All caught up
+                {t("notifications.emptyDescription") || "All caught up"}
               </span>
             )}
           </div>
@@ -297,8 +298,8 @@ export function NotificationsList({ initialNotifications, initialCursor = null }
           {notifications.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground flex flex-col items-center justify-center gap-2">
               <span className="text-3xl">🔔</span>
-              <p className="font-medium text-sm">No notifications yet</p>
-              <p className="text-xs text-muted-foreground/80">When fellow developers like, comment, or follow, they will appear here.</p>
+              <p className="font-medium text-sm">{t("notifications.empty")}</p>
+              <p className="text-xs text-muted-foreground/80">{t("notifications.emptyDescription")}</p>
             </div>
           ) : (
             notifications.map((notification) => (

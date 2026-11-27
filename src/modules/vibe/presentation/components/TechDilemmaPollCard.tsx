@@ -7,6 +7,7 @@ import { votePollAction } from "@/actions/post.action";
 import { useSession } from "@/components/auth/SessionProvider";
 import { useRealtime } from "@/shared/infrastructure/socket/RealtimeProvider";
 import { toast } from "@/components/ui/toast";
+import { t } from "@/lib/copy";
 
 export interface PollOptionUI {
   id: string;
@@ -169,7 +170,7 @@ export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-primary uppercase tracking-wider">
           <BarChart3 className="size-3.5" />
-          <span>Tech Dilemma Poll</span>
+          <span>{t("feed.poll.title")}</span>
         </div>
         <div className="flex items-center gap-1 text-[11px] font-mono">
           {isExpired ? (
@@ -283,9 +284,9 @@ export function TechDilemmaPollCard({ poll }: TechDilemmaPollCardProps) {
           {totalVotes} {totalVotes === 1 ? "vote" : "votes"}
         </span>
         {isExpired ? (
-          <span className="text-amber-500 font-medium">Voting closed</span>
+          <span className="text-amber-500 font-medium">{t("feed.poll.votingClosed")}</span>
         ) : !showResults ? (
-          <span className="italic">Click an option to cast your vote</span>
+          <span className="italic">{t("feed.poll.votingPrompt")}</span>
         ) : (
           <span className="text-primary font-medium">Vote submitted</span>
         )}

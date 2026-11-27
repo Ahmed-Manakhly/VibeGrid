@@ -31,9 +31,9 @@ export default async function CommunitiesPage() {
     <>
       <div className="mb-6">
         <PageHeader
-          eyebrow={t("communities.eyebrow")}
-          title={t("communities.title")}
-          subtitle={t("communities.subtitle")}
+          eyebrow={t("communities.directory.eyebrow")}
+          title={t("communities.directory.title")}
+          subtitle={t("communities.directory.subtitle")}
           icon={Users}
           className="mb-4"
         />

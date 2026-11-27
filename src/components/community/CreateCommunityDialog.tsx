@@ -9,6 +9,7 @@ import { Plus, Loader2, Sparkles, Hash } from "lucide-react";
 import { createCommunityAction } from "@/actions/community.action";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
+import { t } from "@/lib/copy";
 import {
   Select,
   SelectContent,
@@ -89,17 +90,17 @@ export function CreateCommunityDialog({ categories = [] }: CreateCommunityDialog
       <DialogTrigger asChild>
         <Button className="btn-gradient text-white flex items-center gap-1.5 h-9 px-4 text-sm font-medium shadow-sm">
           <Plus className="size-4" />
-          <span>Create Community</span>
+          <span>{t("communities.createDialog.button")}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[calc(100vw-2rem)] max-w-md max-h-[90vh] overflow-y-auto bg-card/95 border-border/60 backdrop-blur-md p-4 sm:p-6 rounded-2xl">
         <DialogHeader className="mb-2">
           <DialogTitle className="text-xl font-bold flex items-center gap-2 text-foreground">
             <Sparkles className="size-5 text-primary" />
-            <span>Create Developer Guild</span>
+            <span>{t("communities.createDialog.title")}</span>
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Form a high-signal tech circle, open-source collective, or framework guild.
+            {t("communities.createDialog.description")}
           </DialogDescription>
         </DialogHeader>
 

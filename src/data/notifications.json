@@ -1,0 +1,21 @@
+{
+  "en": {
+    "header": {
+      "title": "Notifications",
+      "eyebrow": "ACTIVITY PULSE",
+      "subtitle": "Real-time interactions, mentions, solutions, and follows."
+    },
+    "actions": {
+      "markAllRead": "Mark all as read",
+      "clear": "Clear all"
+    },
+    "empty": "No notifications yet",
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "emptyDescription": "When other developers interact with your vibes, you'll see them here.",
+    "deletedToast": "Notification deleted",
+    "markedAllReadToast": "All notifications marked as read",
+    "deleteFailedToast": "Failed to delete notification",
+    "markReadFailedToast": "Failed to mark as read"
+  }
+}

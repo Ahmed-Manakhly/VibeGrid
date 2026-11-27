@@ -3,6 +3,7 @@ import { getCommunityBySlugAction, getCommunityFeedAction, getCommunityMembersAc
 import { getDbUserId } from "@/actions/user.action";
 import { getTaxonomyUseCase } from "@/shared/infrastructure/di-container";
 import { CommunitySpaceView } from "@/components/community/CommunitySpaceView";
+import { CommunityHeader } from "@/components/community/CommunityHeader";
 import { MobileTabsLayout } from "@/components/MobileTabsLayout";
 import { CommunityMembersSidebar } from "@/components/community/CommunityMembersSidebar";
 import { MyCommunitiesSidebar } from "@/components/community/MyCommunitiesSidebar";
@@ -109,13 +110,16 @@ export default async function CommunitySlugPage({ params }: CommunityPageProps) 
       )}
       <MobileTabsLayout
         feed={
-          <CommunitySpaceView
-            community={community}
-            initialPosts={initialPosts}
-            initialMembers={initialMembers}
-            dbUserId={dbUserId}
-            categories={categories}
-          />
+          <div className="w-full py-2 px-0 space-y-4">
+            <CommunityHeader community={community} categories={categories} />
+            <CommunitySpaceView
+              community={community}
+              initialPosts={initialPosts}
+              initialMembers={initialMembers}
+              dbUserId={dbUserId}
+              categories={categories}
+            />
+          </div>
         }
         discovery={
           <>

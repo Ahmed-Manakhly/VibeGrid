@@ -1,0 +1,67 @@
+{
+  "en": {
+    "nav": {
+      "home": "Home",
+      "explore": "Explore",
+      "notifications": "Notifications",
+      "profile": "Profile",
+      "messages": "Messages",
+      "bookmarks": "Bookmarks",
+      "communities": "Communities",
+      "settings": "Settings",
+      "policyCenter": "Policy Center"
+    },
+    "actions": {
+      "follow": "Tune In",
+      "following": "Tuned In",
+      "unfollow": "Tune Out",
+      "save": "Save",
+      "saved": "Saved",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "edit": "Edit",
+      "share": "Share",
+      "view": "View",
+      "back": "Back",
+      "clearAll": "Clear all",
+      "submit": "Submit",
+      "loading": "Loading...",
+      "close": "Close"
+    },
+    "trending": {
+      "eyebrow": "Trending now",
+      "suggestedGuild": "Suggested Guild",
+      "matchesTag": "Matches #",
+      "failed": "Failed to load trending topics.",
+      "empty": "No trending topics yet.",
+      "postsCount": "posts",
+      "membersCount": "members",
+      "vibesCount": "vibes",
+      "exploreGuild": "Explore Guild",
+      "findYourGuild": "Find Your Guild",
+      "findGuildDesc": "Join specialized engineering spaces aligned with your tech stack.",
+      "browseAllGuilds": "Browse All Guilds",
+      "defaultGuildDesc": "Developer space based on your active tech interests and stack."
+    },
+    "whoToFollow": {
+      "title": "Who to Tune In To"
+    },
+    "dialogs": {
+      "block": {
+        "title": "Block User",
+        "description": "Are you sure you want to block this developer? They won't be able to see your posts or message you.",
+        "confirm": "Block",
+        "cancel": "Cancel",
+        "success": "Blocked successfully"
+      },
+      "report": {
+        "title": "Report Content",
+        "description": "Help us keep VibeGrid safe. What is wrong with this post or profile?",
+        "submit": "Submit Report",
+        "cancel": "Cancel",
+        "success": "Report submitted. Thank you."
+      }
+    }
+  }
+}

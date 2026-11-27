@@ -1,11 +1,8 @@
-"use client";
-
-import React, { useState, useTransition, useMemo } from "react";
-import { PageHeader } from "@/components/PageHeader";
-import { Users, Search, Flame, Compass, Sparkles } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import React from "react";
 import { CommunityCard } from "@/components/community/CommunityCard";
+import { CommunityDirectorySearch } from "@/components/community/CommunityDirectorySearch";
 import { CreateCommunityDialog } from "@/components/community/CreateCommunityDialog";
+import { Compass } from "lucide-react";
 import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
 
 interface CategoryTaxonomy {
@@ -20,139 +17,38 @@ interface CommunitiesDirectoryViewProps {
   categories?: CategoryTaxonomy[];
 }
 
-export function CommunitiesDirectoryView({ 
-  initialCommunities, 
-  categories = [] 
+export function CommunitiesDirectoryView({
+  initialCommunities,
+  categories = [],
 }: CommunitiesDirectoryViewProps) {
-  const [search, setSearch] = useState("");
-  const [selectedTag, setSelectedTag] = useState("all");
-
-  // Dynamic filter tags: Primary focus is on real community tech tags, supplemented ONLY by relational categories (categories with at least 1 community)
-  const filterPills = useMemo(() => {
-    const pills = [{ key: "all", label: "🔥 All Guilds" }];
-    const addedKeys = new Set<string>(["all"]);
-
-    // 1. Primary: Collect all unique tech tags from actual communities
-    initialCommunities.forEach((c) => {
-      c.techTags?.forEach((t) => {
-        const rawTag = t.trim().toLowerCase().replace(/^#/, "");
-        if (rawTag && !addedKeys.has(rawTag)) {
-          addedKeys.add(rawTag);
-          pills.push({ key: rawTag, label: `#${rawTag}` });
-        }
-      });
-    });
-
-    // 2. Secondary: Append ONLY relational categories present on at least one existing community
-    if (categories && categories.length > 0) {
-      const activeCategorySlugs = new Set<string>();
-      initialCommunities.forEach((c) => {
-        c.techTags?.forEach((t) => {
-          activeCategorySlugs.add(t.trim().toLowerCase().replace(/^#/, ""));
-        });
-      });
-
-      categories.forEach((cat) => {
-        const catKey = cat.slug.toLowerCase();
-        // Only include if at least one community has tagged this category
-        if (activeCategorySlugs.has(catKey) && !addedKeys.has(catKey)) {
-          addedKeys.add(catKey);
-          pills.push({
-            key: catKey,
-            label: `${cat.emoji ? cat.emoji + " " : ""}${cat.name}`,
-          });
-        }
-      });
-    }
-
-    return pills;
-  }, [categories, initialCommunities]);
-
-  const filteredCommunities = useMemo(() => {
-    return initialCommunities.filter((c) => {
-      const matchesSearch =
-        search.trim() === "" ||
-        c.name.toLowerCase().includes(search.toLowerCase()) ||
-        c.slug.toLowerCase().includes(search.toLowerCase()) ||
-        (c.description && c.description.toLowerCase().includes(search.toLowerCase())) ||
-        (c.techTags && c.techTags.some((t) => t.toLowerCase().includes(search.toLowerCase())));
-
-      const matchesTag =
-        selectedTag === "all" ||
-        (c.techTags &&
-          c.techTags.some(
-            (t) =>
-              t.toLowerCase().replace(/^#/, "") === selectedTag.toLowerCase() ||
-              t.toLowerCase().replace(/[^a-z0-9]/g, "") === selectedTag.toLowerCase().replace(/[^a-z0-9]/g, "")
-          ));
-
-      return matchesSearch && matchesTag;
-    });
-  }, [initialCommunities, search, selectedTag]);
-
   return (
-    <div className="w-full py-0 px-0 space-y-6">
-      {/* Control Bar: Search & Create Guild Button */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-card/40 border border-border/40 p-3 rounded-xl backdrop-blur-sm">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search communities by name, description, or stack..."
-            className="pl-9 h-9 bg-secondary/30 border-border/50 text-sm focus-visible:ring-primary/30"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <CreateCommunityDialog categories={categories} />
-        </div>
-      </div>
-
-      {/* Dynamic Category/Tag Filters Carousel (Layout-Stable) */}
-      <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none min-h-[38px]">
-        {filterPills.map((pill) => {
-          const isActive = selectedTag === pill.key;
-          return (
-            <button
-              key={pill.key}
-              type="button"
-              onClick={() => setSelectedTag(pill.key)}
-              className={`shrink-0 h-8 px-3.5 rounded-full text-xs font-mono font-medium transition-colors border ${
-                isActive
-                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                  : "bg-secondary/40 text-muted-foreground border-border/40 hover:bg-secondary hover:text-foreground hover:border-border"
-              }`}
-            >
-              {pill.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Communities Grid */}
-      {filteredCommunities.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredCommunities.map((community) => (
-            <CommunityCard key={community.id} community={community} />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-card/40 rounded-2xl border border-border/40 p-8 shadow-sm">
-          <div className="flex justify-center mb-4 text-muted-foreground">
-            <div className="p-4 rounded-full bg-secondary/50 border border-border/40">
-              <Compass className="size-10 opacity-70" />
-            </div>
+    <div className="w-full py-0 px-0">
+      {/* Client Micro-Leaf controls Search & Filters, rendering initial server grid when idle, or filtered grid when searching */}
+      <CommunityDirectorySearch
+        categories={categories}
+        initialCommunities={initialCommunities}
+      >
+        {initialCommunities.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {initialCommunities.map((community) => (
+              <CommunityCard key={community.id} community={community} />
+            ))}
           </div>
-          <h3 className="text-lg font-bold text-foreground mb-1">No Communities Found</h3>
-          <p className="text-muted-foreground text-xs max-w-sm mx-auto mb-5 leading-relaxed">
-            {search || selectedTag !== "all"
-              ? "Try adjusting your search keywords or selecting a different tag filter."
-              : "No developer communities have been launched yet. Be the first to build a guild!"}
-          </p>
-          <CreateCommunityDialog />
-        </div>
-      )}
+        ) : (
+          <div className="text-center py-16 bg-card/40 rounded-2xl border border-border/40 p-8 shadow-sm">
+            <div className="flex justify-center mb-4 text-muted-foreground">
+              <div className="p-4 rounded-full bg-secondary/50 border border-border/40">
+                <Compass className="size-10 opacity-70" />
+              </div>
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-1">No Communities Found</h3>
+            <p className="text-muted-foreground text-xs max-w-sm mx-auto mb-5 leading-relaxed">
+              No developer communities have been launched yet. Be the first to build a guild!
+            </p>
+            <CreateCommunityDialog />
+          </div>
+        )}
+      </CommunityDirectorySearch>
     </div>
   );
 }
-

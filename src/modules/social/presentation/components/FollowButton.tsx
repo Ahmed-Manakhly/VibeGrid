@@ -4,6 +4,7 @@ import { toggleFollow } from "@/actions/user.action";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/toast";
+import { t } from "@/lib/copy";
 
 interface FollowButtonProps {
   targetUserId?: string;
@@ -77,8 +78,8 @@ export function FollowButton({ targetUserId, userId, initialIsFollowing = false,
   };
 
   const getButtonContent = () => {
-    if (!isFollowing) return "Tune In";
-    return isHovered ? "Tune Out" : "Tuned In";
+    if (!isFollowing) return t("common.actions.follow", "Tune In");
+    return isHovered ? t("common.actions.unfollow", "Tune Out") : t("common.actions.following", "Tuned In");
   };
 
   return (

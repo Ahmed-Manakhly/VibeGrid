@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
 import { generatePageMetadata } from "@/lib/seo";
+import { t } from "@/lib/copy";
 
 export const metadata = generatePageMetadata({
   title: "Bookmarks",
@@ -31,12 +32,14 @@ async function BookmarksFeed({ dbUserId }: { dbUserId: string }) {
         <div className="flex justify-center mb-4 text-primary">
           <BookmarkIcon className="size-12 opacity-80" />
         </div>
-        <h3 className="text-xl font-bold text-foreground mb-2">No saved vibes yet</h3>
+        <h3 className="text-xl font-bold text-foreground mb-2">
+          {t("feed.bookmarks.empty", "No saved vibes yet")}
+        </h3>
         <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-6">
-          Bookmark vibes while browsing to save them here for quick access anytime.
+          {t("feed.bookmarks.emptySubtitle", "Bookmark vibes while browsing to save them here for quick access anytime.")}
         </p>
         <Button asChild className="btn-gradient">
-          <Link href="/explore">Explore Vibes</Link>
+          <Link href="/explore">{t("feed.bookmarks.exploreButton", "Explore Vibes")}</Link>
         </Button>
       </div>
     );
@@ -76,9 +79,9 @@ export default async function BookmarksPage() {
   return (
     <>
       <PageHeader
-        eyebrow="SAVED VIBES"
-        title="Bookmarks"
-        subtitle="Your curated collection of saved vibes, code snippets, and discussions."
+        eyebrow={t("feed.bookmarks.eyebrow", "SAVED VIBES")}
+        title={t("feed.bookmarks.title", "Bookmarks")}
+        subtitle={t("feed.bookmarks.subtitle", "Your curated collection of saved vibes, code snippets, and discussions.")}
         icon={BookmarkIcon}
       />
       <MobileTabsLayout

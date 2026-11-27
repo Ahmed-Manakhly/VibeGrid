@@ -7,6 +7,7 @@ import { TruncatedLinkifiedText } from "@/components/TruncatedLinkifiedText";
 import { DeveloperBadgeList } from "@/modules/social/presentation/components/DeveloperBadgeList";
 import { ProfileActionButtons } from "@/modules/social/presentation/components/ProfileActionButtons";
 import { MapPinIcon, LinkIcon, CalendarIcon } from "lucide-react";
+import { t } from "@/lib/copy";
 
 interface ProfileSidebarProps {
   user: {
@@ -76,17 +77,17 @@ export function ProfileSidebar({
               <div className="flex justify-between mb-4">
                 <div>
                   <div className="font-semibold">{user._count.following.toLocaleString()}</div>
-                  <div className="text-sm text-muted-foreground">Following</div>
+                  <div className="text-sm text-muted-foreground">{t("profile.header.following", "Following")}</div>
                 </div>
                 <Separator orientation="vertical" />
                 <div>
                   <div className="font-semibold">{user._count.followers.toLocaleString()}</div>
-                  <div className="text-sm text-muted-foreground">Followers</div>
+                  <div className="text-sm text-muted-foreground">{t("profile.header.followers", "Followers")}</div>
                 </div>
                 <Separator orientation="vertical" />
                 <div>
                   <div className="font-semibold">{user._count.posts.toLocaleString()}</div>
-                  <div className="text-sm text-muted-foreground">Posts</div>
+                  <div className="text-sm text-muted-foreground">{t("profile.header.posts", "Posts")}</div>
                 </div>
               </div>
             </div>
@@ -121,14 +122,14 @@ export function ProfileSidebar({
               )}
               <div className="flex items-center text-muted-foreground">
                 <CalendarIcon className="size-4 mr-2 shrink-0" />
-                Joined {formattedDate}
+                {t("profile.header.joined", "Joined")} {formattedDate}
               </div>
 
               {/* Tech Stack Display */}
               {techStackList.length > 0 && (
                 <div className="pt-3 border-t border-border/60 space-y-1.5">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Tech Stack
+                    {t("profile.header.techStack", "Tech Stack")}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {techStackList.map((tech, idx) => (
@@ -147,7 +148,7 @@ export function ProfileSidebar({
               {devLinks.length > 0 && (
                 <div className="pt-3 border-t border-border/60 space-y-1.5">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Developer Links
+                    {t("profile.header.developerLinks", "Developer Links")}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {devLinks.map((link, idx) => {

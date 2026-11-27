@@ -17,6 +17,7 @@ import ImageUpload from "@/components/ImageUpload";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { t } from "@/lib/copy";
 
 function SubmitButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus();
@@ -30,12 +31,12 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
             {pending ? (
                 <>
                     <Loader2Icon className="size-4 mr-2 animate-spin" />
-                    Dropping...
+                    {t("feed.createPost.dropping")}
                 </>
             ) : (
                 <>
                     <SendIcon className="size-4 mr-2" />
-                    Drop Vibe
+                    {t("feed.createPost.dropVibe")}
                 </>
             )}
         </Button>
@@ -466,30 +467,30 @@ export default function CreatPost({
                                             <ImageIcon className="size-4" />
                                             <FilmIcon className="size-4" />
                                         </div>
-                                        Media
+                                        {t("feed.createPost.media")}
                                     </Button>
                                     <Button type="button" variant="ghost" size="sm" className={`hover:text-primary hover:bg-white/5 transition-all rounded-xl px-2.5 sm:px-3 ${showCodeBlock ? "text-primary bg-primary/10" : "text-muted-foreground"}`}
                                         onClick={() => setShowCodeBlock(!showCodeBlock)}
                                     >
                                         <CodeIcon className="size-4 mr-1.5" />
-                                        Code
+                                        {t("feed.createPost.code")}
                                     </Button>
                                     <Button type="button" variant="ghost" size="sm" className={`hover:text-brand-gold hover:bg-brand-gold/10 transition-all rounded-xl px-2.5 sm:px-3 ${showShipMode ? "text-brand-gold bg-brand-gold/15 border border-brand-gold/30" : "text-muted-foreground"}`}
                                         onClick={() => setShowShipMode(!showShipMode)}
                                     >
                                         <RocketIcon className="size-4 mr-1.5" />
-                                        Ship
+                                        {t("feed.createPost.ship")}
                                     </Button>
                                     <Button type="button" variant="ghost" size="sm" className={`hover:text-primary hover:bg-primary/10 transition-all rounded-xl px-2.5 sm:px-3 ${showPoll ? "text-primary bg-primary/15 border border-primary/30" : "text-muted-foreground"}`}
                                         onClick={() => setShowPoll(!showPoll)}
                                     >
                                         <BarChart3 className="size-4 mr-1.5" />
-                                        Poll
+                                        {t("feed.createPost.poll")}
                                     </Button>
                                 </div>
                                 <div className="flex items-center justify-end gap-2 pt-2 sm:pt-0 border-t border-white/5 sm:border-0 w-full sm:w-auto">
                                     <Button type="button" variant="ghost" className="text-muted-foreground hover:bg-transparent hover:text-foreground" onClick={handleCancel}>
-                                        Cancel
+                                        {t("feed.createPost.cancel")}
                                     </Button>
                                     <SubmitButton disabled={!selectedCategoryId || !selectedVibeId || (!contentVal.trim() && !imageUrl && !codeSnippet.trim() && !projectName.trim() && (!pollQuestion.trim() || pollOptions.filter(Boolean).length < 2))} />
                                 </div>

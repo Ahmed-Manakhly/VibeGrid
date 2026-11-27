@@ -1,0 +1,47 @@
+{
+  "en": {
+    "header": {
+      "eyebrow": "DEVELOPER IDENTITY",
+      "subtitle": "Developer profile, milestones, and contributions.",
+      "following": "Following",
+      "followers": "Followers",
+      "posts": "Posts",
+      "joined": "Joined",
+      "techStack": "Tech Stack",
+      "developerLinks": "Developer Links",
+      "recognitions": "Recognitions & Badges"
+    },
+    "tabs": {
+      "posts": "Posts",
+      "timeline": "Timeline",
+      "likes": "Likes",
+      "guilds": "Guilds",
+      "followers": "Followers",
+      "following": "Following"
+    },
+    "actions": {
+      "editProfile": "Edit Profile",
+      "directMessage": "Direct Message",
+      "block": "Block",
+      "report": "Report"
+    },
+    "empty": {
+      "noGuilds": "No guilds joined yet. Explore the Guilds Directory.",
+      "noFollowers": "No followers yet.",
+      "noFollowing": "Not following anyone yet.",
+      "noPosts": "No vibes dropped yet."
+    },
+    "editModal": {
+      "title": "Edit Developer Profile",
+      "nameLabel": "Name",
+      "bioLabel": "Bio",
+      "locationLabel": "Location",
+      "websiteLabel": "Website",
+      "saveButton": "Save Changes",
+      "saving": "Saving...",
+      "usernameLabel": "Username",
+      "displayNameLabel": "Display Name",
+      "cancel": "Cancel"
+    }
+  }
+}

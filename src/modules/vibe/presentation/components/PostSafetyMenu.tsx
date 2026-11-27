@@ -15,6 +15,7 @@ import { toggleBookmark } from '@/actions/post.action';
 import { BlockConfirmationDialog } from '@/modules/safety/presentation/components/BlockConfirmationDialog';
 import { toast } from '@/components/ui/toast';
 import { useSession } from '@/components/auth/SessionProvider';
+import { t } from '@/lib/copy';
 
 interface PostSafetyMenuProps {
   postId: string;
@@ -170,7 +171,7 @@ export function PostSafetyMenu({
               className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-muted transition-colors text-foreground"
             >
               <Link2Icon className="size-3.5 text-muted-foreground" />
-              <span>Copy Link</span>
+              <span>{t("feed.safetyMenu.copyLink", "Copy Link")}</span>
             </button>
             <div className="h-px bg-border/50 my-1" />
             <button
@@ -182,7 +183,7 @@ export function PostSafetyMenu({
               className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-muted transition-colors text-foreground"
             >
               <FlagIcon className="size-3.5 text-amber-500" />
-              <span>Report Vibe</span>
+              <span>{t("feed.safetyMenu.reportVibe", "Report Vibe")}</span>
             </button>
             <button
               type="button"
@@ -194,7 +195,7 @@ export function PostSafetyMenu({
               className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
             >
               <BanIcon className="size-3.5 shrink-0" />
-              <span className="truncate">Block Developer</span>
+              <span className="truncate">{t("feed.safetyMenu.blockDeveloper", "Block Developer")}</span>
             </button>
           </div>
         </>

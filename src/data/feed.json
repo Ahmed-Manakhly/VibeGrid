@@ -1,0 +1,118 @@
+{
+  "en": {
+    "home": {
+      "eyebrow": "LIVE COMMUNITY",
+      "title": "Your feed",
+      "subtitle": "Real-time developer pulses, ships, and tech discoveries from across the grid."
+    },
+    "explore": {
+      "eyebrow": "DISCOVER THE GRID",
+      "title": "Explore",
+      "subtitle": "Search developer pulses, topics, and code dilemmas across VibeGrid."
+    },
+    "bookmarks": {
+      "eyebrow": "SAVED VIBES",
+      "title": "Bookmarks",
+      "subtitle": "Your curated collection of saved vibes, code snippets, and discussions.",
+      "empty": "No saved vibes yet",
+      "emptySubtitle": "Bookmark vibes while browsing to save them here for quick access anytime.",
+      "exploreButton": "Explore Vibes",
+      "loggedOutTitle": "Saved Vibes",
+      "loggedOutSubtitle": "Log in to access your saved posts and bookmarks across all your devices.",
+      "logInButton": "Log In to View Bookmarks"
+    },
+    "filters": {
+      "categories": "Categories",
+      "vibes": "Vibes",
+      "tags": "Tags",
+      "all": "All",
+      "popular": "Popular",
+      "latest": "Latest",
+      "trending": "Trending"
+    },
+    "createPost": {
+      "placeholder": "Drop an engineering vibe, share an architectural win, or ask a technical question... (type @ to mention a developer)",
+      "codeTab": "Code",
+      "pollTab": "Poll",
+      "imageTab": "Image",
+      "submit": "Drop Vibe",
+      "submitting": "Publishing...",
+      "dilemma": "Tech Dilemma",
+      "question": "Q&A",
+      "selectCategory": "Select Category",
+      "selectVibe": "Select Vibe",
+      "codeSnippet": "Code Snippet",
+      "showShipMode": "Show & Ship Mode",
+      "media": "Media",
+      "code": "Code",
+      "ship": "Ship",
+      "poll": "Poll",
+      "cancel": "Cancel",
+      "dropping": "Dropping...",
+      "dropVibe": "Drop Vibe"
+    },
+    "postCard": {
+      "likes": "Likes",
+      "comments": "Comments",
+      "regrid": "Re-grid",
+      "bookmark": "Bookmark",
+      "share": "Share",
+      "acceptedSolution": "Accepted Solution",
+      "markSolution": "Mark as Solution",
+      "verifiedVibe": "Verified Vibe"
+    },
+    "comments": {
+      "reply": "Reply",
+      "replies": "Replies",
+      "placeholder": "Write a reply...",
+      "empty": "No comments yet. Be the first to share your thoughts!",
+      "solution": "Solution",
+      "markAsSolution": "Mark as Solution",
+      "unmarkSolution": "Unmark Solution",
+      "deleteReplyTitle": "Delete Reply?",
+      "deleteCommentTitle": "Delete Comment?",
+      "deleteReplyDesc": "This will permanently remove this reply. This action cannot be undone.",
+      "deleteCommentDesc": "This will permanently remove this comment. This action cannot be undone.",
+      "deleteConfirm": "Delete",
+      "deleting": "Deleting...",
+      "cancel": "Cancel"
+    },
+    "safetyMenu": {
+      "copyLink": "Copy Link",
+      "saveBookmark": "Bookmark Vibe",
+      "removeBookmark": "Remove Bookmark",
+      "reportVibe": "Report Vibe",
+      "blockDeveloper": "Block Developer",
+      "reportModalTitle": "Report Vibe to Community Moderators",
+      "reportReasonLabel": "Reason for Report",
+      "detailsLabel": "Details (optional)",
+      "detailsPlaceholder": "Provide additional context for moderators...",
+      "cancel": "Cancel",
+      "submitReport": "Submit Report"
+    },
+    "shareDialog": {
+      "title": "Share Vibe",
+      "linkCopied": "Link Copied",
+      "copyLink": "Copy Link",
+      "nativeShare": "Share Via...",
+      "sendInDirectSignal": "Send in Direct Signal",
+      "sent": "Sent",
+      "send": "Send",
+      "noConversations": "No active direct signals. Start a conversation in Messages first."
+    },
+    "feedList": {
+      "thread": "Thread",
+      "grid": "Grid",
+      "loadMore": "Load More",
+      "reachedEnd": "You've reached the end of the feed.",
+      "noVibesFound": "No vibes found",
+      "adjustFilters": "Try adjusting your search or filters."
+    },
+    "poll": {
+      "title": "Tech Dilemma Poll",
+      "votingClosed": "Voting closed",
+      "votingPrompt": "Click an option to cast your vote",
+      "votes": "votes"
+    }
+  }
+}

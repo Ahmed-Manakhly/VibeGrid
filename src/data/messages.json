@@ -1,0 +1,18 @@
+{
+  "en": {
+    "header": {
+      "title": "Direct Messages",
+      "subtitle": "Private developer-to-developer channels",
+      "searchPlaceholder": "Search conversations and developers..."
+    },
+    "chat": {
+      "placeholder": "Type an encrypted message...",
+      "send": "Send",
+      "sending": "Sending...",
+      "empty": "Select a conversation or start a new message.",
+      "typing": "is typing...",
+      "online": "Online",
+      "offline": "Offline"
+    }
+  }
+}

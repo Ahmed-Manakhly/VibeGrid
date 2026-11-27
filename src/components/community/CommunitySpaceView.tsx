@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
+import { t } from "@/lib/copy";
 
 interface CommunitySpaceViewProps {
   community: CommunityEntity;
@@ -122,8 +123,6 @@ export function CommunitySpaceView({
   return (
     <div className="w-full py-2 px-0 space-y-4">
       {/* Community Hero Header */}
-      <CommunityHeader community={community} categories={categories} />
-
       {/* Unified Sticky Tabs Bar */}
       <UnifiedTabsBar
         value={activeTab}
@@ -167,7 +166,7 @@ export function CommunitySpaceView({
                   ) : (
                     <UserPlus className="size-3.5" />
                   )}
-                  <span>Join Guild to Post</span>
+                  <span>{t("communities.space.joinToPost")}</span>
                 </button>
               </div>
             )
@@ -190,9 +189,9 @@ export function CommunitySpaceView({
                   <MessageSquareQuote className="size-10 opacity-70" />
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-1">No Vibes in this Guild Yet</h3>
+              <h3 className="text-lg font-bold text-foreground mb-1">{t("communities.space.noVibes")}</h3>
               <p className="text-muted-foreground text-xs max-w-sm mx-auto mb-5 leading-relaxed">
-                Be the pioneer to drop an engineering pulse, tech dilemma, or architecture ship in {community.name}.
+                {t("communities.space.noVibesDesc")}
               </p>
             </div>
           )}

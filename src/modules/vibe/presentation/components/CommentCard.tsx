@@ -15,6 +15,7 @@ import { TruncatedLinkifiedText } from '@/components/TruncatedLinkifiedText';
 import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
 import { PostMediaContainer } from './PostMediaContainer';
 import ImageUpload from '@/components/ImageUpload';
+import { t } from '@/lib/copy';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -331,7 +332,7 @@ export function CommentCard({
                             {isSolution && (
                                 <span className="inline-flex items-center gap-1 text-[9px] font-medium leading-none whitespace-nowrap text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
                                     <CheckCircle2 className="size-2.5 text-emerald-400 shrink-0" />
-                                    <span>Solution</span>
+                                    <span>{t("feed.comments.solution")}</span>
                                 </span>
                             )}
 
@@ -454,7 +455,7 @@ export function CommentCard({
                                 className="inline-flex items-center gap-0.5 text-[10px] leading-none whitespace-nowrap text-muted-foreground hover:text-primary transition-colors"
                             >
                                 <ReplyIcon className="size-2.5" />
-                                <span>Reply</span>
+                                <span>{t("feed.comments.reply")}</span>
                             </button>
                         )}
 

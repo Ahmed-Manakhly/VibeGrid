@@ -1,53 +1,16 @@
-"use client";
-
-import React, { useState, useTransition } from "react";
+import React from "react";
 import Link from "next/link";
-import { Users, Flame, Shield, Check, UserPlus, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { joinCommunityAction, leaveCommunityAction } from "@/actions/community.action";
-import { toast } from "@/components/ui/toast";
-import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
+import { Users, Flame, Shield } from "lucide-react";
 import { TruncatedLinkifiedText } from "@/components/TruncatedLinkifiedText";
+import { JoinCommunityButton } from "@/components/community/JoinCommunityButton";
+import { CommunityEntity } from "@/modules/community/domain/ICommunityRepository";
 
 interface CommunityCardProps {
   community: CommunityEntity;
 }
 
 export function CommunityCard({ community }: CommunityCardProps) {
-  const [isPending, startTransition] = useTransition();
-  const [isMember, setIsMember] = useState(community.isMember || false);
-  const [memberCount, setMemberCount] = useState(community._count?.members || 0);
-
-  const handleToggleJoin = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const nextState = !isMember;
-    setIsMember(nextState);
-    setMemberCount((prev) => (nextState ? prev + 1 : Math.max(0, prev - 1)));
-
-    startTransition(async () => {
-      if (nextState) {
-        const res = await joinCommunityAction(community.id, community.slug);
-        if (!res.success) {
-          setIsMember(!nextState);
-          setMemberCount((prev) => prev - 1);
-          toast.error(res.error || "Failed to join community");
-        } else {
-          toast.success(`Joined ${community.name}`);
-        }
-      } else {
-        const res = await leaveCommunityAction(community.id, community.slug);
-        if (!res.success) {
-          setIsMember(!nextState);
-          setMemberCount((prev) => prev + 1);
-          toast.error(res.error || "Failed to leave community");
-        } else {
-          toast.info(`Left ${community.name}`);
-        }
-      }
-    });
-  };
+  const memberCount = community._count?.members || (community as any).memberCount || 0;
 
   return (
     <div className="group relative flex flex-col justify-between rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-5 transition-all duration-200 hover:border-primary/40 hover:shadow-md">
@@ -75,32 +38,12 @@ export function CommunityCard({ community }: CommunityCardProps) {
             </div>
           </div>
 
-          {/* Join/Leave Button */}
-          <Button
-            size="sm"
-            variant={isMember ? "outline" : "default"}
-            onClick={handleToggleJoin}
-            disabled={isPending}
-            className={`h-8 px-3 text-xs font-medium transition-all shrink-0 self-start sm:self-auto ${
-              isMember
-                ? "border-primary/30 text-primary hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                : "btn-gradient text-white"
-            }`}
-          >
-            {isPending ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : isMember ? (
-              <span className="flex items-center gap-1">
-                <Check className="size-3.5" />
-                <span>Joined</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-1">
-                <UserPlus className="size-3.5" />
-                <span>Join</span>
-              </span>
-            )}
-          </Button>
+          {/* Join/Leave Button Micro-Leaf */}
+          <JoinCommunityButton
+            communityId={community.id}
+            communitySlug={community.slug}
+            initialIsMember={community.isMember || false}
+          />
         </div>
 
         {/* Description */}
