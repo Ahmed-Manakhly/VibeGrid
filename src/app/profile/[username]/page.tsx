@@ -12,8 +12,11 @@ import { getPosts } from "@/actions/post.action";
 import { getDbUserId } from "@/actions/user.action";
 import { notFound, redirect } from "next/navigation"; // not found fun from next
 import { trustSafetyRepository } from "@/shared/infrastructure/di-container";
-//-----------------
-import ProfilePageClient from "./ProfilePageClient";
+import { getCurrentSession } from "@/lib/auth/server";
+import { PageHeader } from "@/components/PageHeader";
+import { ProfileSidebar } from "@/modules/social/presentation/components/ProfileSidebar";
+import { ProfileTabsSection } from "@/modules/social/presentation/components/ProfileTabsSection";
+import { UserCheck } from "lucide-react";
 import {
     generatePageMetadata,
     getRouteKeywords,
@@ -96,8 +99,10 @@ async function ProfilePageServer({ params }: { params: Promise<{ username: strin
         { name: `@${user.username}`, url: `/profile/${user.username}` },
     ]);
 
+    const session = await getCurrentSession();
+
     return (
-        <>
+        <div className="w-full">
             {profileStructuredData && (
                 <script
                     type="application/ld+json"
@@ -110,17 +115,39 @@ async function ProfilePageServer({ params }: { params: Promise<{ username: strin
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsStructuredData) }}
                 />
             )}
-            <ProfilePageClient
-                user={user}
-                postsResult={postsResult}
-                likedPostsResult={likedPostsResult}
-                isFollowing={isCurrentUserFollowing}
-                initialMilestones={initialMilestones}
-                userCommunities={userCommunities}
-                initialFollowers={followersRes.success ? followersRes.data : []}
-                initialFollowing={followingRes.success ? followingRes.data : []}
+
+            <PageHeader
+                eyebrow="DEVELOPER IDENTITY"
+                title={user.name ?? user.username}
+                subtitle={`@${user.username} • Developer profile, milestones, and contributions.`}
+                icon={UserCheck}
+                className="mb-6"
             />
-        </>
+
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
+                <ProfileSidebar
+                    user={user}
+                    currentUserId={currentUserId}
+                    isAuthenticated={session.isAuthenticated}
+                    initialIsFollowing={isCurrentUserFollowing}
+                    hasMilestones={initialMilestones.length > 0}
+                />
+
+                <ProfileTabsSection
+                    userId={user.id}
+                    username={user.username}
+                    currentUserId={currentUserId}
+                    postsResult={postsResult}
+                    likedPostsResult={likedPostsResult}
+                    initialMilestones={initialMilestones}
+                    userCommunities={userCommunities}
+                    initialFollowers={followersRes.success ? followersRes.data : []}
+                    initialFollowing={followingRes.success ? followingRes.data : []}
+                    followersCount={user._count.followers}
+                    followingCount={user._count.following}
+                />
+            </div>
+        </div>
     );
 }
 export default ProfilePageServer;
