@@ -1,8 +1,15 @@
 import type { Metadata } from 'next';
+import seoKeywords from '@/content/seo-keywords.json';
 
 // ============================================================================
 // 1. Site Configuration & Brand Constants
 // ============================================================================
+export const seoKeywordsDictionary = seoKeywords;
+
+export function getRouteKeywords(routeKey: keyof typeof seoKeywords): string[] {
+  return seoKeywords[routeKey] || [];
+}
+
 function resolveSiteUrl(): string {
   const publicProdUrl =
     process.env.BASE_API_URL_PROD && /^https:\/\/(?!vibegrid_)/i.test(process.env.BASE_API_URL_PROD)
@@ -29,20 +36,7 @@ export const siteConfig = {
   locale: "en_US",
   siteType: "website",
   copyright: `© 2024–${new Date().getFullYear()} VibeGrid. All rights reserved.`,
-  keywords: [
-    "developer",
-    "tech news",
-    "programming",
-    "software engineering",
-    "nextjs",
-    "react",
-    "typescript",
-    "open source",
-    "code snippets",
-    "tech community",
-    "developer pulse",
-    "tech guilds"
-  ],
+  keywords: seoKeywords.site,
   author: "VibeGrid",
   publisher: "VibeGrid Tech",
   category: "Technology",

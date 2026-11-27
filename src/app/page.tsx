@@ -15,13 +15,14 @@ import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { Radio } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "./loading";
-import { generatePageMetadata } from "@/lib/seo";
+import { generatePageMetadata, getRouteKeywords } from "@/lib/seo";
 
 export function generateMetadata() {
   return generatePageMetadata({
     title: "Developer Pulse & Live Feed",
     description: "Real-time Tech Newsfeed / Developer Pulse. Drop a Vibe, tune in to developer discussions, join tech guilds, and share code snippets.",
     url: "/",
+    keywords: getRouteKeywords("home"),
   });
 }
 

@@ -9,6 +9,7 @@ import { RelatedPostsSidebar } from "@/components/RelatedPostsSidebar";
 import { BackButton } from "@/components/BackButton";
 import {
   generatePageMetadata,
+  getRouteKeywords,
   getPostStructuredData,
   getBreadcrumbStructuredData,
 } from "@/lib/seo";
@@ -38,6 +39,11 @@ export async function generateMetadata({ params }: { params: any }) {
     url: `/explore/${post.id}`,
     type: "article",
     authors: [authorName],
+    keywords: [
+      ...getRouteKeywords("post"),
+      authorName,
+      ...(post.tags || []).map((t: any) => (typeof t === 'string' ? t : t.name || t.slug)).filter(Boolean),
+    ],
     publishedTime: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
     modifiedTime: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
   });

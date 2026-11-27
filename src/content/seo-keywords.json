@@ -1,0 +1,53 @@
+{
+  "site": [
+    "developer",
+    "tech news",
+    "programming",
+    "software engineering",
+    "nextjs",
+    "react",
+    "typescript",
+    "open source",
+    "code snippets",
+    "tech community",
+    "developer pulse",
+    "tech guilds"
+  ],
+  "home": [
+    "developer newsfeed",
+    "developer pulse",
+    "tech vibes",
+    "live developer feed",
+    "code discussions",
+    "engineering stream"
+  ],
+  "explore": [
+    "explore tech",
+    "trending vibes",
+    "tech debates",
+    "developer discussions",
+    "code solutions",
+    "software architecture topics"
+  ],
+  "communities": [
+    "tech guilds",
+    "developer hubs",
+    "programming communities",
+    "open source groups",
+    "engineering clubs"
+  ],
+  "profile": [
+    "developer portfolio",
+    "developer profile",
+    "tech contributions",
+    "open source developer",
+    "coding activity"
+  ],
+  "post": [
+    "tech post",
+    "developer vibe",
+    "code snippet",
+    "engineering discussion",
+    "tech dilemma"
+  ]
+}

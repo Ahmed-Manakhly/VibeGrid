@@ -16,6 +16,7 @@ import { trustSafetyRepository } from "@/shared/infrastructure/di-container";
 import ProfilePageClient from "./ProfilePageClient";
 import {
     generatePageMetadata,
+    getRouteKeywords,
     getProfileStructuredData,
     getBreadcrumbStructuredData,
 } from "@/lib/seo";
@@ -36,6 +37,11 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
         image: user.image,
         url: `/profile/${user.username}`,
         type: "profile",
+        keywords: [
+            ...getRouteKeywords("profile"),
+            user.username,
+            ...(user.name ? [user.name] : []),
+        ],
     });
 } //setting the meta tags based on the profile of the user
 

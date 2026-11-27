@@ -9,6 +9,7 @@ import { MyCommunitiesSidebar } from "@/components/community/MyCommunitiesSideba
 import { TrendingSidebar } from "@/components/TrendingSidebar";
 import {
   generatePageMetadata,
+  getRouteKeywords,
   getCommunityStructuredData,
   getBreadcrumbStructuredData,
 } from "@/lib/seo";
@@ -35,6 +36,12 @@ export async function generateMetadata({ params }: CommunityPageProps) {
     description: community.description || `Developer hub and guild for ${community.name} on VibeGrid.`,
     image: community.bannerUrl || community.avatarUrl,
     url: `/communities/${slug}`,
+    keywords: [
+      ...getRouteKeywords("communities"),
+      community.name,
+      slug,
+      ...((community as any).tags || []).map((t: any) => (typeof t === 'string' ? t : t.name || t.slug)).filter(Boolean),
+    ],
   });
 }
 

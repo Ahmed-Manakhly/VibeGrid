@@ -7,12 +7,13 @@ import { MyCommunitiesSidebar } from "@/components/community/MyCommunitiesSideba
 import { TrendingSidebar } from "@/components/TrendingSidebar";
 import { PageHeader } from "@/components/PageHeader";
 import { Users } from "lucide-react";
-import { generatePageMetadata } from "@/lib/seo";
+import { generatePageMetadata, getRouteKeywords } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
   title: "Developer Communities & Guilds",
   description: "Discover and join developer communities, tech guilds, and open-source groups on VibeGrid.",
   url: "/communities",
+  keywords: getRouteKeywords("communities"),
 });
 
 export default async function CommunitiesPage() {

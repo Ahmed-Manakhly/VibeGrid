@@ -13,7 +13,7 @@ import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { Compass } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "../loading";
-import { generatePageMetadata } from "@/lib/seo";
+import { generatePageMetadata, getRouteKeywords } from "@/lib/seo";
 
 export async function generateMetadata({ searchParams }: { searchParams?: Promise<{ q?: string }> | { q?: string } }) {
   const params = await searchParams;
@@ -27,6 +27,7 @@ export async function generateMetadata({ searchParams }: { searchParams?: Promis
     title,
     description,
     url: query ? `/explore?q=${encodeURIComponent(query)}` : "/explore",
+    keywords: getRouteKeywords("explore"),
   });
 }
 
