@@ -14,6 +14,7 @@ import { Compass } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "../loading";
 import { generatePageMetadata, getRouteKeywords } from "@/lib/seo";
+import { t } from "@/lib/copy";
 
 export async function generateMetadata({ searchParams }: { searchParams?: Promise<{ q?: string }> | { q?: string } }) {
   const params = await searchParams;
@@ -82,9 +83,9 @@ export default async function ExplorePage({ searchParams }: ExploreProps) {
     <>
       <div className="mb-6">
         <PageHeader
-          eyebrow="DISCOVER THE GRID"
-          title="Explore"
-          subtitle="Search developer pulses, topics, and code dilemmas across VibeGrid."
+          eyebrow={t("explore.eyebrow")}
+          title={t("explore.title")}
+          subtitle={t("explore.subtitle")}
           icon={Compass}
           className="mb-4"
         />

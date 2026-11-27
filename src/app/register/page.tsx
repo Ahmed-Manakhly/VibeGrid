@@ -1,6 +1,7 @@
 import { RegisterForm } from '@/modules/auth/presentation/components/RegisterForm';
 import { AuthLayoutWrapper } from '@/components/auth/AuthLayoutWrapper';
 import { generatePageMetadata } from '@/lib/seo';
+import { t } from '@/lib/copy';
 
 export const metadata = generatePageMetadata({
   title: 'Create Developer Account',
@@ -19,9 +20,9 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
   return (
     <AuthLayoutWrapper
-      title="Join the Signal."
-      subtitle="Set up your profile to start creating, connecting, and sharing on VibeGrid."
-      badge="CLAIM YOUR HANDLE"
+      title={t("auth.register.title", "Join the Signal.")}
+      subtitle={t("auth.register.subtitle", "Set up your profile to start creating, connecting, and sharing on VibeGrid.")}
+      badge={t("auth.register.badge", "CLAIM YOUR HANDLE")}
     >
       <RegisterForm initialEmail={initialEmail} initialVerify={initialVerify} />
     </AuthLayoutWrapper>

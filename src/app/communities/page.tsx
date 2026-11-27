@@ -8,6 +8,7 @@ import { TrendingSidebar } from "@/components/TrendingSidebar";
 import { PageHeader } from "@/components/PageHeader";
 import { Users } from "lucide-react";
 import { generatePageMetadata, getRouteKeywords } from "@/lib/seo";
+import { t } from "@/lib/copy";
 
 export const metadata = generatePageMetadata({
   title: "Developer Communities & Guilds",
@@ -30,9 +31,9 @@ export default async function CommunitiesPage() {
     <>
       <div className="mb-6">
         <PageHeader
-          eyebrow="BUILDER NETWORKS"
-          title="Developer Communities"
-          subtitle="Discover tech circles, engineering guilds, and framework ecosystems built for high-signal code sharing."
+          eyebrow={t("communities.eyebrow")}
+          title={t("communities.title")}
+          subtitle={t("communities.subtitle")}
           icon={Users}
           className="mb-4"
         />

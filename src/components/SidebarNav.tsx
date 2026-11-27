@@ -6,6 +6,7 @@ import { useSidebar } from './SidebarContext';
 import { isRouteActive } from './route-matcher';
 import { createSidebarNavigation, sidebarSettingsItem } from './sidebar-navigation.config';
 import { useRealtime } from '@/shared/infrastructure/socket/RealtimeProvider';
+import { t } from '@/lib/copy';
 
 interface SidebarNavProps {
   profileHref: string;
@@ -86,7 +87,7 @@ export function SidebarSettingsLink() {
           }}
           className="text-[11px] text-muted-foreground/70 hover:text-primary underline transition-colors"
         >
-          Policy Center
+          {t('nav.policyCenter', 'Policy Center')}
         </Link>
       </div>
     </div>

@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "home": "Home",
+    "explore": "Explore",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "messages": "Messages",
+    "bookmarks": "Bookmarks",
+    "communities": "Communities",
+    "settings": "Settings",
+    "policyCenter": "Policy Center"
+  },
+  "home": {
+    "eyebrow": "LIVE COMMUNITY",
+    "title": "Your feed",
+    "subtitle": "Real-time developer pulses, ships, and tech discoveries from across the grid."
+  },
+  "explore": {
+    "eyebrow": "DISCOVER THE GRID",
+    "title": "Explore",
+    "subtitle": "Search developer pulses, topics, and code dilemmas across VibeGrid."
+  },
+  "communities": {
+    "eyebrow": "BUILDER NETWORKS",
+    "title": "Developer Communities",
+    "subtitle": "Discover tech circles, engineering guilds, and framework ecosystems built for high-signal code sharing."
+  },
+  "filters": {
+    "activeFilters": "Active Filters",
+    "clearAll": "Clear all",
+    "category": "Category:",
+    "tag": "Tag:",
+    "vibe": "Vibe:",
+    "search": "Search:",
+    "removeCategory": "Remove category filter",
+    "removeTag": "Remove tag filter",
+    "removeVibe": "Remove vibe filter",
+    "removeSearch": "Remove search query"
+  },
+  "trending": {
+    "eyebrow": "Trending now",
+    "suggestedGuild": "Suggested Guild",
+    "matchesTag": "Matches #",
+    "failed": "Failed to load trending topics.",
+    "empty": "No trending topics yet.",
+    "postsCount": "posts",
+    "membersCount": "members",
+    "vibesCount": "vibes",
+    "exploreGuild": "Explore Guild",
+    "findYourGuild": "Find Your Guild",
+    "findGuildDesc": "Join specialized engineering spaces aligned with your tech stack.",
+    "browseAllGuilds": "Browse All Guilds",
+    "defaultGuildDesc": "Developer space based on your active tech interests and stack."
+  },
+  "whoToFollow": {
+    "title": "Who to Tune In To"
+  },
+  "auth": {
+    "login": {
+      "title": "Return to your signal.",
+      "subtitle": "Pick up where the good ideas left off. Enter your credentials to access your VibeGrid account.",
+      "badge": "WELCOME BACK",
+      "eyebrow": "ACCOUNT ACCESS",
+      "heading": "Log in to VibeGrid"
+    },
+    "register": {
+      "title": "Join the Signal.",
+      "subtitle": "Set up your profile to start creating, connecting, and sharing on VibeGrid.",
+      "badge": "CLAIM YOUR HANDLE"
+    }
+  }
+}

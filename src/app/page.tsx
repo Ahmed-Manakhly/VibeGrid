@@ -16,6 +16,7 @@ import { Radio } from "lucide-react";
 import { Suspense } from "react";
 import Loading from "./loading";
 import { generatePageMetadata, getRouteKeywords } from "@/lib/seo";
+import { t } from "@/lib/copy";
 
 export function generateMetadata() {
   return generatePageMetadata({
@@ -59,9 +60,9 @@ export default async function Home({ searchParams }: PageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="LIVE COMMUNITY"
-        title="Your feed"
-        subtitle="Real-time developer pulses, ships, and tech discoveries from across the grid."
+        eyebrow={t("home.eyebrow")}
+        title={t("home.title")}
+        subtitle={t("home.subtitle")}
         icon={Radio}
       />
       <MobileTabsLayout

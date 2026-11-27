@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { X, Filter, Tag, Layers, Flame, Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { t } from "@/lib/copy";
 
 export function ActiveFilterChips() {
   const searchParams = useSearchParams();
@@ -58,13 +59,13 @@ export function ActiveFilterChips() {
       <div className="flex items-center justify-between gap-2 mb-2.5 pb-2 border-b border-border/40">
         <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
           <Filter className="size-3.5" />
-          <span>Active Filters</span>
+          <span>{t("filters.activeFilters", "Active Filters")}</span>
         </div>
         <button
           onClick={clearAllFilters}
           className="text-[11px] font-mono text-muted-foreground hover:text-destructive transition-colors"
         >
-          Clear all
+          {t("filters.clearAll", "Clear all")}
         </button>
       </div>
 

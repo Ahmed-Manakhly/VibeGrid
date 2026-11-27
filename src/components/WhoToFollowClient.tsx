@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import Link from "next/link";
 import { UserAvatar } from "./UserAvatar";
 import { FollowButton } from "@/modules/social/presentation/components/FollowButton";
+import { t } from "@/lib/copy";
 
 interface SuggestedUser {
   id: string;
@@ -56,7 +57,7 @@ export function WhoToFollowClient({ initialUsers }: WhoToFollowClientProps) {
     <Card className="rounded-xl border bg-card/30 shadow-none">
       <CardHeader>
         <CardTitle className="font-mono tracking-widest text-muted-foreground uppercase text-sm">
-          Who to Tune In To
+          {t("whoToFollow.title", "Who to Tune In To")}
         </CardTitle>
       </CardHeader>
       <CardContent>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Zap, Users, Loader2, Sparkles, ArrowRight, Shield } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FollowTagButton } from '@/components/FollowTagButton';
+import { t } from '@/lib/copy';
 
 type TrendingTag = {
   tag: {
@@ -81,7 +82,7 @@ export function TrendingSidebar() {
     <div className="flex flex-col gap-6">
         <section className="rounded-xl border bg-card/30 p-5">
             <div className="flex items-center justify-between">
-                <p className="eyebrow">Trending now</p>
+                <p className="eyebrow">{t("trending.eyebrow", "Trending now")}</p>
                 <Zap className="size-4 text-primary" />
             </div>
             
@@ -91,11 +92,11 @@ export function TrendingSidebar() {
               </div>
             ) : error ? (
               <div className="mt-5 text-sm text-destructive">
-                Failed to load trending topics.
+                {t("trending.failed", "Failed to load trending topics.")}
               </div>
             ) : trending.length === 0 ? (
               <div className="mt-5 text-sm text-muted-foreground">
-                No trending topics yet.
+                {t("trending.empty", "No trending topics yet.")}
               </div>
             ) : (
               <div className="mt-5 flex flex-col gap-4">
