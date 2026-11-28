@@ -1,7 +1,4 @@
-'use client';
-
 import React from 'react';
-import Link from 'next/link';
 import { Star, GitFork, AlertCircle, ExternalLink, Code2 } from 'lucide-react';
 import { GitHubRepoMetadata } from '@/modules/github/domain/GitHubRepoMetadata';
 

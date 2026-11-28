@@ -1,7 +1,3 @@
-'use client';
-
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 import { VibeLogo } from '@/components/VibeLogo';
 import { ModeToggle } from '@/components/ModeToggle';
 
